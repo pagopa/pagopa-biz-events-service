@@ -1,4 +1,4 @@
-package it.gov.pagopa.microservice.exception;
+package it.gov.pagopa.bizeventsservice.exception;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;

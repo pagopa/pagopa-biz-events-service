@@ -1,16 +1,32 @@
-# Template for Java Spring Microservice project
+# pagoPA Biz Events Service
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=TODO-set-your-id&metric=alert_status)](https://sonarcloud.io/dashboard?id=TODO-set-your-id)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pagopa_pagopa-biz-events-service&metric=alert_status)](https://sonarcloud.io/dashboard?id=pagopa_pagopa-biz-events-service)
 
-TODO: add a description
-
-TODO: generate a index with this tool: https://ecotrust-canada.github.io/markdown-toc/
-
-TODO: resolve all the TODOs in this template
+The microservice exposes REST APIs to get the list and the related detailed info regarding payment receipts.
 
 ---
-## Api Documentation 📖
-See the [OpenApi 3 here.](TODO: set your url)
+## Summary 📖
+
+- [API Documentation 📖](#api-documentation---)
+- [Technology Stack](#technology-stack)
+- [Start Project Locally 🚀](#start-project-locally---)
+    * [Prerequisites](#prerequisites)
+    * [Run docker container](#run-docker-container)
+- [Develop Locally 💻](#develop-locally---)
+    * [Prerequisites](#prerequisites-1)
+    * [Run the project](#run-the-project)
+    * [Spring Profiles](#spring-profiles)
+    * [Testing 🧪](#testing---)
+        + [Unit testing](#unit-testing)
+        + [Integration testing](#integration-testing)
+        + [Performance testing](#performance-testing)
+- [Contributors 👥](#contributors---)
+    * [Mainteiners](#mainteiners)
+
+
+---
+## API Documentation 📖
+See the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-biz-events-service/main/openapi/openapi.json)
 
 ---
 
@@ -18,10 +34,7 @@ See the [OpenApi 3 here.](TODO: set your url)
 - Java 11
 - Spring Boot
 - Spring Web
-- Hibernate
-- JPA
-- ...
-- TODO
+- Azure CosmosDB
 ---
 
 ## Start Project Locally 🚀
