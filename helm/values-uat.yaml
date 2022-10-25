@@ -1,10 +1,10 @@
 microservice-chart:
-  namespace: "your-namespace" # TODO: set your AKS namespace
+  namespace: "bizevents"
   nameOverride: ""
   fullnameOverride: ""
   image:
-    repository: pagopaucommonacr.azurecr.io/yourname # TODO
-    tag: "0.0.3"
+    repository: pagopaucommonacr.azurecr.io/pagopabizeventsservice
+    tag: "0.0.1"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -28,8 +28,8 @@ microservice-chart:
     port: 8080
   ingress:
     create: true
-    host: "your.host" # TODO: set the host
-    path: /your-path-here/(.*) # TODO: set your path
+    host: "weudev.bizevents.internal.uat.platform.pagopa.it"
+    path: /pagopa-biz-events-service/(.*)
   serviceAccount:
     create: false
     annotations: {}
@@ -60,8 +60,7 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
-    # TODO: set your name
-    WEBSITE_SITE_NAME: 'yourProjectName' # required to show cloud role name in application insights
+    WEBSITE_SITE_NAME: 'pagopabizeventsservice' # required to show cloud role name in application insights
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-u-connection-string'

@@ -1,4 +1,4 @@
-package it.gov.pagopa.microservice.config;
+package it.gov.pagopa.bizeventsservice.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -19,13 +19,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import static it.gov.pagopa.microservice.util.Constants.HEADER_REQUEST_ID;
+import static it.gov.pagopa.bizeventsservice.util.Constants.HEADER_REQUEST_ID;
 
 @Configuration
 public class OpenApiConfig {
 
     @Bean
-    public OpenAPI customOpenAPI(@Value("${info.application.name}") String appName,
+    OpenAPI customOpenAPI(@Value("${info.application.name}") String appTitle,
                                  @Value("${info.application.description}") String appDescription,
                                  @Value("${info.application.version}") String appVersion) {
         return new OpenAPI()
@@ -37,7 +37,7 @@ public class OpenApiConfig {
                                 .in(SecurityScheme.In.HEADER))
                 )
                 .info(new Info()
-                        .title(appName)
+                        .title(appTitle)
                         .version(appVersion)
                         .description(appDescription)
                         .termsOfService("https://www.pagopa.gov.it/"));
@@ -45,7 +45,7 @@ public class OpenApiConfig {
     }
 
     @Bean
-    public OpenApiCustomiser sortOperationsAlphabetically() {
+    OpenApiCustomiser sortOperationsAlphabetically() {
         return openApi -> {
             Paths paths = openApi.getPaths().entrySet()
                     .stream()
@@ -63,11 +63,11 @@ public class OpenApiConfig {
     }
 
     @Bean
-    public OpenApiCustomiser addCommonHeaders() {
+    OpenApiCustomiser addCommonHeaders() {
         return openApi -> openApi.getPaths().forEach((key, value) -> {
 
-            // add Request-ID as request header
-            var header = Optional.ofNullable(value.getParameters())
+            // add Request-ID as request header        	
+        	var header = Optional.ofNullable(value.getParameters())
                     .orElse(Collections.emptyList())
                     .parallelStream()
                     .filter(Objects::nonNull)
@@ -87,5 +87,4 @@ public class OpenApiConfig {
                                     .description("This header identifies the call"))));
         });
     }
-
 }

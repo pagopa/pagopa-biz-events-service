@@ -1,4 +1,4 @@
-package it.gov.pagopa.microservice.util;
+package it.gov.pagopa.bizeventsservice.util;
 
 import lombok.experimental.UtilityClass;
 

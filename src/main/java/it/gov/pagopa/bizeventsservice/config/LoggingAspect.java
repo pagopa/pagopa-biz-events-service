@@ -1,4 +1,4 @@
-package it.gov.pagopa.microservice.config;
+package it.gov.pagopa.bizeventsservice.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -35,23 +35,22 @@ public class LoggingAspect {
     @Value("${info.properties.environment}")
     private String environment;
 
-    // TODO: set your package
     @Pointcut("@within(org.springframework.web.bind.annotation.RestController)")
     public void restController() {
         // all rest controllers
     }
 
-    @Pointcut("execution(* it.gov.pagopa.microservice.repository..*.*(..))")
+    @Pointcut("execution(* it.gov.pagopa.bizeventsservice.repository..*.*(..))")
     public void repository() {
         // all repository methods
     }
 
-    @Pointcut("execution(* it.gov.pagopa.microservice.service..*.*(..))")
+    @Pointcut("execution(* it.gov.pagopa.bizeventsservice.service..*.*(..))")
     public void service() {
         // all service methods
     }
 
-    @Pointcut("execution(* it.gov.pagopa.microservice.exception.ErrorHandler.*(..))")
+    @Pointcut("execution(* it.gov.pagopa.bizeventsservice.exception.ErrorHandler.*(..))")
     public void errorHandler() {
         // all service methods
     }

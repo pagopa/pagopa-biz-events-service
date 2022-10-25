@@ -1,4 +1,4 @@
-package it.gov.pagopa.microservice;
+package it.gov.pagopa.bizeventsservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
