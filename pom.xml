@@ -10,10 +10,10 @@
     </parent>
 
     <groupId>it.gov.pagopa</groupId>
-    <artifactId>microservice</artifactId> <!--TODO: set your artifactId-->
+    <artifactId>bizeventsservice</artifactId>
     <version>0.0.1</version>
-    <name>Your project name</name> <!--TODO: set your name-->
-    <description>Your description</description> <!--TODO: set your description-->
+    <name>Biz-Events Service</name>
+    <description>Microservice for exposing REST APIs about payment receipts.</description>
 
     <properties>
         <java.version>11</java.version>
