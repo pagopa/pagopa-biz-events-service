@@ -2,7 +2,7 @@ package it.gov.pagopa.bizeventsservice.model.response;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.validation.constraints.NotBlank;
@@ -34,7 +34,7 @@ public class CtReceiptModelResponse implements Serializable {
     private String outcome = "OK";
     @NotBlank(message = "creditorReferenceId is required")
     private String creditorReferenceId;
-    @NotBlank(message = "paymentAmount is required")
+    @NotNull(message = "paymentAmount is required")
     private BigDecimal paymentAmount;
     @NotBlank(message = "description is required")
     private String description;
@@ -59,9 +59,9 @@ public class CtReceiptModelResponse implements Serializable {
     private Payer payer;
     private String paymentMethod;
     private BigDecimal fee;
-    private GregorianCalendar paymentDateTime;
-    private GregorianCalendar applicationDate;
-    private GregorianCalendar transferDate;
+    private LocalDate  paymentDateTime;
+    private LocalDate  applicationDate;
+    private LocalDate  transferDate;
     private List<MapEntry> metadata;
 
 }
