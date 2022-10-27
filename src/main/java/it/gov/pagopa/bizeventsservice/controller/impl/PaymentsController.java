@@ -19,9 +19,10 @@ public class PaymentsController implements IPaymentsController {
 
     @Override
     public ResponseEntity<CtReceiptModelResponse> getOrganizationReceipt(@NotBlank String organizationFiscalCode,
-                                                                         @NotBlank String iur) {
+                                                                         @NotBlank String iur,
+                                                                         @NotBlank String iuv) {
     	return new ResponseEntity<>(
-    			bizEventsService.getOrganizationReceipt(organizationFiscalCode, iur),
+    			bizEventsService.getOrganizationReceipt(organizationFiscalCode, iur, iuv),
                 HttpStatus.OK);
     }
 

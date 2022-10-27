@@ -26,16 +26,16 @@ public class BizEventsService {
     private ModelMapper modelMapper;
 
     public CtReceiptModelResponse getOrganizationReceipt(String organizationFiscalCode,
-                                          String iur) {
+                                          String iur, String iuv) {
         // get biz event
-    	List<BizEvent> bizEventEntityList = bizEventsRepository.getBizEventByOrgFiscCodeAndIur(organizationFiscalCode, iur);
+    	List<BizEvent> bizEventEntityList = bizEventsRepository.getBizEventByOrgFiscCodeAndIur(organizationFiscalCode, iur, iuv);
     	
     	if (bizEventEntityList.isEmpty()) {
-            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND, organizationFiscalCode, iur);
+            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND, organizationFiscalCode, iur, iuv);
         }
     	// the query should always return only one element
     	else if (bizEventEntityList.size() > 1) {
-    		throw new AppException(AppError.BIZ_EVENT_NOT_UNIQUE, organizationFiscalCode, iur);
+    		throw new AppException(AppError.BIZ_EVENT_NOT_UNIQUE, organizationFiscalCode, iur, iuv);
         }
 
     	// the bizEventEntityList has only one element

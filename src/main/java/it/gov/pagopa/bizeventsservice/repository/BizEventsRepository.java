@@ -14,7 +14,7 @@ import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 public interface BizEventsRepository extends CosmosRepository<BizEvent, String> {
 
 	// TODO when available replace idPa with the paFiscalCode field
-    @Query("select * from c where c.creditor.idPA = @organizationFiscalCode and c.paymentInfo.paymentToken = @iur")
-    List<BizEvent> getBizEventByOrgFiscCodeAndIur(@Param("organizationFiscalCode") String organizationFiscalCode, @Param("iur") String iur);
+    @Query("select * from c where c.creditor.idPA = @organizationFiscalCode and c.paymentInfo.paymentToken = @iur and c.debtorPosition.iuv = @iuv")
+    List<BizEvent> getBizEventByOrgFiscCodeAndIur(@Param("organizationFiscalCode") String organizationFiscalCode, @Param("iur") String iur, @Param("iuv") String iuv);
 
 }

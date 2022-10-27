@@ -6,8 +6,8 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum AppError {
-	BIZ_EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Biz Event not found", "Not found a biz event for the Organization Fiscal Code %s and IUR %s"),
-	BIZ_EVENT_NOT_UNIQUE(HttpStatus.UNPROCESSABLE_ENTITY, "Biz Event is not unique", "More than one biz event was found for the Organization Fiscal Code %s and IUR %s"),
+	BIZ_EVENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Biz Event not found", "Not found a biz event for the Organization Fiscal Code %s and IUR %s and IUV %s"),
+	BIZ_EVENT_NOT_UNIQUE(HttpStatus.UNPROCESSABLE_ENTITY, "Biz Event is not unique", "More than one biz event was found for the Organization Fiscal Code %s and IUR %s and IUV %s"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "Something was wrong");
 
     public final HttpStatus httpStatus;

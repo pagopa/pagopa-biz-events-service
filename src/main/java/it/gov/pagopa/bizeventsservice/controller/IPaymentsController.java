@@ -31,12 +31,16 @@ public interface IPaymentsController {
             @ApiResponse(responseCode = "200", description = "Obtained receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "CtReceipt", implementation = CtReceiptModelResponse.class))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "404", description = "Not found the receipt.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
+            @ApiResponse(responseCode = "422", description = "Unable to process the request.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
-    @GetMapping(value = "/organizations/{organizationfiscalcode}/receipts/{iur}",
+    @GetMapping(value = "/organizations/{organizationfiscalcode}/receipts/{iur}/paymentoptions/{iuv}",
             produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<CtReceiptModelResponse> getOrganizationReceipt(
     		@Parameter(description = "The fiscal code of the Organization.", required = true)
             @NotBlank @PathVariable("organizationfiscalcode") String organizationFiscalCode,
-            @NotBlank @PathVariable("iur") String iur);
+            @Parameter(description = "The unique reference of the operation assigned to the payment (Payment Token).", required = true)
+            @NotBlank @PathVariable("iur") String iur,
+            @Parameter(description = "The unique payment identification. Alphanumeric code that uniquely associates and identifies three key elements of a payment: reason, payer, amount", required = true)
+            @NotBlank @PathVariable("iuv") String iuv);
 }

@@ -40,7 +40,6 @@ public class CtReceiptModelResponse implements Serializable {
     private String description;
     @NotBlank(message = "companyName is required")
     private String companyName;
-    @NotBlank(message = "officeName is required")
     private String officeName;
     @NotNull(message = "debtor is required")
     private Debtor debtor;
