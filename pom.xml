@@ -20,9 +20,17 @@
         <springdoc-version>1.6.12</springdoc-version>
 		<modelmapper-version>3.1.0</modelmapper-version>
 		<cosmos-data-version>3.29.1</cosmos-data-version>
+		<testcontainers.version>1.17.5</testcontainers.version>
     </properties>
 
     <dependencies>
+     <!-- workaround for Cosmos DB Emulator bug, see: https://github.com/testcontainers/testcontainers-java/issues/5518 -->
+        <dependency>
+            <groupId>com.github.terma</groupId>
+            <artifactId>javaniotcpproxy</artifactId>
+            <version>1.6</version>
+        </dependency>
+     <!-- END workaround for Cosmos DB Emulator bug, see: https://github.com/testcontainers/testcontainers-java/issues/5518 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -85,12 +93,31 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+        
+        <!-- test -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>azure</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
