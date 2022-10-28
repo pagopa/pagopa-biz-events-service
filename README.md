@@ -7,20 +7,20 @@ The microservice exposes REST APIs to get the list and the related detailed info
 ---
 ## Summary 📖
 
-- [API Documentation 📖](#api-documentation---)
+- [API Documentation 📖](#api-documentation)
 - [Technology Stack](#technology-stack)
-- [Start Project Locally 🚀](#start-project-locally---)
+- [Start Project Locally 🚀](#start-project-locally)
     * [Prerequisites](#prerequisites)
     * [Run docker container](#run-docker-container)
-- [Develop Locally 💻](#develop-locally---)
-    * [Prerequisites](#prerequisites-1)
+- [Develop Locally 💻](#develop-locally)
+    * [Prerequisites](#prerequisites)
     * [Run the project](#run-the-project)
     * [Spring Profiles](#spring-profiles)
-    * [Testing 🧪](#testing---)
+    * [Testing 🧪](#testing)
         + [Unit testing](#unit-testing)
         + [Integration testing](#integration-testing)
         + [Performance testing](#performance-testing)
-- [Contributors 👥](#contributors---)
+- [Contributors 👥](#contributors)
     * [Mainteiners](#mainteiners)
 
 
