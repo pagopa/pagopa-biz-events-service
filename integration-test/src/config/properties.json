@@ -1,0 +1,4 @@
+{
+  "bizevents_service_host": "http://localhost:8080/",
+  "cosmos_db_uri": "https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/"
+}
