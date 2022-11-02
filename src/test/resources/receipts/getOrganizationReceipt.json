@@ -1,0 +1,54 @@
+{
+  "receiptId": "5dcd115a-c18d-4197-a33b-681767e82999",
+  "noticeNumber": "302111144093833700",
+  "fiscalCode": "66666666666",
+  "outcome": "OK",
+  "creditorReferenceId": "111144093833700",
+  "paymentAmount": 20,
+  "description": "Pagamento multibeneficiario",
+  "companyName": "PA paolo",
+  "officeName": "mock officeName",
+  "debtor": {
+    "entityUniqueIdentifierType": "F",
+    "entityUniqueIdentifierValue": "RCCGLD09P09H501E",
+    "fullName": "Gesualdo;Riccitelli",
+    "streetName": null,
+    "civicNumber": null,
+    "postalCode": null,
+    "city": null,
+    "stateProvinceRegion": null,
+    "country": null,
+    "email": null
+  },
+  "transferList": [
+    {
+      "idTransfer": 0,
+      "transferAmount": 10,
+      "fiscalCodePA": "66666666666",
+      "iban": "mock iban",
+      "remittanceInformation": "pagamento fotocopie pratica RPT",
+      "transferCategory": "1/abc"
+    },
+    {
+      "idTransfer": 0,
+      "transferAmount": 10,
+      "fiscalCodePA": "88888888888",
+      "iban": "mock iban",
+      "remittanceInformation": "pagamento fotocopie pratica RPT",
+      "transferCategory": "1/abc"
+    }
+  ],
+  "idPSP": "60000000001",
+  "pspFiscalCode": "mock pspFiscalCode",
+  "pspPartitaIVA": "mock pspPartitaIVA",
+  "pspCompanyName": "PSP Paolo",
+  "idChannel": "60000000001_06",
+  "channelDescription": "mock channelDescription",
+  "payer": null,
+  "paymentMethod": "BBT",
+  "fee": 0,
+  "paymentDateTime": "2022-10-24",
+  "applicationDate": "2012-03-02",
+  "transferDate": "2012-03-03",
+  "metadata": []
+}

@@ -1,0 +1,63 @@
+{
+    "id": "5dcd115a-c18d-4197-a33b-1234567890",
+    "version": "1",
+    "idPaymentManager": "7552f129-8bcf-43fc-adfb-c4fb15305b4d",
+    "complete": "false",
+    "missingInfo": [
+        "payer",
+        "paymentInfo.primaryCiIncurredFee",
+        "paymentInfo.idBundle",
+        "paymentInfo.idCiBundle"
+    ],
+    "debtorPosition": {
+        "modelType": "2",
+        "noticeNumber": "302111144093833700",
+        "iuv": "111144093833700"
+    },
+    "creditor": {
+        "idPA": "66666666666",
+        "idBrokerPA": "66666666666",
+        "idStation": "66666666666_01",
+        "companyName": "PA paolo"
+    },
+    "psp": {
+        "idPsp": "60000000001",
+        "idBrokerPsp": "60000000001",
+        "idChannel": "60000000001_06",
+        "psp": "PSP Paolo"
+    },
+    "debtor": {
+        "fullName": "Gesualdo;Riccitelli",
+        "entityUniqueIdentifierType": "F",
+        "entityUniqueIdentifierValue": "RCCGLD09P09H501E"
+    },
+    "paymentInfo": {
+        "paymentDateTime": "2022-10-24T15:18:59.678965",
+        "applicationDate": "2012-03-02",
+        "transferDate": "2012-03-03",
+        "dueDate": "2016-09-16",
+        "paymentToken": "66666666666302111144093833700-17735",
+        "amount": "20.00",
+        "fee": "0.00",
+        "totalNotice": "1",
+        "paymentMethod": "BBT",
+        "touchpoint": "WISP",
+        "remittanceInformation": "Pagamento multibeneficiario"
+    },
+    "transferList": [
+        {
+            "fiscalCodePA": "66666666666",
+            "companyName": "PA paolo",
+            "amount": "10.00",
+            "transferCategory": "1/abc",
+            "remittanceInformation": "pagamento fotocopie pratica RPT"
+        },
+        {
+            "fiscalCodePA": "88888888888",
+            "companyName": "Pa Donato",
+            "amount": "10.00",
+            "transferCategory": "1/abc",
+            "remittanceInformation": "pagamento fotocopie pratica RPT"
+        }
+    ]
+}

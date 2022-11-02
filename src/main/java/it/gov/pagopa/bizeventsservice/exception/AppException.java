@@ -18,6 +18,11 @@ import java.util.Formatter;
 public class AppException extends RuntimeException {
 
     /**
+	 * generated serialVersionUID
+	 */
+	private static final long serialVersionUID = -287761796463684311L;
+
+	/**
      * title returned to the response when this exception occurred
      */
     String title;
