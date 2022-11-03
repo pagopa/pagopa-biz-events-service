@@ -2,8 +2,11 @@
   "environment": [
     {
       "env": "local",
-      "host": "http://localhost:8080",
-      "basePath": ""
+      "bizEventServiceURI": "http://localhost:8080/",
+      "cosmosDBURI": "https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/",
+      "databaseID":"db",
+      "containerID":"biz-events",
+      "numberOfEventsToPreload":"100"
     }
   ]
 }
