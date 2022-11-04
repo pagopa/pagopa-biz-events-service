@@ -30,7 +30,7 @@
     "http_req_duration": [
       "p(99)<3000"
     ],
-    "http_req_duration{gpsMethod:CreateSpontaneousPayment}": [
+    "http_req_duration{bizEventMethod:GetOrganizationReceipt}": [
       "p(95)<1000"
     ]
   }

@@ -23,12 +23,6 @@ then
   exit 1
 fi
 
-if [ -z "$DB_NAME" ]
-then
-  DB_NAME="k6"
-  echo "No DB name specified: 'k6' is used."
-fi
-
 export env=${ENVIRONMENT}
 export type=${TYPE}
 export script=${SCRIPT}

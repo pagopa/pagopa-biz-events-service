@@ -10,8 +10,8 @@ k6 run --env VARS=local.environment.json --env TEST_TYPE=./test-types/load.json 
 ```
 
 where 
-- _VARS_ is a environment file
-- _TEST_TYPE_ is a file in `/test-types` folder
-- _API_SUBSCRIPTION_KEY_ is your sub-key
+-  _VARS_  is a environment file
+-  _TEST_TYPE_  is a file in `/test-types` folder <load|stress|spike|...> 
+-  _API_SUBSCRIPTION_KEY_  is your sub-key
 
-`<script-name>.js` is the scenario to run with k6
+`<script-name>.js` is the scenario to run with k6 (e.g. get_organization_receipts.js)
