@@ -8,14 +8,14 @@ microservice-chart:
     pullPolicy: Always
   livenessProbe:
     httpGet:
-      path: /actuator/health/liveness
+      path: /info
       port: 8080
     initialDelaySeconds: 90
     failureThreshold: 6
     periodSeconds: 10
   readinessProbe:
     httpGet:
-      path: /actuator/health/readiness
+      path: /info
       port: 8080
     initialDelaySeconds: 90
     failureThreshold: 6
@@ -43,10 +43,10 @@ microservice-chart:
   resources:
     requests:
       memory: "512Mi"
-      cpu: "0.25"
+      cpu: "0.5"
     limits:
       memory: "512Mi"
-      cpu: "0.3"
+      cpu: "0.5"
   autoscaling:
     enable: true
     minReplica: 1
@@ -61,9 +61,15 @@ microservice-chart:
           value: "75"
   envConfig:
     WEBSITE_SITE_NAME: 'pagopabizeventsservice' # required to show cloud role name in application insights
+    COSMOS_URI: 'https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/'
+    COSMOS_DATABASE: 'db'
+    BIZ_EVENTS_CONTAINER_NAME: 'biz-events'
+    COSMOS_QUERY_METRICS: 'false'
+
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-d-connection-string'
+    COSMOS_KEY: 'cosmos-d-biz-key'
   keyvault:
     name: "pagopa-d-afm-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
