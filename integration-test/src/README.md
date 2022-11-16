@@ -31,19 +31,20 @@ Click on reporter link to view details .
 
 To run a single _feature_ or single _Scenario_ typing
 
-Ex. single _features_ `organizations.feature`
+Ex. single  _features_  `<filename>.feature`
 ```sh
-npx cucumber-js -r step_definitions features/<filename>.feature
+npx cucumber-js -r step_definitions `features/<filename>.feature`
 ```
 
-Ex. single _Scenario_ into `<filename>.feature` ( add source line )
+Ex. single  _scenario_  into `<filename>.feature` ( add source line )
 ```sh
-npx cucumber-js -r step_definitions features/<filename>.feature:46
+npx cucumber-js -r step_definitions `features/<filename>.feature:46`
 ```
 
 ### Note
 
-Remember to start the Backend before start the tests.
+Remember to start the `Biz-Events Service` before start the tests.
 
-You can configure the host in `./config/.env.local` file.
+You can configure the test variable in `./config/.env.<environment>` file, where `environment` can be `local, dev or uat`
 
+_If some variables are security sensitive (eg. PRIMARY KEY) they must be manually inserted in the `.env.*` file before launching the test_
