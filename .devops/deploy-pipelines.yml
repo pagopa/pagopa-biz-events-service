@@ -219,7 +219,6 @@ stages:
               targetType: 'inline'
               script: |
                 cd ./integration-test/src
-                echo PRIMARY_KEY=$PRIMARY_KEY >> .env.${{ parameters.ENV }}
                 yarn install
                 yarn test:${{ parameters.ENV }}
             env:
