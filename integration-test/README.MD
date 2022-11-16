@@ -1,5 +1,5 @@
 # Integration Tests
-👀 Integration tests are in `integration-test/src/` folder. See there for more information.
+👀 Integration tests are in `integration-test/src/` folder. See there for more information. 
 
 ## How run on Docker 🐳
 
