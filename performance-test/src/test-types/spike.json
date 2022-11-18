@@ -37,5 +37,9 @@
     "http_req_duration{bizEventMethod:GetOrganizationReceipt}": [
       "p(95)<1000"
     ]
-  }
+  },
+
+  "setupTimeout": "360s",
+
+  "teardownTimeout": "360s"
 }
