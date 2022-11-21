@@ -48,4 +48,3 @@ Remember to start the `Biz-Events Service` before start the tests.
 You can configure the test variable in `./config/.env.<environment>` file, where `environment` can be `local, dev or uat`
 
 _If some variables are security sensitive (eg. PRIMARY KEY) they must be manually inserted in the `.env.*` file before launching the test_
-
