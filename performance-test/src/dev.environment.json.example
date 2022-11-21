@@ -2,7 +2,7 @@
   "environment": [
     {
       "env": "local",
-      "bizEventServiceURI": "<your-service-URI>",
+      "bizEventServiceURI": "https://api.dev.platform.pagopa.it/bizevents/service/v1/",
       "cosmosDBURI": "https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/",
       "databaseID":"db",
       "containerID":"biz-events",
