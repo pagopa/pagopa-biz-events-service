@@ -224,4 +224,4 @@ stages:
                 yarn install
                 yarn test:${{ parameters.ENV }}
             env:
-              PRIMARY_KEY: ${{ variables.eventHubTxPrimaryKey }} # should be used this env variable in script
+              PRIMARY_KEY: ${{ variables.cosmosDBPrimaryKey }} # should be used this env variable in script
