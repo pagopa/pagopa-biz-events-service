@@ -11,8 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AdditionalPMInfo {
-	private String origin;
+public class TransactionDetails {
 	private User user;
-	private WalletItem walletItem;
+	private PaymentAuthorizationRequest paymentAuthorizationRequest;
+	private WalletItem wallet;
 }
