@@ -60,6 +60,7 @@ class BizEventsServiceTest {
 
 		bizEventsService = spy(new BizEventsService(bizEventsRepository, modelMapper));
 
+		
 		CosmosAsyncClient client = new CosmosClientBuilder().gatewayMode().endpointDiscoveryEnabled(false)
 				.endpoint(emulator.getEmulatorEndpoint()).key(emulator.getEmulatorKey()).buildAsyncClient();
 
@@ -89,9 +90,10 @@ class BizEventsServiceTest {
 	@Order(1)
 	void getOrganizationReceipt() {
 		assertTrue(emulator.isRunning());
-		CtReceiptModelResponse ctReceipt = bizEventsService.getOrganizationReceipt("66666666666", "66666666666302111144093833700-17735", "111144093833700");
-		assertEquals("5dcd115a-c18d-4197-a33b-681767e82999", ctReceipt.getReceiptId());
-		assertEquals("Pagamento multibeneficiario", ctReceipt.getDescription());
+		CtReceiptModelResponse ctReceipt = bizEventsService.getOrganizationReceipt("00000000099", "9dd3d6b0c14a48b9ada3874cdd4d62c3", "283113132391591");
+		assertEquals("9dd3d6b0c14a48b9ada3874cdd4d62c3", ctReceipt.getReceiptId());
+		assertEquals("test", ctReceipt.getDescription());
+		assertEquals(2, ctReceipt.getMetadata().size());
 	}
 	
 	@Test
@@ -100,7 +102,7 @@ class BizEventsServiceTest {
 		assertTrue(emulator.isRunning());
 		try {
 			// non-existent iuv -> raise a 404 exception
-			bizEventsService.getOrganizationReceipt("66666666666", "66666666666302111144093833700-17735", "fake_iuv");
+			bizEventsService.getOrganizationReceipt("00000000099", "9dd3d6b0c14a48b9ada3874cdd4d62c3", "fake_iuv");
 			fail();
 		} catch (AppException e) {
 			assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
@@ -118,7 +120,7 @@ class BizEventsServiceTest {
 		bizEventsRepository.save(bizEventEntityDuplicated);
 		try {
 			// more than one records, the payment must be unique -> raise a 422 exception
-			bizEventsService.getOrganizationReceipt("66666666666", "66666666666302111144093833700-17735", "111144093833700");
+			bizEventsService.getOrganizationReceipt("00000000099", "9dd3d6b0c14a48b9ada3874cdd4d62c3", "283113132391591");
 			fail();
 		} catch (AppException e) {
 			assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, e.getHttpStatus());
