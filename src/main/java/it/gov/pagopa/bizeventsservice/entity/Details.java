@@ -11,10 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Creditor {
-	private String idPA;
-	private String idBrokerPA;
-	private String idStation;
-	private String companyName;
-	private String officeName;
+public class Details {
+	private String blurredNumber;
+	private String holder;
+	private String circuit; 
 }

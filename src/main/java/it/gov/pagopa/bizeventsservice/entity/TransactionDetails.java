@@ -11,10 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Creditor {
-	private String idPA;
-	private String idBrokerPA;
-	private String idStation;
-	private String companyName;
-	private String officeName;
+public class TransactionDetails {
+	private User user;
+	private PaymentAuthorizationRequest paymentAuthorizationRequest;
+	private WalletItem wallet;
 }

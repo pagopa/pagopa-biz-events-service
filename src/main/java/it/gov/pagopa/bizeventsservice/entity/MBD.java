@@ -1,7 +1,5 @@
 package it.gov.pagopa.bizeventsservice.entity;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
@@ -15,15 +13,16 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Transfer {
-	private String idTransfer;
-	private String fiscalCodePA;
-	private String companyName;
+public class MBD {
+	@JsonProperty(value="IUBD")
+	private String iubd;
+	@JsonProperty(value="oraAcquisto")
+	private String purchaseTime;
+	@JsonProperty(value="importo")
 	private String amount;
-	private String transferCategory;
-	private String remittanceInformation;
-	private String iban;
-	@JsonProperty(value="MBD")
-	private MBD mbd;
-	private List<MapEntry> metadata;
+	@JsonProperty(value="tipoBollo")
+	private String stampType;
+	@JsonProperty(value="MBDAttachment")
+	private String mbdAttachment; //MBD base64 
+
 }

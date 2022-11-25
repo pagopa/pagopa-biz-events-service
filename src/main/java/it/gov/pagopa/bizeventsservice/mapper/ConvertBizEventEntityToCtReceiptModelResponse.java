@@ -36,20 +36,13 @@ public class ConvertBizEventEntityToCtReceiptModelResponse implements Converter<
         			.entityUniqueIdentifierType(EntityUniqueIdentifierType.valueOf(be.getDebtor().getEntityUniqueIdentifierType()))
         			.entityUniqueIdentifierValue(be.getDebtor().getEntityUniqueIdentifierValue())
         			.fullName(be.getDebtor().getFullName())
-        			// TODO when available replace the mock value with the debtor  -> streetName field
-        			.streetName(null)
-        			// TODO when available replace the mock value with the debtor -> civicNumber field
-        			.civicNumber(null)
-        			// TODO when available replace the mock value with the debtor -> postalCode field
-        			.postalCode(null)
-        			// TODO when available replace the mock value with the debtor -> city field
-        			.city(null)
-        			// TODO when available replace the mock value with the debtor -> stateProvinceRegion field
-        			.stateProvinceRegion(null)
-        			// TODO when available replace the mock value with the debtor -> country field
-        			.country(null)
-        			// TODO when available replace the mock value with the debtor -> eMail field
-        			.eMail(null)
+        			.streetName(be.getDebtor().getStreetName())
+        			.civicNumber(be.getDebtor().getCivicNumber())
+        			.postalCode(be.getDebtor().getPostalCode())
+        			.city(be.getDebtor().getCity())
+        			.stateProvinceRegion(be.getDebtor().getStateProvinceRegion())
+        			.country(be.getDebtor().getCountry())
+        			.eMail(be.getDebtor().getEMail())
         			.build();
         }
 
@@ -58,73 +51,70 @@ public class ConvertBizEventEntityToCtReceiptModelResponse implements Converter<
         			.entityUniqueIdentifierType(EntityUniqueIdentifierType.valueOf(be.getPayer().getEntityUniqueIdentifierType()))
         			.entityUniqueIdentifierValue(be.getPayer().getEntityUniqueIdentifierValue())
         			.fullName(be.getPayer().getFullName())
-        			// TODO when available replace the mock value with the payer  -> streetName field
-        			.streetName(null)
-        			// TODO when available replace the mock value with the payer -> civicNumber field
-        			.civicNumber(null)
-        			// TODO when available replace the mock value with the payer -> postalCode field
-        			.postalCode(null)
-        			// TODO when available replace the mock value with the payer -> city field
-        			.city(null)
-        			// TODO when available replace the mock value with the payer -> stateProvinceRegion field
-        			.stateProvinceRegion(null)
-        			// TODO when available replace the mock value with the payer -> country field
-        			.country(null)
-        			// TODO when available replace the mock value with the payer -> eMail field
-        			.eMail(null)
+        			.streetName(be.getPayer().getStreetName())
+        			.civicNumber(be.getPayer().getCivicNumber())
+        			.postalCode(be.getPayer().getPostalCode())
+        			.city(be.getPayer().getCity())
+        			.stateProvinceRegion(be.getPayer().getStateProvinceRegion())
+        			.country(be.getPayer().getCountry())
+        			.eMail(be.getPayer().getEMail())
         			.build();
         }
 
         if (null != be.getTransferList() && !be.getTransferList().isEmpty()) {
         	ctTransferListPA = new ArrayList<>();
         	for (Transfer t : be.getTransferList()) {
-        		/**
-        		 * TODO *** confirm that TransferPA must contain also MBDAttachment and metadata fields ***
-        		 */
         		ctTransferListPA.add(TransferPA.builder()
-        				// TODO when available replace the 0 value with the transfer  -> idTransfer field
-        				.idTransfer(0)
+        				.idTransfer(Integer.valueOf(t.getIdTransfer()))
         				.transferAmount(BigDecimal.valueOf(Double.valueOf(t.getAmount())))
         				.fiscalCodePA(t.getFiscalCodePA())
-        				// TODO when available replace the mock value with the transfer -> iban field
-        				.iban("mock iban")
+        				.iban(t.getIban())
+        				// TODO check if this mapping is valid
+        				.mbdAttachment(null != t.getMbd() ? t.getMbd().getMbdAttachment() : null)
         				.remittanceInformation(t.getRemittanceInformation())
         				.transferCategory(t.getTransferCategory())
+        				// TODO check for metadata format
+        				//.metadata(t.getMetadata());
         				.build());
         	}
         }
         
         
         return CtReceiptModelResponse.builder()
-        		.receiptId(be.getId())
+        		// TODO confirm if receiptId (or id)
+        		.receiptId(be.getReceiptId())
         		.noticeNumber(be.getDebtorPosition().getNoticeNumber())
-        		// TODO when available replace creditor -> idPa with the creditor -> paFiscalCode field
+        		// TODO check if idPa or a new paFiscalCode field
         		.fiscalCode(be.getCreditor().getIdPA())
+        		.outcome("OK") // default hardcoded
         		.creditorReferenceId(be.getDebtorPosition().getIuv())
         		.paymentAmount(BigDecimal.valueOf(Double.valueOf(be.getPaymentInfo().getAmount())))
         		.description(be.getPaymentInfo().getRemittanceInformation())
+        		
         		.companyName(be.getCreditor().getCompanyName())
-        		// TODO when available replace the mock value with the creditor -> officeName field
-        		.officeName("mock officeName")
+        		.officeName(be.getCreditor().getOfficeName())
+        		
         		.debtor(ctReceiptDebtor)
         		.transferList(ctTransferListPA)
         		.idPSP(be.getPsp().getIdPsp())
-        		// TODO when available replace the mock value with the psp -> pspFiscalCode field
-        		.pspFiscalCode("mock pspFiscalCode")
-        		// TODO when available replace the mock value with the psp -> pspPartitaIVA field
-                .pspPartitaIVA("mock pspPartitaIVA")
-                .pspCompanyName(be.getPsp().getPsp())
+        		.pspFiscalCode(be.getPsp().getPspFiscalCode())
+                .pspPartitaIVA(be.getPsp().getPspPartitaIVA())
+                .pspCompanyName(be.getPsp().getPspCompanyName())
                 .idChannel(be.getPsp().getIdChannel())
-                // TODO when available replace the mock value with the psp -> channelDescription (?) field
-                .channelDescription("mock channelDescription")
+                .channelDescription(be.getPsp().getChannelDescription())
+                
                 .payer(ctReceiptPayer)
                 .paymentMethod(be.getPaymentInfo().getPaymentMethod())
+                
                 .fee(BigDecimal.valueOf(Double.valueOf(be.getPaymentInfo().getFee())))
+                .primaryCiIncurredFee(BigDecimal.valueOf(Double.valueOf(be.getPaymentInfo().getPrimaryCiIncurredFee())))
+                .idBundle(be.getPaymentInfo().getIdBundle())
+                .idCiBundle(be.getPaymentInfo().getIdCiBundle())
                 .paymentDateTime(LocalDate.parse(be.getPaymentInfo().getPaymentDateTime(), dfDateTime))	
                 .applicationDate(LocalDate.parse(be.getPaymentInfo().getApplicationDate(), dfDate))
                 .transferDate(LocalDate.parse(be.getPaymentInfo().getTransferDate(), dfDate))
-                // TODO when available replace the empty list with the valued list
-                .metadata(new ArrayList<>())
+                // TODO check for metadata format
+                //.metadata(be.getPaymentInfo().getMetadata())
                 .build();
     }
 }

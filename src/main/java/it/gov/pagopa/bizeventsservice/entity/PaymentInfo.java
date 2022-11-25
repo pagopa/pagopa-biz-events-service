@@ -1,5 +1,9 @@
 package it.gov.pagopa.bizeventsservice.entity;
 
+import java.util.List;
+
+
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,4 +30,5 @@ public class PaymentInfo {
 	private String paymentMethod;
 	private String touchpoint;
 	private String remittanceInformation;
+	private List<MapEntry> metadata;
 }

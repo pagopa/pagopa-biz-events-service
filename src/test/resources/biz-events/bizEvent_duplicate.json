@@ -1,63 +1,135 @@
 {
-    "id": "5dcd115a-c18d-4197-a33b-1234567890",
-    "version": "1",
-    "idPaymentManager": "7552f129-8bcf-43fc-adfb-c4fb15305b4d",
-    "complete": "false",
-    "missingInfo": [
-        "payer",
-        "paymentInfo.primaryCiIncurredFee",
-        "paymentInfo.idBundle",
-        "paymentInfo.idCiBundle"
-    ],
-    "debtorPosition": {
-        "modelType": "2",
-        "noticeNumber": "302111144093833700",
-        "iuv": "111144093833700"
-    },
-    "creditor": {
-        "idPA": "66666666666",
-        "idBrokerPA": "66666666666",
-        "idStation": "66666666666_01",
-        "companyName": "PA paolo"
-    },
-    "psp": {
-        "idPsp": "60000000001",
-        "idBrokerPsp": "60000000001",
-        "idChannel": "60000000001_06",
-        "psp": "PSP Paolo"
-    },
-    "debtor": {
-        "fullName": "Gesualdo;Riccitelli",
-        "entityUniqueIdentifierType": "F",
-        "entityUniqueIdentifierValue": "RCCGLD09P09H501E"
-    },
-    "paymentInfo": {
-        "paymentDateTime": "2022-10-24T15:18:59.678965",
-        "applicationDate": "2012-03-02",
-        "transferDate": "2012-03-03",
-        "dueDate": "2016-09-16",
-        "paymentToken": "66666666666302111144093833700-17735",
-        "amount": "20.00",
-        "fee": "0.00",
-        "totalNotice": "1",
-        "paymentMethod": "BBT",
-        "touchpoint": "WISP",
-        "remittanceInformation": "Pagamento multibeneficiario"
-    },
-    "transferList": [
-        {
-            "fiscalCodePA": "66666666666",
-            "companyName": "PA paolo",
-            "amount": "10.00",
-            "transferCategory": "1/abc",
-            "remittanceInformation": "pagamento fotocopie pratica RPT"
-        },
-        {
-            "fiscalCodePA": "88888888888",
-            "companyName": "Pa Donato",
-            "amount": "10.00",
-            "transferCategory": "1/abc",
-            "remittanceInformation": "pagamento fotocopie pratica RPT"
-        }
-    ]
+	"id": "<UUID>-2",
+	"version": "2",
+	"idPaymentManager": "15735423",
+	"complete": "false",
+	"receiptId": "c110729d258c4ab1b765fe902aae41d6",
+	"missingInfo": [
+		"missingInfo1",
+		"missingInfo2"
+	],
+	"debtorPosition": {
+		"modelType": "2",
+		"noticeNumber": "302040000097735020584",
+		"iuv": "97735020584"
+	},
+	"creditor": {
+		"idPA": "77777777777",
+		"idBrokerPA": "77777777777",
+		"idStation": "77777777777_01",
+		"companyName": "company EC",
+		"officeName": "office EC"
+	},
+	"psp": {
+		"idPsp": "88888888888",
+		"idBrokerPsp": "88888888888",
+		"idChannel": "88888888888_01",
+		"psp": "PSP",
+		"pspPartitaIVA": "23456772737",
+		"pspFiscalCode": "23456772737",
+		"channelDescription": "theChannel"
+	},
+	"debtor": {
+		"fullName": "John Doe",
+		"entityUniqueIdentifierType": "F",
+		"entityUniqueIdentifierValue": "JHNDOE00A01F205N",
+		"streetName": "via Cadorna",
+		"civicNumber": "2",
+		"postalCode": "07026",
+		"city": "Olbia",
+		"stateProvinceRegion": "SS",
+		"country": "italia",
+		"eMail": "john.doe@mail.it"
+	},
+	"payer": {
+		"fullName": "John Doe",
+		"entityUniqueIdentifierType": "F",
+		"entityUniqueIdentifierValue": "JHNDOE00A01F205N",
+		"streetName": "via Cadorna",
+		"civicNumber": "2",
+		"postalCode": "07026",
+		"city": "Olbia",
+		"stateProvinceRegion": "SS",
+		"country": "italia",
+		"eMail": "john.doe@mail.it"
+	},
+	"paymentInfo": {
+		"paymentDateTime": "2022-01-24T15:18:59.678965",
+		"applicationDate": "2022-01-24",
+		"transferDate": "2022-01-24",
+		"dueDate": "2022-01-24",
+		"paymentToken": "c110729d258c4ab1b765fe902aae41d6",
+		"amount": "132.00",
+		"fee": "1.00",
+		"primaryCiIncurredFee": "1.00",
+		"idBundle": "xxx",
+		"idCiBundle": "yyy",
+		"totalNotice": "1",
+		"paymentMethod": "creditCard",
+		"touchpoint": "IO",
+		"remittanceInformation": "reason for payment",
+		"metadata": [{"key": "key1", "value": "value1"},{"key": "key1", "value": "value1"}]
+	},
+	"transferList": [
+		{
+			"idTransfer": "1",
+			"fiscalCodePA": "77777777777",
+			"companyName": "company EC",
+			"amount": "16",
+			"transferCategory": "0101100IM",
+			"remittanceInformation": "remittanceInformation2",
+			"MBD": {
+				"IUBD": "IUBD della MBD",
+				"oraAcquisto": "2022-01-24 00:00:00",
+				"importo": "16",
+				"tipoBollo": "01",
+				"MBDAttachment": "base64 della MBD come contenuto nella receipt"
+			},
+			"metadata": [{"key": "key1", "value": "value1"},{"key": "key1", "value": "value1"}]
+		},
+		{
+			"idTransfer": "2",
+			"fiscalCodePA": "77777777778",
+			"companyName": "company EC1",
+			"amount": "16",
+			"transferCategory": "0201102IM",
+			"remittanceInformation": "remittanceInformation3",
+			"MBD": {
+				"IUBD": "IUBD della MBD2",
+				"oraAcquisto": "2022-01-24 00:00:00",
+				"importo": "16",
+				"tipoBollo": "01",
+				"MBDAttachment": "base64 della MBD2 come contenuto nella receipt"
+			},
+			"metadata": []
+		},
+		{
+			"idTransfer": "3",
+			"fiscalCodePA": "77777777778",
+			"companyName": "company EC1",
+			"amount": "100",
+			"transferCategory": "0101100IM",
+			"remittanceInformation": "remittanceInformation4",
+			"iban": "IT60X0542811101000000123444",
+			"metadata": [{"key": "key1", "value": "value1"},{"key": "key1", "value": "value1"}]
+		}
+	],
+	"transactionDetails": {
+		"user": {
+			"notificationEmail": "john.doe@mail.it"
+		},
+		"paymentAuthorizationRequest": {
+			"authOutcome": "OK",
+			"requestId": "77e1c83b-7bb0-437b-bc50-a7a58e5660ac",
+			"correlationId": "f864d987-3ae2-44a3-bdcb-075554495841",
+			"authCode": "99",
+			"paymentMethodType": "CP",
+			"details": {
+				"blurredNumber": "****2534",
+				"holder": "M** GA****DI ",
+				"circuit": "VISA "
+			}
+		},
+		"wallet": {}
+	}
 }

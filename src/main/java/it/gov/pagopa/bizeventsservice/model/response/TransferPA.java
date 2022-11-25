@@ -2,7 +2,10 @@ package it.gov.pagopa.bizeventsservice.model.response;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -21,6 +24,8 @@ public class TransferPA implements Serializable{
 	 */
 	private static final long serialVersionUID = 3529035729352848592L;
 	
+	@Min(1)
+	@Max(5)
 	private int idTransfer;
 	@NotNull(message = "transferAmount is required")
     private BigDecimal transferAmount;
@@ -28,8 +33,11 @@ public class TransferPA implements Serializable{
     private String fiscalCodePA;
 	@NotBlank(message = "iban is required")
     private String iban;
+	@NotBlank(message = "mbdAttachment is required")
+	private String mbdAttachment;
 	@NotBlank(message = "remittanceInformation is required")
     private String remittanceInformation;
 	@NotBlank(message = "transferCategory is required")
     private String transferCategory;
+	private List<MapEntry> metadata;
 }
