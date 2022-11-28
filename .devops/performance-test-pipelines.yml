@@ -1,13 +1,7 @@
 # azure-pipelines.yml
 trigger: none
 
-#pool:
-#  name: performance-test-linux
-
 parameters:
-  - name: "API_SUBSCRIPTION_KEY"
-    displayName: "API_SUBSCRIPTION_KEY"
-    type: string
   - name: "ENVIRONMENT"
     displayName: "Environment"
     type: string
@@ -22,13 +16,27 @@ parameters:
       - "load"
       - "spike"
       - "stress"
-      - "soak"
-      - # TODO: add your values
   - name: "SCRIPT"
     displayName: "Script name"
     type: string
     values:
-      - yourscriptname # TODO: add your script
+      - get_organization_receipts
+  - name: "DB_NAME"
+    displayName: "DB name"
+    type: string
+    values:
+      - bizevents_servicek6
+
+variables:
+  ${{ if eq(parameters['ENVIRONMENT'], 'dev') }}:
+    cosmosDBPrimaryKey: "$(DEV_COSMOS_DB_PRIMARY_KEY)"
+    poolImage: 'pagopa-dev-loadtest-linux'
+  ${{ if eq(parameters['ENVIRONMENT'], 'uat') }}:
+    cosmosDBPrimaryKey: "$(UAT_COSMOS_DB_PRIMARY_KEY)"
+    poolImage: 'pagopa-uat-loadtest-linux'
+
+pool:
+  name: $(poolImage)
 
 steps:
   - script: |
@@ -36,8 +44,9 @@ steps:
       docker pull grafana/k6
     displayName: Pull k6 image
 
-    # TODO: add your env params
   - script: |
       cd ./performance-test
-      sh ./run_performance_test.sh ${{ parameters.ENVIRONMENT }} ${{ parameters.TEST_TYPE }} ${{ parameters.SCRIPT }} k6 ${{ parameters.API_SUBSCRIPTION_KEY }}
+      sh ./run_performance_test.sh ${{ parameters.ENVIRONMENT }} ${{ parameters.TEST_TYPE }} ${{ parameters.SCRIPT }} ${{ parameters.DB_NAME }} $COSMOS_DB_PRIMARY_KEY
     displayName: k6 run ${{ parameters.SCRIPT }} on ${{ parameters.ENVIRONMENT }}
+    env:
+      COSMOS_DB_PRIMARY_KEY: ${{ variables.cosmosDBPrimaryKey }}
