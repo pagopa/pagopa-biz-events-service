@@ -1,6 +1,7 @@
 package it.gov.pagopa.bizeventsservice.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.spy;
@@ -90,10 +91,9 @@ class BizEventsServiceTest {
 	@Order(1)
 	void getOrganizationReceipt() {
 		assertTrue(emulator.isRunning());
-		CtReceiptModelResponse ctReceipt = bizEventsService.getOrganizationReceipt("00000000099", "9dd3d6b0c14a48b9ada3874cdd4d62c3", "283113132391591");
-		assertEquals("9dd3d6b0c14a48b9ada3874cdd4d62c3", ctReceipt.getReceiptId());
-		assertEquals("test", ctReceipt.getDescription());
-		assertEquals(2, ctReceipt.getMetadata().size());
+		CtReceiptModelResponse ctReceipt = bizEventsService.getOrganizationReceipt("66666666666", "CCD01", "112006686812600");
+		assertNull(ctReceipt.getReceiptId());
+		assertEquals("BBT", ctReceipt.getPaymentMethod());
 	}
 	
 	@Test
@@ -102,7 +102,7 @@ class BizEventsServiceTest {
 		assertTrue(emulator.isRunning());
 		try {
 			// non-existent iuv -> raise a 404 exception
-			bizEventsService.getOrganizationReceipt("00000000099", "9dd3d6b0c14a48b9ada3874cdd4d62c3", "fake_iuv");
+			bizEventsService.getOrganizationReceipt("66666666666", "CCD01", "fake_iuv");
 			fail();
 		} catch (AppException e) {
 			assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
@@ -120,7 +120,7 @@ class BizEventsServiceTest {
 		bizEventsRepository.save(bizEventEntityDuplicated);
 		try {
 			// more than one records, the payment must be unique -> raise a 422 exception
-			bizEventsService.getOrganizationReceipt("00000000099", "9dd3d6b0c14a48b9ada3874cdd4d62c3", "283113132391591");
+			bizEventsService.getOrganizationReceipt("66666666666", "CCD01", "112006686812600");
 			fail();
 		} catch (AppException e) {
 			assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, e.getHttpStatus());

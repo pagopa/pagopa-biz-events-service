@@ -3,7 +3,9 @@ package it.gov.pagopa.bizeventsservice.entity;
 import java.util.List;
 
 import com.azure.spring.data.cosmos.core.mapping.Container;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import it.gov.pagopa.bizeventsservice.model.response.enumeration.StatusType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +18,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BizEvent {
 	private String id;
 	private String version;
@@ -31,4 +34,7 @@ public class BizEvent {
 	private PaymentInfo paymentInfo;
 	private List<Transfer> transferList;
 	private TransactionDetails transactionDetails;
+	
+	// internal status field
+	private StatusType eventStatus;
 }
