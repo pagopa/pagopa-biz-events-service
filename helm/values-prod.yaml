@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: pagopapcommonacr.azurecr.io/pagopabizeventsservice
-    tag: "0.0.2"
+    tag: "0.0.2-3"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -28,7 +28,7 @@ microservice-chart:
     port: 8080
   ingress:
     create: true
-    host: "weudev.bizevents.internal.platform.pagopa.it"
+    host: "weuprod.bizevents.internal.platform.pagopa.it"
     path: /pagopa-biz-events-service/(.*)
   serviceAccount:
     create: false
