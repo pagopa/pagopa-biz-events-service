@@ -8,6 +8,7 @@ import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import it.gov.pagopa.bizeventsservice.model.MapEntry;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,9 +39,11 @@ public class CtReceiptModelResponse implements Serializable {
     private BigDecimal paymentAmount;
     @NotBlank(message = "description is required")
     private String description;
+    
     @NotBlank(message = "companyName is required")
     private String companyName;
     private String officeName;
+    
     @NotNull(message = "debtor is required")
     private Debtor debtor;
     @NotNull(message = "transferList is required")
@@ -55,9 +58,14 @@ public class CtReceiptModelResponse implements Serializable {
     private String idChannel;  
     @NotBlank(message = "channelDescription is required")
     private String channelDescription;
+    
     private Payer payer;
     private String paymentMethod;
+    
     private BigDecimal fee;
+    private BigDecimal primaryCiIncurredFee;
+    private String idBundle;
+    private String idCiBundle;
     private LocalDate  paymentDateTime;
     private LocalDate  applicationDate;
     private LocalDate  transferDate;

@@ -1,4 +1,4 @@
-package it.gov.pagopa.bizeventsservice.model.response;
+package it.gov.pagopa.bizeventsservice.entity;
 
 import java.io.Serializable;
 

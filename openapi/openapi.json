@@ -4,7 +4,7 @@
     "title": "Biz-Events Service",
     "description": "Microservice for exposing REST APIs about payment receipts.",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.0.2-3"
+    "version": "0.0.2-4"
   },
   "servers": [
     {
@@ -607,6 +607,15 @@
           "fee": {
             "type": "number"
           },
+          "primaryCiIncurredFee": {
+            "type": "number"
+          },
+          "idBundle": {
+            "type": "string"
+          },
+          "idCiBundle": {
+            "type": "string"
+          },
           "paymentDateTime": {
             "type": "string",
             "format": "date"
@@ -730,6 +739,7 @@
         "required": [
           "fiscalCodePA",
           "iban",
+          "mbdAttachment",
           "remittanceInformation",
           "transferAmount",
           "transferCategory"
@@ -737,6 +747,8 @@
         "type": "object",
         "properties": {
           "idTransfer": {
+            "maximum": 5,
+            "minimum": 1,
             "type": "integer",
             "format": "int32"
           },
@@ -749,11 +761,20 @@
           "iban": {
             "type": "string"
           },
+          "mbdAttachment": {
+            "type": "string"
+          },
           "remittanceInformation": {
             "type": "string"
           },
           "transferCategory": {
             "type": "string"
+          },
+          "metadata": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MapEntry"
+            }
           }
         }
       },
