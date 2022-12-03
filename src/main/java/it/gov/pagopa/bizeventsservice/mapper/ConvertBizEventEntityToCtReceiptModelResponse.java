@@ -26,7 +26,7 @@ public class ConvertBizEventEntityToCtReceiptModelResponse implements Converter<
         @Valid BizEvent be = mappingContext.getSource();
         
         DateTimeFormatter  dfDate     = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DateTimeFormatter  dfDateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
+        DateTimeFormatter  dfDateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         Debtor ctReceiptDebtor = null;
         Payer ctReceiptPayer   = null;
         List<TransferPA> ctTransferListPA = null;
@@ -65,7 +65,7 @@ public class ConvertBizEventEntityToCtReceiptModelResponse implements Converter<
         	ctTransferListPA = new ArrayList<>();
         	for (Transfer t : be.getTransferList()) {
         		ctTransferListPA.add(TransferPA.builder()
-        				.idTransfer(Integer.valueOf(t.getIdTransfer()))
+        				.idTransfer(null != t.getIdTransfer()? Integer.valueOf(t.getIdTransfer()) : 0)
         				.transferAmount(BigDecimal.valueOf(Double.valueOf(t.getAmount())))
         				.fiscalCodePA(t.getFiscalCodePA())
         				.iban(t.getIban())
@@ -81,7 +81,6 @@ public class ConvertBizEventEntityToCtReceiptModelResponse implements Converter<
         return CtReceiptModelResponse.builder()
         		.receiptId(be.getReceiptId())
         		.noticeNumber(be.getDebtorPosition().getNoticeNumber())
-        		// TODO check if idPa or a new paFiscalCode field
         		.fiscalCode(be.getCreditor().getIdPA())
         		.outcome("OK") // default hardcoded
         		.creditorReferenceId(be.getDebtorPosition().getIuv())
@@ -109,8 +108,8 @@ public class ConvertBizEventEntityToCtReceiptModelResponse implements Converter<
                 .idBundle(be.getPaymentInfo().getIdBundle())
                 .idCiBundle(be.getPaymentInfo().getIdCiBundle())
                 .paymentDateTime(LocalDate.parse(be.getPaymentInfo().getPaymentDateTime(), dfDateTime))	
-                .applicationDate(LocalDate.parse(be.getPaymentInfo().getApplicationDate(), dfDate))
-                .transferDate(LocalDate.parse(be.getPaymentInfo().getTransferDate(), dfDate))
+                .applicationDate(null != be.getPaymentInfo().getApplicationDate() ? LocalDate.parse(be.getPaymentInfo().getApplicationDate(), dfDate) : null)
+                .transferDate(null != be.getPaymentInfo().getTransferDate() ? LocalDate.parse(be.getPaymentInfo().getTransferDate(), dfDate) : null)
                 .metadata(be.getPaymentInfo().getMetadata())
                 .build();
     }
