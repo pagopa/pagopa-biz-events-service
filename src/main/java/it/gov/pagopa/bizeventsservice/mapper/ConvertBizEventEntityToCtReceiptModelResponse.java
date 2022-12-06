@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.Converter;
 import org.modelmapper.spi.MappingContext;
 
@@ -65,7 +66,7 @@ public class ConvertBizEventEntityToCtReceiptModelResponse implements Converter<
         	ctTransferListPA = new ArrayList<>();
         	for (Transfer t : be.getTransferList()) {
         		ctTransferListPA.add(TransferPA.builder()
-        				.idTransfer(null != t.getIdTransfer()? Integer.valueOf(t.getIdTransfer()) : 0)
+        				.idTransfer(Integer.valueOf(t.getIdTransfer()))
         				.transferAmount(BigDecimal.valueOf(Double.valueOf(t.getAmount())))
         				.fiscalCodePA(t.getFiscalCodePA())
         				.iban(t.getIban())
@@ -107,7 +108,7 @@ public class ConvertBizEventEntityToCtReceiptModelResponse implements Converter<
                 		BigDecimal.valueOf(Double.valueOf(be.getPaymentInfo().getPrimaryCiIncurredFee())) : null)
                 .idBundle(be.getPaymentInfo().getIdBundle())
                 .idCiBundle(be.getPaymentInfo().getIdCiBundle())
-                .paymentDateTime(LocalDate.parse(be.getPaymentInfo().getPaymentDateTime(), dfDateTime))	
+                .paymentDateTime(LocalDate.parse(StringUtils.substringBeforeLast(be.getPaymentInfo().getPaymentDateTime(),"."), dfDateTime))	
                 .applicationDate(null != be.getPaymentInfo().getApplicationDate() ? LocalDate.parse(be.getPaymentInfo().getApplicationDate(), dfDate) : null)
                 .transferDate(null != be.getPaymentInfo().getTransferDate() ? LocalDate.parse(be.getPaymentInfo().getTransferDate(), dfDate) : null)
                 .metadata(be.getPaymentInfo().getMetadata())

@@ -17,7 +17,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class Transfer {
-	private String idTransfer;
+	@Builder.Default
+	private String idTransfer = "0";
 	private String fiscalCodePA;
 	private String companyName;
 	private String amount;
