@@ -26,7 +26,7 @@ public class CtReceiptModelResponse implements Serializable {
 	
 	// @NotBlank(message = "receiptId is required")
     private String receiptId;
-	@NotBlank(message = "noticeNumber is required")
+	//@NotBlank(message = "noticeNumber is required")
     private String noticeNumber;
 	@NotBlank(message = "fiscalCode is required")
     private String fiscalCode;
@@ -52,7 +52,7 @@ public class CtReceiptModelResponse implements Serializable {
     private String idPSP;
     private String pspFiscalCode;
     private String pspPartitaIVA;
-    @NotBlank(message = "pspCompanyName is required")
+    //@NotBlank(message = "pspCompanyName is required")
     private String pspCompanyName;
     @NotBlank(message = "idChannel is required")
     private String idChannel;  
