@@ -1,54 +1,106 @@
 {
-    "id": "e90329c0-32a3-46f1-aecc-2a8a21ae2ab1",
+    "id": "b77d4987-a3e4-48d4-a2fd-af504f8b79e9",
     "version": "2",
-    "idPaymentManager": "0c113bff-90ee-4e5a-892e-6d4a18de4d7e",
-    "complete": "true",
-    "missingInfo": [],
+    "complete": "false",
+    "receiptId": "85570ffebb13411b80d79f415641ec55",
+    "missingInfo": [
+        "idPaymentManager",
+        "debtor.streetName",
+        "paymentInfo.primaryCiIncurredFee",
+        "paymentInfo.idBundle",
+        "paymentInfo.idCiBundle"
+    ],
     "debtorPosition": {
-        "modelType": "1",
+        "modelType": "2",
+        "noticeNumber": "021150441415530487",
         "iuv": "112006686812600"
     },
     "creditor": {
         "idPA": "66666666666",
-        "idBrokerPA": "66666666666",
-        "idStation": "66666666666_01",
-        "companyName": "PA paolo"
+        "idBrokerPA": "nodo-doc-dev",
+        "idStation": "nodo-doc-dev_v2_1",
+        "companyName": "nodo-doc-dev",
+        "officeName": "officeName"
     },
     "psp": {
-        "idPsp": "60000000001",
-        "idBrokerPsp": "60000000001",
-        "idChannel": "60000000001_07"
+        "idPsp": "nodo-doc-dev",
+        "idBrokerPsp": "nodo-doc-dev",
+        "idChannel": "nodo-doc-dev",
+        "pspPartitaIVA": "NODODOCDEV1",
+        "pspFiscalCode": "NODODOCDEV123456",
+        "channelDescription": "atm",
+        "psp": "prova"
     },
     "debtor": {
-        "fullName": "Gesualdo;Riccitelli",
+        "fullName": "fullName",
         "entityUniqueIdentifierType": "F",
-        "entityUniqueIdentifierValue": "RCCGLD09P09H501E"
+        "entityUniqueIdentifierValue": "entity",
+        "civicNumber": "civicNumber",
+        "postalCode": "postalCode",
+        "city": "city",
+        "stateProvinceRegion": "stateProvinceRegion",
+        "country": "IT",
+        "eMail": "mail@mail.it"
     },
     "payer": {
-        "fullName": "Gesualdo;Riccitelli",
+        "fullName": "fullName",
         "entityUniqueIdentifierType": "F",
-        "entityUniqueIdentifierValue": "RCCGLD09P09H502E"
+        "entityUniqueIdentifierValue": "asdlol",
+        "streetName": "streetName",
+        "civicNumber": "civicNumber",
+        "postalCode": "postalCode",
+        "city": "city",
+        "stateProvinceRegion": "stateProvinceRegion",
+        "country": "IT",
+        "eMail": "mail@mail.it"
     },
     "paymentInfo": {
-        "paymentDateTime": "2001-12-31T12:00:00",
+        "paymentDateTime": "2022-12-06T17:54:08.017744",
+        "applicationDate": "2021-01-01",
+        "transferDate": "2021-01-01",
+        "dueDate": "2021-10-27",
         "paymentToken": "CCD01",
-        "amount": "10.0",
-        "fee": "0.12",
-        "paymentMethod": "BBT"
+        "amount": "101.0",
+        "fee": "10.0",
+        "totalNotice": "1",
+        "paymentMethod": "cash",
+        "touchpoint": "atm",
+        "remittanceInformation": "test",
+        "description": "test",
+        "metadata": [
+            {
+                "key": "?",
+                "value": "?"
+            },
+            {
+                "key": "?2",
+                "value": "?2"
+            }
+        ]
     },
     "transferList": [
         {
-            "fiscalCodePA": "66666666666",
-            "companyName": "PA paolo",
-            "amount": "10.0",
-            "transferCategory": "1/abc",
-            "remittanceInformation": "pagamento fotocopie pratica RPT"
+            "idTransfer": "1",
+            "fiscalCodePA": "00000000099",
+            "companyName": "nodo-doc-dev",
+            "amount": "50.0",
+            "transferCategory": "transferCategory",
+            "remittanceInformation": "remittanceInformation"
+        },
+        {
+            "idTransfer": "2",
+            "fiscalCodePA": "00000000099",
+            "companyName": "nodo-doc-dev",
+            "amount": "51.0",
+            "transferCategory": "transferCategory",
+            "remittanceInformation": "remittanceInformation"
         }
     ],
-    "eventStatus": "NA",
-    "_rid": "sMJGAMFyYw8BAAAAAAAAAA==",
-    "_self": "dbs/sMJGAA==/colls/sMJGAMFyYw8=/docs/sMJGAMFyYw8BAAAAAAAAAA==/",
-    "_etag": "\"610072fc-0000-0d00-0000-638a31390000\"",
+    "eventStatus": "DONE",
+    "eventRetryEnrichmentCount": 0,
+    "_rid": "sMJGAMl3HZnLAAAAAAAAAA==",
+    "_self": "dbs/sMJGAA==/colls/sMJGAMl3HZk=/docs/sMJGAMl3HZnLAAAAAAAAAA==/",
+    "_etag": "\"0400170f-0000-0d00-0000-639095940000\"",
     "_attachments": "attachments/",
-    "_ts": 1670000953
+    "_ts": 1670419860
 }
