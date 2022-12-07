@@ -24,9 +24,9 @@ public class CtReceiptModelResponse implements Serializable {
 	 */
 	private static final long serialVersionUID = -242386899661512219L;
 	
-	// @NotBlank(message = "receiptId is required")
+	@NotBlank(message = "receiptId is required")
     private String receiptId;
-	//@NotBlank(message = "noticeNumber is required")
+	@NotBlank(message = "noticeNumber is required")
     private String noticeNumber;
 	@NotBlank(message = "fiscalCode is required")
     private String fiscalCode;
@@ -37,10 +37,10 @@ public class CtReceiptModelResponse implements Serializable {
     private String creditorReferenceId;
     @NotNull(message = "paymentAmount is required")
     private BigDecimal paymentAmount;
-    // @NotBlank(message = "description is required")
+    @NotNull(message = "description is required")
     private String description;
     
-    // @NotBlank(message = "companyName is required")
+    @NotNull(message = "companyName is required")
     private String companyName;
     private String officeName;
     
@@ -52,11 +52,11 @@ public class CtReceiptModelResponse implements Serializable {
     private String idPSP;
     private String pspFiscalCode;
     private String pspPartitaIVA;
-    //@NotBlank(message = "pspCompanyName is required")
+    @NotNull(message = "pspCompanyName is required")
     private String pspCompanyName;
     @NotBlank(message = "idChannel is required")
     private String idChannel;  
-    // @NotBlank(message = "channelDescription is required")
+    @NotNull(message = "channelDescription is required")
     private String channelDescription;
     
     private Payer payer;
