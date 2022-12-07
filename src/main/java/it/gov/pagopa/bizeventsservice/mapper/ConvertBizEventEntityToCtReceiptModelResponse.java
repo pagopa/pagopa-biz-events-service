@@ -96,7 +96,7 @@ public class ConvertBizEventEntityToCtReceiptModelResponse implements Converter<
         		.idPSP(be.getPsp().getIdPsp())
         		.pspFiscalCode(be.getPsp().getPspFiscalCode())
                 .pspPartitaIVA(be.getPsp().getPspPartitaIVA())
-                .pspCompanyName(be.getPsp().getPspCompanyName())
+                .pspCompanyName(be.getPsp().getPsp())
                 .idChannel(be.getPsp().getIdChannel())
                 .channelDescription(be.getPsp().getChannelDescription())
                 
