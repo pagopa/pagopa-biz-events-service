@@ -35,6 +35,7 @@ public class BizEvent {
 	private List<Transfer> transferList;
 	private TransactionDetails transactionDetails;
 	
-	// internal status field
+	// internal management fields
 	private StatusType eventStatus;
+	private Integer eventRetryEnrichmentCount;
 }

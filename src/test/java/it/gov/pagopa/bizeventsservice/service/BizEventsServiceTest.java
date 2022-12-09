@@ -1,7 +1,6 @@
 package it.gov.pagopa.bizeventsservice.service;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.spy;
@@ -92,8 +91,8 @@ class BizEventsServiceTest {
 	void getOrganizationReceipt() {
 		assertTrue(emulator.isRunning());
 		CtReceiptModelResponse ctReceipt = bizEventsService.getOrganizationReceipt("66666666666", "CCD01", "112006686812600");
-		assertNull(ctReceipt.getReceiptId());
-		assertEquals("BBT", ctReceipt.getPaymentMethod());
+		assertEquals("85570ffebb13411b80d79f415641ec55", ctReceipt.getReceiptId());
+		assertEquals("cash", ctReceipt.getPaymentMethod());
 	}
 	
 	@Test
