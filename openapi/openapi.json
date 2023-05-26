@@ -739,7 +739,6 @@
         "required": [
           "fiscalCodePA",
           "iban",
-          "mbdAttachment",
           "remittanceInformation",
           "transferAmount",
           "transferCategory"
