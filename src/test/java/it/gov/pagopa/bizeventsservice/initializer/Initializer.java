@@ -31,7 +31,8 @@ public class Initializer implements ApplicationContextInitializer<ConfigurableAp
 	static {
         try {
             emulator = new CosmosDBEmulatorContainer(
-                DockerImageName.parse("mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator"))
+                DockerImageName.parse("ghcr.io/pagopa/cosmosdb-emulator")
+						.asCompatibleSubstituteFor("mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator"))
                     .withExposedPorts(exposedPorts)
                     .withEnv("AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE", InetAddress.getLocalHost().getHostAddress())
                     .withEnv("AZURE_COSMOS_EMULATOR_PARTITION_COUNT", "3")
