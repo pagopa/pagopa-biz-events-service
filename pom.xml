@@ -21,6 +21,7 @@
 		<modelmapper-version>3.1.0</modelmapper-version>
 		<cosmos-data-version>3.29.1</cosmos-data-version>
 		<testcontainers.version>1.17.5</testcontainers.version>
+        <elasticsearch.version>1.5.0</elasticsearch.version>
     </properties>
 
     <dependencies>
@@ -73,6 +74,11 @@
 			<artifactId>aspectjweaver</artifactId>
 			<scope>compile</scope>
 		</dependency>
+        <dependency>
+            <groupId>co.elastic.logging</groupId>
+            <artifactId>logback-ecs-encoder</artifactId>
+            <version>${elasticsearch.version}</version>
+        </dependency>
 
         <!-- Swagger/OpenAPI -->
         <dependency>
