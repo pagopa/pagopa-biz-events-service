@@ -76,7 +76,7 @@ microservice-chart:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-d-connection-string'
     COSMOS_KEY: 'cosmos-d-biz-key'
-    OTEL_EXPORTER_OTLP_HEADERS: 'elastic-auth-header'
+    OTEL_EXPORTER_OTLP_HEADERS: 'elastic-apm-secret-token'
   keyvault:
     name: "pagopa-d-bizevents-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
