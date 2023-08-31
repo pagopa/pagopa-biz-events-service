@@ -61,9 +61,9 @@ microservice-chart:
           value: "75"
   envConfig:
     WEBSITE_SITE_NAME: 'pagopabizeventsservice' # required to show cloud role name in application insights
-    COSMOS_URI: 'https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/'
-    COSMOS_DATABASE: 'db'
-    BIZ_EVENTS_CONTAINER_NAME: 'biz-events'
+    COSMOS_DB_URI: 'https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/'
+    COSMOS_DB_NAME: 'db'
+    COSMOS_DB_CONTAINER_NAME: 'biz-events'
     COSMOS_QUERY_METRICS: 'false'
     OTEL_SERVICE_NAME: "pagopabizeventsservice"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=azure-dev"
@@ -75,7 +75,7 @@ microservice-chart:
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-d-connection-string'
-    COSMOS_KEY: 'cosmos-d-biz-key'
+    COSMOS_DB_PRIMARY_KEY: 'cosmos-d-biz-key'
     OTEL_EXPORTER_OTLP_HEADERS: 'elastic-apm-secret-token'
   keyvault:
     name: "pagopa-d-bizevents-kv"
