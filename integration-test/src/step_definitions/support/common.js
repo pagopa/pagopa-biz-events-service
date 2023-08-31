@@ -1,7 +1,10 @@
 const axios = require("axios");
 const cryptojs = require("crypto-js");
 
-
+axios.defaults.headers.common['Ocp-Apim-Subscription-Key'] = process.env.SUBKEY // for all requests
+if (process.env.canary) {
+  axios.defaults.headers.common['X-Canary'] = 'canary' // for all requests
+}
 
 function get(url, headers) {
     return axios.get(url, {headers})
@@ -19,6 +22,7 @@ function post(url, body, headers) {
             return res;
         })
         .catch(error => {
+	console.log(error)
             return error.response;
         });
 }
@@ -67,9 +71,10 @@ function getCosmosDBAuthorizationToken(verb,autorizationType,autorizationVersion
 function getDocumentForTest(id) {
     return {
         "id": id,
-        "version": "1",
+        "version": "2",
         "idPaymentManager": "11999923",
         "complete": "false",
+        "receiptId": "123456789",
         "missingInfo": [
             "paymentInfo.primaryCiIncurredFee",
             "paymentInfo.idBundle",
@@ -90,7 +95,8 @@ function getDocumentForTest(id) {
             "idPsp": "60001110001",
             "idBrokerPsp": "60001110001",
             "idChannel": "60000000001_08",
-            "psp": "PSP Giacomo"
+            "psp": "PSP Giacomo",
+            "channelDescription": "WISP"
         },
         "debtor": {
             "fullName": "paGetPaymentName",
