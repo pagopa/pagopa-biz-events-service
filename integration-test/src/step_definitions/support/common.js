@@ -12,7 +12,6 @@ function get(url, headers) {
             return res;
         })
         .catch(error => {
-	console.log("**** error get", error)
             return error.response;
         });
 }
@@ -23,7 +22,6 @@ function post(url, body, headers) {
             return res;
         })
         .catch(error => {
-	console.log("**** error post", error)
             return error.response;
         });
 }
@@ -35,7 +33,6 @@ function put(url, body, headers) {
             return res;
         })
         .catch(error => {
-	console.log("**** error put", error)
             return error.response;
         });
 }
@@ -47,7 +44,6 @@ function del(url, headers) {
             return res;
         })
         .catch(error => {
-	console.log("**** error del", error)
             return error.response;
         });
 }
