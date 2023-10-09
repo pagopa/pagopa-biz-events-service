@@ -11,7 +11,7 @@
 
     <groupId>it.gov.pagopa</groupId>
     <artifactId>bizeventsservice</artifactId>
-    <version>0.0.10-5-PAGOPA-1269-int-test</version>
+    <version>0.0.10-6-PAGOPA-1269-int-test</version>
     <name>Biz-Events Service</name>
     <description>Microservice for exposing REST APIs about payment receipts.</description>
 
