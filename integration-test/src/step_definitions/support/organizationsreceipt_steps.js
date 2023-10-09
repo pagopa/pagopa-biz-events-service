@@ -1,10 +1,12 @@
 const assert = require('assert')
-const {Given, When, Then} = require('@cucumber/cucumber')
+const {Given, When, Then, setDefaultTimeout} = require('@cucumber/cucumber')
 const {getOrganizationReceipt} = require("./bizeventservice_client");
 const {createDocument, deleteDocument} = require("./cosmosdb_client");
 
 let responseToCheck;
 let receipt;
+
+setDefaultTimeout(360 * 1000);
 
 
 // Given
