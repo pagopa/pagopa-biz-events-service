@@ -2,7 +2,7 @@ const axios = require("axios");
 const cryptojs = require("crypto-js");
 
 axios.defaults.headers.common['Ocp-Apim-Subscription-Key'] = process.env.SUBKEY // for all requests
-if (process.env.canary) {
+if (process.env.CANARY) {
   axios.defaults.headers.common['X-Canary'] = 'canary' // for all requests
 }
 

@@ -25,11 +25,13 @@ microservice-chart:
   service:
     create: true
     type: ClusterIP
-    port: 8080
+    ports:
+      - 8080 #http
   ingress:
     create: true
     host: "weudev.bizevents.internal.dev.platform.pagopa.it"
     path: /pagopa-biz-events-service/(.*)
+    servicePort: 8080
   serviceAccount:
     create: false
     annotations: {}
@@ -42,11 +44,11 @@ microservice-chart:
     allowPrivilegeEscalation: false
   resources:
     requests:
-      memory: "512Mi"
-      cpu: "300m"
+      memory: "1Gi"
+      cpu: "0.4"
     limits:
-      memory: "512Mi"
-      cpu: "300m"
+      memory: "1Gi"
+      cpu: "0.5"
   autoscaling:
     enable: true
     minReplica: 1
@@ -72,6 +74,9 @@ microservice-chart:
     OTEL_METRICS_EXPORTER: otlp
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
+  envFieldRef:
+    APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
+    APP_VERSION: "metadata.labels['app.kubernetes.io/version']"
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-d-connection-string'
