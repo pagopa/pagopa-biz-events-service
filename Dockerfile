@@ -6,7 +6,6 @@ WORKDIR /build
 COPY . .
 RUN mvn clean package -Dmaven.test.skip=true
 
-
 FROM adoptopenjdk/openjdk11:alpine-jre as builder
 COPY --from=buildtime /build/target/*.jar application.jar
 RUN java -Djarmode=layertools -jar application.jar extract

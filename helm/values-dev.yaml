@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-biz-events-service
-    tag: "0.0.10"
+    tag: "0.0.10-9-PAGOPA-1269-int-test"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -25,11 +25,13 @@ microservice-chart:
   service:
     create: true
     type: ClusterIP
-    port: 8080
+    ports:
+      - 8080 #http
   ingress:
     create: true
     host: "weudev.bizevents.internal.dev.platform.pagopa.it"
     path: /pagopa-biz-events-service/(.*)
+    servicePort: 8080
   serviceAccount:
     create: false
     annotations: {}
@@ -42,11 +44,11 @@ microservice-chart:
     allowPrivilegeEscalation: false
   resources:
     requests:
-      memory: "512Mi"
-      cpu: "300m"
+      memory: "1Gi"
+      cpu: "0.4"
     limits:
-      memory: "512Mi"
-      cpu: "300m"
+      memory: "1Gi"
+      cpu: "0.5"
   autoscaling:
     enable: true
     minReplica: 1
@@ -61,9 +63,9 @@ microservice-chart:
           value: "75"
   envConfig:
     WEBSITE_SITE_NAME: 'pagopabizeventsservice' # required to show cloud role name in application insights
-    COSMOS_URI: 'https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/'
-    COSMOS_DATABASE: 'db'
-    BIZ_EVENTS_CONTAINER_NAME: 'biz-events'
+    COSMOS_DB_URI: 'https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/'
+    COSMOS_DB_NAME: 'db'
+    COSMOS_DB_CONTAINER_NAME: 'biz-events'
     COSMOS_QUERY_METRICS: 'false'
     OTEL_SERVICE_NAME: "pagopabizeventsservice"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=azure-dev"
@@ -72,10 +74,13 @@ microservice-chart:
     OTEL_METRICS_EXPORTER: otlp
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
+  envFieldRef:
+    APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
+    APP_VERSION: "metadata.labels['app.kubernetes.io/version']"
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-d-connection-string'
-    COSMOS_KEY: 'cosmos-d-biz-key'
+    COSMOS_DB_PRIMARY_KEY: 'cosmos-d-biz-key'
     OTEL_EXPORTER_OTLP_HEADERS: 'elastic-apm-secret-token'
   keyvault:
     name: "pagopa-d-bizevents-kv"
@@ -95,3 +100,4 @@ microservice-chart:
     deployment:
       image:
         tag: 0.0.10
+    create: false
