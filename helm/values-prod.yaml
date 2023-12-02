@@ -45,8 +45,8 @@ microservice-chart:
       memory: "512Mi"
       cpu: "300m"
     limits:
-      memory: "512Mi"
-      cpu: "300m"
+      memory: "640Mi"
+      cpu: "400m"
   autoscaling:
     enable: true
     minReplica: 2
@@ -65,6 +65,13 @@ microservice-chart:
     COSMOS_DB_NAME: 'db'
     COSMOS_DB_CONTAINER_NAME: 'biz-events'
     COSMOS_QUERY_METRICS: 'false'
+    OTEL_SERVICE_NAME: "pagopabizeventsservice"
+    OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=azure-dev"
+    OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
+    OTEL_TRACES_EXPORTER: otlp
+    OTEL_METRICS_EXPORTER: otlp
+    OTEL_LOGS_EXPORTER: none
+    OTEL_TRACES_SAMPLER: "always_on"
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-p-connection-string'
@@ -83,7 +90,16 @@ microservice-chart:
               - key: node_type
                 operator: In
                 values:
-                  - "user"
+                  - user
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/instance: pagopabizeventsservice
+            namespaces: [ "bizevents" ]
+            topologyKey: topology.kubernetes.io/zone
   canaryDelivery:
     deployment:
       image:

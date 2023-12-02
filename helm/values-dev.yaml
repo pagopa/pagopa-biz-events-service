@@ -22,11 +22,14 @@ microservice-chart:
     periodSeconds: 10
   deployment:
     create: true
-  service:
+  serviceMonitor:
     create: true
+  ports:
+    - 8080
+  service:
     type: ClusterIP
     ports:
-      - 8080 #http
+      - 8080
   ingress:
     create: true
     host: "weudev.bizevents.internal.dev.platform.pagopa.it"
@@ -44,15 +47,15 @@ microservice-chart:
     allowPrivilegeEscalation: false
   resources:
     requests:
-      memory: "1Gi"
-      cpu: "0.4"
+      memory: "384Mi"
+      cpu: "300m"
     limits:
-      memory: "1Gi"
-      cpu: "0.5"
+      memory: "512Mi"
+      cpu: "400m"
   autoscaling:
     enable: true
     minReplica: 1
-    maxReplica: 2
+    maxReplica: 1
     pollingInterval: 10 # seconds
     cooldownPeriod: 50 # seconds
     triggers:
@@ -78,7 +81,6 @@ microservice-chart:
     APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
     APP_VERSION: "metadata.labels['app.kubernetes.io/version']"
   envSecret:
-    # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-d-connection-string'
     COSMOS_DB_PRIMARY_KEY: 'cosmos-d-biz-key'
     OTEL_EXPORTER_OTLP_HEADERS: 'elastic-apm-secret-token'
