@@ -46,7 +46,7 @@ microservice-chart:
       cpu: "300m"
     limits:
       memory: "640Mi"
-      cpu: "400m"
+      cpu: "500m"
   autoscaling:
     enable: true
     minReplica: 2
