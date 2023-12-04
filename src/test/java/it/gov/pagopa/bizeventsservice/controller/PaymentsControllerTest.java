@@ -21,7 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
-import it.gov.pagopa.bizeventsservice.service.BizEventsService;
+import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.util.TestUtil;
 
 @SpringBootTest
@@ -32,7 +32,7 @@ class PaymentsControllerTest {
     private MockMvc mvc;
 	
 	@MockBean
-    private BizEventsService bizEventsService;
+    private IBizEventsService bizEventsService;
 	
 	@BeforeEach
     void setUp() throws IOException {

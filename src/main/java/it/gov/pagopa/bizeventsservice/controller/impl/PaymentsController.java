@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.gov.pagopa.bizeventsservice.controller.IPaymentsController;
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
-import it.gov.pagopa.bizeventsservice.service.BizEventsService;
+import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 
 @RestController
 public class PaymentsController implements IPaymentsController {
 	
 	@Autowired 
-	private BizEventsService bizEventsService;
+	private IBizEventsService bizEventsService;
 
     @Override
     public ResponseEntity<CtReceiptModelResponse> getOrganizationReceipt(@NotBlank String organizationFiscalCode,
