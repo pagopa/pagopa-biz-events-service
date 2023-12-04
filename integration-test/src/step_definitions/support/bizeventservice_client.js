@@ -10,7 +10,17 @@ function getOrganizationReceipt(organizationfiscalcode, iur, iuv) {
     return get(bizevents_service_host+`organizations/${organizationfiscalcode}/receipts/${iur}/paymentoptions/${iuv}`, {})
 }
 
+function getBizEventById(id) {
+    return get(bizevents_service_host+`events/${id}`, {})
+}
+
+function getBizEventByOrgFiscalCodeAndIuv(organizationfiscalcode, iuv) {
+    return get(bizevents_service_host+`events/organizations/${organizationfiscalcode}/iuvs/${iuv}`, {})
+}
+
 module.exports = {
 	healthCheckInfo,
-    getOrganizationReceipt
+    getOrganizationReceipt,
+    getBizEventById,
+    getBizEventByOrgFiscalCodeAndIuv
 }
