@@ -35,11 +35,11 @@ public class BizEventsService implements IBizEventsService {
                 iur, iuv);
 
         if (bizEventEntityList.isEmpty()) {
-            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND, organizationFiscalCode, iur, iuv);
+            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND_IUV_IUR, organizationFiscalCode, iur, iuv);
         }
         // the query should always return only one element
         else if (bizEventEntityList.size() > 1) {
-            throw new AppException(AppError.BIZ_EVENT_NOT_UNIQUE, organizationFiscalCode, iur, iuv);
+            throw new AppException(AppError.BIZ_EVENT_NOT_UNIQUE_IUV_IUR, organizationFiscalCode, iur, iuv);
         }
 
         // the bizEventEntityList has only one element
@@ -81,12 +81,12 @@ public class BizEventsService implements IBizEventsService {
                 iur);
 
         if (bizEventEntityList.isEmpty()) {
-            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND, organizationFiscalCode, iur);
+            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND_IUR, organizationFiscalCode, iur);
         }
 
         // the query should always return only one element
         else if (bizEventEntityList.size() > 1) {
-            throw new AppException(AppError.BIZ_EVENT_NOT_UNIQUE, organizationFiscalCode, iur);
+            throw new AppException(AppError.BIZ_EVENT_NOT_UNIQUE_IUR, organizationFiscalCode, iur);
         }
 
         // the bizEventEntityList has only one element
