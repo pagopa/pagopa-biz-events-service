@@ -12,6 +12,8 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,11 +41,15 @@ class PaymentsControllerTest {
 		// precondition
 		CtReceiptModelResponse ctReceiptModel = TestUtil.readModelFromFile("receipts/getOrganizationReceipt.json", CtReceiptModelResponse.class);
         when(bizEventsService.getOrganizationReceipt(anyString(), anyString(), anyString())).thenReturn(ctReceiptModel);
+        when(bizEventsService.getOrganizationReceipt(anyString(), anyString())).thenReturn(ctReceiptModel);
     }
 
-	@Test
-    void getOrganizationReceipt() throws Exception {
-        String url = "/organizations/mock_organizationfiscalcode/receipts/mock_iur/paymentoptions/mock_iuv";
+    @ParameterizedTest
+    @CsvSource({
+            "/organizations/mock_organizationfiscalcode/receipts/mock_iur/paymentoptions/mock_iuv",
+            "/organizations/mock_organizationfiscalcode/receipts/mock_iur"
+    })
+    void getOrganizationReceipt(String url) throws Exception {
         MvcResult result = mvc.perform(get(url).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
