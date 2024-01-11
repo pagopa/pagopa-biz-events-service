@@ -12,5 +12,7 @@ public interface IBizEventsService {
 
     BizEvent getBizEventByOrgFiscalCodeAndIuv(String organizationFiscalCode,
                                               String iuv);
+    CtReceiptModelResponse getOrganizationReceipt(String organizationFiscalCode,
+                                                  String iur);
 
 }

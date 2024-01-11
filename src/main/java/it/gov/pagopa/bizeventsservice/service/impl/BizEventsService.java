@@ -31,15 +31,15 @@ public class BizEventsService implements IBizEventsService {
     public CtReceiptModelResponse getOrganizationReceipt(String organizationFiscalCode,
             String iur, String iuv) {
         // get biz event
-        List<BizEvent> bizEventEntityList = bizEventsRepository.getBizEventByOrgFiscCodeAndIur(organizationFiscalCode,
+        List<BizEvent> bizEventEntityList = bizEventsRepository.getBizEventByOrgFiscCodeIuvAndIur(organizationFiscalCode,
                 iur, iuv);
 
         if (bizEventEntityList.isEmpty()) {
-            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND, organizationFiscalCode, iur, iuv);
+            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND_IUV_IUR, organizationFiscalCode, iur, iuv);
         }
         // the query should always return only one element
         else if (bizEventEntityList.size() > 1) {
-            throw new AppException(AppError.BIZ_EVENT_NOT_UNIQUE, organizationFiscalCode, iur, iuv);
+            throw new AppException(AppError.BIZ_EVENT_NOT_UNIQUE_IUV_IUR, organizationFiscalCode, iur, iuv);
         }
 
         // the bizEventEntityList has only one element
@@ -72,4 +72,25 @@ public class BizEventsService implements IBizEventsService {
         }
         return bizEventEntityList.get(0);
     }
+
+    @Override
+    public CtReceiptModelResponse getOrganizationReceipt(String organizationFiscalCode,
+                                                         String iur) {
+        // get biz event
+        List<BizEvent> bizEventEntityList = bizEventsRepository.getBizEventByOrgFiscCodeAndIur(organizationFiscalCode,
+                iur);
+
+        if (bizEventEntityList.isEmpty()) {
+            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND_IUR, organizationFiscalCode, iur);
+        }
+
+        // the query should always return only one element
+        else if (bizEventEntityList.size() > 1) {
+            throw new AppException(AppError.BIZ_EVENT_NOT_UNIQUE_IUR, organizationFiscalCode, iur);
+        }
+
+        // the bizEventEntityList has only one element
+        return modelMapper.map(bizEventEntityList.get(0), CtReceiptModelResponse.class);
+    }
+
 }

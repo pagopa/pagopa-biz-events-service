@@ -25,8 +25,13 @@ import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
 @RequestMapping
 @Validated
 public interface IPaymentsController {
-    
-    @Operation(summary = "The organization get the receipt for the creditor institution.", security = {@SecurityRequirement(name = "ApiKey")}, operationId = "getOrganizationReceipt")
+
+    // TODO: this API is included in the one using the path /organizations/{organizationfiscalcode}/receipts/{iur}, will be removed
+    @Deprecated
+    /**
+     * @deprecated (API to be removed after the next SANP release)
+     */
+    @Operation(summary = "The organization get the receipt for the creditor institution using IUV and IUR.", security = {@SecurityRequirement(name = "ApiKey")}, operationId = "getOrganizationReceiptIuvIur")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "CtReceipt", implementation = CtReceiptModelResponse.class))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
@@ -43,4 +48,20 @@ public interface IPaymentsController {
             @NotBlank @PathVariable("iur") String iur,
             @Parameter(description = "The unique payment identification. Alphanumeric code that uniquely associates and identifies three key elements of a payment: reason, payer, amount", required = true)
             @NotBlank @PathVariable("iuv") String iuv);
+
+    @Operation(summary = "The organization get the receipt for the creditor institution using IUR.", security = {@SecurityRequirement(name = "ApiKey")}, operationId = "getOrganizationReceiptIur")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Obtained receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "CtReceipt", implementation = CtReceiptModelResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "404", description = "Not found the receipt.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
+            @ApiResponse(responseCode = "422", description = "Unable to process the request.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
+            @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
+    @GetMapping(value = "/organizations/{organizationfiscalcode}/receipts/{iur}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<CtReceiptModelResponse> getOrganizationReceipt(
+            @Parameter(description = "The fiscal code of the Organization.", required = true)
+            @NotBlank @PathVariable("organizationfiscalcode") String organizationFiscalCode,
+            @Parameter(description = "The unique reference of the operation assigned to the payment (Payment Token).", required = true)
+            @NotBlank @PathVariable("iur") String iur);
 }

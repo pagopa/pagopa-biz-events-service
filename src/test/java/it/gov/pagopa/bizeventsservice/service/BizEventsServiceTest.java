@@ -64,8 +64,8 @@ class BizEventsServiceTest {
     }
 
     @Test
-    void getOrganizationReceipt() {
-        when(bizEventsRepository.getBizEventByOrgFiscCodeAndIur(ORGANIZATION_FISCAL_CODE, IUR, IUV))
+    void getOrganizationReceiptIuvIur() {
+        when(bizEventsRepository.getBizEventByOrgFiscCodeIuvAndIur(ORGANIZATION_FISCAL_CODE, IUR, IUV))
                 .thenReturn(List.of(bizEventEntity));
 
         CtReceiptModelResponse ctReceipt = bizEventsService.getOrganizationReceipt(ORGANIZATION_FISCAL_CODE, IUR,
@@ -75,8 +75,8 @@ class BizEventsServiceTest {
     }
 
     @Test
-    void getOrganizationReceipt_404() throws IOException {
-        when(bizEventsRepository.getBizEventByOrgFiscCodeAndIur(ORGANIZATION_FISCAL_CODE, IUR, IUV))
+    void getOrganizationReceiptIuvIur_404() throws IOException {
+        when(bizEventsRepository.getBizEventByOrgFiscCodeIuvAndIur(ORGANIZATION_FISCAL_CODE, IUR, IUV))
                 .thenReturn(List.of(bizEventEntity));
 
         AppException e = assertThrows(AppException.class, () -> bizEventsService.getOrganizationReceipt(ORGANIZATION_FISCAL_CODE, IUR, "fake_iuv"));
@@ -84,12 +84,41 @@ class BizEventsServiceTest {
     }
 
     @Test
-    void getOrganizationReceipt_422() throws IOException {
+    void getOrganizationReceiptIuvIur_422() throws IOException {
         // mocking a fake save for duplicated entity
-        when(bizEventsRepository.getBizEventByOrgFiscCodeAndIur(ORGANIZATION_FISCAL_CODE, IUR, IUV))
+        when(bizEventsRepository.getBizEventByOrgFiscCodeIuvAndIur(ORGANIZATION_FISCAL_CODE, IUR, IUV))
                 .thenReturn(List.of(bizEventEntity, bizEventEntityDuplicated));
 
         AppException e = assertThrows(AppException.class, () -> bizEventsService.getOrganizationReceipt(ORGANIZATION_FISCAL_CODE, IUR, IUV));
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, e.getHttpStatus());
+    }
+
+    @Test
+    void getOrganizationReceiptIur() {
+        when(bizEventsRepository.getBizEventByOrgFiscCodeAndIur(ORGANIZATION_FISCAL_CODE, IUR))
+                .thenReturn(List.of(bizEventEntity));
+
+        CtReceiptModelResponse ctReceipt = bizEventsService.getOrganizationReceipt(ORGANIZATION_FISCAL_CODE, IUR);
+        assertEquals("85570ffebb13411b80d79f415641ec55", ctReceipt.getReceiptId());
+        assertEquals("cash", ctReceipt.getPaymentMethod());
+    }
+
+    @Test
+    void getOrganizationReceiptIur_404() throws IOException {
+        when(bizEventsRepository.getBizEventByOrgFiscCodeAndIur(ORGANIZATION_FISCAL_CODE, IUR))
+                .thenReturn(List.of(bizEventEntity));
+
+        AppException e = assertThrows(AppException.class, () -> bizEventsService.getOrganizationReceipt(ORGANIZATION_FISCAL_CODE,"fake_iur"));
+        assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
+    }
+
+    @Test
+    void getOrganizationReceiptIur_422() throws IOException {
+        // mocking a fake save for duplicated entity
+        when(bizEventsRepository.getBizEventByOrgFiscCodeAndIur(ORGANIZATION_FISCAL_CODE, IUR))
+                .thenReturn(List.of(bizEventEntity, bizEventEntityDuplicated));
+
+        AppException e = assertThrows(AppException.class, () -> bizEventsService.getOrganizationReceipt(ORGANIZATION_FISCAL_CODE, IUR));
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, e.getHttpStatus());
     }
 
