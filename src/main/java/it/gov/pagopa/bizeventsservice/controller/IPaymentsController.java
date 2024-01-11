@@ -25,7 +25,9 @@ import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
 @RequestMapping
 @Validated
 public interface IPaymentsController {
-    
+
+    // TODO: this API is included in the one using the path /organizations/{organizationfiscalcode}/receipts/{iur}, will be removed
+    @Deprecated
     @Operation(summary = "The organization get the receipt for the creditor institution using IUV and IUR.", security = {@SecurityRequirement(name = "ApiKey")}, operationId = "getOrganizationReceiptIuvIur")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "CtReceipt", implementation = CtReceiptModelResponse.class))),
