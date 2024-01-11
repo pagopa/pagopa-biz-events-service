@@ -22,7 +22,7 @@ public interface BizEventsRepository extends CosmosRepository<BizEvent, String> 
     List<BizEvent> getBizEventByOrgFiscalCodeAndIuv(@Param("organizationFiscalCode") String organizationFiscalCode,
                                                     @Param("iuv") String iuv);
 
-    @Query("select value c from c JOIN t IN c.transferList where t.fiscalCodePA = @organizationFiscalCode and c.paymentInfo.paymentToken = @iur and StringToNumber(c.debtorPosition.modelType) > 1")
+    @Query("select distinct value c from c JOIN t IN c.transferList where t.fiscalCodePA = @organizationFiscalCode and c.paymentInfo.paymentToken = @iur and StringToNumber(c.debtorPosition.modelType) > 1")
     List<BizEvent> getBizEventByOrgFiscCodeAndIur(@Param("organizationFiscalCode") String organizationFiscalCode,
                                                      @Param("iur") String iur);
 
