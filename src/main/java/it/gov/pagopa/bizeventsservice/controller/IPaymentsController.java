@@ -26,7 +26,7 @@ import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
 @Validated
 public interface IPaymentsController {
     
-    @Operation(summary = "The organization get the receipt for the creditor institution.", security = {@SecurityRequirement(name = "ApiKey")}, operationId = "getOrganizationReceipt")
+    @Operation(summary = "The organization get the receipt for the creditor institution.", security = {@SecurityRequirement(name = "ApiKey")}, operationId = "getOrganizationReceiptIuvIur")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "CtReceipt", implementation = CtReceiptModelResponse.class))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
@@ -44,7 +44,7 @@ public interface IPaymentsController {
             @Parameter(description = "The unique payment identification. Alphanumeric code that uniquely associates and identifies three key elements of a payment: reason, payer, amount", required = true)
             @NotBlank @PathVariable("iuv") String iuv);
 
-    @Operation(summary = "The organization get the receipt for the creditor institution.", security = {@SecurityRequirement(name = "ApiKey")}, operationId = "getOrganizationReceipt")
+    @Operation(summary = "The organization get the receipt for the creditor institution.", security = {@SecurityRequirement(name = "ApiKey")}, operationId = "getOrganizationReceiptIur")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "CtReceipt", implementation = CtReceiptModelResponse.class))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),

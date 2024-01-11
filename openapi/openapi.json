@@ -628,7 +628,7 @@
                     "Payment Receipts REST APIs"
                 ],
                 "summary": "The organization get the receipt for the creditor institution.",
-                "operationId": "getOrganizationReceipt",
+                "operationId": "getOrganizationReceiptIur",
                 "parameters": [
                     {
                         "name": "organizationfiscalcode",
@@ -768,7 +768,7 @@
                     "Payment Receipts REST APIs"
                 ],
                 "summary": "The organization get the receipt for the creditor institution.",
-                "operationId": "getOrganizationReceipt_1",
+                "operationId": "getOrganizationReceiptIuvIur",
                 "parameters": [
                     {
                         "name": "organizationfiscalcode",
