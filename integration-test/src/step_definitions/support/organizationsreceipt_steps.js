@@ -1,20 +1,32 @@
 const assert = require('assert')
 const {Given, When, Then, setDefaultTimeout, After} = require('@cucumber/cucumber')
-const {getOrganizationReceipt, getBizEventById, getBizEventByOrgFiscalCodeAndIuv} = require("./bizeventservice_client");
+const {getOrganizationReceipt, getBizEventById, getBizEventByOrgFiscalCodeAndIuv, getTransactionListForUserWithFiscalCode, getTransactionWithIdForUserWithFiscalCode} = require("./bizeventservice_client");
 const {createDocument, deleteDocument} = require("./cosmosdb_client");
+const {createEvent, makeId} = require("./common");
+const {createDocumentInBizEventsDatastore, deleteDocumentFromBizEventsDatastore} = require("./biz_event_service_client");
+
+const BIZ_ID = "biz-event-service-int-test-transaction";
 
 let responseToCheck;
 let receipt;
 let bizEvent;
+let bizEventList = null;
 
 setDefaultTimeout(360 * 1000);
 
 // After each Scenario
 After(async function () {
     // remove event
+	if(bizEventList.length > 0){
+        for(let bizEvent of bizEventList){
+            await deleteDocumentFromBizEventsDatastore(bizEvent.id);
+        }
+    }
+
     responseToCheck = null;
 	receipt = null;
 	bizEvent = null;
+	bizEventList = null;
 });
 
 
@@ -71,3 +83,48 @@ Then('the operator gets the status code {int}', async function (status) {
 Then('the details of the Biz-Event are returned to the operator with id {string}', async function (id) {
 	assert.strictEqual(bizEvent.id, id);
 });
+
+
+Given('{int} Biz-Event with debtor fiscal code {string}', (numberOfEvents, debtorFiscalCode) => {
+	for (let i = 0; i < numberOfEvents; i++) {
+        bizEventList.push(createEvent(BIZ_ID + makeId(i), undefined, undefined, debtorFiscalCode))
+    }
+})
+
+Given('{int} Biz-Event with payer fiscal code {string}', (numberOfEvents, payerFiscalCode) => {
+	for (let i = 0; i < numberOfEvents; i++) {
+        bizEventList.push(createEvent(BIZ_ID + makeId(i), undefined, undefined, undefined, payerFiscalCode))
+    }
+})
+
+Given('Save all on Cosmos DB', () => {
+	for (let bizEvent of bizEventList) {
+		let response = createDocumentInBizEventsDatastore(bizEvent);
+		assert.strictEqual(response.status, 201);
+		response = null;
+	}
+})
+
+When('the user with fiscal code {string} asks for its transactions', async (fiscalCode) => {
+	responseToCheck = await getTransactionListForUserWithFiscalCode(fiscalCode);
+})
+
+Then('the user gets the status code {int}', (status) => {
+	assert.strictEqual(responseToCheck.status, status);
+})
+	
+Then('the user gets all its transactions', () => {
+	assert.strictEqual(responseToCheck.data.length, bizEventList.length);
+})
+
+Given('Biz-Event with debtor fiscal code {string} and id {string}', (debtorFiscalCode, id) => {
+	bizEventList.push(createEvent(id, undefined, undefined, debtorFiscalCode))
+})
+
+When('the user with fiscal code {string} asks the transaction with id {string}', async (fiscalCode, id) => {
+	responseToCheck = await getTransactionWithIdForUserWithFiscalCode(id, fiscalCode);
+})
+
+Then('the user gets the transaction with id {string}', (id) => {
+	assert.strictEqual(responseToCheck.data.id, id);
+})

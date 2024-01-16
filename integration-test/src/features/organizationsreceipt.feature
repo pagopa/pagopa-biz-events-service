@@ -23,3 +23,18 @@ Feature: All about Organizations Receipt
     Then the operator gets the status code 200
     And the details of the Biz-Event are returned to the operator with id "123456789"
     And the Biz-Event to test with id "123456789" is removed
+
+  Scenario: An user asks for a its transactions
+    Given 3 Biz-Event with debtor fiscal code "AAAAAAAAAAAAAAAA"
+    And 3 Biz-Event with payer fiscal code "AAAAAAAAAAAAAAAA"
+    And Save all on Cosmos DB
+    When the user with fiscal code "AAAAAAAAAAAAAAAA" asks for its transactions
+    Then the user gets the status code 200
+    Then the user gets all its transactions
+
+  Scenario: An user asks for a transaction
+    Given Biz-Event with debtor fiscal code "AAAAAAAAAAAAAAAA" and id "biz-event-service-int-test-transaction-2"
+    And Save all on Cosmos DB
+    When the user with fiscal code "AAAAAAAAAAAAAAAA" asks the transaction with id "biz-event-service-int-test-transaction-2"
+    Then the user gets the status code 200
+    Then the user gets the transaction with id "biz-event-service-int-test-transaction-2"
