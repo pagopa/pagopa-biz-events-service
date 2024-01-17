@@ -57,6 +57,7 @@ public class TransactionService implements ITransactionService {
                     .build();
             if (!isCart) {
                 transactionListItem.setPayeeName(String.valueOf(x.get("payeeName")));
+                transactionListItem.setPayeeTaxCode(String.valueOf(x.getOrDefault("payeeTaxCode", "")));
                 transactionListItem.setAmount(
                         String.valueOf(x.get("grandTotal") != null ?
                                 formatAmount(Long.parseLong(String.valueOf(x.get("grandTotal")))) :
