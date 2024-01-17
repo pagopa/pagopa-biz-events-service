@@ -123,11 +123,11 @@ Given('{int} cart Biz-Event with transactionId {string}, debtor fiscal code {str
     }
 })
 
-Then('one of the transactions is a cart with id {string} and amount {int}', (transactionId, amount) => {
+Then('one of the transactions is a cart with id {string} and amount {bigdecimal}', (transactionId, amount) => {
 	let found = false;
 	for (let transaction of responseToCheck.data) {
 		if (transaction.transactionId == transactionId) {
-			assert.strictEqual(transaction.amount, amount);
+						assert.strictEqual(transaction.amount, amount);
             found = true;
         }
 	}
@@ -135,7 +135,7 @@ Then('one of the transactions is a cart with id {string} and amount {int}', (tra
 })
 
 Given('Biz-Event with debtor fiscal code {string} and id {string}', (debtorFiscalCode, id) => {
-	bizEventList.push(createEvent(id, undefined, undefined, debtorFiscalCode))
+	bizEventList.push(createEvent(id, id, undefined, debtorFiscalCode))
 })
 
 When('the user with fiscal code {string} asks the transaction with id {string} and isCart {string}', async (fiscalCode, id, cart) => {
@@ -144,5 +144,5 @@ When('the user with fiscal code {string} asks the transaction with id {string} a
 })
 
 Then('the user gets the transaction with id {string}', (id) => {
-	assert.strictEqual(responseToCheck.data.id, id);
+	assert.strictEqual(responseToCheck.data.infoTransaction.transactionId, id);
 })
