@@ -3,15 +3,19 @@ package it.gov.pagopa.bizeventsservice.mapper;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.entity.Transfer;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.enumeration.OriginType;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.enumeration.PaymentMethodType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,38 +33,31 @@ public class ConvertBizEventListToTransactionDetailResponse {
         BizEvent firstBizEvent = listOfBizEvents.get(0);
 
         List<CartItem> listOfCartItems = new ArrayList<>();
+        AtomicReference<BigDecimal> amount = new AtomicReference<>(BigDecimal.ZERO);
 
         for (BizEvent bizEvent : listOfBizEvents) {
+
             listOfCartItems.add(
                     CartItem.builder()
                             .subject(getItemSubject(bizEvent))
                             .amount(getItemAmount(bizEvent))
-                            .debtor(bizEvent.getDebtor() != null ?
-                                    UserDetail.builder()
-                                            .name(bizEvent.getDebtor().getFullName())
-                                            .taxCode(bizEvent.getDebtor().getEntityUniqueIdentifierValue())
-                                            .build() :
-                                    UserDetail.builder().build()
-                            )
-                            .payee(
-                                    UserDetail.builder()
-                                            .name(bizEvent.getCreditor() != null ? bizEvent.getCreditor().getCompanyName() : null)
-                                            .taxCode(getPayeeTaxCode(bizEvent))
-                                            .build()
-                            )
+                            .debtor(getDebtor(bizEvent))
+                            .payee(getPayee(bizEvent))
                             .refNumberType(getRefNumberType(bizEvent))
                             .refNumberValue(getRefNumberValue(bizEvent))
                             .build()
             );
+            BigDecimal amountExtracted = getAmount(bizEvent);
+            amount.updateAndGet(v -> v.add(amountExtracted));
         }
 
         //TODO VERIFY FIELDS' MAPPING
         return TransactionDetailResponse.builder()
                 .infoTransaction(
                         InfoTransaction.builder()
-                                .transactionId(getTransactionId(listOfBizEvents, firstBizEvent))
+                                .transactionId(getTransactionId(firstBizEvent))
                                 .authCode(getAuthCode(firstBizEvent))
-                                .rnn(getRnn(firstBizEvent))
+                                .rrn(getRrn(firstBizEvent))
                                 .transactionDate(getCreationDate(firstBizEvent))
                                 .pspName(getPspName(firstBizEvent))
                                 .walletInfo(
@@ -71,143 +68,180 @@ public class ConvertBizEventListToTransactionDetailResponse {
                                                 .build()
                                 )
                                 .payer(getPayer(firstBizEvent))
-                                .amount(getAmount(firstBizEvent))
+                                .amount(amount.get().toString())
                                 .fee(getFee(firstBizEvent))
+                                .paymentMethod(getPaymentMethod(firstBizEvent))
+                                .origin(getOrigin(firstBizEvent))
                                 .build()
                 )
                 .carts(listOfCartItems)
-                .origin(getOrigin(firstBizEvent))
                 .build();
     }
 
-    private static String getOrigin(BizEvent event) {
-        if (event.getTransactionDetails() != null) {
-            if (event.getTransactionDetails().getTransaction() != null &&
-                    event.getTransactionDetails().getTransaction().getOrigin() != null) {
-                return event.getTransactionDetails().getTransaction().getOrigin();
+    private static UserDetail getDebtor(BizEvent bizEvent) {
+        if(bizEvent.getDebtor() != null){
+            if(bizEvent.getDebtor().getFullName() == null) {
+                //TODO THROW EXCEPTION
             }
-            if (event.getTransactionDetails().getInfo() != null &&
-                    event.getTransactionDetails().getInfo().getClientId() != null) {
-                return event.getTransactionDetails().getInfo().getClientId();
+            if(bizEvent.getDebtor().getEntityUniqueIdentifierValue() == null){
+                //TODO THROW EXCEPTION
             }
+            return UserDetail.builder()
+                            .name(bizEvent.getDebtor().getFullName())
+                            .taxCode(bizEvent.getDebtor().getEntityUniqueIdentifierValue())
+                            .build();
         }
-        return null;
+
+        return null; //TODO THROW EXCEPTION
     }
 
-    private static String getTransactionId(List<BizEvent> listOfBizEvents, BizEvent bizEvent) {
-        if (listOfBizEvents.size() > 1 && bizEvent.getTransactionDetails() != null && bizEvent.getTransactionDetails().getTransaction() != null) {
+    private static PaymentMethodType getPaymentMethod(BizEvent bizEvent){
+        if(bizEvent.getPaymentInfo() != null &&
+            bizEvent.getPaymentInfo().getPaymentMethod() != null &&
+                PaymentMethodType.isValidPaymentMethod(bizEvent.getPaymentInfo().getPaymentMethod())
+        ){
+            return PaymentMethodType.valueOf(bizEvent.getPaymentInfo().getPaymentMethod());
+        }
+
+        return PaymentMethodType.UNKNOWN;
+    }
+
+    private static OriginType getOrigin(BizEvent bizEvent) {
+        if (bizEvent.getTransactionDetails() != null) {
+            if (bizEvent.getTransactionDetails().getTransaction() != null &&
+                    bizEvent.getTransactionDetails().getTransaction().getOrigin() != null &&
+                    OriginType.isValidOrigin(bizEvent.getTransactionDetails().getTransaction().getOrigin())
+            ) {
+                return OriginType.valueOf(bizEvent.getTransactionDetails().getTransaction().getOrigin());
+            }
+            if (bizEvent.getTransactionDetails().getInfo() != null &&
+                    bizEvent.getTransactionDetails().getInfo().getClientId() != null &&
+                    OriginType.isValidOrigin(bizEvent.getTransactionDetails().getInfo().getClientId() )
+            ) {
+                return OriginType.valueOf(bizEvent.getTransactionDetails().getInfo().getClientId());
+            }
+        }
+        return OriginType.UNKNOWN;
+    }
+
+    private static String getTransactionId(BizEvent bizEvent) {
+        if (bizEvent.getTransactionDetails() != null && bizEvent.getTransactionDetails().getTransaction() != null) {
             return bizEvent.getTransactionDetails().getTransaction().getTransactionId();
         }
-        return bizEvent.getId();
+        return null;//TODO THROW EXCEPTION
     }
 
-    private static String getAuthCode(BizEvent event) {
-        if (event.getTransactionDetails() != null && event.getTransactionDetails().getTransaction() != null) {
-            return event.getTransactionDetails().getTransaction().getNumAut();
-        }
-        return null;
-    }
-
-    private static String getRnn(BizEvent event) {
-        if (
-                event.getTransactionDetails() != null &&
-                        event.getTransactionDetails().getTransaction() != null &&
-                        event.getTransactionDetails().getTransaction().getRrn() != null
-        ) {
-            return event.getTransactionDetails().getTransaction().getRrn(); //TODO RNN OR RRN?
-        }
-        if (event.getPaymentInfo() != null) {
-            if (event.getPaymentInfo().getPaymentToken() != null) {
-                return event.getPaymentInfo().getPaymentToken();
-            }
-            if (event.getPaymentInfo().getIUR() != null) {
-                return event.getPaymentInfo().getIUR();
-            }
-        }
-        return null;
-    }
-
-    private static String getPspName(BizEvent event) {
-        if (event.getTransactionDetails() != null && event.getTransactionDetails().getTransaction() != null && event.getTransactionDetails().getTransaction().getPsp() != null && event.getTransactionDetails().getTransaction().getPsp().getBusinessName() != null) {
-            return event.getTransactionDetails().getTransaction().getPsp().getBusinessName();
-        }
-        return event.getPsp() != null && event.getPsp().getPsp() != null ? event.getPsp().getPsp() : null;
-    }
-
-    private static String getCreationDate(BizEvent event) {
-        if (
-                event.getTransactionDetails() != null &&
-                        event.getTransactionDetails().getTransaction() != null &&
-                        event.getTransactionDetails().getTransaction().getCreationDate() != null
-        ) {
-            return dateFormatZoned(event.getTransactionDetails().getTransaction().getCreationDate());
-        }
-        if (event.getPaymentInfo() != null && event.getPaymentInfo().getPaymentDateTime() != null) {
-            return dateFormat(event.getPaymentInfo().getPaymentDateTime());
-        }
-        return null;
-    }
-
-    private static String getPaymentMethodAccountHolder(BizEvent event) {
-        if (
-                event.getTransactionDetails() != null &&
-                        event.getTransactionDetails().getWallet() != null &&
-                        event.getTransactionDetails().getWallet().getInfo() != null &&
-                        event.getTransactionDetails().getWallet().getInfo().getHolder() != null
-        ) {
-            return event.getTransactionDetails().getWallet().getInfo().getHolder();
-        }
-        return null;
-    }
-
-    private static String getBrand(BizEvent event) {
-        if (
-                event.getTransactionDetails() != null &&
-                        event.getTransactionDetails().getWallet() != null &&
-                        event.getTransactionDetails().getWallet().getInfo() != null &&
-                        event.getTransactionDetails().getWallet().getInfo().getBrand() != null
-        ) {
-            return event.getTransactionDetails().getWallet().getInfo().getBrand();
-        }
-        return null;
-    }
-
-    private static String getBlurredNumber(BizEvent event) {
-        if(event.getTransactionDetails() != null && event.getTransactionDetails().getWallet() != null && event.getTransactionDetails().getWallet().getInfo() != null){
-            return event.getTransactionDetails().getWallet().getInfo().getBlurredNumber();
-        }
-        return null;
-    }
-
-    private static long getAmount(BizEvent bizEvent) {
+    private static String getAuthCode(BizEvent bizEvent) {
         if (bizEvent.getTransactionDetails() != null && bizEvent.getTransactionDetails().getTransaction() != null) {
-            return Long.parseLong( formatAmount(bizEvent.getTransactionDetails().getTransaction().getGrandTotal()));
+            return bizEvent.getTransactionDetails().getTransaction().getNumAut();
+        }
+        return null; //TODO THROW EXCEPTION
+    }
+
+    private static String getRrn(BizEvent bizEvent) {
+        if (
+                bizEvent.getTransactionDetails() != null &&
+                        bizEvent.getTransactionDetails().getTransaction() != null &&
+                        bizEvent.getTransactionDetails().getTransaction().getRrn() != null
+        ) {
+            return bizEvent.getTransactionDetails().getTransaction().getRrn();
+        }
+        if (bizEvent.getPaymentInfo() != null) {
+            if (bizEvent.getPaymentInfo().getPaymentToken() != null) {
+                return bizEvent.getPaymentInfo().getPaymentToken();
+            }
+            if (bizEvent.getPaymentInfo().getIUR() != null) {
+                return bizEvent.getPaymentInfo().getIUR();
+            }
+        }
+        return null; //TODO THROW EXCEPTION
+    }
+
+    private static String getPspName(BizEvent bizEvent) {
+        if (bizEvent.getTransactionDetails() != null && bizEvent.getTransactionDetails().getTransaction() != null && bizEvent.getTransactionDetails().getTransaction().getPsp() != null && bizEvent.getTransactionDetails().getTransaction().getPsp().getBusinessName() != null) {
+            return bizEvent.getTransactionDetails().getTransaction().getPsp().getBusinessName();
+        }
+        return bizEvent.getPsp() != null && bizEvent.getPsp().getPsp() != null ? bizEvent.getPsp().getPsp() : null; //TODO THROW EXCEPTION
+    }
+
+    private static String getCreationDate(BizEvent bizEvent) {
+        if (
+                bizEvent.getTransactionDetails() != null &&
+                        bizEvent.getTransactionDetails().getTransaction() != null &&
+                        bizEvent.getTransactionDetails().getTransaction().getCreationDate() != null
+        ) {
+            return dateFormatZoned(bizEvent.getTransactionDetails().getTransaction().getCreationDate());
+        }
+        if (bizEvent.getPaymentInfo() != null && bizEvent.getPaymentInfo().getPaymentDateTime() != null) {
+            return dateFormat(bizEvent.getPaymentInfo().getPaymentDateTime());
+        }
+        return null; //TODO THROW EXCEPTION
+    }
+
+    private static String getPaymentMethodAccountHolder(BizEvent bizEvent) {
+        if (
+                bizEvent.getTransactionDetails() != null &&
+                        bizEvent.getTransactionDetails().getWallet() != null &&
+                        bizEvent.getTransactionDetails().getWallet().getInfo() != null
+        ) {
+            return bizEvent.getTransactionDetails().getWallet().getInfo().getHolder();
+        }
+        return null;
+    }
+
+    private static String getBrand(BizEvent bizEvent) {
+        if (
+                bizEvent.getTransactionDetails() != null &&
+                        bizEvent.getTransactionDetails().getWallet() != null &&
+                        bizEvent.getTransactionDetails().getWallet().getInfo() != null
+        ) {
+            return bizEvent.getTransactionDetails().getWallet().getInfo().getBrand();
+        }
+        return null;
+    }
+
+    private static String getBlurredNumber(BizEvent bizEvent) {
+        if(bizEvent.getTransactionDetails() != null && bizEvent.getTransactionDetails().getWallet() != null && bizEvent.getTransactionDetails().getWallet().getInfo() != null){
+            return bizEvent.getTransactionDetails().getWallet().getInfo().getBlurredNumber();
+        }
+        return null;
+    }
+
+    private static BigDecimal getAmount(BizEvent bizEvent) {
+        if (bizEvent.getTransactionDetails() != null && bizEvent.getTransactionDetails().getTransaction() != null) {
+            return formatAmount(bizEvent.getTransactionDetails().getTransaction().getGrandTotal()); //TODO GRANDTOTAL CONTAINS FEE, IS WRONG TO ADD IT FOR CART ITEMS
         }
         if (bizEvent.getPaymentInfo() != null && bizEvent.getPaymentInfo().getAmount() != null) {
-            return Long.parseLong( bizEvent.getPaymentInfo().getAmount());
+            return new BigDecimal(bizEvent.getPaymentInfo().getAmount());
         }
-        return 0L;
+        return BigDecimal.ZERO; //TODO THROW EXCEPTION
     }
 
-    private static long getFee(BizEvent event) {
+    private static String getFee(BizEvent bizEvent) {
         if (
-                event.getTransactionDetails() != null &&
-                        event.getTransactionDetails().getTransaction() != null &&
-                        event.getTransactionDetails().getTransaction().getFee() != 0L
+                bizEvent.getTransactionDetails() != null &&
+                        bizEvent.getTransactionDetails().getTransaction() != null &&
+                        bizEvent.getTransactionDetails().getTransaction().getFee() != 0L
         ) {
-            return event.getTransactionDetails().getTransaction().getFee();
+            return currencyFormat(String.valueOf(bizEvent.getTransactionDetails().getTransaction().getFee() / 100.00));
         }
-        return 0L;
+        return null;
     }
 
     private static UserDetail getPayer(BizEvent bizEvent) {
         if (bizEvent.getPayer() != null) {
+            if(bizEvent.getPayer().getFullName() == null) {
+                //TODO THROW EXCEPTION
+            }
+            if(bizEvent.getPayer().getEntityUniqueIdentifierType() == null){
+                //TODO THROW EXCEPTION
+            }
             return UserDetail.builder()
                     .name(bizEvent.getPayer().getFullName())
                     .taxCode(bizEvent.getPayer().getEntityUniqueIdentifierType())
                     .build();
         }
-        return UserDetail.builder().build();
+        return null; //TODO THROW EXCEPTION
     }
 
     private static String getItemSubject(BizEvent bizEvent) {
@@ -232,51 +266,61 @@ public class ConvertBizEventListToTransactionDetailResponse {
             }
             return formatRemittanceInformation(remittanceInformation);
         }
-        return null;
+        return null; //TODO THROW EXCEPTION
     }
 
-    private static long getItemAmount(BizEvent event) {
-        if (event.getPaymentInfo() != null && event.getPaymentInfo().getAmount() != null) {
-            return Long.parseLong(event.getPaymentInfo().getAmount());
+    private static String getItemAmount(BizEvent bizEvent) {
+        if (bizEvent.getPaymentInfo() != null && bizEvent.getPaymentInfo().getAmount() != null) {
+            return bizEvent.getPaymentInfo().getAmount();
         }
-        return 0L;
+        return null; //TODO THROW EXCEPTION
     }
 
-    private static String getPayeeTaxCode(BizEvent event) {
-        if (event.getCreditor() != null && event.getCreditor().getIdPA() != null) {
-            return event.getCreditor().getIdPA();
+    private static UserDetail getPayee(BizEvent bizEvent){
+        if(bizEvent.getCreditor() != null){
+            if(bizEvent.getCreditor().getCompanyName() == null) {
+                //TODO THROW EXCEPTION
+            }
+            if(bizEvent.getCreditor().getIdPA() == null){
+                //TODO THROW EXCEPTION
+            }
+            return UserDetail.builder()
+                    .name(bizEvent.getCreditor().getCompanyName())
+                    .taxCode(bizEvent.getCreditor().getIdPA())
+                    .build();
         }
-        return null;
+
+        return null;//TODO THROW EXCEPTION
     }
 
-    private static String getRefNumberType(BizEvent event) {
-        if (event.getDebtorPosition() != null && event.getDebtorPosition().getModelType() != null) {
-            if (event.getDebtorPosition().getModelType().equals(MODEL_TYPE_IUV)) {
+    private static String getRefNumberType(BizEvent bizEvent) {
+        if (bizEvent.getDebtorPosition() != null && bizEvent.getDebtorPosition().getModelType() != null) {
+            if (bizEvent.getDebtorPosition().getModelType().equals(MODEL_TYPE_IUV)) {
                 return REF_TYPE_IUV;
             }
-            if (event.getDebtorPosition().getModelType().equals(MODEL_TYPE_NOTICE)) {
+            if (bizEvent.getDebtorPosition().getModelType().equals(MODEL_TYPE_NOTICE)) {
                 return REF_TYPE_NOTICE;
             }
         }
-        return null;
+        return null; //TODO THROW EXCEPTION
     }
 
-    private static String getRefNumberValue(BizEvent event) {
-        if (event.getDebtorPosition() != null && event.getDebtorPosition().getModelType() != null) {
-            if (event.getDebtorPosition().getModelType().equals(MODEL_TYPE_IUV) && event.getDebtorPosition().getIuv() != null) {
-                return event.getDebtorPosition().getIuv();
+    private static String getRefNumberValue(BizEvent bizEvent) {
+        if (bizEvent.getDebtorPosition() != null && bizEvent.getDebtorPosition().getModelType() != null) {
+            if (bizEvent.getDebtorPosition().getModelType().equals(MODEL_TYPE_IUV) && bizEvent.getDebtorPosition().getIuv() != null) {
+                return bizEvent.getDebtorPosition().getIuv();
             }
-            if (event.getDebtorPosition().getModelType().equals(MODEL_TYPE_NOTICE) && event.getDebtorPosition().getNoticeNumber() != null) {
-                return event.getDebtorPosition().getNoticeNumber();
+            if (bizEvent.getDebtorPosition().getModelType().equals(MODEL_TYPE_NOTICE) && bizEvent.getDebtorPosition().getNoticeNumber() != null) {
+                return bizEvent.getDebtorPosition().getNoticeNumber();
             }
         }
-        return null;
+        return null; //TODO THROW EXCEPTION
     }
 
-    private static String formatAmount(long grandTotal) {
+    private static BigDecimal formatAmount(long grandTotal) {
         BigDecimal amount = new BigDecimal(grandTotal);
         BigDecimal divider = new BigDecimal(100);
-        return amount.divide(divider, 2, RoundingMode.UNNECESSARY).toString();
+        return amount.divide(divider, 2, RoundingMode.UNNECESSARY);
     }
 
     private static String formatRemittanceInformation(String remittanceInformation) {
@@ -309,5 +353,13 @@ public class ConvertBizEventListToTransactionDetailResponse {
         } catch (DateTimeException e) {
             return null;
         }
+    }
+
+    private static String currencyFormat(String value) {
+        BigDecimal valueToFormat = new BigDecimal(value);
+        NumberFormat numberFormat = NumberFormat.getInstance(Locale.ITALY);
+        numberFormat.setMaximumFractionDigits(2);
+        numberFormat.setMinimumFractionDigits(2);
+        return numberFormat.format(valueToFormat);
     }
 }
