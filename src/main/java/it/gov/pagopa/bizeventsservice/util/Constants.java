@@ -15,4 +15,7 @@ public class Constants {
     public static final String INVALID_DATA = "Invalid Data";
 
 
+    public static final String INVALID_DATA = "Invalid Data";
+
+
 }
