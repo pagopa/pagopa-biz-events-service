@@ -15,5 +15,4 @@ public class TransactionDetailResponse {
 
     private InfoTransaction infoTransaction;
     private List<CartItem> carts;
-    private String origin;
 }

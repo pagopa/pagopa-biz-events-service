@@ -87,9 +87,9 @@ public class TransactionService implements ITransactionService {
         }
 
         if(isCart){
-            bizEventEntityList = this.bizEventsRepository.getBizEventByFiscalCodeAndTransactionId(eventReference, fiscalCode);
+            bizEventEntityList = this.bizEventsRepository.getBizEventByFiscalCodeAndTransactionId(fiscalCode,eventReference);
         } else {
-            bizEventEntityList = this.bizEventsRepository.getBizEventByFiscalCodeAndId(eventReference, fiscalCode);
+            bizEventEntityList = this.bizEventsRepository.getBizEventByFiscalCodeAndId(fiscalCode,eventReference);
         }
         if (bizEventEntityList.isEmpty()) {
             throw new AppException(AppError.BIZ_EVENT_NOT_FOUND_WITH_ID, eventReference);
