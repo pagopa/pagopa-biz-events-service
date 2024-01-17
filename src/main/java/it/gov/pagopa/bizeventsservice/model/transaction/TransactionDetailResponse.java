@@ -1,6 +1,5 @@
 package it.gov.pagopa.bizeventsservice.model.transaction;
 
-import it.gov.pagopa.bizeventsservice.model.transaction.enumeration.OriginType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,5 +15,5 @@ public class TransactionDetailResponse {
 
     private InfoTransaction infoTransaction;
     private List<CartItem> carts;
-    private OriginType origin;
+    private String origin;
 }

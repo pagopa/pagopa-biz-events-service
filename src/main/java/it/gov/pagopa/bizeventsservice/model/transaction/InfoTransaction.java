@@ -18,6 +18,6 @@ public class InfoTransaction {
     private String pspName;
     private WalletInfo walletInfo;
     private UserDetail payer;
-    private Long amount; //TODO verify amount type (string or long)
-    private String fee;
+    private long amount; //TODO verify amount type (string or long)
+    private long fee; //TODO verify fee type (string or long)
 }
