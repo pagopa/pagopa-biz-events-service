@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class CartItem {
 
     private String subject;
-    private Long amount;
+    private String amount;
     private UserDetail payee;
     private UserDetail debtor;
     private String refNumberValue;

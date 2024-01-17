@@ -28,10 +28,10 @@ public interface BizEventsRepository extends CosmosRepository<BizEvent, String> 
                                                      @Param("iur") String iur);
 
     @Query("select * from c where c.id = @bizEventId and (c.debtor.entityUniqueIdentifierValue = @fiscalCode or c.payer.entityUniqueIdentifierValue = @fiscalCode or c.transactionDetails.user.fiscalCode = @fiscalCode)")
-    List<BizEvent> getBizEventByFiscalCodeAndId(@Param("bizEventId") String bizEventId, @Param("fiscalCode") String fiscalCode);
+    List<BizEvent> getBizEventByFiscalCodeAndId(@Param("fiscalCode") String fiscalCode, @Param("bizEventId") String bizEvent);
 
     @Query("select * from c where c.transactionDetails.transaction.transactionId = @transactionId and (c.debtor.entityUniqueIdentifierValue = @fiscalCode or c.payer.entityUniqueIdentifierValue = @fiscalCode or c.transactionDetails.user.fiscalCode = @fiscalCode)")
-    List<BizEvent> getBizEventByFiscalCodeAndTransactionId(@Param("transactionId") String transactionId, @Param("fiscalCode") String fiscalCode);
+    List<BizEvent> getBizEventByFiscalCodeAndTransactionId( @Param("fiscalCode") String fiscalCode, @Param("transactionId") String transactionId);
 
     @Query("select distinct" +
             " c.paymentInfo.totalNotice != \"1\" ? " +
