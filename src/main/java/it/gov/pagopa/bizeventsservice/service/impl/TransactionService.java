@@ -5,7 +5,7 @@ import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.mapper.ConvertBizEventListToTransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
-import it.gov.pagopa.bizeventsservice.model.transaction.TransactionDetailResponse;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import lombok.extern.slf4j.Slf4j;

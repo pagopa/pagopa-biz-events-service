@@ -1,7 +1,7 @@
 package it.gov.pagopa.bizeventsservice.service;
 
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
-import it.gov.pagopa.bizeventsservice.model.transaction.TransactionDetailResponse;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 
 
 import java.util.List;

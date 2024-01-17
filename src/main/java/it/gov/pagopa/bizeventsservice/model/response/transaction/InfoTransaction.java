@@ -1,4 +1,4 @@
-package it.gov.pagopa.bizeventsservice.model.transaction;
+package it.gov.pagopa.bizeventsservice.model.response.transaction;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

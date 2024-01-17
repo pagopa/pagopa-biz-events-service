@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.gov.pagopa.bizeventsservice.model.ProblemJson;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
-import it.gov.pagopa.bizeventsservice.model.transaction.TransactionDetailResponse;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
