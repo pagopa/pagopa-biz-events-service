@@ -25,33 +25,33 @@ Feature: All about Organizations Receipt
     And the Biz-Event to test with id "123456789" is removed
 
   Scenario: An user asks for a its transactions
-    Given 3 Biz-Event with debtor fiscal code "AAAAAAAAAAAAAAAA"
-    And 3 Biz-Event with payer fiscal code "AAAAAAAAAAAAAAAA"
+    Given 3 Biz-Event with debtor fiscal code "AAAAAA00A00A000A"
+    And 3 Biz-Event with payer fiscal code "AAAAAA00A00A000A"
     And Save all on Cosmos DB
-    When the user with fiscal code "AAAAAAAAAAAAAAAA" asks for its transactions
+    When the user with fiscal code "AAAAAA00A00A000A" asks for its transactions
     Then the user gets the status code 200
     And the user gets 6 transactions
 
   Scenario: An user asks for a its transactions with cart transaction
-    Given 3 Biz-Event with debtor fiscal code "AAAAAAAAAAAAAAAA"
-    And 3 Biz-Event with payer fiscal code "AAAAAAAAAAAAAAAA"
-    And 3 cart Biz-Event with transactionId "biz-event-service-int-test-transaction-1", debtor fiscal code "AAAAAAAAAAAAAAAA" and amount "1000"
+    Given 3 Biz-Event with debtor fiscal code "AAAAAA00A00A000A"
+    And 3 Biz-Event with payer fiscal code "AAAAAA00A00A000A"
+    And 3 cart Biz-Event with transactionId "biz-event-service-int-test-transaction-1", debtor fiscal code "AAAAAA00A00A000A" and amount 1000
     And Save all on Cosmos DB
-    When the user with fiscal code "AAAAAAAAAAAAAAAA" asks for its transactions
+    When the user with fiscal code "AAAAAA00A00A000A" asks for its transactions
     Then the user gets the status code 200
     And the user gets 7 transactions
-    And one of the transactions is a cart with id "biz-event-service-int-test-transaction-1" and amount "30"
+    And one of the transactions is a cart with id "biz-event-service-int-test-transaction-1" and amount 30
 
   Scenario: An user asks for a transaction
-    Given Biz-Event with debtor fiscal code "AAAAAAAAAAAAAAAA" and id "biz-event-service-int-test-transaction-2"
+    Given Biz-Event with debtor fiscal code "AAAAAA00A00A000A" and id "biz-event-service-int-test-transaction-2"
     And Save all on Cosmos DB
-    When the user with fiscal code "AAAAAAAAAAAAAAAA" asks the transaction with id "biz-event-service-int-test-transaction-2"
+    When the user with fiscal code "AAAAAA00A00A000A" asks the transaction with id "biz-event-service-int-test-transaction-2" and isCart "false"
     Then the user gets the status code 200
     And the user gets the transaction with id "biz-event-service-int-test-transaction-2"
 
   Scenario: An user asks for a cart transaction
-    Given 3 cart Biz-Event with transactionId "biz-event-service-int-test-transaction-3", debtor fiscal code "AAAAAAAAAAAAAAAA" and amount "1000"
+    Given 3 cart Biz-Event with transactionId "biz-event-service-int-test-transaction-3", debtor fiscal code "AAAAAA00A00A000A" and amount 1000
     And Save all on Cosmos DB
-    When the user with fiscal code "AAAAAAAAAAAAAAAA" asks the transaction with id "biz-event-service-int-test-transaction-3"
+    When the user with fiscal code "AAAAAA00A00A000A" asks the transaction with id "biz-event-service-int-test-transaction-3" and isCart "true"
     Then the user gets the status code 200
     And the user gets the transaction with id "biz-event-service-int-test-transaction-2"

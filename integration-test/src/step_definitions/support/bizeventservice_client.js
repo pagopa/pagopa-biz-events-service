@@ -19,13 +19,13 @@ function getBizEventByOrgFiscalCodeAndIuv(organizationfiscalcode, iuv) {
 }
 
 function getTransactionListForUserWithFiscalCode(fiscalcode) {
-    return get(bizevents_service_host+`transactions?start=0&size=100`, {
+    return get(bizevents_service_host+`transactions?start=0&size=10`, {
         "x-fiscal-code": fiscalcode
     })
 }
 
-function getTransactionWithIdForUserWithFiscalCode(id, fiscalcode) {
-    return get(bizevents_service_host+`transactions/` + id, {
+function getTransactionWithIdForUserWithFiscalCode(id, fiscalcode, isCart) {
+    return get(bizevents_service_host+`transactions/${id}?isCart=${isCart}`, {
         "x-fiscal-code": fiscalcode
     })
 }
