@@ -55,12 +55,12 @@ public interface BizEventsRepository extends CosmosRepository<BizEvent, String> 
             @Param("start") Integer start,
             @Param("size") Integer size);
 
-    @Query("select c.transactionDetails.transaction.grandTotal as grandTotal, " +
-            "c.paymentInfo.amount as amount" +
-            "from c" +
-            "where c.transactionDetails.transaction.transactionId = @transactionId")
+    @Query(" select c.transactionDetails.transaction.grandTotal as grandTotal," +
+           " c.paymentInfo.amount as amount" +
+           " from c" +
+           " where c.transactionDetails.transaction.transactionId = @transactionToRecover")
     List<Map<String, Object>> getCartData(
-            @Param("transactionId") String transactionId
+            @Param("transactionToRecover") String transactionToRecover
     );
 
 
