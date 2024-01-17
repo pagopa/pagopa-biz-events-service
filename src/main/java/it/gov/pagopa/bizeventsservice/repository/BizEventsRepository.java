@@ -33,9 +33,9 @@ public interface BizEventsRepository extends CosmosRepository<BizEvent, String> 
             " c.transactionDetails.transaction != null ? " +
             "   c.transactionDetails.transaction.creationDate : c.paymentInfo.paymentDateTime as transactionDate," +
             " c.paymentInfo.totalNotice = \"1\" ? c.creditor.companyName : null as payeeName," +
-            " c.paymentInfo.totalNotice = \"1\" ? " +
-            "   (c.transactionDetails.transaction.grandTotal != null ? " +
-            "       c.transactionDetails.transaction.grandTotal : c.paymentInfo.amount) : null as amount," +
+            " c.paymentInfo.totalNotice = \"1\" ? c.creditor.idPA : null as payeeTaxCode," +
+            " c.paymentInfo.totalNotice = \"1\" ? c.transactionDetails.transaction.grandTotal : null as grandTotal," +
+            " c.paymentInfo.totalNotice = \"1\" ? c.paymentInfo.amount : null as amount," +
             " c.paymentInfo.totalNotice != \"1\" ? " +
             "   \"true\" : \"false\" as isCart" +
             " from c" +
@@ -50,8 +50,7 @@ public interface BizEventsRepository extends CosmosRepository<BizEvent, String> 
             @Param("size") Integer size);
 
     @Query("select c.transactionDetails.transaction.grandTotal as grandTotal, " +
-            "c.paymentInfo.amount as amount," +
-            "c.creditor.companyName as payeeName " +
+            "c.paymentInfo.amount as amount" +
             "from c" +
             "where c.transactionDetails.transaction.transactionId = @transactionId")
     List<Map<String, Object>> getCartData(

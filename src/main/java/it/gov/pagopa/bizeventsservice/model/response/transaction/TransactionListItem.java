@@ -15,6 +15,7 @@ public class TransactionListItem implements Serializable {
 
     private String transactionId;
     private String payeeName;
+    private String payeeTaxCode;
     private String amount;
     private String transactionDate;
     private Boolean isCart;

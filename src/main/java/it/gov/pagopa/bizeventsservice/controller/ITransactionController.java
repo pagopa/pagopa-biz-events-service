@@ -31,7 +31,7 @@ public interface ITransactionController {
     ResponseEntity<List<TransactionListItem>> getTransactionList(
             @RequestHeader(name = "x-fiscal-code") String fiscalCode,
             @RequestParam(name = "start") Integer start,
-            @RequestParam(name = "size", defaultValue = "5") Integer size
+            @RequestParam(name = "size", required = false, defaultValue = "5") Integer size
     );
 
 }
