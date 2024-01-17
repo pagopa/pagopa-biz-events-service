@@ -8,20 +8,41 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.model.ProblemJson;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.transaction.TransactionDetailResponse;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotBlank;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 @Tag(name = "Payment Receipts REST APIs")
 @RequestMapping("/transactions")
 @Validated
 public interface ITransactionController {
+
+    /**
+     *
+     * @param fiscalCode
+     * @param start
+     * @param size
+     * @return
+     */
+    @GetMapping
+    @Operation(summary = "Retrieve the paged transaction list from biz events.", security = {
+            @SecurityRequirement(name = "ApiKey") }, operationId = "getTransactionList")
+    ResponseEntity<List<TransactionListItem>> getTransactionList(
+            @RequestHeader(name = "x-fiscal-code") String fiscalCode,
+            @RequestParam(name = "start") Integer start,
+            @RequestParam(name = "size", required = false, defaultValue = "5") Integer size
+    );
 
     @Operation(summary = "Retrieve the transaction details given its id.", security = {
             @SecurityRequirement(name = "ApiKey") }, operationId = "getTransactionDetails")
