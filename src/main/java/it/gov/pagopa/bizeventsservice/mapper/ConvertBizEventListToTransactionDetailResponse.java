@@ -2,7 +2,8 @@ package it.gov.pagopa.bizeventsservice.mapper;
 
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.entity.Transfer;
-import it.gov.pagopa.bizeventsservice.model.transaction.*;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.DateTimeException;
