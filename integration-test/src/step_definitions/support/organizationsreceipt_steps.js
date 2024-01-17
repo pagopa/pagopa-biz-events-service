@@ -1,9 +1,9 @@
 const assert = require('assert')
-const {Given, When, Then, setDefaultTimeout, After} = require('@cucumber/cucumber')
-const {getOrganizationReceipt, getBizEventById, getBizEventByOrgFiscalCodeAndIuv, getTransactionListForUserWithFiscalCode, getTransactionWithIdForUserWithFiscalCode} = require("./bizeventservice_client");
-const {createDocument, deleteDocument} = require("./cosmosdb_client");
-const {createEvent, makeId} = require("./common");
-const {createDocumentInBizEventsDatastore, deleteDocumentFromBizEventsDatastore} = require("./biz_events_cosmosdb_client");
+const { Given, When, Then, setDefaultTimeout, After } = require('@cucumber/cucumber')
+const { getOrganizationReceipt, getBizEventById, getBizEventByOrgFiscalCodeAndIuv, getTransactionListForUserWithFiscalCode, getTransactionWithIdForUserWithFiscalCode } = require("./bizeventservice_client");
+const { createDocument, deleteDocument } = require("./cosmosdb_client");
+const { createEvent, makeId } = require("./common");
+const { createDocumentInBizEventsDatastore, deleteDocumentFromBizEventsDatastore } = require("./biz_events_cosmosdb_client");
 
 const BIZ_ID = "biz-event-service-int-test-transaction-";
 
@@ -16,14 +16,14 @@ setDefaultTimeout(360 * 1000);
 
 // After each Scenario
 After(async function () {
-    // remove event
-	if(bizEventList.length > 0){
-        for(let bizEvent of bizEventList){
-            await deleteDocumentFromBizEventsDatastore(bizEvent.id);
-        }
-    }
+	// remove event
+	if (bizEventList.length > 0) {
+		for (let bizEvent of bizEventList) {
+			await deleteDocumentFromBizEventsDatastore(bizEvent.id);
+		}
+	}
 
-    responseToCheck = null;
+	responseToCheck = null;
 	receipt = null;
 	bizEvent = null;
 	bizEventList = [];
@@ -87,14 +87,14 @@ Then('the details of the Biz-Event are returned to the operator with id {string}
 
 Given('{int} Biz-Event with debtor fiscal code {string}', (numberOfEvents, debtorFiscalCode) => {
 	for (let i = 0; i < numberOfEvents; i++) {
-        bizEventList.push(createEvent(BIZ_ID + i + makeId(4), undefined, undefined, debtorFiscalCode))
-    }
+		bizEventList.push(createEvent(BIZ_ID + i + makeId(4), undefined, undefined, debtorFiscalCode))
+	}
 })
 
 Given('{int} Biz-Event with payer fiscal code {string}', (numberOfEvents, payerFiscalCode) => {
 	for (let i = 0; i < numberOfEvents; i++) {
-        bizEventList.push(createEvent(BIZ_ID + i + makeId(4), undefined, undefined, undefined, payerFiscalCode))
-    }
+		bizEventList.push(createEvent(BIZ_ID + i + makeId(4), undefined, undefined, undefined, payerFiscalCode))
+	}
 })
 
 Given('Save all on Cosmos DB', async () => {
@@ -112,24 +112,24 @@ When('the user with fiscal code {string} asks for its transactions', async (fisc
 Then('the user gets the status code {int}', (status) => {
 	assert.strictEqual(responseToCheck.status, status);
 })
-	
+
 Then('the user gets {int} transactions', (totalTransactions) => {
 	assert.strictEqual(responseToCheck.data.length, totalTransactions);
 })
 
 Given('{int} cart Biz-Event with transactionId {string}, debtor fiscal code {string} and amount {int}', (numberOfEvents, transactionId, debtorFiscalCode, amount) => {
 	for (let i = 0; i < numberOfEvents; i++) {
-        bizEventList.push(createEvent(i + makeId(10), transactionId, numberOfEvents, debtorFiscalCode, undefined, amount))
-    }
+		bizEventList.push(createEvent(i + makeId(10), transactionId, numberOfEvents, debtorFiscalCode, undefined, amount))
+	}
 })
 
 Then('one of the transactions is a cart with id {string} and amount {bigdecimal}', (transactionId, amount) => {
 	let found = false;
 	for (let transaction of responseToCheck.data) {
 		if (transaction.transactionId == transactionId) {
-						assert.strictEqual(transaction.amount, amount);
-            found = true;
-        }
+			assert.strictEqual(transaction.amount, amount);
+			found = true;
+		}
 	}
 	assert.strictEqual(found, true);
 })
