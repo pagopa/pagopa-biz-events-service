@@ -152,7 +152,7 @@ function getDocumentForTest(id) {
     }
 }
 
-function createEvent(id, transactionId, totalNotice, debtorFiscalCode, payerFiscalCode) {
+function createEvent(id, transactionId, totalNotice, debtorFiscalCode, payerFiscalCode, amount) {
 	return {
 		"id": id,
 		"version": "2",
@@ -252,7 +252,7 @@ function createEvent(id, transactionId, totalNotice, debtorFiscalCode, payerFisc
 			"transaction": {
 				"idTransaction": "123456",
 				"transactionId": transactionId ? transactionId : "123456",
-				"grandTotal": 0,
+				"grandTotal": amount || 0,
 				"amount": 0,
 				"fee": 0
 			}

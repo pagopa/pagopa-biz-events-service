@@ -87,13 +87,13 @@ Then('the details of the Biz-Event are returned to the operator with id {string}
 
 Given('{int} Biz-Event with debtor fiscal code {string}', (numberOfEvents, debtorFiscalCode) => {
 	for (let i = 0; i < numberOfEvents; i++) {
-        bizEventList.push(createEvent(BIZ_ID + makeId(i), undefined, undefined, debtorFiscalCode))
+        bizEventList.push(createEvent(BIZ_ID + i + makeId(4), undefined, undefined, debtorFiscalCode))
     }
 })
 
 Given('{int} Biz-Event with payer fiscal code {string}', (numberOfEvents, payerFiscalCode) => {
 	for (let i = 0; i < numberOfEvents; i++) {
-        bizEventList.push(createEvent(BIZ_ID + makeId(i), undefined, undefined, undefined, payerFiscalCode))
+        bizEventList.push(createEvent(BIZ_ID + i + makeId(4), undefined, undefined, undefined, payerFiscalCode))
     }
 })
 
@@ -113,8 +113,25 @@ Then('the user gets the status code {int}', (status) => {
 	assert.strictEqual(responseToCheck.status, status);
 })
 	
-Then('the user gets all its transactions', () => {
-	assert.strictEqual(responseToCheck.data.length, bizEventList.length);
+Then('the user gets {int} transactions', (totalTransactions) => {
+	assert.strictEqual(responseToCheck.data.length, totalTransactions);
+})
+
+Given('{int} cart Biz-Event with transactionId {string}, debtor fiscal code {string} and amount {string}', (numberOfEvents, transactionId, debtorFiscalCode, amount) => {
+	for (let i = 0; i < numberOfEvents; i++) {
+        bizEventList.push(createEvent(i + makeId(10), transactionId, numberOfEvents, debtorFiscalCode, undefined, amount))
+    }
+})
+
+Then('one of the transactions is a cart with id {string} and amount {string}', (transactionId, amount) => {
+	let found = false;
+	for (let transaction of responseToCheck.data) {
+		if (transaction.transactionId == transactionId) {
+			assert.strictEqual(transaction.amount, amount);
+            found = true;
+        }
+	}
+	assert.strictEqual(found, true);
 })
 
 Given('Biz-Event with debtor fiscal code {string} and id {string}', (debtorFiscalCode, id) => {
