@@ -1,6 +1,7 @@
 package it.gov.pagopa.bizeventsservice.controller.impl;
 
 import it.gov.pagopa.bizeventsservice.controller.ITransactionController;
+import it.gov.pagopa.bizeventsservice.exception.ErrorHandler;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
