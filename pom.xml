@@ -16,7 +16,7 @@
     <description>Microservice for exposing REST APIs about payment receipts.</description>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <springdoc-version>1.6.12</springdoc-version>
 		<modelmapper-version>3.1.0</modelmapper-version>
 		<cosmos-data-version>3.29.1</cosmos-data-version>
