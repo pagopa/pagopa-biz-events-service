@@ -52,6 +52,36 @@ export function createDocument(cosmosDbURI, databaseId, containerId, authorizati
     return http.post(cosmosDbURI+path, body, params)
 }
 
+export function createTransactionListDocument(cosmosDbURI, databaseId, containerId, authorizationSignature, id, fiscalCode) {
+	let path = `dbs/${databaseId}/colls/${containerId}/docs`;
+	let resourceLink = `dbs/${databaseId}/colls/${containerId}`;
+	// resource type (colls, docs...)
+	let resourceType = "docs"
+	let date = new Date().toUTCString();
+	// request method (a.k.a. verb) to build text for authorization token
+    let verb = 'post';
+	let authorizationToken = getCosmosDBAuthorizationToken(verb,authorizationType,authorizationVersion,authorizationSignature,resourceType,resourceLink,date);
+
+	let partitionKeyArray = "[\""+id+"\"]";
+	let headers = getCosmosDBAPIHeaders(authorizationToken, date, partitionKeyArray, 'application/json');
+
+	let params = {
+		headers: headers,
+	};
+
+    const documentToSave = getDocumentForTest(id);
+    documentToSave.payer.entityUniqueIdentifierValue = fiscalCode;
+    documentToSave.debtor.entityUniqueIdentifierValue = fiscalCode;
+    documentToSave.transactionDetails = {
+        transaction: {
+            transactionId: id
+        }
+    };
+    const body = JSON.stringify(documentToSave);
+
+    return http.post(cosmosDbURI+path, body, params)
+}
+
 export function deleteDocument(cosmosDbURI, databaseId, containerId, authorizationSignature, id) {  
 	let path = `dbs/${databaseId}/colls/${containerId}/docs/${id}`;
 	let resourceLink = path;
