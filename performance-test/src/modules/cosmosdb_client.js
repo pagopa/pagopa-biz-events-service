@@ -1,11 +1,40 @@
 import http from 'k6/http';
 import crypto from 'k6/crypto';
 import encoding from 'k6/encoding';
+import { SharedArray } from 'k6/data';
+import { CosmosClient } from "@azure/cosmos";
 
 
 var authorizationType      = "master"
 var authorizationVersion   = "1.0";
 var cosmosDBApiVersion     = "2018-12-31";
+
+export let options = JSON.parse(open(__ENV.TEST_TYPE));
+
+// read configuration
+// note: SharedArray can currently only be constructed inside init code
+// according to https://k6.io/docs/javascript-api/k6-data/sharedarray
+const varsArray = new SharedArray('vars', function() {
+	return JSON.parse(open(`../${__ENV.VARS}`)).environment;
+});
+// workaround to use shared array (only array should be used)
+const vars = varsArray[0];
+const databaseID = `${vars.databaseID}`;
+const containerID = `${vars.containerID}`;
+
+const connString = `${__ENV.API_SUBSCRIPTION_KEY}`;
+
+var client;
+var receiptContainer;
+
+
+function getContainer() {
+    if (client == undefined) {
+        client = new CosmosClient(connString);
+        receiptContainer = client.database(databaseID).container(containerID);
+    }
+    return receiptContainer;
+}
 
 
 
@@ -52,22 +81,7 @@ export function createDocument(cosmosDbURI, databaseId, containerId, authorizati
     return http.post(cosmosDbURI+path, body, params)
 }
 
-export function createTransactionListDocument(cosmosDbURI, databaseId, containerId, authorizationSignature, eventId, transactionId, fiscalCode, totalNotice) {
-	let path = `dbs/${databaseId}/colls/${containerId}/docs`;
-	let resourceLink = `dbs/${databaseId}/colls/${containerId}`;
-	// resource type (colls, docs...)
-	let resourceType = "docs"
-	let date = new Date().toUTCString();
-	// request method (a.k.a. verb) to build text for authorization token
-    let verb = 'post';
-	let authorizationToken = getCosmosDBAuthorizationToken(verb,authorizationType,authorizationVersion,authorizationSignature,resourceType,resourceLink,date);
-
-	let partitionKeyArray = "[\""+eventId+"\"]";
-	let headers = getCosmosDBAPIHeaders(authorizationToken, date, partitionKeyArray, 'application/json');
-
-	let params = {
-		headers: headers,
-	};
+export async function createTransactionListDocument(eventId, transactionId, fiscalCode, totalNotice) {
 
     const documentToSave = getDocumentForTest(eventId);
     documentToSave.payer.entityUniqueIdentifierValue = fiscalCode;
@@ -78,12 +92,17 @@ export function createTransactionListDocument(cosmosDbURI, databaseId, container
             transactionId: transactionId
         }
     };
-    const body = JSON.stringify(documentToSave);
+    try {
+        return await getContainer().items.create(documentToSave);
+    } catch (err) {
+        throw new Error(
+          "Error saving biz-event" + eventId + "to container " + containerID
+        );
+    }
 
-    return http.post(cosmosDbURI+path, body, params)
 }
 
-export function deleteDocument(cosmosDbURI, databaseId, containerId, authorizationSignature, id) {  
+export async function deleteDocument(cosmosDbURI, databaseId, containerId, authorizationSignature, id) {
 	let path = `dbs/${databaseId}/colls/${containerId}/docs/${id}`;
 	let resourceLink = path;
 	// resource type (colls, docs...)
@@ -92,15 +111,25 @@ export function deleteDocument(cosmosDbURI, databaseId, containerId, authorizati
 	// request method (a.k.a. verb) to build text for authorization token
     let verb = 'delete';
 	let authorizationToken = getCosmosDBAuthorizationToken(verb,authorizationType,authorizationVersion,authorizationSignature,resourceType,resourceLink,date);
-	
+
 	let partitionKeyArray = "[\""+id+"\"]";
 	let headers = getCosmosDBAPIHeaders(authorizationToken, date, partitionKeyArray, 'application/json');
-	
+
 	let params = {
 		headers: headers,
 	};
-	
+
     return http.del(cosmosDbURI+path, null, params);
+}
+
+export async function deleteDocumentOnContainer(id) {
+    try {
+        return await getContainer().item(id, id).delete();
+    } catch (error) {
+        if (error.code !== 404) {
+            throw new Error("Error deleting biz-event " + id);
+        }
+    }
 }
 
 
