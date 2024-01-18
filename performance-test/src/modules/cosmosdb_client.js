@@ -52,7 +52,7 @@ export function createDocument(cosmosDbURI, databaseId, containerId, authorizati
     return http.post(cosmosDbURI+path, body, params)
 }
 
-export function createTransactionListDocument(cosmosDbURI, databaseId, containerId, authorizationSignature, id, fiscalCode, totalNotice) {
+export function createTransactionListDocument(cosmosDbURI, databaseId, containerId, authorizationSignature, eventId, transactionId, fiscalCode, totalNotice) {
 	let path = `dbs/${databaseId}/colls/${containerId}/docs`;
 	let resourceLink = `dbs/${databaseId}/colls/${containerId}`;
 	// resource type (colls, docs...)
@@ -69,13 +69,13 @@ export function createTransactionListDocument(cosmosDbURI, databaseId, container
 		headers: headers,
 	};
 
-    const documentToSave = getDocumentForTest(id);
+    const documentToSave = getDocumentForTest(eventId);
     documentToSave.payer.entityUniqueIdentifierValue = fiscalCode;
     documentToSave.debtor.entityUniqueIdentifierValue = fiscalCode;
     documentToSave.paymentInfo.totalNotice = String(totalNotice);
     documentToSave.transactionDetails = {
         transaction: {
-            transactionId: id
+            transactionId: transactionId
         }
     };
     const body = JSON.stringify(documentToSave);
