@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-biz-events-service
-    tag: "0.1.2-1-PAGOPA-1454-sviluppo-biz-evt-migrazione-a-java-17"
+    tag: "0.1.3"
     pullPolicy: Always
   livenessProbe:
     httpGet:
