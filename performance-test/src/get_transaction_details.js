@@ -24,6 +24,7 @@ const numberOfEventsToPreload = `${vars.numberOfEventsToPreload}`;
 
 const accountPrimaryKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
 
+var eventIds = new Array();
 var containerIds = new Array();
 var fiscalCodeMap = {};
 var cartMap = {};
@@ -43,6 +44,7 @@ export function setup() {
             const response = createTransactionListDocument(
                 cosmosDBURI, databaseID, containerID, accountPrimaryKey, id_cart, id, fiscalCode, totalNotice);
             check(response, { "status is 201": (res) => (res.status === 201) });
+            eventIds.push(id_cart);
 		}
 		containerIds.push(id);
         fiscalCodeMap[id] = fiscalCode;
@@ -51,7 +53,7 @@ export function setup() {
 
 	
 	 // return the array with preloaded id
-	 return { ids: containerIds, fiscalCodeMap: fiscalCodeMap , cartMap = cartMap }
+	 return { ids: containerIds, eventIds: eventIds, fiscalCodeMap: fiscalCodeMap , cartMap = cartMap }
 	 
 	 // precondition is moved to default fn because in this stage
 	 // __VU is always 0 and cannot be used to create env properly
@@ -64,7 +66,7 @@ function precondition() {
 // teardown the test data
 export function teardown(data) {
 	
-	for (const element of data.ids) {
+	for (const element of data.eventIds) {
 		const response = deleteDocument(cosmosDBURI, databaseID, containerID, accountPrimaryKey, element);
 		check(response, { "status is 204": (res) => (res.status === 204) });
 	}
