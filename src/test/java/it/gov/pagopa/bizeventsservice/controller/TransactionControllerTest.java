@@ -3,6 +3,7 @@ package it.gov.pagopa.bizeventsservice.controller;
 
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.TestUtil;
@@ -23,8 +24,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -34,6 +34,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class TransactionControllerTest {
 
+    public static final String INVALID_FISCAL_CODE = "INVALID_TX_FISCAL_CODE";
+    public static final String VALID_FISCAL_CODE = "AAAAAA00A00A000A";
+    public static final String LIST_TRANSACTION_PATH = "/transactions";
+    public static final String FISCAL_CODE_HEADER_KEY = "x-fiscal-code";
+    public static final String TRANSACTION_DETAILS_PATH = "/transactions/transaction-id";
     @Autowired
     private MockMvc mvc;
 
@@ -44,13 +49,15 @@ public class TransactionControllerTest {
     void setUp() throws IOException {
         // precondition
         List<TransactionListItem> transactionListItems = TestUtil.readModelFromFile("biz-events/getTransactionList.json", List.class);
+        TransactionDetailResponse transactionDetail = TestUtil.readModelFromFile("biz-events/transactionDetails.json", TransactionDetailResponse.class);
         when(transactionService.getTransactionList(anyString(), anyInt(), anyInt())).thenReturn(transactionListItems);
+        when(transactionService.getTransactionDetails(anyString(), anyBoolean(), anyString())).thenReturn(transactionDetail);
     }
 
     @Test
     void getListTransactionShouldReturnData() throws Exception {
-        MvcResult result = mvc.perform(get("/transactions")
-                        .header("x-fiscal-code", "TX_FISCAL_CODE")
+        MvcResult result = mvc.perform(get(LIST_TRANSACTION_PATH)
+                        .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
                         .queryParam("start", "0")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -63,7 +70,7 @@ public class TransactionControllerTest {
 
     @Test
     void getListTransactionWithMissingFiscalCodeShouldReturnError() throws Exception {
-        mvc.perform(get("/transactions")
+        mvc.perform(get(LIST_TRANSACTION_PATH)
                         .queryParam("start", "0")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -72,8 +79,8 @@ public class TransactionControllerTest {
 
     @Test
     void getListTransactionWithMissingStartShouldReturnError() throws Exception {
-        mvc.perform(get("/transactions")
-                        .header("x-fiscal-code", "TX_FISCAL_CODE")
+        mvc.perform(get(LIST_TRANSACTION_PATH)
+                        .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -82,11 +89,43 @@ public class TransactionControllerTest {
     @Test
     void getListTransactionWithInvalidFiscalCodeShouldReturnError() throws Exception {
         when(transactionService.getTransactionList(anyString(), anyInt(), anyInt())).thenAnswer(x -> {
-            throw new AppException(AppError.INVALID_FISCAL_CODE, "INVALID_TX_FISCAL_CODE");
+            throw new AppException(AppError.INVALID_FISCAL_CODE, INVALID_FISCAL_CODE);
         });
-        mvc.perform(get("/transactions")
-                        .header("x-fiscal-code", "INVALID_TX_FISCAL_CODE")
+        mvc.perform(get(LIST_TRANSACTION_PATH)
+                        .header(FISCAL_CODE_HEADER_KEY, INVALID_FISCAL_CODE)
                         .queryParam("start", "0")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    @Test
+    void getTransactionDetailsShouldReturnData() throws Exception {
+        MvcResult result = mvc.perform(get(TRANSACTION_DETAILS_PATH)
+                        .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+        assertNotNull(result.getResponse().getContentAsString());
+        assertTrue(result.getResponse().getContentAsString().contains("PAYER NAME"));
+    }
+
+    @Test
+    void getTransactionDetailsWithMissingFiscalCodeShouldReturnError() throws Exception {
+        mvc.perform(get(TRANSACTION_DETAILS_PATH)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    @Test
+    void getTransactionDetailsWithInvalidFiscalCodeShouldReturnError() throws Exception {
+        when(transactionService.getTransactionDetails(anyString(), anyBoolean(), anyString())).thenAnswer(x -> {
+            throw new AppException(AppError.INVALID_FISCAL_CODE, INVALID_FISCAL_CODE);
+        });
+        mvc.perform(get(TRANSACTION_DETAILS_PATH)
+                        .header(FISCAL_CODE_HEADER_KEY, INVALID_FISCAL_CODE)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
