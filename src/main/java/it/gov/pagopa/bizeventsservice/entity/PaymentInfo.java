@@ -2,6 +2,7 @@ package it.gov.pagopa.bizeventsservice.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.bizeventsservice.model.MapEntry;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,4 +32,6 @@ public class PaymentInfo {
 	private String remittanceInformation;
 	private String description;
 	private List<MapEntry> metadata;
+	@JsonProperty(value="IUR")
+	private String IUR;
 }

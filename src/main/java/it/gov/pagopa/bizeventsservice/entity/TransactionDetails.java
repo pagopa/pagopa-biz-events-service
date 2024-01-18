@@ -15,4 +15,7 @@ public class TransactionDetails {
 	private User user;
 	private PaymentAuthorizationRequest paymentAuthorizationRequest;
 	private WalletItem wallet;
+	private String origin;
+	private Transaction transaction;
+	private InfoTransaction info;
 }
