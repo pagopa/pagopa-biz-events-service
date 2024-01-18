@@ -38,13 +38,13 @@ export function setup() {
 		let totalNotice = Math.floor(Math.random() * 3)
 		let fiscalCode = makeRandomFiscalCode();
 		for (let j = 0; j < totalNotice; j++) {
-            var id_cart = id+"_"+j;
+            var id_cart = totalNotice > 1 ? id+"_"+j : id;
             const response = createTransactionListDocument(
-                cosmosDBURI, databaseID, containerID, accountPrimaryKey, id_cart, fiscalCode, totalNotice);
+                cosmosDBURI, databaseID, containerID, accountPrimaryKey, id_cart, id, fiscalCode, totalNotice);
             check(response, { "status is 201": (res) => (res.status === 201) });
-            containerIds.push(id);
-            fiscalCodeMap[id] = fiscalCode;
 		}
+		containerIds.push(id);
+        fiscalCodeMap[id] = fiscalCode;
 	}
 
 	

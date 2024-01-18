@@ -26,6 +26,7 @@ const accountPrimaryKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
 
 var containerIds = new Array();
 var fiscalCodeMap = {};
+var cartMap = {};
 
 
 export function setup() {
@@ -38,18 +39,19 @@ export function setup() {
 		let totalNotice = Math.floor(Math.random() * 3)
 		let fiscalCode = makeRandomFiscalCode();
 		for (let j = 0; j < totalNotice; j++) {
-            var id_cart = id+"_"+j;
+            var id_cart = totalNotice > 1 ? id+"_"+j : id;
             const response = createTransactionListDocument(
-                cosmosDBURI, databaseID, containerID, accountPrimaryKey, id_cart, fiscalCode, totalNotice);
+                cosmosDBURI, databaseID, containerID, accountPrimaryKey, id_cart, id, fiscalCode, totalNotice);
             check(response, { "status is 201": (res) => (res.status === 201) });
-            containerIds.push(id);
-            fiscalCodeMap[id] = fiscalCode;
 		}
+		containerIds.push(id);
+        fiscalCodeMap[id] = fiscalCode;
+        cartMap[id] = totalNotice>1;
 	}
 
 	
 	 // return the array with preloaded id
-	 return { ids: containerIds, map: fiscalCodeMap }
+	 return { ids: containerIds, fiscalCodeMap: fiscalCodeMap , cartMap = cartMap }
 	 
 	 // precondition is moved to default fn because in this stage
 	 // __VU is always 0 and cannot be used to create env properly
@@ -76,7 +78,7 @@ export default function(data) {
 	};
 	
 	var itemToRecover = getRandomItemFromArray(data.ids);
-	var fiscalCode = data.map[itemToRecover];
+	var fiscalCode = data.fiscalCodeMap[itemToRecover];
 
 	const params = {
 		headers: {
@@ -85,7 +87,9 @@ export default function(data) {
 		},
 	};
 
-	const response = getTransactionDetails(bizEventServiceURI, itemToRecover, params);
+	var isCart = data.cartMap[itemToRecover];
+
+	const response = getTransactionDetails(bizEventServiceURI, itemToRecover, isCart, params);
 
 	console.log(`getTransactionDetails ... ${response.status}`);
 
