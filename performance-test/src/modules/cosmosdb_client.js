@@ -62,7 +62,7 @@ export function createTransactionListDocument(cosmosDbURI, databaseId, container
     let verb = 'post';
 	let authorizationToken = getCosmosDBAuthorizationToken(verb,authorizationType,authorizationVersion,authorizationSignature,resourceType,resourceLink,date);
 
-	let partitionKeyArray = "[\""+id+"\"]";
+	let partitionKeyArray = "[\""+eventId+"\"]";
 	let headers = getCosmosDBAPIHeaders(authorizationToken, date, partitionKeyArray, 'application/json');
 
 	let params = {
