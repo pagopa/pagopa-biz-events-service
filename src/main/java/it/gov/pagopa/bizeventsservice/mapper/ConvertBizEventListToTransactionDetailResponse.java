@@ -71,7 +71,7 @@ public class ConvertBizEventListToTransactionDetailResponse {
                                                 .build()
                                 )
                                 .payer(getPayer(firstBizEvent))
-                                .amount(amount.get().toString())
+                                .amount(currencyFormat(amount.get().toString()))
                                 .fee(getFee(firstBizEvent))
                                 .paymentMethod(getPaymentMethod(firstBizEvent))
                                 .origin(getOrigin(firstBizEvent))
@@ -128,14 +128,14 @@ public class ConvertBizEventListToTransactionDetailResponse {
     }
 
     private static String getTransactionId(BizEvent bizEvent) {
-        if (bizEvent.getTransactionDetails() != null && bizEvent.getTransactionDetails().getTransaction() != null) {
+        if (bizEvent.getTransactionDetails() != null && bizEvent.getTransactionDetails().getTransaction() != null && bizEvent.getTransactionDetails().getTransaction().getTransactionId() != null) {
             return bizEvent.getTransactionDetails().getTransaction().getTransactionId();
         }
         throw new AppException(AppError.ERROR_MAPPING_BIZ_EVENT_TO_TRANSACTION_DETAIL, "infoTransaction.transactionId", bizEvent.getId());
     }
 
     private static String getAuthCode(BizEvent bizEvent) {
-        if (bizEvent.getTransactionDetails() != null && bizEvent.getTransactionDetails().getTransaction() != null) {
+        if (bizEvent.getTransactionDetails() != null && bizEvent.getTransactionDetails().getTransaction() != null && bizEvent.getTransactionDetails().getTransaction().getNumAut() != null) {
             return bizEvent.getTransactionDetails().getTransaction().getNumAut();
         }
         throw new AppException(AppError.ERROR_MAPPING_BIZ_EVENT_TO_TRANSACTION_DETAIL, "infoTransaction.authCode", bizEvent.getId());
@@ -214,7 +214,7 @@ public class ConvertBizEventListToTransactionDetailResponse {
     }
 
     private static BigDecimal getAmount(BizEvent bizEvent) {
-        if (bizEvent.getTransactionDetails() != null && bizEvent.getTransactionDetails().getTransaction() != null) {
+        if (bizEvent.getTransactionDetails() != null && bizEvent.getTransactionDetails().getTransaction() != null && bizEvent.getTransactionDetails().getTransaction().getGrandTotal() != 0L) {
             return formatAmount(bizEvent.getTransactionDetails().getTransaction().getGrandTotal()); //TODO GRANDTOTAL CONTAINS FEE, IS WRONG TO ADD IT FOR CART ITEMS
         }
         if (bizEvent.getPaymentInfo() != null && bizEvent.getPaymentInfo().getAmount() != null) {
@@ -239,12 +239,12 @@ public class ConvertBizEventListToTransactionDetailResponse {
             if(bizEvent.getPayer().getFullName() == null) {
                 throw new AppException(AppError.ERROR_MAPPING_BIZ_EVENT_TO_TRANSACTION_DETAIL, "infoTransaction.payer.name", bizEvent.getId());
             }
-            if(bizEvent.getPayer().getEntityUniqueIdentifierType() == null){
+            if(bizEvent.getPayer().getEntityUniqueIdentifierValue() == null){
                 throw new AppException(AppError.ERROR_MAPPING_BIZ_EVENT_TO_TRANSACTION_DETAIL, "infoTransaction.payer.taxCode", bizEvent.getId());
             }
             return UserDetail.builder()
                     .name(bizEvent.getPayer().getFullName())
-                    .taxCode(bizEvent.getPayer().getEntityUniqueIdentifierType())
+                    .taxCode(bizEvent.getPayer().getEntityUniqueIdentifierValue())
                     .build();
         }
         throw new AppException(AppError.ERROR_MAPPING_BIZ_EVENT_TO_TRANSACTION_DETAIL, "infoTransaction.payer", bizEvent.getId());
