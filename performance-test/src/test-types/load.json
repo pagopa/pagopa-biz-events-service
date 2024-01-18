@@ -12,15 +12,7 @@
   "stages": [
     {
       "duration": "1s",
-      "target": 5
-    },
-    {
-      "duration": "2s",
-      "target": 5
-    },
-    {
-      "duration": "1s",
-      "target": 0
+      "target": 1
     }
   ],
   "thresholds": {

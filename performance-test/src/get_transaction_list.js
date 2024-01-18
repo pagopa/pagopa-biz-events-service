@@ -2,34 +2,23 @@ import http from 'k6/http';
 import { check } from 'k6';
 import { SharedArray } from 'k6/data';
 
-import { createDocument, createTransactionListDocument, deleteDocument } from "./modules/cosmosdb_client.js";
+import { createDocument, createTransactionListDocument, deleteDocumentOnContainer } from "./modules/cosmosdb_client.js";
 import { getTransactionList } from "./modules/bizeventservice_client.js";
 import { makeidMix, getRandomItemFromArray, makeRandomFiscalCode } from './modules/helpers.js';
 
-export let options = JSON.parse(open(__ENV.TEST_TYPE));
-
-// read configuration
-// note: SharedArray can currently only be constructed inside init code
-// according to https://k6.io/docs/javascript-api/k6-data/sharedarray
 const varsArray = new SharedArray('vars', function() {
 	return JSON.parse(open(`./${__ENV.VARS}`)).environment;
 });
 // workaround to use shared array (only array should be used)
 const vars = varsArray[0];
-const bizEventServiceURI = `${vars.bizEventServiceURI}`;
 const cosmosDBURI = `${vars.cosmosDBURI}`;
-const databaseID = `${vars.databaseID}`;
-const containerID = `${vars.containerID}`;
 const numberOfEventsToPreload = `${vars.numberOfEventsToPreload}`;
-
-const accountPrimaryKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
 
 var eventIds = new Array();
 var containerIds = new Array();
 var fiscalCodeMap = {};
 
-
-export function setup() {
+export async function setup() {
 	// 1. setup code (once)
 	// The setup code runs, setting up the test environment (optional) and generating data
 	// used to reuse code for the same VU
@@ -40,9 +29,9 @@ export function setup() {
 		let fiscalCode = makeRandomFiscalCode();
 		for (let j = 0; j < totalNotice; j++) {
             var id_cart = totalNotice > 1 ? id+"_"+j : id;
-            const response = createTransactionListDocument(
-                cosmosDBURI, databaseID, containerID, accountPrimaryKey, id_cart, id, fiscalCode, totalNotice);
-            check(response, { "status is 201": (res) => (res.status === 201) });
+            const response = await createTransactionListDocument(id_cart, id, fiscalCode, totalNotice);
+            console.log(response);
+            check(response, { "status is 201": (res) => (res.statusCode === 201) });
             eventIds.push(id_cart);
 		}
 		containerIds.push(id);
@@ -62,11 +51,11 @@ function precondition() {
 }
 
 // teardown the test data
-export function teardown(data) {
+export async function teardown(data) {
 	
 	for (const element of data.eventIds) {
-		const response = deleteDocument(cosmosDBURI, databaseID, containerID, accountPrimaryKey, element);
-		check(response, { "status is 204": (res) => (res.status === 204) });
+		const response = await deleteDocumentOnContainer(element);
+		check(response, { "status is 204": (res) => (res.statusCode === 204) });
 	}
 }
 
