@@ -35,12 +35,16 @@ export function setup() {
 
 	for (let i = 0; i < numberOfEventsToPreload; i++) {
 		let id = makeidMix(25);
+		let totalNotice = Math.floor(Math.random() * 3)
 		let fiscalCode = makeRandomFiscalCode();
-		const response = createTransactionListDocument(
-		cosmosDBURI, databaseID, containerID, accountPrimaryKey, id);
-		check(response, { "status is 201": (res) => (res.status === 201) });
-		containerIds.push(id);
-		fiscalCodeMap[id] = fiscalCode;
+		for (let j = 0; j < totalNotice; j++) {
+            var id_cart = id+"_"+j;
+            const response = createTransactionListDocument(
+                cosmosDBURI, databaseID, containerID, accountPrimaryKey, id_cart, fiscalCode, totalNotice);
+            check(response, { "status is 201": (res) => (res.status === 201) });
+            containerIds.push(id);
+            fiscalCodeMap[id] = fiscalCode;
+		}
 	}
 
 	
