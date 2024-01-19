@@ -82,6 +82,7 @@ public class TransactionService implements ITransactionService {
     @Override
     public TransactionDetailResponse getTransactionDetails(String fiscalCode, boolean isCart, String eventReference){
         List<BizEvent> bizEventEntityList;
+        log.info(fiscalCode);
         if(!isValidFiscalCode(fiscalCode)){
             throw new AppException(AppError.INVALID_FISCAL_CODE, fiscalCode);
         }
