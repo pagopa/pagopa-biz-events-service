@@ -1,12 +1,14 @@
-import { getTestData } from "./modules/helpers.js";
+import { getTestData } from "./modules/tx_helpers.js";
+import { deleteDocumentOnContainer } from './modules/cosmosdb_client.js'
 
 //DELETE RECEIPT FROM COSMOSDB
 async function deleteDocumentFromReceiptsDatastore() {
-    for (const element of getTestData().eventIds) {
-    	const response = await deleteDocumentOnContainer(element);
-    	check(response, { "status is 204": (res) => (res.statusCode === 204) });
+    for (const element of getTestData()) {
+        for (var i=0; i < element.totalNotice; i++) {
+    	    await deleteDocumentOnContainer(element.baseId+"_"+i);
+    	}
     }
 }
 deleteDocumentFromReceiptsDatastore().then(resp => {
-    console.info("RESPONSE DELETE RECEIPT STATUS", resp.statusCode);
+      console.info("TX DATA TEARDOWN COMPLETED");
 });

@@ -1,28 +1,15 @@
-import http from 'k6/http';
-import crypto from 'k6/crypto';
-import encoding from 'k6/encoding';
-import { SharedArray } from 'k6/data';
 import { CosmosClient } from "@azure/cosmos";
+import { createRequire } from 'node:module';
 
+const require = createRequire(import.meta.url);
 
-var authorizationType      = "master"
-var authorizationVersion   = "1.0";
-var cosmosDBApiVersion     = "2018-12-31";
+const environmentString = process.env.ENVIRONMENT_STRING || "local";
+let environmentVars = require(`../${environmentString}.environment.json`)?.environment?.[0] || {};
 
-export let options = JSON.parse(open(__ENV.TEST_TYPE));
+const databaseID = `${environmentVars.databaseID}`;
+const containerID = `${environmentVars.containerID}`;
 
-// read configuration
-// note: SharedArray can currently only be constructed inside init code
-// according to https://k6.io/docs/javascript-api/k6-data/sharedarray
-const varsArray = new SharedArray('vars', function() {
-	return JSON.parse(open(`../${__ENV.VARS}`)).environment;
-});
-// workaround to use shared array (only array should be used)
-const vars = varsArray[0];
-const databaseID = `${vars.databaseID}`;
-const containerID = `${vars.containerID}`;
-
-const connString = `${__ENV.API_SUBSCRIPTION_KEY}`;
+const connString = process.env.COSMOS_RECEIPTS_CONN_STRING;
 
 var client;
 var receiptContainer;
