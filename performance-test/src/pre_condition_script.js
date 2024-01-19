@@ -1,4 +1,4 @@
-import { createTxEvents } from "./modules/helpers.js";
+import { createTxEvents } from "./modules/tx_helpers.js";
 
 
 //SAVE RECEIPT WITH BLOB INFO ON COSMOSDB
@@ -7,5 +7,5 @@ async function createDocumentInReceiptsDatastore() {
 }
 
 createDocumentInReceiptsDatastore().then(resp => {
-  console.info("RESPONSE SAVE RECEIPT");
+  console.info("TX DATA SAVED");
 });
