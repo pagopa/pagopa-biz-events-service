@@ -14,6 +14,7 @@ const varsArray = new SharedArray('vars', function() {
 const vars = varsArray[0];
 const cosmosDBURI = `${vars.cosmosDBURI}`;
 const numberOfEventsToPreload = `${vars.numberOfEventsToPreload}`;
+const bizEventServiceURI = `${vars.bizEventServiceURI}`;
 
 const testData = vars.testData;
 
@@ -26,12 +27,13 @@ export default function() {
 		bizEventMethod: "getTransactionDetails",
 	};
 	
-	var itemToRecover = getRandomItemFromArray(data);
+	var itemToRecover = getRandomItemFromArray(testData);
+	var fiscalCode = itemToRecover.fiscalCode;
 
 	const params = {
 		headers: {
 		    'Ocp-Apim-Subscription-Key': subKey,
-		    'x-fiscal-code': itemToRecover.fiscalCode,
+		    'x-fiscal-code': fiscalCode,
 			'Content-Type': 'application/json'
 		},
 	};

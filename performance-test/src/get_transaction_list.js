@@ -11,6 +11,7 @@ const varsArray = new SharedArray('vars', function() {
 // workaround to use shared array (only array should be used)
 const vars = varsArray[0];
 const cosmosDBURI = `${vars.cosmosDBURI}`;
+const bizEventServiceURI = `${vars.bizEventServiceURI}`;
 
 const testData = vars.testData;
 
@@ -25,7 +26,7 @@ export default function(data) {
 	};
 	
 	var itemToRecover = getRandomItemFromArray(testData);
-	var fiscalCode = testData.fiscalCode;
+	var fiscalCode = itemToRecover.fiscalCode;
 
 	const params = {
 		headers: {
