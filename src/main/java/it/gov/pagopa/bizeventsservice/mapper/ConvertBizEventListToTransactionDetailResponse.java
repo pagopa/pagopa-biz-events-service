@@ -29,6 +29,8 @@ public class ConvertBizEventListToTransactionDetailResponse {
     private static final String REF_TYPE_IUV = "IUV";
     private static final String RECEIPT_DATE_FORMAT = "dd MMMM yyyy, HH:mm:ss";
 
+    private static final String[] UNWANTED_REMITTANCE_INFO = System.getenv().getOrDefault("UNWANTED_REMITTANCE_INFO", "pagamento multibeneficiario").split(",");
+
     private ConvertBizEventListToTransactionDetailResponse(){}
 
     public static TransactionDetailResponse convert(List<BizEvent> listOfBizEvents) {
@@ -251,7 +253,11 @@ public class ConvertBizEventListToTransactionDetailResponse {
     }
 
     private static String getItemSubject(BizEvent bizEvent, int index) {
-        if (bizEvent.getPaymentInfo() != null && bizEvent.getPaymentInfo().getRemittanceInformation() != null) {
+        if (
+                bizEvent.getPaymentInfo() != null &&
+                        bizEvent.getPaymentInfo().getRemittanceInformation() != null &&
+                        !Arrays.asList(UNWANTED_REMITTANCE_INFO).contains(bizEvent.getPaymentInfo().getRemittanceInformation())
+        ) {
             return bizEvent.getPaymentInfo().getRemittanceInformation();
         }
         List<Transfer> transferList = bizEvent.getTransferList();
