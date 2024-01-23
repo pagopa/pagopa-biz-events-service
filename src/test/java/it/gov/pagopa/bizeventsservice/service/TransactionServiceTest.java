@@ -26,6 +26,9 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 public class TransactionServiceTest {
 
+    public static final String INVALID_REMITTANCE_INFORMATION = "pagamento multibeneficiario";
+
+
     @Mock
     private BizEventsRepository bizEventsRepository;
 
@@ -359,7 +362,7 @@ public class TransactionServiceTest {
     @Test
     void idAndTaxCodeWithOneEventShouldReturnTransactionDetailsWithRemmittanceInformationInTransferList() {
         BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getPaymentInfo().setRemittanceInformation(null);
+        bizEvent.getPaymentInfo().setRemittanceInformation(INVALID_REMITTANCE_INFORMATION);
         List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
         when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
                 .thenReturn(listOfBizEvents);
