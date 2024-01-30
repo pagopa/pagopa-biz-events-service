@@ -9,12 +9,15 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.entity.view.enumeration.OriginType;
 import it.gov.pagopa.bizeventsservice.entity.view.enumeration.PaymentMethodType;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsRepository;
+import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
+import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.service.impl.TransactionService;
 import it.gov.pagopa.bizeventsservice.util.BizEventGenerator;
 import it.gov.pagopa.bizeventsservice.util.TestUtil;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.io.IOException;
 import java.util.*;
@@ -29,8 +32,12 @@ public class TransactionServiceTest {
     public static final String INVALID_REMITTANCE_INFORMATION = "pagamento multibeneficiario";
 
 
-    @Mock
+    @MockBean
     private BizEventsRepository bizEventsRepository;
+    @MockBean
+    private BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
+    @MockBean
+    private BizEventsViewCartRepository bizEventsViewCartRepository;
 
     private TransactionService transactionService;
 
@@ -51,7 +58,7 @@ public class TransactionServiceTest {
 
     @BeforeEach
     void setUp() {
-        transactionService = spy(new TransactionService(bizEventsRepository));
+        transactionService = spy(new TransactionService(bizEventsRepository, bizEventsViewGeneralRepository, bizEventsViewCartRepository));
         transactionService.setPayeeCartName("Pagamento Multiplo");
     }
 
@@ -62,7 +69,7 @@ public class TransactionServiceTest {
         List<TransactionListItem> transactionListItems =
                 Assertions.assertDoesNotThrow(() ->
                 transactionService.getTransactionList(
-                        USER_TAX_CODE_WITH_TX, 0, 5));
+                        USER_TAX_CODE_WITH_TX, "0", 5));
         Assertions.assertNotNull(transactionListItems);
         Assertions.assertEquals(2, transactionListItems.size());
         Assertions.assertEquals("100.0", transactionListItems.get(0).getAmount());
@@ -83,7 +90,7 @@ public class TransactionServiceTest {
         List<TransactionListItem> transactionListItems =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionList(
-                                USER_TAX_CODE_WITH_TX, 0, 5));
+                                USER_TAX_CODE_WITH_TX, "0", 5));
         Assertions.assertNotNull(transactionListItems);
         Assertions.assertEquals(1, transactionListItems.size());
         Assertions.assertEquals("200.00", transactionListItems.get(0).getAmount());
@@ -97,7 +104,7 @@ public class TransactionServiceTest {
     void transactionListGetExceptionForInvalidTaxCode() {
         Assertions.assertThrows(AppException.class, () ->
                 transactionService.getTransactionList(
-                        "INVALID_TAX_CODE", 0, 5));
+                        "INVALID_TAX_CODE", "0", 5));
     }
 
     @Test
@@ -108,7 +115,7 @@ public class TransactionServiceTest {
                 });
         Assertions.assertThrows(Exception.class, () ->
                         transactionService.getTransactionList(
-                                USER_TAX_CODE_WITH_TX, 0, 5));
+                                USER_TAX_CODE_WITH_TX, "0", 5));
     }
 
     @Test
@@ -121,7 +128,7 @@ public class TransactionServiceTest {
                 });
         Assertions.assertThrows(Exception.class, () ->
                 transactionService.getTransactionList(
-                        USER_TAX_CODE_WITH_TX, 0, 5));
+                        USER_TAX_CODE_WITH_TX, "0", 5));
     }
 
     @Test
@@ -132,7 +139,7 @@ public class TransactionServiceTest {
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, false, "eventId"));
+                                USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
 
@@ -173,7 +180,7 @@ public class TransactionServiceTest {
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, false, "eventId"));
+                                USER_TAX_CODE_WITH_TX, "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
 
@@ -190,7 +197,7 @@ public class TransactionServiceTest {
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, false, "eventId"));
+                                USER_TAX_CODE_WITH_TX, "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
 
@@ -207,7 +214,7 @@ public class TransactionServiceTest {
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, false, "eventId"));
+                                USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
 
@@ -225,7 +232,7 @@ public class TransactionServiceTest {
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, false, "eventId"));
+                                USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
 
@@ -242,7 +249,7 @@ public class TransactionServiceTest {
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, false, "eventId"));
+                                USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
 
@@ -260,7 +267,7 @@ public class TransactionServiceTest {
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, false, "eventId"));
+                                USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
 
@@ -277,7 +284,7 @@ public class TransactionServiceTest {
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, false, "eventId"));
+                                USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
 
@@ -296,7 +303,7 @@ public class TransactionServiceTest {
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, false, "eventId"));
+                                USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
 
@@ -316,7 +323,7 @@ public class TransactionServiceTest {
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, false, "eventId"));
+                                USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
 
@@ -335,7 +342,7 @@ public class TransactionServiceTest {
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, false, "eventId"));
+                                USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
 
@@ -352,7 +359,7 @@ public class TransactionServiceTest {
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, false, "eventId"));
+                                USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
 
@@ -369,7 +376,7 @@ public class TransactionServiceTest {
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, false, "eventId"));
+                                USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
 
@@ -385,7 +392,7 @@ public class TransactionServiceTest {
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, false, "eventId"));
+                                USER_TAX_CODE_WITH_TX,  "eventId"));
         Assertions.assertNotNull(transactionDetailResponse);
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
@@ -412,7 +419,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, false, "eventId"));
+                                USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -425,7 +432,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -438,7 +445,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -451,7 +458,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -464,7 +471,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -477,7 +484,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -490,7 +497,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -503,7 +510,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -518,7 +525,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -532,7 +539,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -546,7 +553,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -560,7 +567,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -574,7 +581,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -587,7 +594,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -600,7 +607,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -613,7 +620,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -626,7 +633,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -639,7 +646,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
@@ -653,7 +660,7 @@ public class TransactionServiceTest {
                 .thenReturn(listOfBizEvents);
         Assertions.assertThrows(AppException.class ,() ->
                 transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX, false, "eventId"));
+                        USER_TAX_CODE_WITH_TX,  "eventId"));
         verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
         verifyNoMoreInteractions(bizEventsRepository);
     }
