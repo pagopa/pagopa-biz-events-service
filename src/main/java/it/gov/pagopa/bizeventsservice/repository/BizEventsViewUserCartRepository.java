@@ -15,4 +15,11 @@ import java.util.List;
 public interface BizEventsViewUserCartRepository extends CosmosRepository<BizEventsViewCart, String> {
     @Query("select * from c where c.transactionId = @transactionId")
     List<BizEventsViewCart> getBizEventsViewCartByTransactionId(@Param("transactionId") String transactionId);
+
+    @Query("select * from c where " +
+            "c.transactionId = @transactionId and " +
+            "(c.payer.taxCode = @fiscalCode or c.debtor.taxCode = @fiscalCode)")
+    List<BizEventsViewCart> getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(
+            @Param("transactionId") String transactionId,
+            @Param("fiscalCode") String fiscalCode);
 }
