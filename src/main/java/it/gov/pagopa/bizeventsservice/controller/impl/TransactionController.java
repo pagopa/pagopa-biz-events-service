@@ -39,4 +39,10 @@ public class TransactionController implements ITransactionController {
                 transactionService.getTransactionDetails(fiscalCode, eventReference),
                 HttpStatus.OK);
     }
+
+    @Override
+    public ResponseEntity<Void> disableTransaction(String fiscalCode, String transactionId) {
+        transactionService.disableTransaction(fiscalCode, transactionId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

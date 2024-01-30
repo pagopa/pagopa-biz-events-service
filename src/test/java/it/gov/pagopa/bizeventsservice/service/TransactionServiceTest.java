@@ -2,6 +2,7 @@ package it.gov.pagopa.bizeventsservice.service;
 
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
+import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.CartItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.InfoTransaction;
@@ -10,10 +11,12 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.repository.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
+import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.impl.TransactionService;
 import it.gov.pagopa.bizeventsservice.util.TestUtil;
 import it.gov.pagopa.bizeventsservice.util.ViewGenerator;
 import org.junit.jupiter.api.*;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
@@ -21,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import java.io.IOException;
 import java.util.*;
 
+import static it.gov.pagopa.bizeventsservice.util.ViewGenerator.generateBizEventsViewUser;
 import static org.mockito.Mockito.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -35,6 +39,9 @@ public class TransactionServiceTest {
     private BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
     @MockBean
     private BizEventsViewCartRepository bizEventsViewCartRepository;
+
+    @Mock
+    private BizEventsViewUserRepository bizEventsViewUserRepository;
 
     private TransactionService transactionService;
 
@@ -55,7 +62,10 @@ public class TransactionServiceTest {
 
     @BeforeEach
     void setUp() {
-        transactionService = spy(new TransactionService(bizEventsRepository, bizEventsViewGeneralRepository, bizEventsViewCartRepository));
+        transactionService = spy(new TransactionService(
+                bizEventsRepository, bizEventsViewGeneralRepository,
+                bizEventsViewCartRepository, bizEventsViewUserRepository)
+        );
         transactionService.setPayeeCartName("Pagamento Multiplo");
     }
 
@@ -251,4 +261,37 @@ public class TransactionServiceTest {
 
         Assertions.assertEquals(HttpStatus.NOT_FOUND, appException.getHttpStatus());
     }
+
+    @Test
+    public void transactionViewUserDisabled() {
+        BizEventsViewUser viewUser = generateBizEventsViewUser();
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndTransactionId(anyString(),anyString()))
+                .thenReturn(viewUser);
+        Assertions.assertDoesNotThrow(() -> transactionService.disableTransaction(
+                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+        viewUser.setHidden(true);
+        verify(bizEventsViewUserRepository).save(viewUser);
+    }
+
+    @Test
+    public void transactionViewUserNotFoundThrowError() {
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndTransactionId(anyString(),anyString()))
+                .thenReturn(null);
+        AppException appException =
+                Assertions.assertThrows(AppException.class, () ->
+                        transactionService.getTransactionDetails(
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, appException.getHttpStatus());
+    }
+
+    @Test
+    void transactionUserViewThrowErrorForInvalidFiscalCode() {
+        AppException appException =
+                Assertions.assertThrows(AppException.class,() ->
+                        transactionService.disableTransaction(
+                                INVALID_FISCAL_CODE, ViewGenerator.TRANSACTION_ID));
+        verifyNoInteractions(bizEventsViewUserRepository);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, appException.getHttpStatus());
+    }
+
 }

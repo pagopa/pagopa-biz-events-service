@@ -20,5 +20,6 @@ public class BizEventsViewUser {
     private String fiscalCode;
     private String transactionId;
     private String transactionDate;
+    @Setter
     private boolean hidden;
 }

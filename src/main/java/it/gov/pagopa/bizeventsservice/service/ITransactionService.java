@@ -18,4 +18,5 @@ public interface ITransactionService {
     List<TransactionListItem> getTransactionList(String fiscalCode, String continuationToken, Integer size);
     TransactionDetailResponse getTransactionDetails(String fiscalCode, String transactionId);
 
+    void disableTransaction(String fiscalCode, String transactionId);
 }

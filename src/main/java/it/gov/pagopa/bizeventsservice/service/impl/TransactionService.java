@@ -2,6 +2,7 @@ package it.gov.pagopa.bizeventsservice.service.impl;
 
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
+import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDetailResponse;
@@ -10,6 +11,7 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDeta
 import it.gov.pagopa.bizeventsservice.repository.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
+import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,14 +35,20 @@ public class TransactionService implements ITransactionService {
     private final BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
     private final BizEventsViewCartRepository bizEventsViewCartRepository;
 
+    private final BizEventsViewUserRepository bizEventsViewUserRepository;
+
     @Value("transaction.payee.cartName")
     private String payeeCartName;
 
     @Autowired
-    public TransactionService(BizEventsRepository bizEventsRepository, BizEventsViewGeneralRepository bizEventsViewGeneralRepository, BizEventsViewCartRepository bizEventsViewCartRepository) {
+    public TransactionService(BizEventsRepository bizEventsRepository,
+                              BizEventsViewGeneralRepository bizEventsViewGeneralRepository,
+                              BizEventsViewCartRepository bizEventsViewCartRepository,
+                              BizEventsViewUserRepository bizEventsViewUserRepository) {
         this.bizEventsRepository = bizEventsRepository;
         this.bizEventsViewGeneralRepository = bizEventsViewGeneralRepository;
         this.bizEventsViewCartRepository = bizEventsViewCartRepository;
+        this.bizEventsViewUserRepository = bizEventsViewUserRepository;
     }
 
     @Override
@@ -104,6 +112,22 @@ public class TransactionService implements ITransactionService {
         }
 
         return ConvertViewsToTransactionDetailResponse.convertTransactionDetails(bizEventsViewGeneral, listOfCartViews);
+    }
+
+    @Override
+    public void disableTransaction(String fiscalCode, String transactionId) {
+        if(isInvalidFiscalCode(fiscalCode)){
+            throw new AppException(AppError.INVALID_FISCAL_CODE, fiscalCode);
+        }
+
+        BizEventsViewUser bizEventsViewUser = this.bizEventsViewUserRepository
+                .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
+        if (bizEventsViewUser == null) {
+            throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_TRANSACTION_ID);
+        }
+
+        bizEventsViewUser.setHidden(true);
+        bizEventsViewUserRepository.save(bizEventsViewUser);
     }
 
     private static BigDecimal getAmount(Map<String,Object> cartItem) {

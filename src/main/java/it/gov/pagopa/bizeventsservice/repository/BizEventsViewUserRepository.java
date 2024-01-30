@@ -15,4 +15,7 @@ import java.util.List;
 public interface BizEventsViewUserRepository extends CosmosRepository<BizEventsViewUser, String> {
     @Query("select * from c where c.fiscalCode = @fiscalCode")
     List<BizEventsViewUser> getBizEventsViewUserByFiscalCode(@Param("fiscalCode") String fiscalCode);
+
+    @Query("select * from c where c.transactionId=@transactionId c.taxCode = @fiscalCode")
+    BizEventsViewUser getBizEventsViewUserByTaxCodeAndTransactionId(String fiscalCode, String transactionId);
 }
