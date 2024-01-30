@@ -47,7 +47,7 @@ public class TransactionService implements ITransactionService {
     public List<TransactionListItem> getTransactionList(
             String fiscalCode, String continuationToken, Integer size) {
 
-        if (!isValidFiscalCode(fiscalCode)) {
+        if (isInvalidFiscalCode(fiscalCode)) {
             throw new AppException(AppError.INVALID_FISCAL_CODE, fiscalCode);
         }
 
@@ -88,7 +88,7 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public TransactionDetailResponse getTransactionDetails(String fiscalCode, String eventReference){
-        if(!isValidFiscalCode(fiscalCode)){
+        if(isInvalidFiscalCode(fiscalCode)){
             throw new AppException(AppError.INVALID_FISCAL_CODE, fiscalCode);
         }
 
@@ -122,13 +122,13 @@ public class TransactionService implements ITransactionService {
         return amount.divide(divider, 2, RoundingMode.UNNECESSARY);
     }
 
-    private boolean isValidFiscalCode(String fiscalCode) {
+    private boolean isInvalidFiscalCode(String fiscalCode) {
         if (fiscalCode != null && !fiscalCode.isEmpty()) {
             Pattern pattern = Pattern.compile("^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$");
             Matcher matcher = pattern.matcher(fiscalCode);
-            return matcher.find();
+            return !matcher.find();
         }
-        return false;
+        return true;
     }
 
     public void setPayeeCartName(String payeeCartName) {

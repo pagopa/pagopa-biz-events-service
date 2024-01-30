@@ -1,23 +1,22 @@
 package it.gov.pagopa.bizeventsservice.service;
 
-import it.gov.pagopa.bizeventsservice.entity.BizEvent;
+import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
+import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.CartItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.InfoTransaction;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
-import it.gov.pagopa.bizeventsservice.entity.view.enumeration.OriginType;
-import it.gov.pagopa.bizeventsservice.entity.view.enumeration.PaymentMethodType;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.service.impl.TransactionService;
-import it.gov.pagopa.bizeventsservice.util.BizEventGenerator;
 import it.gov.pagopa.bizeventsservice.util.TestUtil;
+import it.gov.pagopa.bizeventsservice.util.ViewGenerator;
 import org.junit.jupiter.api.*;
-import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.util.*;
@@ -28,9 +27,7 @@ import static org.mockito.Mockito.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class TransactionServiceTest {
-
-    public static final String INVALID_REMITTANCE_INFORMATION = "pagamento multibeneficiario";
-
+    public static final String INVALID_FISCAL_CODE = "invalidFiscalCode";
 
     @MockBean
     private BizEventsRepository bizEventsRepository;
@@ -41,7 +38,7 @@ public class TransactionServiceTest {
 
     private TransactionService transactionService;
 
-    private String USER_TAX_CODE_WITH_TX = "AAAAAA00A00A000A";
+
 
     private List<Map<String, Object>> noCartTransactionList;
 
@@ -64,12 +61,12 @@ public class TransactionServiceTest {
 
     @Test
     void taxCodeWithEventsShouldReturnTransactionList() {
-        when(bizEventsRepository.getTransactionPagedIds(USER_TAX_CODE_WITH_TX, 0, 5))
+        when(bizEventsRepository.getTransactionPagedIds(ViewGenerator.USER_TAX_CODE_WITH_TX, 0, 5))
                 .thenReturn(noCartTransactionList);
         List<TransactionListItem> transactionListItems =
                 Assertions.assertDoesNotThrow(() ->
                 transactionService.getTransactionList(
-                        USER_TAX_CODE_WITH_TX, "0", 5));
+                        ViewGenerator.USER_TAX_CODE_WITH_TX, "0", 5));
         Assertions.assertNotNull(transactionListItems);
         Assertions.assertEquals(2, transactionListItems.size());
         Assertions.assertEquals("100.0", transactionListItems.get(0).getAmount());
@@ -77,26 +74,26 @@ public class TransactionServiceTest {
         Assertions.assertEquals("nodo-doc-dev", transactionListItems.get(0).getPayeeName());
         Assertions.assertEquals("nodo-doc-dev-2", transactionListItems.get(1).getPayeeName());
         Assertions.assertNotNull(transactionListItems);
-        verify(bizEventsRepository).getTransactionPagedIds(USER_TAX_CODE_WITH_TX, 0, 5);
+        verify(bizEventsRepository).getTransactionPagedIds(ViewGenerator.USER_TAX_CODE_WITH_TX, 0, 5);
         verifyNoMoreInteractions(bizEventsRepository);
     }
 
     @Test
     void taxCodeWithEventsShouldReturnTransactionListWithCartData() {
-        when(bizEventsRepository.getTransactionPagedIds(USER_TAX_CODE_WITH_TX, 0, 5))
+        when(bizEventsRepository.getTransactionPagedIds(ViewGenerator.USER_TAX_CODE_WITH_TX, 0, 5))
                 .thenReturn(cartTransactionList);
         when(bizEventsRepository.getCartData("b77d4987-a3e4-48d4-a2fd-af504f8b79e9"))
                 .thenReturn(cartItemTransactionList);
         List<TransactionListItem> transactionListItems =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionList(
-                                USER_TAX_CODE_WITH_TX, "0", 5));
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, "0", 5));
         Assertions.assertNotNull(transactionListItems);
         Assertions.assertEquals(1, transactionListItems.size());
         Assertions.assertEquals("200.00", transactionListItems.get(0).getAmount());
         Assertions.assertEquals("Pagamento Multiplo", transactionListItems.get(0).getPayeeName());
         Assertions.assertNotNull(transactionListItems);
-        verify(bizEventsRepository).getTransactionPagedIds(USER_TAX_CODE_WITH_TX, 0, 5);
+        verify(bizEventsRepository).getTransactionPagedIds(ViewGenerator.USER_TAX_CODE_WITH_TX, 0, 5);
         verify(bizEventsRepository).getCartData("b77d4987-a3e4-48d4-a2fd-af504f8b79e9");
     }
 
@@ -109,18 +106,18 @@ public class TransactionServiceTest {
 
     @Test
     void transactionListGetException() {
-        when(bizEventsRepository.getTransactionPagedIds(USER_TAX_CODE_WITH_TX, 0, 5))
+        when(bizEventsRepository.getTransactionPagedIds(ViewGenerator.USER_TAX_CODE_WITH_TX, 0, 5))
                 .thenAnswer(x -> {
                     throw new Exception();
                 });
         Assertions.assertThrows(Exception.class, () ->
                         transactionService.getTransactionList(
-                                USER_TAX_CODE_WITH_TX, "0", 5));
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, "0", 5));
     }
 
     @Test
     void cartListGetException() {
-        when(bizEventsRepository.getTransactionPagedIds(USER_TAX_CODE_WITH_TX, 0, 5))
+        when(bizEventsRepository.getTransactionPagedIds(ViewGenerator.USER_TAX_CODE_WITH_TX, 0, 5))
                 .thenReturn(cartTransactionList);
         when(bizEventsRepository.getCartData("b77d4987-a3e4-48d4-a2fd-af504f8b79e9"))
                 .thenAnswer(x -> {
@@ -128,540 +125,130 @@ public class TransactionServiceTest {
                 });
         Assertions.assertThrows(Exception.class, () ->
                 transactionService.getTransactionList(
-                        USER_TAX_CODE_WITH_TX, "0", 5));
+                        ViewGenerator.USER_TAX_CODE_WITH_TX, "0", 5));
     }
 
     @Test
     void idAndTaxCodeWithOneEventShouldReturnTransactionDetails() {
-        List<BizEvent> listOfBizEvents = BizEventGenerator.generateListOfValidBizEvents(1);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
+        List<BizEventsViewGeneral> listOfGeneralView = Collections.singletonList(ViewGenerator.generateBizEventsViewGeneral());
+        when(bizEventsViewGeneralRepository.getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID))
+                .thenReturn(listOfGeneralView);
+        List<BizEventsViewCart> listOfCartView = Collections.singletonList(ViewGenerator.generateBizEventsViewCart());
+        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX))
+                .thenReturn(listOfCartView);
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+        Assertions.assertNotNull(transactionDetailResponse);
+        verify(bizEventsViewGeneralRepository).getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID);
+        verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX);
+        verifyNoMoreInteractions(bizEventsViewGeneralRepository);
+        verifyNoMoreInteractions(bizEventsViewCartRepository);
 
-        BizEvent bizEvent = listOfBizEvents.get(0);
-
+        BizEventsViewGeneral viewGeneral = listOfGeneralView.get(0);
         Assertions.assertNotNull(transactionDetailResponse);
         InfoTransaction infoTransaction = transactionDetailResponse.getInfoTransaction();
-        Assertions.assertEquals(bizEvent.getTransactionDetails().getTransaction().getTransactionId(), infoTransaction.getTransactionId());
-        Assertions.assertEquals(bizEvent.getTransactionDetails().getTransaction().getNumAut(), infoTransaction.getAuthCode());
-        Assertions.assertEquals(bizEvent.getTransactionDetails().getTransaction().getRrn(), infoTransaction.getRrn());
-        Assertions.assertEquals(BizEventGenerator.DATE_TIME_TIMESTAMP_FORMATTED_DST_WINTER, infoTransaction.getTransactionDate());
-        Assertions.assertEquals(bizEvent.getTransactionDetails().getTransaction().getPsp().getBusinessName(), infoTransaction.getPspName());
-        Assertions.assertEquals(bizEvent.getTransactionDetails().getWallet().getInfo().getHolder(), infoTransaction.getWalletInfo().getAccountHolder());
-        Assertions.assertEquals(bizEvent.getTransactionDetails().getWallet().getInfo().getBrand(), infoTransaction.getWalletInfo().getBrand());
-        Assertions.assertEquals(bizEvent.getTransactionDetails().getWallet().getInfo().getBlurredNumber(), infoTransaction.getWalletInfo().getBlurredNumber());
-        Assertions.assertEquals(bizEvent.getPayer().getFullName(), infoTransaction.getPayer().getName());
-        Assertions.assertEquals(bizEvent.getPayer().getEntityUniqueIdentifierValue(), infoTransaction.getPayer().getTaxCode());
-        Assertions.assertEquals(BizEventGenerator.FORMATTED_GRAND_TOTAL, infoTransaction.getAmount());
-        Assertions.assertEquals(BizEventGenerator.FORMATTED_FEE, infoTransaction.getFee());
-        Assertions.assertEquals(PaymentMethodType.AD, infoTransaction.getPaymentMethod());
-        Assertions.assertEquals(OriginType.valueOf(BizEventGenerator.TRANSACTION_ORIGIN), infoTransaction.getOrigin());
+        Assertions.assertEquals(viewGeneral.getTransactionId(), infoTransaction.getTransactionId());
+        Assertions.assertEquals(viewGeneral.getAuthCode(), infoTransaction.getAuthCode());
+        Assertions.assertEquals(viewGeneral.getRrn(), infoTransaction.getRrn());
+        Assertions.assertEquals(viewGeneral.getTransactionDate(), infoTransaction.getTransactionDate());
+        Assertions.assertEquals(viewGeneral.getPspName(), infoTransaction.getPspName());
+        Assertions.assertEquals(viewGeneral.getWalletInfo().getAccountHolder(), infoTransaction.getWalletInfo().getAccountHolder());
+        Assertions.assertEquals(viewGeneral.getWalletInfo().getBrand(), infoTransaction.getWalletInfo().getBrand());
+        Assertions.assertEquals(viewGeneral.getWalletInfo().getBlurredNumber(), infoTransaction.getWalletInfo().getBlurredNumber());
+        Assertions.assertEquals(viewGeneral.getPayer().getName(), infoTransaction.getPayer().getName());
+        Assertions.assertEquals(viewGeneral.getPayer().getTaxCode(), infoTransaction.getPayer().getTaxCode());
+        Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, infoTransaction.getAmount());
+        Assertions.assertEquals(viewGeneral.getFee(), infoTransaction.getFee());
+        Assertions.assertEquals(viewGeneral.getPaymentMethod(), infoTransaction.getPaymentMethod());
+        Assertions.assertEquals(viewGeneral.getOrigin(), infoTransaction.getOrigin());
+
+        BizEventsViewCart viewCart = listOfCartView.get(0);
         CartItem cartItem = transactionDetailResponse.getCarts().get(0);
-        Assertions.assertEquals(bizEvent.getPaymentInfo().getRemittanceInformation(), cartItem.getSubject());
-        Assertions.assertEquals(bizEvent.getPaymentInfo().getAmount(), cartItem.getAmount());
-        Assertions.assertEquals(bizEvent.getDebtor().getFullName(), cartItem.getDebtor().getName());
-        Assertions.assertEquals(bizEvent.getDebtor().getEntityUniqueIdentifierValue(), cartItem.getDebtor().getTaxCode());
-        Assertions.assertEquals(bizEvent.getCreditor().getCompanyName(), cartItem.getPayee().getName());
-        Assertions.assertEquals(bizEvent.getCreditor().getIdPA(), cartItem.getPayee().getTaxCode());
-        Assertions.assertEquals(BizEventGenerator.MODEL_TYPE_IUV_TEXT, cartItem.getRefNumberType());
-        Assertions.assertEquals(bizEvent.getDebtorPosition().getIuv(), cartItem.getRefNumberValue());
-    }
-    @Test
-    void idAndTaxCodeWithOneEventShouldReturnTransactionDetailsWithDateSummer() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEventTimestampDSTSummer();
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        TransactionDetailResponse transactionDetailResponse =
-                Assertions.assertDoesNotThrow(() ->
-                        transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-
-        Assertions.assertNotNull(transactionDetailResponse);
-        InfoTransaction infoTransaction = transactionDetailResponse.getInfoTransaction();
-        Assertions.assertEquals(BizEventGenerator.DATE_TIME_TIMESTAMP_FORMATTED_DST_SUMMER, infoTransaction.getTransactionDate());
-    }
-    @Test
-    void idAndTaxCodeWithOneEventShouldReturnTransactionDetailsWithDateMillisecondSummer() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEventTimestampMillisecondsDSTSummer();
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        TransactionDetailResponse transactionDetailResponse =
-                Assertions.assertDoesNotThrow(() ->
-                        transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX, "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-
-        Assertions.assertNotNull(transactionDetailResponse);
-        InfoTransaction infoTransaction = transactionDetailResponse.getInfoTransaction();
-        Assertions.assertEquals(BizEventGenerator.DATE_TIME_TIMESTAMP_FORMATTED_DST_SUMMER, infoTransaction.getTransactionDate());
-    }
-    @Test
-    void idAndTaxCodeWithOneEventShouldReturnTransactionDetailsWithDateMillisecondWinter() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEventTimestampMillisecondsDSTWinter();
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        TransactionDetailResponse transactionDetailResponse =
-                Assertions.assertDoesNotThrow(() ->
-                        transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-
-        Assertions.assertNotNull(transactionDetailResponse);
-        InfoTransaction infoTransaction = transactionDetailResponse.getInfoTransaction();
-        Assertions.assertEquals(BizEventGenerator.DATE_TIME_TIMESTAMP_FORMATTED_DST_WINTER, infoTransaction.getTransactionDate());
-    }
-    @Test
-    void idAndTaxCodeWithOneEventShouldReturnTransactionDetailsWithPaymentMethodUnknown() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getPaymentInfo().setPaymentMethod("Unchecked payment method");
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        TransactionDetailResponse transactionDetailResponse =
-                Assertions.assertDoesNotThrow(() ->
-                        transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-
-        Assertions.assertNotNull(transactionDetailResponse);
-        Assertions.assertEquals(PaymentMethodType.UNKNOWN, transactionDetailResponse.getInfoTransaction().getPaymentMethod());
-    }
-    @Test
-    void idAndTaxCodeWithOneEventShouldReturnTransactionDetailsWithOriginFromClientId() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getTransactionDetails().getTransaction().setOrigin(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        TransactionDetailResponse transactionDetailResponse =
-                Assertions.assertDoesNotThrow(() ->
-                        transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-
-        Assertions.assertNotNull(transactionDetailResponse);
-        Assertions.assertEquals(OriginType.valueOf(BizEventGenerator.TRANSACTION_ORIGIN), transactionDetailResponse.getInfoTransaction().getOrigin());
-    }
-    @Test
-    void idAndTaxCodeWithOneEventShouldReturnTransactionDetailsWithOriginUnknown() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getTransactionDetails().getTransaction().setOrigin("Unchecked transaction origin");
-        bizEvent.getTransactionDetails().getInfo().setClientId("Unchecked transaction origin");
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        TransactionDetailResponse transactionDetailResponse =
-                Assertions.assertDoesNotThrow(() ->
-                        transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-
-        Assertions.assertNotNull(transactionDetailResponse);
-        Assertions.assertEquals(OriginType.UNKNOWN, transactionDetailResponse.getInfoTransaction().getOrigin());
-    }
-    @Test
-    void idAndTaxCodeWithOneEventShouldReturnTransactionDetailsRrnAsPaymentToken() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getTransactionDetails().getTransaction().setRrn(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        TransactionDetailResponse transactionDetailResponse =
-                Assertions.assertDoesNotThrow(() ->
-                        transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-
-        Assertions.assertNotNull(transactionDetailResponse);
-        InfoTransaction infoTransaction = transactionDetailResponse.getInfoTransaction();
-        Assertions.assertEquals(bizEvent.getPaymentInfo().getPaymentToken(), infoTransaction.getRrn());
-    }
-    @Test
-    void idAndTaxCodeWithOneEventShouldReturnTransactionDetailsRrnAsIUR() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getTransactionDetails().getTransaction().setRrn(null);
-        bizEvent.getPaymentInfo().setPaymentToken(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        TransactionDetailResponse transactionDetailResponse =
-                Assertions.assertDoesNotThrow(() ->
-                        transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-
-        Assertions.assertNotNull(transactionDetailResponse);
-        InfoTransaction infoTransaction = transactionDetailResponse.getInfoTransaction();
-        Assertions.assertEquals(bizEvent.getPaymentInfo().getIUR(), infoTransaction.getRrn());
-    }
-    @Test
-    void idAndTaxCodeWithOneEventShouldReturnTransactionDetailsModelTypeNotice() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getDebtorPosition().setModelType(BizEventGenerator.MODEL_TYPE_NOTICE_CODE);
-        bizEvent.getDebtorPosition().setNoticeNumber(BizEventGenerator.NOTICE_NUMBER);
-        bizEvent.getPaymentInfo().setPaymentToken(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        TransactionDetailResponse transactionDetailResponse =
-                Assertions.assertDoesNotThrow(() ->
-                        transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-
-        Assertions.assertNotNull(transactionDetailResponse);
-        CartItem cartItem = transactionDetailResponse.getCarts().get(0);
-        Assertions.assertEquals(BizEventGenerator.MODEL_TYPE_NOTICE_TEXT, cartItem.getRefNumberType());
-        Assertions.assertEquals(bizEvent.getDebtorPosition().getNoticeNumber(), cartItem.getRefNumberValue());
-    }
-    @Test
-    void idAndTaxCodeWithOneEventShouldReturnTransactionDetailsPspNameFromPsp() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getTransactionDetails().getTransaction().getPsp().setBusinessName(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        TransactionDetailResponse transactionDetailResponse =
-                Assertions.assertDoesNotThrow(() ->
-                        transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-
-        Assertions.assertNotNull(transactionDetailResponse);
-        Assertions.assertEquals(bizEvent.getPsp().getPsp(), transactionDetailResponse.getInfoTransaction().getPspName());
-    }
-    @Test
-    void idAndTaxCodeWithOneEventShouldReturnTransactionDetailsTransactionDateFromPaymentDateTime() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getTransactionDetails().getTransaction().setCreationDate(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        TransactionDetailResponse transactionDetailResponse =
-                Assertions.assertDoesNotThrow(() ->
-                        transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-
-        Assertions.assertNotNull(transactionDetailResponse);
-        Assertions.assertEquals(BizEventGenerator.DATE_TIME_TIMESTAMP_FORMATTED_DST_WINTER, transactionDetailResponse.getInfoTransaction().getTransactionDate());
-    }
-    @Test
-    void idAndTaxCodeWithOneEventShouldReturnTransactionDetailsWithRemmittanceInformationInTransferList() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getPaymentInfo().setRemittanceInformation(INVALID_REMITTANCE_INFORMATION);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        TransactionDetailResponse transactionDetailResponse =
-                Assertions.assertDoesNotThrow(() ->
-                        transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-
-        Assertions.assertNotNull(transactionDetailResponse);
-        CartItem cartItem = transactionDetailResponse.getCarts().get(0);
-        Assertions.assertEquals(BizEventGenerator.REMITTANCE_INFORMATION_TRANSFER_LIST_FORMATTED, cartItem.getSubject());
+        Assertions.assertEquals(viewCart.getSubject(), cartItem.getSubject());
+        Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
+        Assertions.assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
+        Assertions.assertEquals(viewCart.getDebtor().getTaxCode(), cartItem.getDebtor().getTaxCode());
+        Assertions.assertEquals(viewCart.getPayee().getName(), cartItem.getPayee().getName());
+        Assertions.assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
+        Assertions.assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
+        Assertions.assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
     }
     @Test
     void idAndTaxCodeWithCartEventShouldReturnTransactionDetails() {
-        List<BizEvent> listOfBizEvents = BizEventGenerator.generateListOfValidBizEvents(5);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
+        List<BizEventsViewGeneral> listOfGeneralView = Collections.singletonList(ViewGenerator.generateBizEventsViewGeneral());
+        when(bizEventsViewGeneralRepository.getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID))
+                .thenReturn(listOfGeneralView);
+        List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
+        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX))
+                .thenReturn(listOfCartView);
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX,  "eventId"));
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
         Assertions.assertNotNull(transactionDetailResponse);
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
+        verify(bizEventsViewGeneralRepository).getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID);
+        verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX);
+        verifyNoMoreInteractions(bizEventsViewGeneralRepository);
+        verifyNoMoreInteractions(bizEventsViewCartRepository);
 
+        Assertions.assertEquals(ViewGenerator.FORMATTED_GRAND_TOTAL, transactionDetailResponse.getInfoTransaction().getAmount());
         for(int i = 0; i < transactionDetailResponse.getCarts().size(); i++){
-            BizEvent bizEvent = listOfBizEvents.get(i);
+            BizEventsViewCart viewCart = listOfCartView.get(i);
             CartItem cartItem = transactionDetailResponse.getCarts().get(i);
-            Assertions.assertEquals(bizEvent.getPaymentInfo().getRemittanceInformation(), cartItem.getSubject());
-            Assertions.assertEquals(bizEvent.getPaymentInfo().getAmount(), cartItem.getAmount());
-            Assertions.assertEquals(bizEvent.getDebtor().getFullName(), cartItem.getDebtor().getName());
-            Assertions.assertEquals(bizEvent.getDebtor().getEntityUniqueIdentifierValue(), cartItem.getDebtor().getTaxCode());
-            Assertions.assertEquals(bizEvent.getCreditor().getCompanyName(), cartItem.getPayee().getName());
-            Assertions.assertEquals(bizEvent.getCreditor().getIdPA(), cartItem.getPayee().getTaxCode());
-            Assertions.assertEquals(BizEventGenerator.MODEL_TYPE_IUV_TEXT, cartItem.getRefNumberType());
-            Assertions.assertEquals(bizEvent.getDebtorPosition().getIuv(), cartItem.getRefNumberValue());
+            Assertions.assertEquals(viewCart.getSubject(), cartItem.getSubject());
+            Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
+            Assertions.assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
+            Assertions.assertEquals(viewCart.getDebtor().getTaxCode(), cartItem.getDebtor().getTaxCode());
+            Assertions.assertEquals(viewCart.getPayee().getName(), cartItem.getPayee().getName());
+            Assertions.assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
+            Assertions.assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
+            Assertions.assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
         }
     }
     @Test
-    void transactionDetailsErrorMappingDebtorName() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getDebtor().setFullName(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
+    void transactionDetailsThrowErrorForInvalidFiscalCode() {
+        AppException appException =
+                Assertions.assertThrows(AppException.class,() ->
                         transactionService.getTransactionDetails(
-                                USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
+                                INVALID_FISCAL_CODE, ViewGenerator.TRANSACTION_ID));
+        verifyNoInteractions(bizEventsViewGeneralRepository);
+        verifyNoInteractions(bizEventsViewCartRepository);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, appException.getHttpStatus());
     }
     @Test
-    void transactionDetailsErrorMappingDebtorTaxCode() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getDebtor().setEntityUniqueIdentifierValue(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
+    void transactionViewGeneralNotFoundThrowError() {
+        List<BizEventsViewGeneral> listOfGeneralView = new ArrayList<>();
+        when(bizEventsViewGeneralRepository.getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID))
+                .thenReturn(listOfGeneralView);
+        AppException appException =
+                Assertions.assertThrows(AppException.class, () ->
+                        transactionService.getTransactionDetails(
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+        verify(bizEventsViewGeneralRepository).getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID);
+        verifyNoMoreInteractions(bizEventsViewGeneralRepository);
+        verifyNoInteractions(bizEventsViewCartRepository);
+
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, appException.getHttpStatus());
     }
     @Test
-    void transactionDetailsErrorMappingMissingDebtor() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.setDebtor(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-    }
-    @Test
-    void transactionDetailsErrorMappingPayerName() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getPayer().setFullName(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-    }
-    @Test
-    void transactionDetailsErrorMappingPayerTaxCode() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getPayer().setEntityUniqueIdentifierValue(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-    }
-    @Test
-    void transactionDetailsErrorMappingMissingPayer() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.setPayer(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-    }
-    @Test
-    void transactionDetailsErrorMappingMissingTransactionId() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getTransactionDetails().getTransaction().setTransactionId(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-    }
-    @Test
-    void transactionDetailsErrorMappingMissingAuthCode() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getTransactionDetails().getTransaction().setNumAut(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-    }
-    @Test
-    void transactionDetailsErrorMappingMissingRrn() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getTransactionDetails().getTransaction().setRrn(null);
-        bizEvent.getPaymentInfo().setPaymentToken(null);
-        bizEvent.getPaymentInfo().setIUR(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-    }
-    @Test
-    void transactionDetailsErrorMappingMissingPspName() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getTransactionDetails().getTransaction().getPsp().setBusinessName(null);
-        bizEvent.getPsp().setPsp(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-    }
-    @Test
-    void transactionDetailsErrorMappingMissingTransactionDate() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getTransactionDetails().getTransaction().setCreationDate(null);
-        bizEvent.getPaymentInfo().setPaymentDateTime(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-    }
-    @Test
-    void transactionDetailsErrorMappingMissingTotalAmount() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getTransactionDetails().getTransaction().setGrandTotal(0L);
-        bizEvent.getPaymentInfo().setAmount(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-    }
-    @Test
-    void transactionDetailsErrorMappingMissingRemittanceInformation() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getPaymentInfo().setRemittanceInformation(null);
-        bizEvent.setTransferList(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-    }
-    @Test
-    void transactionDetailsErrorMappingMissingItemAmount() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getPaymentInfo().setAmount(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-    }
-    @Test
-    void transactionDetailsErrorMappingPayeeName() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getCreditor().setCompanyName(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-    }
-    @Test
-    void transactionDetailsErrorMappingPayeeTaxCode() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getCreditor().setIdPA(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-    }
-    @Test
-    void transactionDetailsErrorMappingMissingPayee() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.setCreditor(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-    }
-    @Test
-    void transactionDetailsErrorMappingMissingRefNumberType() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getDebtorPosition().setModelType(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
-    }
-    @Test
-    void transactionDetailsErrorMappingMissingRefNumberValue() {
-        BizEvent bizEvent = BizEventGenerator.generateValidBizEvent(0);
-        bizEvent.getDebtorPosition().setIuv(null);
-        bizEvent.getDebtorPosition().setNoticeNumber(null);
-        List<BizEvent> listOfBizEvents = Collections.singletonList(bizEvent);
-        when(bizEventsRepository.getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString()))
-                .thenReturn(listOfBizEvents);
-        Assertions.assertThrows(AppException.class ,() ->
-                transactionService.getTransactionDetails(
-                        USER_TAX_CODE_WITH_TX,  "eventId"));
-        verify(bizEventsRepository).getBizEventByFiscalCodeAndId(eq(USER_TAX_CODE_WITH_TX), anyString());
-        verifyNoMoreInteractions(bizEventsRepository);
+    void transactionViewCartNotFoundThrowError() {
+        List<BizEventsViewGeneral> listOfGeneralView = Collections.singletonList(ViewGenerator.generateBizEventsViewGeneral());
+        when(bizEventsViewGeneralRepository.getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID))
+                .thenReturn(listOfGeneralView);
+        List<BizEventsViewCart> listOfCartView = new ArrayList<>();
+        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX))
+                .thenReturn(listOfCartView);
+        AppException appException =
+                Assertions.assertThrows(AppException.class, () ->
+                        transactionService.getTransactionDetails(
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+        verify(bizEventsViewGeneralRepository).getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID);
+        verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX);
+        verifyNoMoreInteractions(bizEventsViewGeneralRepository);
+        verifyNoMoreInteractions(bizEventsViewCartRepository);
+
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, appException.getHttpStatus());
     }
 }

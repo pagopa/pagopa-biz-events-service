@@ -1,10 +1,7 @@
 package it.gov.pagopa.bizeventsservice.entity.view;
 
 import com.azure.spring.data.cosmos.core.mapping.Container;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 
 /**
@@ -15,6 +12,7 @@ import org.springframework.data.annotation.Id;
 @AllArgsConstructor
 @Builder
 @Getter
+@Setter
 public class BizEventsViewCart {
     @Id
     private String transactionId;
