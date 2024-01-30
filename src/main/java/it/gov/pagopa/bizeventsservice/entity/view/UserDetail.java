@@ -1,15 +1,17 @@
-package it.gov.pagopa.bizeventsservice.model.response.transaction;
+package it.gov.pagopa.bizeventsservice.entity.view;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDetail {
+public class UserDetail implements Serializable {
 
     private String name;
     private String taxCode;

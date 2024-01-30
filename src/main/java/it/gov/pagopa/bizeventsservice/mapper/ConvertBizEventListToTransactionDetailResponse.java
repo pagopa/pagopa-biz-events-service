@@ -2,11 +2,15 @@ package it.gov.pagopa.bizeventsservice.mapper;
 
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.entity.Transfer;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.CartItem;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.InfoTransaction;
+import it.gov.pagopa.bizeventsservice.entity.view.UserDetail;
+import it.gov.pagopa.bizeventsservice.entity.view.WalletInfo;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.enumeration.OriginType;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.enumeration.PaymentMethodType;
+import it.gov.pagopa.bizeventsservice.entity.view.enumeration.OriginType;
+import it.gov.pagopa.bizeventsservice.entity.view.enumeration.PaymentMethodType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -83,7 +87,7 @@ public class ConvertBizEventListToTransactionDetailResponse {
                 .build();
     }
 
-    private static UserDetail getDebtor(BizEvent bizEvent,int index) {
+    private static UserDetail getDebtor(BizEvent bizEvent, int index) {
         if(bizEvent.getDebtor() != null){
             if(bizEvent.getDebtor().getFullName() == null) {
                 throw new AppException(AppError.ERROR_MAPPING_BIZ_EVENT_TO_TRANSACTION_DETAIL, String.format("carts[%s].debtor.name", index), bizEvent.getId());

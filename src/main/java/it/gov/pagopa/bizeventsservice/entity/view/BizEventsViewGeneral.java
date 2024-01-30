@@ -1,33 +1,30 @@
-package it.gov.pagopa.bizeventsservice.model.response.transaction;
+package it.gov.pagopa.bizeventsservice.entity.view;
 
-import it.gov.pagopa.bizeventsservice.entity.view.UserDetail;
-import it.gov.pagopa.bizeventsservice.entity.view.WalletInfo;
 import it.gov.pagopa.bizeventsservice.entity.view.enumeration.OriginType;
 import it.gov.pagopa.bizeventsservice.entity.view.enumeration.PaymentMethodType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 /**
- * Response model for transaction detail API
+ * Entity model for biz-events-view-general
  */
 @Builder
-@Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class InfoTransaction implements Serializable {
+@NoArgsConstructor
+@Getter
+public class BizEventsViewGeneral {
     private String transactionId;
     private String authCode;
-    private String rrn;
-    private String transactionDate;
-    private String pspName;
-    private WalletInfo walletInfo;
     private PaymentMethodType paymentMethod;
+    private String rrn;
+    private String pspName;
+    private String transactionDate;
+    private WalletInfo walletInfo;
     private UserDetail payer;
-    private String amount;
+    private boolean isCart;
     private String fee;
     private OriginType origin;
+
 }

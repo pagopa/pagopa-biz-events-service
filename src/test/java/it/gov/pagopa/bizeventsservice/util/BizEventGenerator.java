@@ -2,8 +2,8 @@ package it.gov.pagopa.bizeventsservice.util;
 
 import it.gov.pagopa.bizeventsservice.entity.*;
 import it.gov.pagopa.bizeventsservice.model.response.enumeration.StatusType;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.enumeration.OriginType;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.enumeration.PaymentMethodType;
+import it.gov.pagopa.bizeventsservice.entity.view.enumeration.OriginType;
+import it.gov.pagopa.bizeventsservice.entity.view.enumeration.PaymentMethodType;
 
 import java.util.ArrayList;
 import java.util.List;
