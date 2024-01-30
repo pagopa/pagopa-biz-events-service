@@ -14,6 +14,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface BizEventsViewUserRepository extends CosmosRepository<BizEventsViewUser, String> {
-    @Query("select * from c where c.fiscalCode = @fiscalCode order by c.transactionDate desc")
-    Slice<BizEventsViewUser> getBizEventsViewUserByFiscalCode(@Param("fiscalCode") String fiscalCode, Pageable pageable);
+    @Query("select * from c where c.taxCode = @taxCode order by c.transactionDate desc")
+    Slice<BizEventsViewUser> getBizEventsViewUserByFiscalCode(@Param("taxCode") String taxCode, Pageable pageable);
 }

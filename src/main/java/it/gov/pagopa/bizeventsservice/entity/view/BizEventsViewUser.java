@@ -17,7 +17,7 @@ public class BizEventsViewUser {
     @GeneratedValue
     private String id;
     @PartitionKey
-    private String fiscalCode;
+    private String taxCode;
     private String transactionId;
     private String transactionDate;
     private boolean hidden;
