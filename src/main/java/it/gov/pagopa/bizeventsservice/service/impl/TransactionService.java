@@ -87,9 +87,9 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public TransactionDetailResponse getTransactionDetails(String fiscalCode, String eventReference){
-        if(isInvalidFiscalCode(fiscalCode)){
-            throw new AppException(AppError.INVALID_FISCAL_CODE, fiscalCode);
+    public TransactionDetailResponse getTransactionDetails(String taxCode, String eventReference){
+        if(isInvalidFiscalCode(taxCode)){
+            throw new AppException(AppError.INVALID_FISCAL_CODE, taxCode);
         }
 
         List<BizEventsViewGeneral> listOfGeneralViews = this.bizEventsViewGeneralRepository.getBizEventsViewGeneralByTransactionId(eventReference);
@@ -98,7 +98,7 @@ public class TransactionService implements ITransactionService {
         }
         BizEventsViewGeneral bizEventsViewGeneral = listOfGeneralViews.get(0);
 
-        List<BizEventsViewCart> listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(eventReference, fiscalCode);
+        List<BizEventsViewCart> listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(eventReference, taxCode);
         if(listOfCartViews.isEmpty()){
             throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_FOR_USER, eventReference);
         }
