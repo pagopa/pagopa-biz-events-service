@@ -2,23 +2,24 @@ package it.gov.pagopa.bizeventsservice.service;
 
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
+import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.CartItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.InfoTransaction;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
-import it.gov.pagopa.bizeventsservice.repository.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
+import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.impl.TransactionService;
-import it.gov.pagopa.bizeventsservice.util.TestUtil;
 import it.gov.pagopa.bizeventsservice.util.ViewGenerator;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 
-import java.io.IOException;
 import java.util.*;
 
 import static org.mockito.Mockito.*;
@@ -28,104 +29,88 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 public class TransactionServiceTest {
     public static final String INVALID_FISCAL_CODE = "invalidFiscalCode";
+    public static final int PAGE_SIZE = 5;
+    public static final String CONTINUATION_TOKEN = "0";
 
     @MockBean
-    private BizEventsRepository bizEventsRepository;
+    private BizEventsViewUserRepository bizEventsViewUserRepository;
     @MockBean
     private BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
     @MockBean
     private BizEventsViewCartRepository bizEventsViewCartRepository;
 
     private TransactionService transactionService;
-
-
-
-    private List<Map<String, Object>> noCartTransactionList;
-
-    private List<Map<String, Object>> cartTransactionList;
-
-    private List<Map<String, Object>> cartItemTransactionList;
-
-    @BeforeAll
-    public void beforeAll() throws IOException {
-        noCartTransactionList = TestUtil.readModelFromFile("biz-events/transactionListNoCart.json", List.class);
-        cartTransactionList = TestUtil.readModelFromFile("biz-events/transactionListCart.json", List.class);
-        cartItemTransactionList = TestUtil.readModelFromFile("biz-events/transactionCartItems.json", List.class);
-    }
+    @Value("transaction.payee.cartName")
+    private static String payeeCartName;
 
     @BeforeEach
     void setUp() {
-        transactionService = spy(new TransactionService(bizEventsRepository, bizEventsViewGeneralRepository, bizEventsViewCartRepository));
-        transactionService.setPayeeCartName("Pagamento Multiplo");
+        transactionService = spy(new TransactionService(bizEventsViewGeneralRepository, bizEventsViewCartRepository, bizEventsViewUserRepository));
     }
 
     @Test
     void taxCodeWithEventsShouldReturnTransactionList() {
-        when(bizEventsRepository.getTransactionPagedIds(ViewGenerator.USER_TAX_CODE_WITH_TX, 0, 5))
-                .thenReturn(noCartTransactionList);
+        List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOfFiveBizEventsViewUser();
+        Page<BizEventsViewUser> pageOfViewUser = mock(Page.class);
+        when(pageOfViewUser.getContent()).thenReturn(listOfViewUser);
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any()))
+                .thenReturn(pageOfViewUser);
+        List<BizEventsViewCart> listOfViewCart = Collections.singletonList(ViewGenerator.generateBizEventsViewCart());
+        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(
+                anyString(), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
+                .thenReturn(listOfViewCart);
         List<TransactionListItem> transactionListItems =
                 Assertions.assertDoesNotThrow(() ->
                 transactionService.getTransactionList(
-                        ViewGenerator.USER_TAX_CODE_WITH_TX, "0", 5));
+                        ViewGenerator.USER_TAX_CODE_WITH_TX, CONTINUATION_TOKEN, PAGE_SIZE));
+
         Assertions.assertNotNull(transactionListItems);
-        Assertions.assertEquals(2, transactionListItems.size());
-        Assertions.assertEquals("100.0", transactionListItems.get(0).getAmount());
-        Assertions.assertEquals("100.00", transactionListItems.get(1).getAmount());
-        Assertions.assertEquals("nodo-doc-dev", transactionListItems.get(0).getPayeeName());
-        Assertions.assertEquals("nodo-doc-dev-2", transactionListItems.get(1).getPayeeName());
-        Assertions.assertNotNull(transactionListItems);
-        verify(bizEventsRepository).getTransactionPagedIds(ViewGenerator.USER_TAX_CODE_WITH_TX, 0, 5);
-        verifyNoMoreInteractions(bizEventsRepository);
+        Assertions.assertEquals(listOfViewUser.size(), transactionListItems.size());
+
+        for(TransactionListItem listItem : transactionListItems){
+            Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, listItem.getAmount());
+            Assertions.assertEquals(listOfViewCart.get(0).getPayee().getName(), listItem.getPayeeName());
+            Assertions.assertEquals(listOfViewCart.get(0).getPayee().getTaxCode(), listItem.getPayeeTaxCode());
+        }
+
+        verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any());
+        verifyNoMoreInteractions(bizEventsViewUserRepository);
     }
 
     @Test
-    void taxCodeWithEventsShouldReturnTransactionListWithCartData() {
-        when(bizEventsRepository.getTransactionPagedIds(ViewGenerator.USER_TAX_CODE_WITH_TX, 0, 5))
-                .thenReturn(cartTransactionList);
-        when(bizEventsRepository.getCartData("b77d4987-a3e4-48d4-a2fd-af504f8b79e9"))
-                .thenReturn(cartItemTransactionList);
+    void taxCodeWithEventsAndMultipleCartItemsShouldReturnTransactionList() {
+        List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOfFiveBizEventsViewUser();
+        Page<BizEventsViewUser> pageOfViewUser = mock(Page.class);
+        when(pageOfViewUser.getContent()).thenReturn(listOfViewUser);
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any()))
+                .thenReturn(pageOfViewUser);
+        List<BizEventsViewCart> listOfViewCart = ViewGenerator.generateListOfFiveViewCart();
+        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(
+                anyString(), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
+                .thenReturn(listOfViewCart);
         List<TransactionListItem> transactionListItems =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionList(
-                                ViewGenerator.USER_TAX_CODE_WITH_TX, "0", 5));
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, CONTINUATION_TOKEN, PAGE_SIZE));
+
         Assertions.assertNotNull(transactionListItems);
-        Assertions.assertEquals(1, transactionListItems.size());
-        Assertions.assertEquals("200.00", transactionListItems.get(0).getAmount());
-        Assertions.assertEquals("Pagamento Multiplo", transactionListItems.get(0).getPayeeName());
-        Assertions.assertNotNull(transactionListItems);
-        verify(bizEventsRepository).getTransactionPagedIds(ViewGenerator.USER_TAX_CODE_WITH_TX, 0, 5);
-        verify(bizEventsRepository).getCartData("b77d4987-a3e4-48d4-a2fd-af504f8b79e9");
+        Assertions.assertEquals(listOfViewUser.size(), transactionListItems.size());
+
+        for(TransactionListItem listItem : transactionListItems){
+            Assertions.assertEquals(ViewGenerator.FORMATTED_GRAND_TOTAL, listItem.getAmount());
+            Assertions.assertEquals(payeeCartName, listItem.getPayeeName());
+            Assertions.assertEquals("", listItem.getPayeeTaxCode());
+        }
+
+        verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any());
+        verifyNoMoreInteractions(bizEventsViewUserRepository);
     }
 
     @Test
     void transactionListGetExceptionForInvalidTaxCode() {
         Assertions.assertThrows(AppException.class, () ->
                 transactionService.getTransactionList(
-                        "INVALID_TAX_CODE", "0", 5));
-    }
-
-    @Test
-    void transactionListGetException() {
-        when(bizEventsRepository.getTransactionPagedIds(ViewGenerator.USER_TAX_CODE_WITH_TX, 0, 5))
-                .thenAnswer(x -> {
-                    throw new Exception();
-                });
-        Assertions.assertThrows(Exception.class, () ->
-                        transactionService.getTransactionList(
-                                ViewGenerator.USER_TAX_CODE_WITH_TX, "0", 5));
-    }
-
-    @Test
-    void cartListGetException() {
-        when(bizEventsRepository.getTransactionPagedIds(ViewGenerator.USER_TAX_CODE_WITH_TX, 0, 5))
-                .thenReturn(cartTransactionList);
-        when(bizEventsRepository.getCartData("b77d4987-a3e4-48d4-a2fd-af504f8b79e9"))
-                .thenAnswer(x -> {
-                    throw new Exception();
-                });
-        Assertions.assertThrows(Exception.class, () ->
-                transactionService.getTransactionList(
-                        ViewGenerator.USER_TAX_CODE_WITH_TX, "0", 5));
+                        INVALID_FISCAL_CODE, CONTINUATION_TOKEN, PAGE_SIZE));
     }
 
     @Test
@@ -134,7 +119,7 @@ public class TransactionServiceTest {
         when(bizEventsViewGeneralRepository.getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID))
                 .thenReturn(listOfGeneralView);
         List<BizEventsViewCart> listOfCartView = Collections.singletonList(ViewGenerator.generateBizEventsViewCart());
-        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX))
+        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX))
                 .thenReturn(listOfCartView);
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
@@ -142,7 +127,7 @@ public class TransactionServiceTest {
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
         Assertions.assertNotNull(transactionDetailResponse);
         verify(bizEventsViewGeneralRepository).getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID);
-        verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX);
+        verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX);
         verifyNoMoreInteractions(bizEventsViewGeneralRepository);
         verifyNoMoreInteractions(bizEventsViewCartRepository);
 
@@ -181,7 +166,7 @@ public class TransactionServiceTest {
         when(bizEventsViewGeneralRepository.getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID))
                 .thenReturn(listOfGeneralView);
         List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
-        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX))
+        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX))
                 .thenReturn(listOfCartView);
         TransactionDetailResponse transactionDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
@@ -189,7 +174,7 @@ public class TransactionServiceTest {
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
         Assertions.assertNotNull(transactionDetailResponse);
         verify(bizEventsViewGeneralRepository).getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID);
-        verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX);
+        verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX);
         verifyNoMoreInteractions(bizEventsViewGeneralRepository);
         verifyNoMoreInteractions(bizEventsViewCartRepository);
 
@@ -238,14 +223,14 @@ public class TransactionServiceTest {
         when(bizEventsViewGeneralRepository.getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID))
                 .thenReturn(listOfGeneralView);
         List<BizEventsViewCart> listOfCartView = new ArrayList<>();
-        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX))
+        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX))
                 .thenReturn(listOfCartView);
         AppException appException =
                 Assertions.assertThrows(AppException.class, () ->
                         transactionService.getTransactionDetails(
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
         verify(bizEventsViewGeneralRepository).getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID);
-        verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX);
+        verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX);
         verifyNoMoreInteractions(bizEventsViewGeneralRepository);
         verifyNoMoreInteractions(bizEventsViewCartRepository);
 

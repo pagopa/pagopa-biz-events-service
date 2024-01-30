@@ -13,6 +13,7 @@ import java.util.List;
  */
 @Repository
 public interface BizEventsViewGeneralRepository extends CosmosRepository<BizEventsViewGeneral, String> {
+    //TODO change to single element not list
     @Query("select * from c where c.transactionId = @transactionId")
     List<BizEventsViewGeneral> getBizEventsViewGeneralByTransactionId(@Param("transactionId") String transactionId);
 }

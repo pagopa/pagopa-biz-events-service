@@ -31,11 +31,21 @@ public class ViewGenerator {
 
     public static BizEventsViewUser generateBizEventsViewUser(){
         return BizEventsViewUser.builder()
-                .fiscalCode(USER_TAX_CODE_WITH_TX)
+                .taxCode(USER_TAX_CODE_WITH_TX)
                 .transactionId(TRANSACTION_ID)
                 .transactionDate(TRANSACTION_DATE)
                 .hidden(false)
                 .build();
+    }
+
+    public static List<BizEventsViewUser> generateListOfFiveBizEventsViewUser(){
+        List<BizEventsViewUser> listOfViewUser = new ArrayList<>();
+        for(int i = 0; i < 5; i++){
+            BizEventsViewUser viewUser = generateBizEventsViewUser();
+            viewUser.setTransactionId(viewUser.getTransactionId()+i);
+            listOfViewUser.add(viewUser);
+        }
+        return listOfViewUser;
     }
 
     public static BizEventsViewGeneral generateBizEventsViewGeneral(){
