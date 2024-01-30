@@ -1,6 +1,7 @@
 package it.gov.pagopa.bizeventsservice.entity.view;
 
 import com.azure.spring.data.cosmos.core.mapping.Container;
+import com.azure.spring.data.cosmos.core.mapping.GeneratedValue;
 import com.azure.spring.data.cosmos.core.mapping.PartitionKey;
 import lombok.*;
 
@@ -13,6 +14,7 @@ import lombok.*;
 @Getter
 @Builder
 public class BizEventsViewUser {
+    @GeneratedValue
     private String id;
     @PartitionKey
     private String fiscalCode;

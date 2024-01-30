@@ -1,6 +1,7 @@
 package it.gov.pagopa.bizeventsservice.entity.view;
 
 import com.azure.spring.data.cosmos.core.mapping.Container;
+import com.azure.spring.data.cosmos.core.mapping.GeneratedValue;
 import com.azure.spring.data.cosmos.core.mapping.PartitionKey;
 import it.gov.pagopa.bizeventsservice.entity.view.enumeration.OriginType;
 import it.gov.pagopa.bizeventsservice.entity.view.enumeration.PaymentMethodType;
@@ -18,6 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class BizEventsViewGeneral {
+    @GeneratedValue
     private String id;
     @PartitionKey
     private String transactionId;
