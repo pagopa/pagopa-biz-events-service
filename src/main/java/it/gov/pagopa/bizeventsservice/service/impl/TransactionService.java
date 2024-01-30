@@ -9,6 +9,7 @@ import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
@@ -40,7 +41,7 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public List<TransactionListItem> getTransactionList(
+    public TransactionListResponse getTransactionList(
             String taxCode, String continuationToken, Integer size) {
         if (isInvalidFiscalCode(taxCode)) {
             throw new AppException(AppError.INVALID_FISCAL_CODE, taxCode);
@@ -66,7 +67,13 @@ public class TransactionService implements ITransactionService {
             //TODO handle error in case a transaction is invalid (empty)
         }
 
-        return listOfTransactionListItem;
+        CosmosPageRequest pageResponse = (CosmosPageRequest) page.getPageable().next();
+        String nextToken = pageResponse.getRequestContinuation();
+
+        return TransactionListResponse.builder()
+                .transactionList(listOfTransactionListItem)
+                .continuationToken(nextToken)
+                .build();
     }
 
     @Override
