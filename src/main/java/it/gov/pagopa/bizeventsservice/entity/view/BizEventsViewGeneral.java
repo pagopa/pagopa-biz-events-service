@@ -1,5 +1,6 @@
 package it.gov.pagopa.bizeventsservice.entity.view;
 
+import com.azure.spring.data.cosmos.core.mapping.Container;
 import it.gov.pagopa.bizeventsservice.entity.view.enumeration.OriginType;
 import it.gov.pagopa.bizeventsservice.entity.view.enumeration.PaymentMethodType;
 import lombok.AllArgsConstructor;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 /**
  * Entity model for biz-events-view-general
  */
+@Container(containerName = "${azure.cosmos.biz-events-view-general-container-name}", autoCreateContainer = false, ru="1000")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
