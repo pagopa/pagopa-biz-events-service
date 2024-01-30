@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;
@@ -51,7 +52,7 @@ public interface ITransactionController {
     ResponseEntity<List<TransactionListItem>> getTransactionList(
             @RequestHeader(name = "x-fiscal-code") String fiscalCode,
             @RequestHeader(name = "x-continuation-token", required = false) String continuationToken,
-            @RequestHeader(name = "x-page-size", required = false, defaultValue = "5") Integer size
+            @RequestParam(name = "size", required = false, defaultValue = "5") Integer size
     );
 
     @Operation(summary = "Retrieve the transaction details given its id.", security = {
