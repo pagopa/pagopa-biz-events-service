@@ -936,8 +936,8 @@
             }
           },
           {
-            "name": "x-page-size",
-            "in": "header",
+            "name": "size",
+            "in": "query",
             "required": false,
             "schema": {
               "type": "integer",
