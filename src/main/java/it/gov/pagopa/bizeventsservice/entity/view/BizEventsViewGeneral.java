@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 
 /**
  * Entity model for biz-events-view-general
@@ -17,6 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class BizEventsViewGeneral {
+    @Id
     private String transactionId;
     private String authCode;
     private PaymentMethodType paymentMethod;

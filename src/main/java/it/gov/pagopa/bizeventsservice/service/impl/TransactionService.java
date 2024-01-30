@@ -1,12 +1,15 @@
 package it.gov.pagopa.bizeventsservice.service.impl;
 
-import it.gov.pagopa.bizeventsservice.entity.BizEvent;
+import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
+import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
-import it.gov.pagopa.bizeventsservice.mapper.ConvertBizEventListToTransactionDetailResponse;
+import it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsRepository;
+import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
+import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,13 +30,17 @@ import java.util.stream.Collectors;
 public class TransactionService implements ITransactionService {
 
     private final BizEventsRepository bizEventsRepository;
+    private final BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
+    private final BizEventsViewCartRepository bizEventsViewCartRepository;
 
     @Value("transaction.payee.cartName")
     private String payeeCartName;
 
     @Autowired
-    public TransactionService(BizEventsRepository bizEventsRepository) {
+    public TransactionService(BizEventsRepository bizEventsRepository, BizEventsViewGeneralRepository bizEventsViewGeneralRepository, BizEventsViewCartRepository bizEventsViewCartRepository) {
         this.bizEventsRepository = bizEventsRepository;
+        this.bizEventsViewGeneralRepository = bizEventsViewGeneralRepository;
+        this.bizEventsViewCartRepository = bizEventsViewCartRepository;
     }
 
     @Override
@@ -82,21 +88,22 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public TransactionDetailResponse getTransactionDetails(String fiscalCode, String eventReference){
-        List<BizEvent> bizEventEntityList = new ArrayList<>();
         if(!isValidFiscalCode(fiscalCode)){
             throw new AppException(AppError.INVALID_FISCAL_CODE, fiscalCode);
         }
 
-        /*if(isCart){
-            bizEventEntityList = this.bizEventsRepository.getBizEventByFiscalCodeAndTransactionId(fiscalCode,eventReference);
-        } else {
-            bizEventEntityList = this.bizEventsRepository.getBizEventByFiscalCodeAndId(fiscalCode,eventReference);
-        }*/
-        if (bizEventEntityList.isEmpty()) {
-            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND_WITH_ID, eventReference);
+        List<BizEventsViewGeneral> listOfGeneralViews = this.bizEventsViewGeneralRepository.getBizEventsViewGeneralByTransactionId(eventReference);
+        if (listOfGeneralViews.isEmpty()) {
+            throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_TRANSACTION_ID, eventReference);
+        }
+        BizEventsViewGeneral bizEventsViewGeneral = listOfGeneralViews.get(0);
+
+        List<BizEventsViewCart> listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(eventReference, fiscalCode);
+        if(listOfCartViews.isEmpty()){
+            throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_FOR_USER, eventReference);
         }
 
-        return ConvertBizEventListToTransactionDetailResponse.convert(bizEventEntityList);
+        return ConvertViewsToTransactionDetailResponse.convertTransactionDetails(bizEventsViewGeneral, listOfCartViews);
     }
 
     private static BigDecimal getAmount(Map<String,Object> cartItem) {

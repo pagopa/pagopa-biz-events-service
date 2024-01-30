@@ -12,7 +12,7 @@ import java.util.List;
  * Repository interface for biz-events-view-cart collection
  */
 @Repository
-public interface BizEventsViewUserCartRepository extends CosmosRepository<BizEventsViewCart, String> {
+public interface BizEventsViewCartRepository extends CosmosRepository<BizEventsViewCart, String> {
     @Query("select * from c where c.transactionId = @transactionId")
     List<BizEventsViewCart> getBizEventsViewCartByTransactionId(@Param("transactionId") String transactionId);
 

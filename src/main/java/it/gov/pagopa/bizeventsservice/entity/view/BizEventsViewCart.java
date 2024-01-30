@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 
 /**
  * Entity model for biz-events-view-cart
@@ -15,8 +16,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @Getter
 public class BizEventsViewCart {
+    @Id
     private String transactionId;
     private String eventId;
+    private String subject;
     private long amount;
     private UserDetail payee;
     private UserDetail debtor;
