@@ -1,13 +1,11 @@
 package it.gov.pagopa.bizeventsservice.service;
 
+import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.CartItem;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.InfoTransaction;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
@@ -18,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
 import java.util.*;
@@ -53,17 +52,23 @@ public class TransactionServiceTest {
         List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOfFiveBizEventsViewUser();
         Page<BizEventsViewUser> pageOfViewUser = mock(Page.class);
         when(pageOfViewUser.getContent()).thenReturn(listOfViewUser);
+        CosmosPageRequest pageRequest = mock(CosmosPageRequest.class);
+        when(pageRequest.getRequestContinuation()).thenReturn(CONTINUATION_TOKEN);
+        Pageable pageable = mock(Pageable.class);
+        when(pageOfViewUser.getPageable()).thenReturn(pageable);
+        when(pageable.next()).thenReturn(pageRequest);
         when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any()))
                 .thenReturn(pageOfViewUser);
         List<BizEventsViewCart> listOfViewCart = Collections.singletonList(ViewGenerator.generateBizEventsViewCart());
         when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(
                 anyString(), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
                 .thenReturn(listOfViewCart);
-        List<TransactionListItem> transactionListItems =
+        TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
                 transactionService.getTransactionList(
                         ViewGenerator.USER_TAX_CODE_WITH_TX, CONTINUATION_TOKEN, PAGE_SIZE));
-
+        Assertions.assertEquals(CONTINUATION_TOKEN, transactionListResponse.getContinuationToken());
+        List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
         Assertions.assertNotNull(transactionListItems);
         Assertions.assertEquals(listOfViewUser.size(), transactionListItems.size());
 
@@ -82,17 +87,23 @@ public class TransactionServiceTest {
         List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOfFiveBizEventsViewUser();
         Page<BizEventsViewUser> pageOfViewUser = mock(Page.class);
         when(pageOfViewUser.getContent()).thenReturn(listOfViewUser);
+        CosmosPageRequest pageRequest = mock(CosmosPageRequest.class);
+        when(pageRequest.getRequestContinuation()).thenReturn(CONTINUATION_TOKEN);
+        Pageable pageable = mock(Pageable.class);
+        when(pageOfViewUser.getPageable()).thenReturn(pageable);
+        when(pageable.next()).thenReturn(pageRequest);
         when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any()))
                 .thenReturn(pageOfViewUser);
         List<BizEventsViewCart> listOfViewCart = ViewGenerator.generateListOfFiveViewCart();
         when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(
                 anyString(), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
                 .thenReturn(listOfViewCart);
-        List<TransactionListItem> transactionListItems =
+        TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionList(
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, CONTINUATION_TOKEN, PAGE_SIZE));
-
+        Assertions.assertEquals(CONTINUATION_TOKEN, transactionListResponse.getContinuationToken());
+        List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
         Assertions.assertNotNull(transactionListItems);
         Assertions.assertEquals(listOfViewUser.size(), transactionListItems.size());
 
