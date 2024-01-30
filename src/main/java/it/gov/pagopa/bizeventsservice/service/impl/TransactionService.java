@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -38,14 +39,14 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public List<TransactionListItem> getTransactionList(
-            String fiscalCode, Integer start, Integer size) {
+            String fiscalCode, String continuationToken, Integer size) {
 
         if (!isValidFiscalCode(fiscalCode)) {
             throw new AppException(AppError.INVALID_FISCAL_CODE, fiscalCode);
         }
 
         List<Map<String,Object>> transactionListItems =
-                bizEventsRepository.getTransactionPagedIds(fiscalCode, start, size);
+                bizEventsRepository.getTransactionPagedIds(fiscalCode, 0, size);
         return transactionListItems.stream().map(x -> {
             Boolean isCart = Boolean.valueOf(String.valueOf(x.getOrDefault("isCart", "false")));
             String transactionId = String.valueOf(x.get("transactionId"));
@@ -80,17 +81,17 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public TransactionDetailResponse getTransactionDetails(String fiscalCode, boolean isCart, String eventReference){
-        List<BizEvent> bizEventEntityList;
+    public TransactionDetailResponse getTransactionDetails(String fiscalCode, String eventReference){
+        List<BizEvent> bizEventEntityList = new ArrayList<>();
         if(!isValidFiscalCode(fiscalCode)){
             throw new AppException(AppError.INVALID_FISCAL_CODE, fiscalCode);
         }
 
-        if(isCart){
+        /*if(isCart){
             bizEventEntityList = this.bizEventsRepository.getBizEventByFiscalCodeAndTransactionId(fiscalCode,eventReference);
         } else {
             bizEventEntityList = this.bizEventsRepository.getBizEventByFiscalCodeAndId(fiscalCode,eventReference);
-        }
+        }*/
         if (bizEventEntityList.isEmpty()) {
             throw new AppException(AppError.BIZ_EVENT_NOT_FOUND_WITH_ID, eventReference);
         }
