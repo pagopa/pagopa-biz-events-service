@@ -1,8 +1,8 @@
 package it.gov.pagopa.bizeventsservice.entity.view;
 
 import com.azure.spring.data.cosmos.core.mapping.Container;
+import com.azure.spring.data.cosmos.core.mapping.PartitionKey;
 import lombok.*;
-import org.springframework.data.annotation.Id;
 
 /**
  * Entity model for biz-events-view-user
@@ -13,7 +13,8 @@ import org.springframework.data.annotation.Id;
 @Getter
 @Builder
 public class BizEventsViewUser {
-    @Id
+    private String id;
+    @PartitionKey
     private String fiscalCode;
     private String transactionId;
     private String transactionDate;

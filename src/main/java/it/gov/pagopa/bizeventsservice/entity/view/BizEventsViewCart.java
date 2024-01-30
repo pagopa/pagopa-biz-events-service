@@ -1,8 +1,8 @@
 package it.gov.pagopa.bizeventsservice.entity.view;
 
 import com.azure.spring.data.cosmos.core.mapping.Container;
+import com.azure.spring.data.cosmos.core.mapping.PartitionKey;
 import lombok.*;
-import org.springframework.data.annotation.Id;
 
 /**
  * Entity model for biz-events-view-cart
@@ -14,7 +14,8 @@ import org.springframework.data.annotation.Id;
 @Getter
 @Setter
 public class BizEventsViewCart {
-    @Id
+    private String id;
+    @PartitionKey
     private String transactionId;
     private String eventId;
     private String subject;
