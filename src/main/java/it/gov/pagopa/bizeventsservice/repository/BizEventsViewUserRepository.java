@@ -3,10 +3,12 @@ package it.gov.pagopa.bizeventsservice.repository;
 import com.azure.spring.data.cosmos.repository.CosmosRepository;
 import com.azure.spring.data.cosmos.repository.Query;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 
 /**
@@ -14,6 +16,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface BizEventsViewUserRepository extends CosmosRepository<BizEventsViewUser, String> {
-    @Query("select * from c where c.taxCode = @taxCode order by c.transactionDate desc")
-    Slice<BizEventsViewUser> getBizEventsViewUserByFiscalCode(@Param("taxCode") String taxCode, Pageable pageable);
+    @Query("select * from c where c.taxCode = @taxCode")
+    Page<BizEventsViewUser> getBizEventsViewUserByTaxCode(@Param("taxCode") String taxCode, Pageable pageable);
 }
