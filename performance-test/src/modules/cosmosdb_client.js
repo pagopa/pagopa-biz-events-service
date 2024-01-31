@@ -9,7 +9,7 @@ let environmentVars = require(`../${environmentString}.environment.json`)?.envir
 const databaseID = `${environmentVars.databaseID}`;
 const cartGeneralContainerId = `${environmentVars.cartGeneralContainerID}`;
 const cartItemContainerId = `${environmentVars.cartViewContainerID}`;
-const carUserContainerId = `${environmentVars.cartUserContainerID}`;
+const cartUserContainerId = `${environmentVars.cartUserContainerID}`;
 
 
 const connString = process.env.COSMOS_BIZ_EVENTS_CONN_STRING;
@@ -39,7 +39,7 @@ function getCartItemContainer() {
 function getCartUserContainer() {
     if (client == undefined) {
         client = new CosmosClient(connString);
-        cartUserContainer = client.database(databaseID).container(carUserContainerId);
+        cartUserContainer = client.database(databaseID).container(cartUserContainerId);
     }
     return cartUserContainer;
 }

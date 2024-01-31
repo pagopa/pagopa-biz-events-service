@@ -6,6 +6,9 @@
       "cosmosDBURI": "https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/",
       "databaseID":"db",
       "containerID":"biz-events",
+      "cartGeneralContainerId":"biz-event-view-general",
+      "cartItemContainerId": "biz-event-view-cart",
+      "cartUserContainerId": "biz-event-view-user",
       "numberOfEventsToPreload":"1000",
       "testData": [
         {
