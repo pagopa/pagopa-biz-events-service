@@ -1,5 +1,6 @@
 package it.gov.pagopa.bizeventsservice.service;
 
+import com.azure.cosmos.models.PartitionKey;
 import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
@@ -126,9 +127,9 @@ public class TransactionServiceTest {
 
     @Test
     void idAndTaxCodeWithOneEventShouldReturnTransactionDetails() {
-        List<BizEventsViewGeneral> listOfGeneralView = Collections.singletonList(ViewGenerator.generateBizEventsViewGeneral());
-        when(bizEventsViewGeneralRepository.getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID))
-                .thenReturn(listOfGeneralView);
+        Optional<BizEventsViewGeneral> generalView = Optional.ofNullable(ViewGenerator.generateBizEventsViewGeneral());
+        when(bizEventsViewGeneralRepository.findById(ViewGenerator.TRANSACTION_ID, new PartitionKey(ViewGenerator.TRANSACTION_ID)))
+                .thenReturn(generalView);
         List<BizEventsViewCart> listOfCartView = Collections.singletonList(ViewGenerator.generateBizEventsViewCart());
         when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX))
                 .thenReturn(listOfCartView);
@@ -137,12 +138,12 @@ public class TransactionServiceTest {
                         transactionService.getTransactionDetails(
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
         Assertions.assertNotNull(transactionDetailResponse);
-        verify(bizEventsViewGeneralRepository).getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID);
+        verify(bizEventsViewGeneralRepository).findById(ViewGenerator.TRANSACTION_ID, new PartitionKey(ViewGenerator.TRANSACTION_ID));
         verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX);
         verifyNoMoreInteractions(bizEventsViewGeneralRepository);
         verifyNoMoreInteractions(bizEventsViewCartRepository);
 
-        BizEventsViewGeneral viewGeneral = listOfGeneralView.get(0);
+        BizEventsViewGeneral viewGeneral = generalView.get();
         Assertions.assertNotNull(transactionDetailResponse);
         InfoTransaction infoTransaction = transactionDetailResponse.getInfoTransaction();
         Assertions.assertEquals(viewGeneral.getTransactionId(), infoTransaction.getTransactionId());
@@ -173,9 +174,9 @@ public class TransactionServiceTest {
     }
     @Test
     void idAndTaxCodeWithCartEventShouldReturnTransactionDetails() {
-        List<BizEventsViewGeneral> listOfGeneralView = Collections.singletonList(ViewGenerator.generateBizEventsViewGeneral());
-        when(bizEventsViewGeneralRepository.getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID))
-                .thenReturn(listOfGeneralView);
+        Optional<BizEventsViewGeneral> generalView = Optional.ofNullable(ViewGenerator.generateBizEventsViewGeneral());
+        when(bizEventsViewGeneralRepository.findById(ViewGenerator.TRANSACTION_ID, new PartitionKey(ViewGenerator.TRANSACTION_ID)))
+                .thenReturn(generalView);
         List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
         when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX))
                 .thenReturn(listOfCartView);
@@ -184,7 +185,7 @@ public class TransactionServiceTest {
                         transactionService.getTransactionDetails(
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
         Assertions.assertNotNull(transactionDetailResponse);
-        verify(bizEventsViewGeneralRepository).getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID);
+        verify(bizEventsViewGeneralRepository).findById(ViewGenerator.TRANSACTION_ID, new PartitionKey(ViewGenerator.TRANSACTION_ID));
         verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX);
         verifyNoMoreInteractions(bizEventsViewGeneralRepository);
         verifyNoMoreInteractions(bizEventsViewCartRepository);
@@ -215,14 +216,14 @@ public class TransactionServiceTest {
     }
     @Test
     void transactionViewGeneralNotFoundThrowError() {
-        List<BizEventsViewGeneral> listOfGeneralView = new ArrayList<>();
-        when(bizEventsViewGeneralRepository.getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID))
-                .thenReturn(listOfGeneralView);
+        Optional<BizEventsViewGeneral> generalView = Optional.empty();
+        when(bizEventsViewGeneralRepository.findById(ViewGenerator.TRANSACTION_ID, new PartitionKey(ViewGenerator.TRANSACTION_ID)))
+                .thenReturn(generalView);
         AppException appException =
                 Assertions.assertThrows(AppException.class, () ->
                         transactionService.getTransactionDetails(
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
-        verify(bizEventsViewGeneralRepository).getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID);
+        verify(bizEventsViewGeneralRepository).findById(ViewGenerator.TRANSACTION_ID, new PartitionKey(ViewGenerator.TRANSACTION_ID));
         verifyNoMoreInteractions(bizEventsViewGeneralRepository);
         verifyNoInteractions(bizEventsViewCartRepository);
 
@@ -230,9 +231,9 @@ public class TransactionServiceTest {
     }
     @Test
     void transactionViewCartNotFoundThrowError() {
-        List<BizEventsViewGeneral> listOfGeneralView = Collections.singletonList(ViewGenerator.generateBizEventsViewGeneral());
-        when(bizEventsViewGeneralRepository.getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID))
-                .thenReturn(listOfGeneralView);
+        Optional<BizEventsViewGeneral> generalView = Optional.ofNullable(ViewGenerator.generateBizEventsViewGeneral());
+        when(bizEventsViewGeneralRepository.findById(ViewGenerator.TRANSACTION_ID, new PartitionKey(ViewGenerator.TRANSACTION_ID)))
+                .thenReturn(generalView);
         List<BizEventsViewCart> listOfCartView = new ArrayList<>();
         when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX))
                 .thenReturn(listOfCartView);
@@ -240,7 +241,7 @@ public class TransactionServiceTest {
                 Assertions.assertThrows(AppException.class, () ->
                         transactionService.getTransactionDetails(
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
-        verify(bizEventsViewGeneralRepository).getBizEventsViewGeneralByTransactionId(ViewGenerator.TRANSACTION_ID);
+        verify(bizEventsViewGeneralRepository).findById(ViewGenerator.TRANSACTION_ID, new PartitionKey(ViewGenerator.TRANSACTION_ID));
         verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(ViewGenerator.TRANSACTION_ID, ViewGenerator.USER_TAX_CODE_WITH_TX);
         verifyNoMoreInteractions(bizEventsViewGeneralRepository);
         verifyNoMoreInteractions(bizEventsViewCartRepository);

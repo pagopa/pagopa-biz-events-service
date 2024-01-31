@@ -1,5 +1,6 @@
 package it.gov.pagopa.bizeventsservice.service.impl;
 
+import com.azure.cosmos.models.PartitionKey;
 import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -82,18 +84,17 @@ public class TransactionService implements ITransactionService {
             throw new AppException(AppError.INVALID_FISCAL_CODE, taxCode);
         }
 
-        List<BizEventsViewGeneral> listOfGeneralViews = this.bizEventsViewGeneralRepository.getBizEventsViewGeneralByTransactionId(eventReference);
-        if (listOfGeneralViews.isEmpty()) {
+        Optional<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findById(eventReference, new PartitionKey(eventReference));
+        if (bizEventsViewGeneral.isEmpty()) {
             throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_TRANSACTION_ID, eventReference);
         }
-        BizEventsViewGeneral bizEventsViewGeneral = listOfGeneralViews.get(0);
 
         List<BizEventsViewCart> listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(eventReference, taxCode);
         if (listOfCartViews.isEmpty()) {
             throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE, eventReference);
         }
 
-        return ConvertViewsToTransactionDetailResponse.convertTransactionDetails(bizEventsViewGeneral, listOfCartViews);
+        return ConvertViewsToTransactionDetailResponse.convertTransactionDetails(bizEventsViewGeneral.get(), listOfCartViews);
     }
 
     private boolean isInvalidFiscalCode(String fiscalCode) {

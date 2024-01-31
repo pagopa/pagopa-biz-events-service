@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 
 /**
  * Entity model for biz-events-view-general
@@ -19,8 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class BizEventsViewGeneral {
-    @GeneratedValue
-    private String id;
+    @Id
     @PartitionKey
     private String transactionId;
     private String authCode;
@@ -33,5 +33,6 @@ public class BizEventsViewGeneral {
     private boolean isCart;
     private String fee;
     private OriginType origin;
+    private int totalNotice;
 
 }
