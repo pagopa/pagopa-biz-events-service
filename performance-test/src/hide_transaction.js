@@ -21,9 +21,9 @@ const subKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
 
 export default function() {
 
-	// Get a transaction detail
+	// Disable a transaction
 	let tag = {
-		bizEventMethod: "getTransactionDetails",
+		bizEventMethod: "disableTransaction",
 	};
 	
 	var itemToRecover = getRandomItemFromArray(testData);
@@ -37,10 +37,10 @@ export default function() {
 		},
 	};
 
-	const response = getTransactionDetails(
+	const response = disableTransaction(
 	    bizEventServiceURI, itemToRecover.baseId , params);
-	console.log(`getTransactionDetails ... ${response.status}`);
+	console.log(`disableTransaction ... ${response.status}`);
 
-	check(response, {"getTransactionDetails status is 200": (res) => (res.status === 200)}, tag);
+	check(response, {"disableTransaction status is 200": (res) => (res.status === 200)}, tag);
 
 }

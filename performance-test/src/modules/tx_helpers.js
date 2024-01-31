@@ -1,4 +1,4 @@
-import { createTransactionListDocument } from '../modules/cosmosdb_client.js'
+import { insertGeneralCartView, insertCartItemView } from '../modules/cosmosdb_client.js'
 
 import { createRequire } from 'node:module';
 
@@ -20,8 +20,9 @@ export async function createTxEvents() {
         let fiscalCode = transactionDataTestData.fiscalCode;
         let baseId = transactionDataTestData.baseId;
         let totalNotice = transactionDataTestData.totalNotice;
+        insertGeneralCartView(baseId, fiscalCode, totalNotice);
         for (var i=0; i<totalNotice; i++) {
-            await createTransactionListDocument(baseId+"_"+i, baseId, fiscalCode, totalNotice);
+            await insertCartItemView(baseId+"_"+i, baseId, fiscalCode, baseId+"_"+i);
         }
     }
 

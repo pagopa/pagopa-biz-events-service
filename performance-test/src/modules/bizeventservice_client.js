@@ -5,9 +5,13 @@ export function getOrganizationReceipt(bizEventServiceURI, organizationfiscalcod
 }
 
 export function getTransactionList(bizEventServiceURI, params) {
-    return http.get(bizEventServiceURI+`transactions?start=0&size=5`, params)
+    return http.get(bizEventServiceURI+`transactions?size=5`, params)
 }
 
-export function getTransactionDetails(bizEventServiceURI, id, isCart, params) {
-    return http.get(bizEventServiceURI+`transactions/${id}?isCart=${isCart}`, id , isCart, params)
+export function getTransactionDetails(bizEventServiceURI, id, params) {
+    return http.get(bizEventServiceURI+`transactions/${id}`, id , params)
+}
+
+export function disableTransaction(bizEventServiceURI, id, params) {
+    return http.post(bizEventServiceURI+`transactions/${id}/disable`, id , {} , params)
 }
