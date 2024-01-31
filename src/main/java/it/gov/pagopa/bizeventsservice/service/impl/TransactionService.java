@@ -57,7 +57,7 @@ public class TransactionService implements ITransactionService {
         List<BizEventsViewUser> listOfViewUser = page.getContent();
 
         if(listOfViewUser.isEmpty()){
-            throw new AppException(AppError.INVALID_FISCAL_CODE, taxCode);
+            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TAX_CODE, taxCode);
         }
         for (BizEventsViewUser viewUser : listOfViewUser) {
             List<BizEventsViewCart> listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(viewUser.getTransactionId(), taxCode);
