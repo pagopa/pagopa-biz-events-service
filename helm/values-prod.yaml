@@ -4,11 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-biz-events-service
-<<<<<<< HEAD
-    tag: "0.1.5-1-PAGOPA-1475-biz-event-get-receipt-iur-and-payment-token"
-=======
     tag: "0.1.8"
->>>>>>> main
     pullPolicy: Always
   livenessProbe:
     httpGet:
