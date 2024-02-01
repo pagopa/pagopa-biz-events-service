@@ -1,12 +1,15 @@
 package it.gov.pagopa.bizeventsservice.service.impl;
 
-import it.gov.pagopa.bizeventsservice.entity.BizEvent;
+import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
+import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
-import it.gov.pagopa.bizeventsservice.mapper.ConvertBizEventListToTransactionDetailResponse;
+import it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsRepository;
+import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
+import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,20 +31,24 @@ import java.util.stream.Collectors;
 public class TransactionService implements ITransactionService {
 
     private final BizEventsRepository bizEventsRepository;
+    private final BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
+    private final BizEventsViewCartRepository bizEventsViewCartRepository;
 
     @Value("transaction.payee.cartName")
     private String payeeCartName;
 
     @Autowired
-    public TransactionService(BizEventsRepository bizEventsRepository) {
+    public TransactionService(BizEventsRepository bizEventsRepository, BizEventsViewGeneralRepository bizEventsViewGeneralRepository, BizEventsViewCartRepository bizEventsViewCartRepository) {
         this.bizEventsRepository = bizEventsRepository;
+        this.bizEventsViewGeneralRepository = bizEventsViewGeneralRepository;
+        this.bizEventsViewCartRepository = bizEventsViewCartRepository;
     }
 
     @Override
     public List<TransactionListItem> getTransactionList(
             String fiscalCode, String continuationToken, Integer size) {
 
-        if (!isValidFiscalCode(fiscalCode)) {
+        if (isInvalidFiscalCode(fiscalCode)) {
             throw new AppException(AppError.INVALID_FISCAL_CODE, fiscalCode);
         }
 
@@ -81,22 +88,23 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public TransactionDetailResponse getTransactionDetails(String fiscalCode, String eventReference){
-        List<BizEvent> bizEventEntityList = new ArrayList<>();
-        if(!isValidFiscalCode(fiscalCode)){
-            throw new AppException(AppError.INVALID_FISCAL_CODE, fiscalCode);
+    public TransactionDetailResponse getTransactionDetails(String taxCode, String eventReference){
+        if(isInvalidFiscalCode(taxCode)){
+            throw new AppException(AppError.INVALID_FISCAL_CODE, taxCode);
         }
 
-        /*if(isCart){
-            bizEventEntityList = this.bizEventsRepository.getBizEventByFiscalCodeAndTransactionId(fiscalCode,eventReference);
-        } else {
-            bizEventEntityList = this.bizEventsRepository.getBizEventByFiscalCodeAndId(fiscalCode,eventReference);
-        }*/
-        if (bizEventEntityList.isEmpty()) {
-            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND_WITH_ID, eventReference);
+        List<BizEventsViewGeneral> listOfGeneralViews = this.bizEventsViewGeneralRepository.getBizEventsViewGeneralByTransactionId(eventReference);
+        if (listOfGeneralViews.isEmpty()) {
+            throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_TRANSACTION_ID, eventReference);
+        }
+        BizEventsViewGeneral bizEventsViewGeneral = listOfGeneralViews.get(0);
+
+        List<BizEventsViewCart> listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByFiscalCode(eventReference, taxCode);
+        if(listOfCartViews.isEmpty()){
+            throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_FOR_USER, eventReference);
         }
 
-        return ConvertBizEventListToTransactionDetailResponse.convert(bizEventEntityList);
+        return ConvertViewsToTransactionDetailResponse.convertTransactionDetails(bizEventsViewGeneral, listOfCartViews);
     }
 
     private static BigDecimal getAmount(Map<String,Object> cartItem) {
@@ -115,13 +123,13 @@ public class TransactionService implements ITransactionService {
         return amount.divide(divider, 2, RoundingMode.UNNECESSARY);
     }
 
-    private boolean isValidFiscalCode(String fiscalCode) {
+    private boolean isInvalidFiscalCode(String fiscalCode) {
         if (fiscalCode != null && !fiscalCode.isEmpty()) {
             Pattern pattern = Pattern.compile("^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$");
             Matcher matcher = pattern.matcher(fiscalCode);
-            return matcher.find();
+            return !matcher.find();
         }
-        return false;
+        return true;
     }
 
     public void setPayeeCartName(String payeeCartName) {
