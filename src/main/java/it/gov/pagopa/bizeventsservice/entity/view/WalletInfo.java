@@ -1,15 +1,17 @@
-package it.gov.pagopa.bizeventsservice.model.response.transaction;
+package it.gov.pagopa.bizeventsservice.entity.view;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WalletInfo {
+public class WalletInfo implements Serializable {
 
     private String accountHolder;
     private String brand;
