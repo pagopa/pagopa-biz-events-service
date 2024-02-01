@@ -21,12 +21,18 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.constraints.NotBlank;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import java.util.List;
 
 @Tag(name = "IO Transactions REST APIs")
 @RequestMapping("/transactions")
 @Validated
 public interface ITransactionController {
+
+    String X_CONTINUATION_TOKEN = "x-continuation-token";
+    String X_FISCAL_CODE = "x-fiscal-code";
+    String PAGE_SIZE = "size";
 
     /**
      * recovers biz-event data for the transaction list
@@ -39,7 +45,7 @@ public interface ITransactionController {
     @GetMapping
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained transaction list.",
-                    headers = @Header(name = "x-continuation-token", description = "continuation token for paginated query", schema = @Schema(implementation = String.class)),
+                    headers = @Header(name = X_CONTINUATION_TOKEN, description = "continuation token for paginated query", schema = @Schema(implementation = String.class)),
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "TransactionListItem", implementation = List.class))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "404", description = "Not found the transaction.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
@@ -49,9 +55,10 @@ public interface ITransactionController {
     @Operation(summary = "Retrieve the paged transaction list from biz events.", security = {
             @SecurityRequirement(name = "ApiKey")}, operationId = "getTransactionList")
     ResponseEntity<List<TransactionListItem>> getTransactionList(
-            @RequestHeader(name = "x-fiscal-code") String fiscalCode,
-            @RequestHeader(name = "x-continuation-token", required = false) String continuationToken,
-            @RequestHeader(name = "x-page-size", required = false, defaultValue = "5") Integer size
+            @RequestHeader(name = X_FISCAL_CODE) String fiscalCode,
+            @RequestHeader(name = X_CONTINUATION_TOKEN, required = false) String continuationToken,
+            @RequestParam(name = PAGE_SIZE, required = false, defaultValue = "5") Integer size
+
     );
 
     @Operation(summary = "Retrieve the transaction details given its id.", security = {
@@ -66,6 +73,6 @@ public interface ITransactionController {
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
     @GetMapping(value = "/{transaction-id}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<TransactionDetailResponse> getTransactionDetails(
-            @RequestHeader("x-fiscal-code") @NotBlank String fiscalCode,
+            @RequestHeader(X_FISCAL_CODE) @NotBlank String fiscalCode,
             @Parameter(description = "The id of the transaction.", required = true) @NotBlank @PathVariable("transaction-id") String transactionId);
 }

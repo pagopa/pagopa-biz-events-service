@@ -3,6 +3,7 @@ package it.gov.pagopa.bizeventsservice.controller.impl;
 import it.gov.pagopa.bizeventsservice.controller.ITransactionController;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,9 +29,11 @@ public class TransactionController implements ITransactionController {
     @Override
     public ResponseEntity<List<TransactionListItem>> getTransactionList(
             String fiscalCode, String continuationToken, Integer size) {
-        return new ResponseEntity<>(
-                transactionService.getTransactionList(fiscalCode, continuationToken, size),
-                HttpStatus.OK);
+        TransactionListResponse transactionListResponse = transactionService.getTransactionList(fiscalCode, continuationToken, size);
+
+        return ResponseEntity.ok()
+                .header(X_CONTINUATION_TOKEN, transactionListResponse.getContinuationToken())
+                .body(transactionListResponse.getTransactionList());
     }
 
     @Override

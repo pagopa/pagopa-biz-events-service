@@ -5,12 +5,11 @@ import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.TestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -49,8 +48,9 @@ public class TransactionControllerTest {
     void setUp() throws IOException {
         // precondition
         List<TransactionListItem> transactionListItems = TestUtil.readModelFromFile("biz-events/getTransactionList.json", List.class);
+        TransactionListResponse transactionDetailResponse = TransactionListResponse.builder().transactionList(transactionListItems).build();
         TransactionDetailResponse transactionDetail = TestUtil.readModelFromFile("biz-events/transactionDetails.json", TransactionDetailResponse.class);
-        when(transactionService.getTransactionList(anyString(), anyString(), anyInt())).thenReturn(transactionListItems);
+        when(transactionService.getTransactionList(anyString(), anyString(), anyInt())).thenReturn(transactionDetailResponse);
         when(transactionService.getTransactionDetails(anyString(), anyString())).thenReturn(transactionDetail);
     }
 

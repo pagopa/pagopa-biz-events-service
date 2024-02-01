@@ -38,6 +38,16 @@ public class ViewGenerator {
                 .build();
     }
 
+    public static List<BizEventsViewUser> generateListOfFiveBizEventsViewUser(){
+        List<BizEventsViewUser> listOfViewUser = new ArrayList<>();
+        for(int i = 0; i < 5; i++){
+            BizEventsViewUser viewUser = generateBizEventsViewUser();
+            viewUser.setTransactionId(viewUser.getTransactionId()+i);
+            listOfViewUser.add(viewUser);
+        }
+        return listOfViewUser;
+    }
+
     public static BizEventsViewGeneral generateBizEventsViewGeneral(){
         return BizEventsViewGeneral.builder()
                 .transactionId(TRANSACTION_ID)
