@@ -1,7 +1,6 @@
 package it.gov.pagopa.bizeventsservice.controller.impl;
 
 import it.gov.pagopa.bizeventsservice.controller.ITransactionController;
-import it.gov.pagopa.bizeventsservice.exception.ErrorHandler;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
@@ -28,16 +27,16 @@ public class TransactionController implements ITransactionController {
 
     @Override
     public ResponseEntity<List<TransactionListItem>> getTransactionList(
-            String fiscalCode, Integer start, Integer size) {
+            String fiscalCode, String continuationToken, Integer size) {
         return new ResponseEntity<>(
-                transactionService.getTransactionList(fiscalCode, start, size),
+                transactionService.getTransactionList(fiscalCode, continuationToken, size),
                 HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<TransactionDetailResponse> getTransactionDetails(String fiscalCode, boolean isCart, String eventReference) {
+    public ResponseEntity<TransactionDetailResponse> getTransactionDetails(String fiscalCode, String eventReference) {
         return new ResponseEntity<>(
-                transactionService.getTransactionDetails(fiscalCode, isCart, eventReference),
+                transactionService.getTransactionDetails(fiscalCode, eventReference),
                 HttpStatus.OK);
     }
 }
