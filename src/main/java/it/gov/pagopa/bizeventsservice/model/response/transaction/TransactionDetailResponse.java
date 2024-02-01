@@ -5,13 +5,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
+/**
+ * Response model for transaction detail API
+ */
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransactionDetailResponse {
+public class TransactionDetailResponse implements Serializable {
 
     private InfoTransaction infoTransaction;
     private List<CartItem> carts;

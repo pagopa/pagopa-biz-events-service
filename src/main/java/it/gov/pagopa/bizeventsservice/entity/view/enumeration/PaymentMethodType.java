@@ -1,7 +1,10 @@
-package it.gov.pagopa.bizeventsservice.model.response.transaction.enumeration;
+package it.gov.pagopa.bizeventsservice.entity.view.enumeration;
 
 import java.util.Arrays;
 
+/**
+ * Enum for transaction payment methods
+ */
 public enum PaymentMethodType {
 
     BBT, BP, AD, CP, PO, OBEP, JIF, MYBK, PPAL, UNKNOWN;

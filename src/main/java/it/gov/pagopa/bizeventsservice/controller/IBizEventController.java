@@ -20,7 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.model.ProblemJson;
 
-@Tag(name = "get BizEvent APIs")
+@Tag(name = "Biz-Events Helpdesk")
 @RequestMapping
 @Validated
 public interface IBizEventController {
