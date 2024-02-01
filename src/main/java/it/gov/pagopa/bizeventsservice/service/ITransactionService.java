@@ -3,9 +3,6 @@ package it.gov.pagopa.bizeventsservice.service;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 
-
-import java.util.List;
-
 public interface ITransactionService {
 
     /**
@@ -18,4 +15,5 @@ public interface ITransactionService {
     TransactionListResponse getTransactionList(String fiscalCode, String continuationToken, Integer size);
     TransactionDetailResponse getTransactionDetails(String fiscalCode, String transactionId);
 
+    void disableTransaction(String fiscalCode, String transactionId);
 }

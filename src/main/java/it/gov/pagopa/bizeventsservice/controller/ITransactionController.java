@@ -15,14 +15,9 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotBlank;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import java.util.List;
 
 @Tag(name = "IO Transactions REST APIs")
@@ -73,6 +68,22 @@ public interface ITransactionController {
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
     @GetMapping(value = "/{transaction-id}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<TransactionDetailResponse> getTransactionDetails(
-            @RequestHeader(X_FISCAL_CODE) @NotBlank String fiscalCode,
+            @RequestHeader("x-fiscal-code") @NotBlank String fiscalCode,
             @Parameter(description = "The id of the transaction.", required = true) @NotBlank @PathVariable("transaction-id") String transactionId);
+
+    @Operation(summary = "Disable the transaction details given its id.", security = {
+            @SecurityRequirement(name = "ApiKey")}, operationId = "disableTransaction")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Disabled Transactions.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "404", description = "Not found the transaction.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
+            @ApiResponse(responseCode = "422", description = "Unable to process the request.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
+            @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
+    @PostMapping(value = "/{transaction-id}/disable", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity disableTransaction(
+            @RequestHeader("x-fiscal-code") @NotBlank String fiscalCode,
+            @Parameter(description = "The id of the transaction.", required = true) @NotBlank @PathVariable("transaction-id") String transactionId);
+
 }

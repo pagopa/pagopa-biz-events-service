@@ -25,8 +25,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,6 +44,8 @@ public class TransactionControllerTest {
     public static final String CONTINUATION_TOKEN = "continuationToken";
     public static final String SIZE_HEADER_KEY = "size";
     public static final String SIZE = "10";
+    public static final String TRANSACTION_DISABLE_PATH = "/transactions/transaction-id/disable";
+
     @Autowired
     private MockMvc mvc;
 
@@ -126,5 +129,34 @@ public class TransactionControllerTest {
                 .andReturn();
     }
 
+    @Test
+    void getTransactionDisableShouldReturnOK() throws Exception {
+        mvc.perform(post(TRANSACTION_DISABLE_PATH)
+                        .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+        verify(transactionService).disableTransaction(any(), any());
+    }
+
+    @Test
+    void getTransactionDisableWithMissingFiscalCodeShouldReturnError() throws Exception {
+        mvc.perform(post(TRANSACTION_DISABLE_PATH)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    @Test
+    void getTransactionDisableithInvalidFiscalCodeShouldReturnError() throws Exception {
+        doAnswer(x -> {
+            throw new AppException(AppError.INVALID_FISCAL_CODE, INVALID_FISCAL_CODE);
+        }).when(transactionService).disableTransaction(anyString(), anyString());;
+        mvc.perform(post(TRANSACTION_DISABLE_PATH)
+                        .header(FISCAL_CODE_HEADER_KEY, INVALID_FISCAL_CODE)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
 
 }

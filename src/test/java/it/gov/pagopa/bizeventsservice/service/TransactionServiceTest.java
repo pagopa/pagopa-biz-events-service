@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 
 import java.util.*;
 
+import static it.gov.pagopa.bizeventsservice.util.ViewGenerator.generateBizEventsViewUser;
 import static org.mockito.Mockito.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -247,5 +248,36 @@ public class TransactionServiceTest {
         verifyNoMoreInteractions(bizEventsViewCartRepository);
 
         Assertions.assertEquals(HttpStatus.NOT_FOUND, appException.getHttpStatus());
+    }
+    @Test
+    public void transactionViewUserDisabled() {
+        BizEventsViewUser viewUser = generateBizEventsViewUser();
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndTransactionId(anyString(),anyString()))
+                .thenReturn(viewUser);
+        Assertions.assertDoesNotThrow(() -> transactionService.disableTransaction(
+                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+        viewUser.setHidden(true);
+        verify(bizEventsViewUserRepository).save(viewUser);
+    }
+
+    @Test
+    public void transactionViewUserNotFoundThrowError() {
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndTransactionId(anyString(),anyString()))
+                .thenReturn(null);
+        AppException appException =
+                Assertions.assertThrows(AppException.class, () ->
+                        transactionService.getTransactionDetails(
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, appException.getHttpStatus());
+    }
+
+    @Test
+    void transactionUserViewThrowErrorForInvalidFiscalCode() {
+        AppException appException =
+                Assertions.assertThrows(AppException.class,() ->
+                        transactionService.disableTransaction(
+                                INVALID_FISCAL_CODE, ViewGenerator.TRANSACTION_ID));
+        verifyNoInteractions(bizEventsViewUserRepository);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, appException.getHttpStatus());
     }
 }

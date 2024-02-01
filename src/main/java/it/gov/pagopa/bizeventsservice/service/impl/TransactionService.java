@@ -14,6 +14,9 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
+import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
+import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
+import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,6 +98,22 @@ public class TransactionService implements ITransactionService {
         }
 
         return ConvertViewsToTransactionDetailResponse.convertTransactionDetails(bizEventsViewGeneral.get(), listOfCartViews);
+    }
+
+    @Override
+    public void disableTransaction(String fiscalCode, String transactionId) {
+        if(isInvalidFiscalCode(fiscalCode)){
+            throw new AppException(AppError.INVALID_FISCAL_CODE, fiscalCode);
+        }
+
+        BizEventsViewUser bizEventsViewUser = this.bizEventsViewUserRepository
+                .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
+        if (bizEventsViewUser == null) {
+            throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_TRANSACTION_ID);
+        }
+
+        bizEventsViewUser.setHidden(true);
+        bizEventsViewUserRepository.save(bizEventsViewUser);
     }
 
     private boolean isInvalidFiscalCode(String fiscalCode) {
