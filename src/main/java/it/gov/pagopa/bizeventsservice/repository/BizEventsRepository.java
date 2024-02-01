@@ -15,7 +15,7 @@ import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 public interface BizEventsRepository extends CosmosRepository<BizEvent, String> {
 
     // TODO when available replace idPa with the paFiscalCode field
-    @Query("select * from c where c.creditor.idPA = @organizationFiscalCode and c.paymentInfo.paymentToken = @iur and c.debtorPosition.iuv = @iuv and StringToNumber(c.debtorPosition.modelType) > 1")
+    @Query("select * from c where c.creditor.idPA = @organizationFiscalCode and (c.paymentInfo.paymentToken = @iur or c.debtorPosition.iur = @iur) and c.debtorPosition.iuv = @iuv and StringToNumber(c.debtorPosition.modelType) > 1")
     List<BizEvent> getBizEventByOrgFiscCodeIuvAndIur(@Param("organizationFiscalCode") String organizationFiscalCode,
                                                      @Param("iur") String iur, @Param("iuv") String iuv);
 
@@ -23,7 +23,7 @@ public interface BizEventsRepository extends CosmosRepository<BizEvent, String> 
     List<BizEvent> getBizEventByOrgFiscalCodeAndIuv(@Param("organizationFiscalCode") String organizationFiscalCode,
                                                     @Param("iuv") String iuv);
 
-    @Query("select distinct value c from c JOIN t IN c.transferList where t.fiscalCodePA = @organizationFiscalCode and c.paymentInfo.paymentToken = @iur and StringToNumber(c.debtorPosition.modelType) > 1")
+    @Query("select distinct value c from c JOIN t IN c.transferList where t.fiscalCodePA = @organizationFiscalCode and (c.paymentInfo.paymentToken = @iur or c.debtorPosition.iur = @iur) and StringToNumber(c.debtorPosition.modelType) > 1")
     List<BizEvent> getBizEventByOrgFiscCodeAndIur(@Param("organizationFiscalCode") String organizationFiscalCode,
                                                      @Param("iur") String iur);
 

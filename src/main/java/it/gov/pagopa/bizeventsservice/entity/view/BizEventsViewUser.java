@@ -12,14 +12,14 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@Setter
 @Builder
 public class BizEventsViewUser {
     @GeneratedValue
     private String id;
     @PartitionKey
-    private String fiscalCode;
+    private String taxCode;
     private String transactionId;
     private String transactionDate;
-    @Setter
     private boolean hidden;
 }
