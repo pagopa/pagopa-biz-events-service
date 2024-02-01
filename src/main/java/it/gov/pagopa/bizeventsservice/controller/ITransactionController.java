@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.constraints.NotBlank;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import java.util.List;
 
 @Tag(name = "IO Transactions REST APIs")
@@ -30,7 +32,7 @@ public interface ITransactionController {
 
     String X_CONTINUATION_TOKEN = "x-continuation-token";
     String X_FISCAL_CODE = "x-fiscal-code";
-    String X_PAGE_SIZE = "x-page-size";
+    String PAGE_SIZE = "size";
 
     /**
      * recovers biz-event data for the transaction list
@@ -55,7 +57,8 @@ public interface ITransactionController {
     ResponseEntity<List<TransactionListItem>> getTransactionList(
             @RequestHeader(name = X_FISCAL_CODE) String fiscalCode,
             @RequestHeader(name = X_CONTINUATION_TOKEN, required = false) String continuationToken,
-            @RequestHeader(name = X_PAGE_SIZE, required = false, defaultValue = "5") Integer size
+            @RequestParam(name = PAGE_SIZE, required = false, defaultValue = "5") Integer size
+
     );
 
     @Operation(summary = "Retrieve the transaction details given its id.", security = {
