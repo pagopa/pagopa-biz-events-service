@@ -9,6 +9,7 @@ import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springdoc.core.GroupedOpenApi;
 import org.springdoc.core.customizers.OpenApiCustomiser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -86,5 +87,13 @@ public class OpenApiConfig {
                                     .schema(new StringSchema())
                                     .description("This header identifies the call"))));
         });
+    }
+
+    @Bean
+    public Map<String, GroupedOpenApi> configureGroupOpenApi(Map<String, GroupedOpenApi> groupOpenApi) {
+        groupOpenApi.forEach((id, groupedOpenApi) -> groupedOpenApi
+                .getOpenApiCustomisers()
+                .add(addCommonHeaders()));
+        return groupOpenApi;
     }
 }
