@@ -62,7 +62,7 @@ public class TransactionControllerTest {
         when(transactionService.getTransactionDetails(anyString(), anyString())).thenReturn(transactionDetailResponse);
     }
 
-/*    @Test
+    @Test
     void getListTransactionShouldReturnData() throws Exception {
         MvcResult result = mvc.perform(get(LIST_TRANSACTION_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
@@ -75,7 +75,7 @@ public class TransactionControllerTest {
         assertNotNull(result.getResponse().getContentAsString());
         assertTrue(result.getResponse().getContentAsString().contains("b77d4987-a3e4-48d4-a2fd-af504f8b79e9"));
         assertTrue(result.getResponse().getContentAsString().contains("100.0"));
-    }*/
+    }
 
     @Test
     void getListTransactionWithMissingFiscalCodeShouldReturnError() throws Exception {
@@ -88,6 +88,38 @@ public class TransactionControllerTest {
     @Test
     void getListTransactionWithInvalidFiscalCodeShouldReturnError() throws Exception {
         when(transactionService.getTransactionList(eq(INVALID_FISCAL_CODE), any(), anyInt())).thenAnswer(x -> {
+            throw new AppException(AppError.INVALID_FISCAL_CODE, INVALID_FISCAL_CODE);
+        });
+        mvc.perform(get(LIST_TRANSACTION_PATH)
+                        .header(FISCAL_CODE_HEADER_KEY, INVALID_FISCAL_CODE)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    @Test
+    void getTransactionDetailsShouldReturnData() throws Exception {
+        MvcResult result = mvc.perform(get(TRANSACTION_DETAILS_PATH)
+                        .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+        assertNotNull(result.getResponse().getContentAsString());
+        assertTrue(result.getResponse().getContentAsString().contains("PAYER NAME"));
+    }
+
+    @Test
+    void getTransactionDetailsWithMissingFiscalCodeShouldReturnError() throws Exception {
+        mvc.perform(get(TRANSACTION_DETAILS_PATH)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+    }
+
+    @Test
+    void getTransactionDetailsWithInvalidFiscalCodeShouldReturnError() throws Exception {
+        when(transactionService.getTransactionDetails(anyString(), anyString())).thenAnswer(x -> {
             throw new AppException(AppError.INVALID_FISCAL_CODE, INVALID_FISCAL_CODE);
         });
         mvc.perform(get(TRANSACTION_DETAILS_PATH)
@@ -110,18 +142,6 @@ public class TransactionControllerTest {
     @Test
     void getTransactionDisableWithMissingFiscalCodeShouldReturnError() throws Exception {
         mvc.perform(post(TRANSACTION_DISABLE_PATH)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-    }
-
-    @Test
-    void getTransactionDetailsWithInvalidFiscalCodeShouldReturnError() throws Exception {
-        when(transactionService.getTransactionDetails(anyString(), anyString())).thenAnswer(x -> {
-            throw new AppException(AppError.INVALID_FISCAL_CODE, INVALID_FISCAL_CODE);
-        }).when(transactionService).disableTransaction(anyString(), anyString());;
-        mvc.perform(post(TRANSACTION_DISABLE_PATH)
-                        .header(FISCAL_CODE_HEADER_KEY, INVALID_FISCAL_CODE)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();

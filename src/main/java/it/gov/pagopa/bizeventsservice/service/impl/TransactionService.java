@@ -100,11 +100,20 @@ public class TransactionService implements ITransactionService {
         return ConvertViewsToTransactionDetailResponse.convertTransactionDetails(bizEventsViewGeneral.get(), listOfCartViews);
     }
 
-    private boolean isInvalidFiscalCode(String fiscalCode) {
-    public static BigDecimal formatAmount(long grandTotal) {
-        BigDecimal amount = new BigDecimal(grandTotal);
-        BigDecimal divider = new BigDecimal(100);
-        return amount.divide(divider, 2, RoundingMode.UNNECESSARY);
+    @Override
+    public void disableTransaction(String fiscalCode, String transactionId) {
+        if(isInvalidFiscalCode(fiscalCode)){
+            throw new AppException(AppError.INVALID_FISCAL_CODE, fiscalCode);
+        }
+
+        BizEventsViewUser bizEventsViewUser = this.bizEventsViewUserRepository
+                .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
+        if (bizEventsViewUser == null) {
+            throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_TRANSACTION_ID);
+        }
+
+        bizEventsViewUser.setHidden(true);
+        bizEventsViewUserRepository.save(bizEventsViewUser);
     }
 
     private boolean isInvalidFiscalCode(String fiscalCode) {
