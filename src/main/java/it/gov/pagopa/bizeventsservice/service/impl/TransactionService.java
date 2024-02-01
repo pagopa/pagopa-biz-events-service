@@ -1,7 +1,9 @@
 package it.gov.pagopa.bizeventsservice.service.impl;
 
+import com.azure.cosmos.models.PartitionKey;
 import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
+import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
@@ -9,6 +11,9 @@ import it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDetailResp
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
+import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
+import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
+import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
