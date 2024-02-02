@@ -267,4 +267,60 @@ function createEvent(id, transactionId, totalNotice, debtorFiscalCode, payerFisc
 	};
 }
 
-module.exports = {get, post, put, del, getCosmosDBAuthorizationToken, getDocumentForTest, createEvent, makeId}
+function createViewUser(taxCode, transactionId, hidden, isPayer){
+	return {
+		"id": "id-user"+transactionId,
+		taxCode: taxCode,
+		transactionId: transactionId,
+		transactionDate: "2024-01-24T10:43:36.322Z",
+		hidden: hidden ?? false,
+		isPayer: isPayer ?? false
+	};
+}
+
+function createViewGeneral(transactionId, payerTaxCode, isCart){
+	return {
+		"id": transactionId,
+		"transactionId": transactionId,
+		"authCode": "string",
+		"paymentMethod": "BBT",
+		"rnn": "string",
+		"pspName": "string",   
+		"transactionDate": "2024-01-24T10:43:36.322Z",
+		 "walletInfo": {
+		  "accountHolder": "string",
+		  "brand": "string",
+		  "blurredNumber": "string"
+		},
+		"payer": {
+		  "name": "string",
+		  "taxCode": payerTaxCode
+		},   
+		"isCart": isCart ?? false,
+		"fee": "string",
+		"origin": "INTERNAL",
+		"totalNotice": 1
+	};
+}
+
+function createViewCart(index,transactionId, taxCode){
+	return {
+		"id": "id-cart"+transactionId+taxCode+(index ?? ""),
+		"transactionId": transactionId,
+		"eventId": "string",
+		"amount": 100,
+		"subject": "string",
+		"payee": {
+			"name": "string",
+			"taxCode": "string"
+		  },
+		"debtor": {
+			"name": "string",
+			"taxCode": taxCode
+		},
+		"refNumberValue": "string",
+		"refNumberType": "string"    
+	};
+}
+
+module.exports = {get, post, put, del, getCosmosDBAuthorizationToken, getDocumentForTest, createEvent, makeId, createViewUser, createViewGeneral, createViewCart}

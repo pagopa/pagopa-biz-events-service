@@ -20,6 +20,7 @@ import org.springframework.data.annotation.Id;
 @Getter
 public class BizEventsViewGeneral {
     @Id
+    private String id;
     @PartitionKey
     private String transactionId;
     private String authCode;

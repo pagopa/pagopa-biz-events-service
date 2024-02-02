@@ -1,4 +1,4 @@
-const { get } = require("./common");
+const { get, post } = require("./common");
 
 const bizevents_service_host = process.env.BIZ_EVENTS_SERVICE_HOST;
 
@@ -24,8 +24,14 @@ function getTransactionListForUserWithFiscalCode(fiscalcode) {
     })
 }
 
-function getTransactionWithIdForUserWithFiscalCode(id, fiscalcode, isCart) {
-    return get(bizevents_service_host + `transactions/${id}?isCart=${isCart}`, {
+function getTransactionWithIdForUserWithFiscalCode(id, fiscalcode) {
+    return get(bizevents_service_host + `transactions/${id}`, {
+        "x-fiscal-code": fiscalcode
+    })
+}
+
+function disableTransactionWithIdForUserWithFiscalCode(id, fiscalcode) {
+    return post(bizevents_service_host + `transactions/${id}/disable`,"", {
         "x-fiscal-code": fiscalcode
     })
 }
@@ -36,5 +42,6 @@ module.exports = {
     getBizEventById,
     getBizEventByOrgFiscalCodeAndIuv,
     getTransactionListForUserWithFiscalCode,
-    getTransactionWithIdForUserWithFiscalCode
+    getTransactionWithIdForUserWithFiscalCode,
+    disableTransactionWithIdForUserWithFiscalCode
 }
