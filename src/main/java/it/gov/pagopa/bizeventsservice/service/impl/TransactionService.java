@@ -14,9 +14,6 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
-import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
-import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
-import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +60,12 @@ public class TransactionService implements ITransactionService {
             throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TAX_CODE, taxCode);
         }
         for (BizEventsViewUser viewUser : listOfViewUser) {
-            List<BizEventsViewCart> listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(viewUser.getTransactionId(), taxCode);
+            List<BizEventsViewCart> listOfViewCart;
+            if(viewUser.isPayer()){
+                listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(viewUser.getTransactionId());
+            } else {
+                listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(viewUser.getTransactionId(), taxCode);
+            }
 
             if (!listOfViewCart.isEmpty()) {
                 TransactionListItem transactionListItem = ConvertViewsToTransactionDetailResponse.convertTransactionListItem(viewUser, listOfViewCart);
@@ -87,17 +89,22 @@ public class TransactionService implements ITransactionService {
             throw new AppException(AppError.INVALID_FISCAL_CODE, taxCode);
         }
 
-        Optional<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findById(eventReference, new PartitionKey(eventReference));
-        if (bizEventsViewGeneral.isEmpty()) {
+        List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(eventReference);
+        if (bizEventsViewGeneral.size() != 1) {
             throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_TRANSACTION_ID, eventReference);
         }
 
-        List<BizEventsViewCart> listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(eventReference, taxCode);
+        List<BizEventsViewCart> listOfCartViews;
+        if(bizEventsViewGeneral.get(0).getPayer() != null && bizEventsViewGeneral.get(0).getPayer().getTaxCode().equals(taxCode)){
+            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(eventReference);
+        } else {
+            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(eventReference, taxCode);
+        }
         if (listOfCartViews.isEmpty()) {
             throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE, eventReference);
         }
 
-        return ConvertViewsToTransactionDetailResponse.convertTransactionDetails(bizEventsViewGeneral.get(), listOfCartViews);
+        return ConvertViewsToTransactionDetailResponse.convertTransactionDetails(bizEventsViewGeneral.get(0), listOfCartViews);
     }
 
     @Override
@@ -106,12 +113,12 @@ public class TransactionService implements ITransactionService {
             throw new AppException(AppError.INVALID_FISCAL_CODE, fiscalCode);
         }
 
-        BizEventsViewUser bizEventsViewUser = this.bizEventsViewUserRepository
+        List<BizEventsViewUser> listOfViewUser = this.bizEventsViewUserRepository
                 .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
-        if (bizEventsViewUser == null) {
-            throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_TRANSACTION_ID);
+        if (listOfViewUser.size() != 1) {
+            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TRANSACTION_ID);
         }
-
+        BizEventsViewUser bizEventsViewUser = listOfViewUser.get(0);
         bizEventsViewUser.setHidden(true);
         bizEventsViewUserRepository.save(bizEventsViewUser);
     }
