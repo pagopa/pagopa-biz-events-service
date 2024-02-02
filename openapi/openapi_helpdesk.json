@@ -4,7 +4,7 @@
     "title": "Biz-Events Helpdesk",
     "description": "Microservice for exposing REST APIs for bizevent helpdesk.",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.1.14"
+    "version": "0.1.15"
   },
   "servers": [
     {
