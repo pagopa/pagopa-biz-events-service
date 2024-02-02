@@ -80,7 +80,7 @@ jobs:
           export CANARY=${{ inputs.canary }}
           export CUCUMBER_PUBLISH_TOKEN=${{ secrets.CUCUMBER_PUBLISH_TOKEN }}
           export COSMOS_DB_PRIMARY_KEY=${{ secrets.COSMOS_DB_PRIMARY_KEY }}
-          export COSMOS_DB_CONN_STRING=${{ secrets.COSMOS_DB_CONN_STRING }}
+          export COSMOS_DB_CONN_STRING='${{ secrets.COSMOS_DB_CONN_STRING }}'
 
           cd ./integration-test
           chmod +x ./run_integration_test.sh
