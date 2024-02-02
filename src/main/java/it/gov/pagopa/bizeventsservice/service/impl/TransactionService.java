@@ -45,10 +45,6 @@ public class TransactionService implements ITransactionService {
     @Override
     public TransactionListResponse getTransactionList(
             String taxCode, String continuationToken, Integer size) {
-        if (isInvalidFiscalCode(taxCode)) {
-            throw new AppException(AppError.INVALID_FISCAL_CODE, taxCode);
-        }
-
         List<TransactionListItem> listOfTransactionListItem = new ArrayList<>();
 
         final Sort sort = Sort.by(Sort.Direction.DESC, "transactionDate");
@@ -85,10 +81,6 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public TransactionDetailResponse getTransactionDetails(String taxCode, String eventReference) {
-        if (isInvalidFiscalCode(taxCode)) {
-            throw new AppException(AppError.INVALID_FISCAL_CODE, taxCode);
-        }
-
         List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(eventReference);
         if (bizEventsViewGeneral.size() != 1) {
             throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_TRANSACTION_ID, eventReference);
@@ -109,10 +101,6 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public void disableTransaction(String fiscalCode, String transactionId) {
-        if(isInvalidFiscalCode(fiscalCode)){
-            throw new AppException(AppError.INVALID_FISCAL_CODE, fiscalCode);
-        }
-
         List<BizEventsViewUser> listOfViewUser = this.bizEventsViewUserRepository
                 .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
         if (listOfViewUser.size() != 1) {
@@ -121,14 +109,5 @@ public class TransactionService implements ITransactionService {
         BizEventsViewUser bizEventsViewUser = listOfViewUser.get(0);
         bizEventsViewUser.setHidden(true);
         bizEventsViewUserRepository.save(bizEventsViewUser);
-    }
-
-    private boolean isInvalidFiscalCode(String fiscalCode) {
-        if (fiscalCode != null && !fiscalCode.isEmpty()) {
-            Pattern pattern = Pattern.compile("^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$");
-            Matcher matcher = pattern.matcher(fiscalCode);
-            return !matcher.find();
-        }
-        return true;
     }
 }

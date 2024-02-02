@@ -120,13 +120,6 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void transactionListGetExceptionForInvalidTaxCode() {
-        Assertions.assertThrows(AppException.class, () ->
-                transactionService.getTransactionList(
-                        INVALID_FISCAL_CODE, CONTINUATION_TOKEN, PAGE_SIZE));
-    }
-
-    @Test
     void idAndTaxCodeWithOneEventShouldReturnTransactionDetails() {
         List<BizEventsViewGeneral> generalViewList = Collections.singletonList(ViewGenerator.generateBizEventsViewGeneral());
         when(bizEventsViewGeneralRepository.findByTransactionId(ViewGenerator.TRANSACTION_ID))
@@ -206,16 +199,6 @@ public class TransactionServiceTest {
         }
     }
     @Test
-    void transactionDetailsThrowErrorForInvalidFiscalCode() {
-        AppException appException =
-                Assertions.assertThrows(AppException.class,() ->
-                        transactionService.getTransactionDetails(
-                                INVALID_FISCAL_CODE, ViewGenerator.TRANSACTION_ID));
-        verifyNoInteractions(bizEventsViewGeneralRepository);
-        verifyNoInteractions(bizEventsViewCartRepository);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, appException.getHttpStatus());
-    }
-    @Test
     void transactionViewGeneralNotFoundThrowError() {
         List<BizEventsViewGeneral> generalViewList = new ArrayList<>();
         when(bizEventsViewGeneralRepository.findByTransactionId(ViewGenerator.TRANSACTION_ID))
@@ -269,15 +252,5 @@ public class TransactionServiceTest {
                         transactionService.getTransactionDetails(
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
         Assertions.assertEquals(HttpStatus.NOT_FOUND, appException.getHttpStatus());
-    }
-
-    @Test
-    void transactionUserViewThrowErrorForInvalidFiscalCode() {
-        AppException appException =
-                Assertions.assertThrows(AppException.class,() ->
-                        transactionService.disableTransaction(
-                                INVALID_FISCAL_CODE, ViewGenerator.TRANSACTION_ID));
-        verifyNoInteractions(bizEventsViewUserRepository);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, appException.getHttpStatus());
     }
 }
