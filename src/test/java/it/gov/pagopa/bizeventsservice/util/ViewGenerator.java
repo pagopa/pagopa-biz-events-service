@@ -13,7 +13,8 @@ public class ViewGenerator {
     public static final String AUTH_CODE = "authCode";
     public static final String RRN = "rrn";
     public static final String PSP_NAME = "pspName";
-    public static final String TRANSACTION_DATE = "transactionDate";
+    public static final String TRANSACTION_DATE = "2024-03-22T10:23:46.157186";
+    public static final String TRANSACTION_DATE_ZULU = "2024-03-22T10:23:46Z";
     public static final String BRAND = "brand";
     public static final String ACCOUNT_HOLDER = "accountHolder";
     public static final String BLURRED_NUMBER = "blurredNumber";
@@ -21,7 +22,7 @@ public class ViewGenerator {
     public static final String EVENT_ID = "eventId";
     public static final String SUBJECT = "subject";
     public static final String PAYEE_NAME = "payeeName";
-    public static final long AMOUNT = 100L;
+    public static final String AMOUNT = "100";
     public static final String FORMATTED_AMOUNT = "100,00";
     public static final String FORMATTED_GRAND_TOTAL = "500,00";
     public static final String PAYEE_TAX_CODE = "payeeTaxCode";
@@ -55,7 +56,7 @@ public class ViewGenerator {
                 .paymentMethod(PaymentMethodType.AD)
                 .rrn(RRN)
                 .pspName(PSP_NAME)
-                .transactionDate(TRANSACTION_DATE)
+                .transactionDate(TRANSACTION_DATE_ZULU)
                 .walletInfo(WalletInfo.builder()
                         .brand(BRAND)
                         .accountHolder(ACCOUNT_HOLDER)

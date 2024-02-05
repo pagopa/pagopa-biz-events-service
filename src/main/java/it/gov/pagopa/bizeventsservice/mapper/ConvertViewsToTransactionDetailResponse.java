@@ -7,18 +7,37 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.CartItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.InfoTransaction;
 
 import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
+
+import org.apache.commons.validator.GenericValidator;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Component
 public class ConvertViewsToTransactionDetailResponse {
     private ConvertViewsToTransactionDetailResponse(){}
-
-    @Value("transaction.payee.cartName")
-    private static String payeeCartName;
+    
+    private static String PAYEE_CART_NAME;
+    
+    private static final String RECEIPT_DATE_FORMAT_IN = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS";
+    private static final String RECEIPT_DATE_FORMAT_OUT = "yyyy-MM-dd'T'HH:mm:ssX";
+    
+    @Value("${transaction.payee.cartName:Pagamento Multiplo}")
+    public void setPayeeCartName(String payeeCartName){
+        PAYEE_CART_NAME = payeeCartName;
+    }
 
     public static TransactionDetailResponse convertTransactionDetails(BizEventsViewGeneral bizEventsViewGeneral, List<BizEventsViewCart> listOfCartViews) {
         List<CartItem> listOfCartItems = new ArrayList<>();
@@ -46,7 +65,7 @@ public class ConvertViewsToTransactionDetailResponse {
                                 .transactionId(bizEventsViewGeneral.getTransactionId())
                                 .authCode(bizEventsViewGeneral.getAuthCode())
                                 .rrn(bizEventsViewGeneral.getRrn())
-                                .transactionDate(bizEventsViewGeneral.getTransactionDate())
+                                .transactionDate(dateFormatZoned(bizEventsViewGeneral.getTransactionDate()))
                                 .pspName(bizEventsViewGeneral.getPspName())
                                 .walletInfo(bizEventsViewGeneral.getWalletInfo())
                                 .payer(bizEventsViewGeneral.getPayer())
@@ -68,10 +87,10 @@ public class ConvertViewsToTransactionDetailResponse {
         }
         return TransactionListItem.builder()
                 .transactionId(viewUser.getTransactionId())
-                .payeeName(listOfCartViews.size() > 1 ? payeeCartName : listOfCartViews.get(0).getPayee().getName())
+                .payeeName(listOfCartViews.size() > 1 ? PAYEE_CART_NAME : listOfCartViews.get(0).getPayee().getName())
                 .payeeTaxCode(listOfCartViews.size() > 1 ? "" : listOfCartViews.get(0).getPayee().getTaxCode())
                 .amount(currencyFormat(totalAmount.get().toString()))
-                .transactionDate(viewUser.getTransactionDate())
+                .transactionDate(dateFormatZoned(viewUser.getTransactionDate()))
                 .isCart(listOfCartViews.size() > 1)
                 .build();
     }
@@ -82,5 +101,20 @@ public class ConvertViewsToTransactionDetailResponse {
         numberFormat.setMaximumFractionDigits(2);
         numberFormat.setMinimumFractionDigits(2);
         return numberFormat.format(valueToFormat);
+    }
+    
+    private static String dateFormatZoned(String date) {
+    	if (!GenericValidator.isDate(date, RECEIPT_DATE_FORMAT_OUT, false)) {
+    		return dateFormat(date);
+    	} 	
+    	return date;
+    }
+    
+   
+    private static String dateFormat(String date) {
+    	LocalDateTime ldt = LocalDateTime.parse(date, DateTimeFormatter.ofPattern(RECEIPT_DATE_FORMAT_IN));
+
+    	ZonedDateTime zdt = ZonedDateTime.of(ldt, ZoneOffset.UTC);        
+    	return DateTimeFormatter.ofPattern(RECEIPT_DATE_FORMAT_OUT).format(zdt);
     }
 }
