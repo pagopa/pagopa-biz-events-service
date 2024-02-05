@@ -3,6 +3,7 @@ package it.gov.pagopa.bizeventsservice.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -46,7 +47,7 @@ public interface ITransactionController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained transaction list.",
                     headers = @Header(name = X_CONTINUATION_TOKEN, description = "continuation token for paginated query", schema = @Schema(type="string")),
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "TransactionListItem", implementation = List.class))),
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, array = @ArraySchema(schema = @Schema(name = "TransactionListItem", implementation = TransactionListItem.class)))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "404", description = "Not found the transaction.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "422", description = "Unable to process the request.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
@@ -57,7 +58,7 @@ public interface ITransactionController {
     ResponseEntity<List<TransactionListItem>> getTransactionList(
             @RequestHeader(name = X_FISCAL_CODE) String fiscalCode,
             @RequestHeader(name = X_CONTINUATION_TOKEN, required = false) String continuationToken,
-            @RequestParam(name = PAGE_SIZE, required = false, defaultValue = "5") Integer size
+            @RequestParam(name = PAGE_SIZE, required = false, defaultValue = "10") Integer size
 
     );
 
