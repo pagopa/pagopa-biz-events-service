@@ -15,17 +15,15 @@ import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -79,19 +77,23 @@ public class TransactionService implements ITransactionService {
                                 new BigDecimal(String.valueOf(x.get("amount"))))
                 );
             } else {
-                List<Map<String,Object>> cartData = bizEventsRepository.getCartData(transactionId);
-                transactionListItem.setPayeeName(payeeCartName);
-                transactionListItem.setAmount(String.valueOf(BigDecimal.ZERO));
-                if (!cartData.isEmpty()) {
-                    AtomicReference<BigDecimal> amount = new AtomicReference<>(BigDecimal.ZERO);
-                    cartData.forEach(cartItem -> {
-                        amount.updateAndGet(v -> v.add(getAmount(cartItem)));
-                    });
-                    transactionListItem.setAmount(String.valueOf(amount.get()));
-                }
+                listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(viewUser.getTransactionId(), taxCode);
             }
-            return transactionListItem;
-        }).collect(Collectors.toList());
+
+            if (!listOfViewCart.isEmpty()) {
+                TransactionListItem transactionListItem = ConvertViewsToTransactionDetailResponse.convertTransactionListItem(viewUser, listOfViewCart);
+                listOfTransactionListItem.add(transactionListItem);
+            }
+            //TODO handle error in case a transaction is invalid (empty)
+        }
+
+        CosmosPageRequest pageResponse = (CosmosPageRequest) page.getPageable().next();
+        String nextToken = pageResponse.getRequestContinuation();
+
+        return TransactionListResponse.builder()
+                .transactionList(listOfTransactionListItem)
+                .continuationToken(nextToken)
+                .build();
     }
 
     @Override
@@ -130,14 +132,16 @@ public class TransactionService implements ITransactionService {
         bizEventsViewUserRepository.save(bizEventsViewUser);
     }
 
-    private static BigDecimal getAmount(Map<String,Object> cartItem) {
-        if (cartItem.get("grandTotal") != null) {
-            return formatAmount(Long.parseLong(String.valueOf(cartItem.get("grandTotal"))));
+    @Override
+    public void disableTransaction(String fiscalCode, String transactionId) {
+        List<BizEventsViewUser> listOfViewUser = this.bizEventsViewUserRepository
+                .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
+        if (listOfViewUser.size() != 1) {
+            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TRANSACTION_ID);
         }
-        if (String.valueOf(cartItem.get("amount")) != null) {
-            return new BigDecimal(String.valueOf(cartItem.get("amount")));
-        }
-        return BigDecimal.ZERO;
+        BizEventsViewUser bizEventsViewUser = listOfViewUser.get(0);
+        bizEventsViewUser.setHidden(true);
+        bizEventsViewUserRepository.save(bizEventsViewUser);
     }
 
     public static BigDecimal formatAmount(long grandTotal) {

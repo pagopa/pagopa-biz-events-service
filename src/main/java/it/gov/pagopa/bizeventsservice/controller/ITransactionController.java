@@ -25,6 +25,10 @@ import java.util.List;
 @Validated
 public interface ITransactionController {
 
+    String X_CONTINUATION_TOKEN = "x-continuation-token";
+    String X_FISCAL_CODE = "x-fiscal-code";
+    String PAGE_SIZE = "size";
+
     /**
      * recovers biz-event data for the transaction list
      *

@@ -5,12 +5,12 @@ import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.TestUtil;
+import it.gov.pagopa.bizeventsservice.util.ViewGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -61,7 +61,8 @@ public class TransactionControllerTest {
     void getListTransactionShouldReturnData() throws Exception {
         MvcResult result = mvc.perform(get(LIST_TRANSACTION_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
-                        .queryParam("start", "0")
+                        .header(CONTINUATION_TOKEN_HEADER_KEY, CONTINUATION_TOKEN)
+                        .queryParam(SIZE_HEADER_KEY, SIZE)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -163,6 +164,5 @@ public class TransactionControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn();
     }
-
 
 }

@@ -24,34 +24,73 @@ Feature: All about Organizations Receipt
     And the details of the Biz-Event are returned to the operator with id "123456789"
     And the Biz-Event to test with id "123456789" is removed
 
-  Scenario: An user asks for a its transactions
-    Given 3 Biz-Event with debtor fiscal code "INTTST00A00A000A"
-    And 3 Biz-Event with payer fiscal code "INTTST00A00A000A"
-    And Save all on Cosmos DB
+  Scenario: A user asks for its transactions
+    Given 3 view user with taxCode "INTTST00A00A000A" and transactionId prefix "biz-event-service-int-test-transaction-1" and isPayer "true" on cosmos
+    And 3 view general with payer tax code "INTTST00A00A000A" and transactionId prefix "biz-event-service-int-test-transaction-1" on cosmos 
+    And 1 view cart for every view general with debtor taxCode "INTTST00A00A000A" on cosmos
+    And Save all views on CosmosDB
     When the user with fiscal code "INTTST00A00A000A" asks for its transactions
     Then the user gets the status code 200
-    And the user gets 6 transactions
+    And the user gets 3 transactions
+    And the transactions with cart items "false" for taxCode "INTTST00A00A000A" have the correct amount and subject
 
-  Scenario: An user asks for a its transactions with cart transaction
-    Given 3 Biz-Event with debtor fiscal code "INTTST00A00A000A"
-    And 3 Biz-Event with payer fiscal code "INTTST00A00A000A"
-    And 3 cart Biz-Event with transactionId "biz-event-service-int-test-transaction-1", debtor fiscal code "INTTST00A00A000A" and amount 1000
-    And Save all on Cosmos DB
+ Scenario: A payer user asks for its transactions with all cart items
+    Given 3 view user with taxCode "INTTST00A00A000A" and transactionId prefix "biz-event-service-int-test-transaction-2" and isPayer "true" on cosmos
+    And 3 view general with payer tax code "INTTST00A00A000A" and transactionId prefix "biz-event-service-int-test-transaction-2" on cosmos 
+    And 3 view cart for every view general with debtor taxCode "INTTST00A00A000A" on cosmos
+    And 3 view cart for every view general with debtor taxCode "INTTST00A00A000C" on cosmos
+    And Save all views on CosmosDB
     When the user with fiscal code "INTTST00A00A000A" asks for its transactions
     Then the user gets the status code 200
-    And the user gets 7 transactions
-    And one of the transactions is a cart with id "biz-event-service-int-test-transaction-1" and amount 30.00
+    And the user gets 3 transactions
+    And the transactions with cart items "true" for taxCode "INTTST00A00A000A" have the correct amount and subject
 
-  Scenario: An user asks for a transaction
-    Given Biz-Event with debtor fiscal code "INTTST00A00A000A" and id "biz-event-service-int-test-transaction-2"
-    And Save all on Cosmos DB
-    When the user with fiscal code "INTTST00A00A000A" asks the transaction with id "biz-event-service-int-test-transaction-2" and isCart "false"
+  Scenario: A debtor user asks for its transactions with only their cart items
+    Given 3 view user with taxCode "INTTST00A00A000C" and transactionId prefix "biz-event-service-int-test-transaction-3" and isPayer "true" on cosmos
+    And 3 view general with payer tax code "INTTST00A00A000A" and transactionId prefix "biz-event-service-int-test-transaction-3" on cosmos 
+    And 3 view cart for every view general with debtor taxCode "INTTST00A00A000A" on cosmos
+    And 3 view cart for every view general with debtor taxCode "INTTST00A00A000C" on cosmos
+    And Save all views on CosmosDB
+    When the user with fiscal code "INTTST00A00A000C" asks for its transactions
     Then the user gets the status code 200
-    And the user gets the transaction with id "biz-event-service-int-test-transaction-2"
+    And the user gets 3 transactions
+    And the transactions with cart items "true" for taxCode "INTTST00A00A000C" have the correct amount and subject
 
-  Scenario: An user asks for a cart transaction
-    Given 3 cart Biz-Event with transactionId "biz-event-service-int-test-transaction-3", debtor fiscal code "INTTST00A00A000A" and amount 1000
-    And Save all on Cosmos DB
-    When the user with fiscal code "INTTST00A00A000A" asks the transaction with id "biz-event-service-int-test-transaction-3" and isCart "true"
+ Scenario: A user asks for a transaction detail
+    Given 1 view user with taxCode "INTTST00A00A000A" and transactionId prefix "biz-event-service-int-test-transaction-4" and isPayer "true" on cosmos
+    And 1 view general with payer tax code "INTTST00A00A000A" and transactionId prefix "biz-event-service-int-test-transaction-4" on cosmos 
+    And 1 view cart for every view general with debtor taxCode "INTTST00A00A000A" on cosmos
+    And Save all views on CosmosDB
+    When the user with fiscal code "INTTST00A00A000A" asks the transaction with id "biz-event-service-int-test-transaction-40"
     Then the user gets the status code 200
-    And the user gets the transaction with id "biz-event-service-int-test-transaction-3"
+    And the user with tax code "INTTST00A00A000A" gets the transaction detail with id "biz-event-service-int-test-transaction-40" and it has the correct amount
+
+ Scenario: A payer user asks for a transaction detail with all cart items
+    Given 1 view user with taxCode "INTTST00A00A000A" and transactionId prefix "biz-event-service-int-test-transaction-5" and isPayer "true" on cosmos
+    And 1 view general with payer tax code "INTTST00A00A000A" and transactionId prefix "biz-event-service-int-test-transaction-5" on cosmos 
+    And 3 view cart for every view general with debtor taxCode "INTTST00A00A000A" on cosmos
+    And 3 view cart for every view general with debtor taxCode "INTTST00A00A000C" on cosmos
+    And Save all views on CosmosDB
+    When the user with fiscal code "INTTST00A00A000A" asks the transaction with id "biz-event-service-int-test-transaction-50"
+    Then the user gets the status code 200
+    And the user with tax code "INTTST00A00A000A" gets the transaction detail with id "biz-event-service-int-test-transaction-50" and it has the correct amount
+  
+  Scenario: A debtor user asks for a transaction detail with only their cart items
+    Given 1 view user with taxCode "INTTST00A00A000C" and transactionId prefix "biz-event-service-int-test-transaction-5" and isPayer "true" on cosmos
+    And 1 view general with payer tax code "INTTST00A00A000A" and transactionId prefix "biz-event-service-int-test-transaction-5" on cosmos 
+    And 3 view cart for every view general with debtor taxCode "INTTST00A00A000A" on cosmos
+    And 3 view cart for every view general with debtor taxCode "INTTST00A00A000C" on cosmos
+    And Save all views on CosmosDB
+    When the user with fiscal code "INTTST00A00A000C" asks the transaction with id "biz-event-service-int-test-transaction-50"
+    Then the user gets the status code 200
+    And the user with tax code "INTTST00A00A000C" gets the transaction detail with id "biz-event-service-int-test-transaction-50" and it has the correct amount
+
+  Scenario: A user hides a transaction
+    Given 3 view user with taxCode "INTTST00A00A000A" and transactionId prefix "biz-event-service-int-test-transaction-6" and isPayer "true" on cosmos
+    And 3 view general with payer tax code "INTTST00A00A000A" and transactionId prefix "biz-event-service-int-test-transaction-6" on cosmos 
+    And 1 view cart for every view general with debtor taxCode "INTTST00A00A000A" on cosmos
+    And Save all views on CosmosDB
+    When the user with taxCode "INTTST00A00A000A" disables the transaction with id "biz-event-service-int-test-transaction-60"
+    And the user with fiscal code "INTTST00A00A000A" asks for its transactions
+    Then the user gets the status code 200
+    And the user gets 2 transactions
