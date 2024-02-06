@@ -13,7 +13,7 @@ const varsArray = new SharedArray('vars', function() {
 // workaround to use shared array (only array should be used)
 const vars = varsArray[0];
 const cosmosDBURI = `${vars.cosmosDBURI}`;
-const bizEventServiceURI = `${vars.bizEventServiceURI}`;
+const bizEventTrxURI = `${vars.bizEventTrxURI}`;
 
 const testData = vars.testData;
 
@@ -38,7 +38,7 @@ export default function() {
 	};
 
 	const response = getTransactionDetails(
-	    bizEventServiceURI, itemToRecover.baseId , params);
+	    bizEventTrxURI, itemToRecover.baseId , params);
 	console.log(`getTransactionDetails ... ${response.status}`);
 
 	check(response, {"getTransactionDetails status is 200": (res) => (res.status === 200)}, tag);

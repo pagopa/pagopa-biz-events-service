@@ -3,6 +3,7 @@
     {
       "env": "local",
       "bizEventServiceURI": "http://biz-events-service:8080/",
+      "bizEventTrxURI": "http://biz-events-service:8080/",
       "cosmosDBURI": "https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/",
       "databaseID":"db",
       "containerID":"biz-events",
