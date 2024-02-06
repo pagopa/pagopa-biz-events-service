@@ -15,3 +15,22 @@ where
 -  _API_SUBSCRIPTION_KEY_  is your sub-key
 
 `<script-name>.js` is the scenario to run with k6 (e.g. get_organization_receipts.js)
+
+### PreCond
+```sh
+docker build -f DockerfilePre -t exec-node .
+
+docker run --rm --name initToRunk6 \
+-e COSMOS_CONN_STRING=${COSMOS_CONN_STRING} \
+-e ENVIRONMENT_STRING="${ENVIRONMENT_STRING}" \
+exec-node 
+```
+### TearDown
+```sh
+docker build -f DockerfilePost -t exec-node .
+
+docker run --rm --name initToRunk6 \
+-e COSMOS_RECEIPTS_CONN_STRING=${COSMOS_CONN_STRING} \
+-e ENVIRONMENT_STRING="${ENVIRONMENT_STRING}" \
+exec-node 
+```

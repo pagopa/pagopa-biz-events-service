@@ -1,11 +1,48 @@
-import http from 'k6/http';
-import crypto from 'k6/crypto';
-import encoding from 'k6/encoding';
+import { CosmosClient } from "@azure/cosmos";
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+
+const environmentString = process.env.ENVIRONMENT_STRING || "local";
+let environmentVars = require(`../${environmentString}.environment.json`)?.environment?.[0] || {};
+
+const databaseID = `${environmentVars.databaseID}`;
+const cartGeneralContainerId = `${environmentVars.cartGeneralContainerID}`;
+const cartItemContainerId = `${environmentVars.cartViewContainerID}`;
+const cartUserContainerId = `${environmentVars.cartUserContainerID}`;
 
 
-var authorizationType      = "master"
-var authorizationVersion   = "1.0";
-var cosmosDBApiVersion     = "2018-12-31";
+const connString = process.env.COSMOS_BIZ_EVENTS_CONN_STRING;
+
+var client;
+var cartGeneralContainer;
+var cartItemContainer;
+var cartUserContainer;
+
+
+function getCartGeneralContainer() {
+    if (client == undefined) {
+        client = new CosmosClient(connString);
+        cartGeneralContainer = client.database(databaseID).container(cartGeneralContainerID);
+    }
+    return cartGeneralContainer;
+}
+
+function getCartItemContainer() {
+    if (client == undefined) {
+        client = new CosmosClient(connString);
+        cartItemContainerId = client.database(databaseID).container(cartItemContainerId);
+    }
+    return cartItemContainerId;
+}
+
+function getCartUserContainer() {
+    if (client == undefined) {
+        client = new CosmosClient(connString);
+        cartUserContainer = client.database(databaseID).container(cartUserContainerId);
+    }
+    return cartUserContainer;
+}
 
 
 
@@ -52,7 +89,47 @@ export function createDocument(cosmosDbURI, databaseId, containerId, authorizati
     return http.post(cosmosDbURI+path, body, params)
 }
 
-export function deleteDocument(cosmosDbURI, databaseId, containerId, authorizationSignature, id) {  
+export async function insertGeneralCartView(transactionId, fiscalCode, totalNotice) {
+
+    try {
+        await getContainer().items.create(createGeneralCartView(transactionId, fiscalCode, totalNotice));
+    } catch (err) {
+        throw new Error(
+          "Error saving biz-event cart-general-view" + eventId + "to container " + cartGeneralContainerID
+        );
+    }
+
+    try {
+        await getCartUserContainer().items.create(createDetailUserView(fiscalCode, transactionId));
+    } catch (err) {
+        throw new Error(
+          "Error saving biz-event cart-user-view" + eventId + "for taxCode" + fiscalCode + "to container " + cartUserContainerID
+        );
+    }
+
+}
+
+export async function insertCartItemView(eventId, transactionId, fiscalCode) {
+
+    try {
+        await getContainer().items.create(createDetailCartView(eventId, transactionId, fiscalCode));
+    } catch (err) {
+        throw new Error(
+          "Error saving biz-event cart-general-item" + eventId + "to container " + cartItemContainerId
+        );
+    }
+
+    try {
+        await getCartUserContainer().items.create(createDetailUserView(fiscalCode, transactionId));
+    } catch (err) {
+        throw new Error(
+          "Error saving biz-event cart-user-view" + eventId + "for taxCode" + fiscalCode + "to container " + cartUserContainerID
+        );
+    }
+
+}
+
+export async function deleteDocument(cosmosDbURI, databaseId, containerId, authorizationSignature, id) {
 	let path = `dbs/${databaseId}/colls/${containerId}/docs/${id}`;
 	let resourceLink = path;
 	// resource type (colls, docs...)
@@ -61,17 +138,46 @@ export function deleteDocument(cosmosDbURI, databaseId, containerId, authorizati
 	// request method (a.k.a. verb) to build text for authorization token
     let verb = 'delete';
 	let authorizationToken = getCosmosDBAuthorizationToken(verb,authorizationType,authorizationVersion,authorizationSignature,resourceType,resourceLink,date);
-	
+
 	let partitionKeyArray = "[\""+id+"\"]";
 	let headers = getCosmosDBAPIHeaders(authorizationToken, date, partitionKeyArray, 'application/json');
-	
+
 	let params = {
 		headers: headers,
 	};
-	
+
     return http.del(cosmosDbURI+path, null, params);
 }
 
+export async function deleteGeneralDocumentOnContainer(id, partkey) {
+    try {
+        return await getCartGeneralContainer().item(id, partkey).delete();
+    } catch (error) {
+        if (error.code !== 404) {
+            throw new Error("Error deleting biz-event-cart-general-view " + id);
+        }
+    }
+}
+
+export async function deleteCartItemDocumentOnContainer(id) {
+    try {
+        return await getCartItemContainer().item(id, id).delete();
+    } catch (error) {
+        if (error.code !== 404) {
+            throw new Error("Error deleting biz-event-cart-item-view " + id);
+        }
+    }
+}
+
+export async function deleteCartUserDocumentOnContainer(id, partKey) {
+    try {
+        return await getCartUserContainer().item(id, partKey).delete();
+    } catch (error) {
+        if (error.code !== 404) {
+            throw new Error("Error deleting biz-event-cart-item-user " + id);
+        }
+    }
+}
 
 
 function getCosmosDBAPIHeaders(authorizationToken, date, partitionKeyArray, contentType){
@@ -169,3 +275,57 @@ function getDocumentForTest(id) {
     }
 }
 
+function createGeneralCartView(transactionId, payerTaxCode, totalNotice) {
+    return {
+        "id": transactionId,
+        "transactionId": transactionId,
+        "authCode": "authCode",
+        "paymentMethod": "creditCard",
+        "rrn": "rrn",
+        "pspName": "PSP Giacomo",
+        "transactionDate": "2024-01-24T10:43:36.322Z",
+        "walletInfo": {
+            "accountHolder": "accountHolder",
+            "brand": "brand",
+            "blurredNumber": "blurredNumber"
+        },
+        "payer": {
+          "name": "name",
+          "taxCode": payerTaxCode
+        },
+        "isCart": true,
+        "fee": "2.00",
+        "origin": "INTERNAL",
+        "totalNotice": totalNotice
+      }
+}
+
+function createDetailCartView(eventId, transactionId, debtorTaxCode) {
+    return {
+        "id": eventId
+        "transactionId": transactionId,
+        "eventId": eventId,
+        "amount": 2.00,
+        "subject": "test",
+        "payee": {
+           "name": "string",
+           "taxCode": "string"
+        },
+        "debtor": {
+           "name": debtorTaxCode,
+           "taxCode": "string"
+        },
+        "refNumberValue": "iuv-"+id,
+        "refNumberType": "IUV"
+    }
+}
+
+function createDetailUserView(taxCode, transactionId, eventId) {
+    return {
+        "id": eventId,
+        "transactionId": transactionId,
+        "taxCode": taxCode,
+        "transactionDate": "2024-01-24T10:43:36.322Z",
+        "hidden": "false"
+    }
+}

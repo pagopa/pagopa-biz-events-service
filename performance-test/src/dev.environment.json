@@ -6,7 +6,17 @@
       "cosmosDBURI": "https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/",
       "databaseID":"db",
       "containerID":"biz-events",
-      "numberOfEventsToPreload":"1000"
+      "cartGeneralContainerId":"biz-event-view-general",
+      "cartItemContainerId": "biz-event-view-cart",
+      "cartUserContainerId": "biz-event-view-user",
+      "numberOfEventsToPreload":"1000",
+      "testData": [
+        {
+          "fiscalCode": "TSTPRF00A00A000A",
+          "base_id": "biz_event_transaction_perf_test",
+          "totalNotice": 2
+        }
+      ]
     }
   ]
 }
