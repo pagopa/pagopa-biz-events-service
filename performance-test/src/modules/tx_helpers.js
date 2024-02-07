@@ -17,9 +17,9 @@ export function getTestData() {
 export async function createTxEvents() {
 
     for (var element in transactionDataTestData) {
-        let fiscalCode = transactionDataTestData.fiscalCode;
-        let baseId = transactionDataTestData.baseId;
-        let totalNotice = transactionDataTestData.totalNotice;
+        let fiscalCode = element.fiscalCode;
+        let baseId = element.baseId;
+        let totalNotice = element.totalNotice;
         insertGeneralCartView(baseId, fiscalCode, totalNotice);
         for (var i=0; i<totalNotice; i++) {
             await insertCartItemView(baseId+"_"+i, baseId, fiscalCode, baseId+"_"+i);
