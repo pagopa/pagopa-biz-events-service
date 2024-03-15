@@ -75,7 +75,7 @@ public class ViewGenerator {
                 .transactionId(TRANSACTION_ID)
                 .eventId(EVENT_ID)
                 .subject(SUBJECT)
-                .amount(AMOUNT)
+                .amount(Long.toString(AMOUNT))
                 .payee(UserDetail.builder()
                         .name(PAYEE_NAME)
                         .taxCode(PAYEE_TAX_CODE)
