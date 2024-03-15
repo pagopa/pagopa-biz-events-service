@@ -4,7 +4,7 @@
     "title": "Biz-Events Transaction Service",
     "description": "Microservice for exposing REST APIs about payment transaction.",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.1.19-1-PRDP-364-perf-test-upd"
+    "version": "0.1.19-2-PRDP-364-perf-test-upd"
   },
   "servers": [
     {

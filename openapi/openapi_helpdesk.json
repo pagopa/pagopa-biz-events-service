@@ -4,7 +4,7 @@
     "title": "Biz-Events Helpdesk",
     "description": "Microservice for exposing REST APIs for bizevent helpdesk.",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.1.19-1-PRDP-364-perf-test-upd"
+    "version": "0.1.19-2-PRDP-364-perf-test-upd"
   },
   "servers": [
     {
