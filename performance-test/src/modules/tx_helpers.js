@@ -15,14 +15,15 @@ export function getTestData() {
 }
 
 export async function createTxEvents() {
+    const config = JSON.parse(JSON.stringify(transactionDataTestData));
 
-    for (var element in transactionDataTestData) {
+    for (const element of config) {
         let fiscalCode = element.fiscalCode;
-        let baseId = element.baseId;
+        let baseId = element.base_id;
         let totalNotice = element.totalNotice;
         insertGeneralCartView(baseId, fiscalCode, totalNotice);
         for (var i=0; i<totalNotice; i++) {
-            await insertCartItemView(baseId+"_"+i, baseId, fiscalCode, baseId+"_"+i);
+            await insertCartItemView(baseId, baseId+"_"+i, fiscalCode);
         }
     }
 

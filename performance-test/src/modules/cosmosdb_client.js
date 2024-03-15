@@ -7,9 +7,9 @@ const environmentString = process.env.ENVIRONMENT_STRING || "local";
 let environmentVars = require(`../${environmentString}.environment.json`)?.environment?.[0] || {};
 
 const databaseID = `${environmentVars.databaseID}`;
-const cartGeneralContainerId = `${environmentVars.cartGeneralContainerID}`;
-const cartItemContainerId = `${environmentVars.cartViewContainerID}`;
-const cartUserContainerId = `${environmentVars.cartUserContainerID}`;
+const cartGeneralContainerId = `${environmentVars.cartGeneralContainerId}`;
+const cartItemContainerId = `${environmentVars.cartItemContainerId}`;
+const cartUserContainerId = `${environmentVars.cartUserContainerId}`;
 
 
 const connString = process.env.COSMOS_BIZ_EVENTS_CONN_STRING;
@@ -31,7 +31,7 @@ function getCartGeneralContainer() {
 function getCartItemContainer() {
     if (client == undefined) {
         client = new CosmosClient(connString);
-        cartItemContainerId = client.database(databaseID).container(cartItemContainerId);
+        cartItemContainer = client.database(databaseID).container(cartItemContainerId);
     }
     return cartItemContainerId;
 }
@@ -94,7 +94,7 @@ export async function insertGeneralCartView(transactionId, fiscalCode, totalNoti
         await getCartGeneralContainer().items.create(createGeneralCartView(transactionId, fiscalCode, totalNotice));
     } catch (err) {
         throw new Error(
-          "Error saving biz-event cart-general-view" + transactionId + " to container " + cartGeneralContainerId
+          "Error saving biz-event cart-general-view " + transactionId + " to container " + cartGeneralContainerId
         );
     }
 
@@ -102,7 +102,7 @@ export async function insertGeneralCartView(transactionId, fiscalCode, totalNoti
         await getCartUserContainer().items.create(createDetailUserView(fiscalCode, transactionId));
     } catch (err) {
         throw new Error(
-          "Error saving biz-event cart-user-view" + transactionId + "for taxCode" + fiscalCode + "to container " + cartUserContainerId
+          "Error saving biz-event cart-user-view " + transactionId + " for taxCode " + fiscalCode + " to container " + cartUserContainerId
         );
     }
 
@@ -114,15 +114,16 @@ export async function insertCartItemView(eventId, transactionId, fiscalCode) {
         await getCartItemContainer().items.create(createDetailCartView(eventId, transactionId, fiscalCode));
     } catch (err) {
         throw new Error(
-          "Error saving biz-event cart-general-item" + eventId + "to container " + cartItemContainerId
+          "Error saving biz-event cart-general-item " + eventId + " to container " + cartItemContainerId
         );
     }
 
     try {
         await getCartUserContainer().items.create(createDetailUserView(fiscalCode, transactionId));
     } catch (err) {
+        console.log(err);
         throw new Error(
-          "Error saving biz-event cart-user-view" + eventId + "for taxCode" + fiscalCode + "to container " + cartUserContainerId
+          "Error saving biz-event cart-user-view " + eventId + " for taxCode " + fiscalCode + " to container " + cartUserContainerId
         );
     }
 
