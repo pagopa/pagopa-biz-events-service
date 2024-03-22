@@ -5,23 +5,20 @@ import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.CartItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.InfoTransaction;
-
+import it.gov.pagopa.bizeventsservice.util.DateValidator;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
 
-import org.apache.commons.validator.GenericValidator;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -31,7 +28,7 @@ public class ConvertViewsToTransactionDetailResponse {
     
     private static String PAYEE_CART_NAME;
     
-    private static final String RECEIPT_DATE_FORMAT_IN = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS";
+    private static final List<String> LIST_RECEIPT_DATE_FORMAT_IN = Arrays.asList("yyyy-MM-dd'T'HH:mm:ss");
     private static final String RECEIPT_DATE_FORMAT_OUT = "yyyy-MM-dd'T'HH:mm:ssX";
     
     @Value("${transaction.payee.cartName:Pagamento Multiplo}")
@@ -104,17 +101,22 @@ public class ConvertViewsToTransactionDetailResponse {
     }
     
     private static String dateFormatZoned(String date) {
-    	if (!GenericValidator.isDate(date, RECEIPT_DATE_FORMAT_OUT, false)) {
-    		return dateFormat(date);
+    	String dateSub = StringUtils.substringBeforeLast(date, ".");
+    	if (!DateValidator.isValid(dateSub, RECEIPT_DATE_FORMAT_OUT)) {
+    		return dateFormat(dateSub);
     	} 	
-    	return date;
+    	return dateSub;
     }
     
    
-    private static String dateFormat(String date) {
-    	LocalDateTime ldt = LocalDateTime.parse(date, DateTimeFormatter.ofPattern(RECEIPT_DATE_FORMAT_IN));
-
-    	ZonedDateTime zdt = ZonedDateTime.of(ldt, ZoneOffset.UTC);        
-    	return DateTimeFormatter.ofPattern(RECEIPT_DATE_FORMAT_OUT).format(zdt);
+    private static String dateFormat(String date) { 	
+    	for (String format: LIST_RECEIPT_DATE_FORMAT_IN) {
+    		if (DateValidator.isValid(date, format)) {
+    			LocalDateTime ldt = LocalDateTime.parse(date, DateTimeFormatter.ofPattern(format));
+        		ZonedDateTime zdt = ZonedDateTime.of(ldt, ZoneOffset.UTC);   
+        		return DateTimeFormatter.ofPattern(RECEIPT_DATE_FORMAT_OUT).format(zdt);
+    		}
+    	}
+    	throw new DateTimeException("The date ["+date+"] is not in one of the expected formats "+LIST_RECEIPT_DATE_FORMAT_IN+" and cannot be parsed");
     }
 }

@@ -85,7 +85,7 @@ public interface ITransactionController {
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
     @PostMapping(value = "/{transaction-id}/disable", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity disableTransaction(
+    ResponseEntity<Void> disableTransaction(
             @RequestHeader("x-fiscal-code") @NotBlank String fiscalCode,
             @Parameter(description = "The id of the transaction.", required = true) @NotBlank @PathVariable("transaction-id") String transactionId);
 

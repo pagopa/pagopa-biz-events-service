@@ -1,6 +1,5 @@
 package it.gov.pagopa.bizeventsservice.service.impl;
 
-import com.azure.cosmos.models.PartitionKey;
 import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
@@ -15,7 +14,6 @@ import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -23,12 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
-@Slf4j
 public class TransactionService implements ITransactionService {
 
     private final BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
@@ -104,7 +98,7 @@ public class TransactionService implements ITransactionService {
         List<BizEventsViewUser> listOfViewUser = this.bizEventsViewUserRepository
                 .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
         if (listOfViewUser.size() != 1) {
-            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TRANSACTION_ID);
+            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TRANSACTION_ID, fiscalCode, transactionId);
         }
         BizEventsViewUser bizEventsViewUser = listOfViewUser.get(0);
         bizEventsViewUser.setHidden(true);

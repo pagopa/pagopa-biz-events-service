@@ -1,6 +1,5 @@
 package it.gov.pagopa.bizeventsservice.service;
 
-import com.azure.cosmos.models.PartitionKey;
 import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
