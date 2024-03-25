@@ -26,14 +26,14 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ConvertViewsToTransactionDetailResponse {
     private ConvertViewsToTransactionDetailResponse(){}
     
-    private static String PAYEE_CART_NAME;
+    private static String payeeCartName;
     
     private static final List<String> LIST_RECEIPT_DATE_FORMAT_IN = Arrays.asList("yyyy-MM-dd'T'HH:mm:ss");
     private static final String RECEIPT_DATE_FORMAT_OUT = "yyyy-MM-dd'T'HH:mm:ssX";
     
     @Value("${transaction.payee.cartName:Pagamento Multiplo}")
-    public void setPayeeCartName(String payeeCartName){
-        PAYEE_CART_NAME = payeeCartName;
+    public void setPayeeCartName(String payeeCartNameValue){
+        payeeCartName = payeeCartNameValue;
     }
 
     public static TransactionDetailResponse convertTransactionDetails(BizEventsViewGeneral bizEventsViewGeneral, List<BizEventsViewCart> listOfCartViews) {
@@ -84,7 +84,7 @@ public class ConvertViewsToTransactionDetailResponse {
         }
         return TransactionListItem.builder()
                 .transactionId(viewUser.getTransactionId())
-                .payeeName(listOfCartViews.size() > 1 ? PAYEE_CART_NAME : listOfCartViews.get(0).getPayee().getName())
+                .payeeName(listOfCartViews.size() > 1 ? payeeCartName : listOfCartViews.get(0).getPayee().getName())
                 .payeeTaxCode(listOfCartViews.size() > 1 ? "" : listOfCartViews.get(0).getPayee().getTaxCode())
                 .amount(currencyFormat(totalAmount.get().toString()))
                 .transactionDate(dateFormatZoned(viewUser.getTransactionDate()))
