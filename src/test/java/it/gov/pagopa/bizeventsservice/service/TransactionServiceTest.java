@@ -18,6 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.util.*;
 
@@ -27,6 +28,7 @@ import static org.mockito.Mockito.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
+@ContextConfiguration
 public class TransactionServiceTest {
     public static final String INVALID_FISCAL_CODE = "invalidFiscalCode";
     public static final int PAGE_SIZE = 5;
@@ -40,8 +42,8 @@ public class TransactionServiceTest {
     private BizEventsViewCartRepository bizEventsViewCartRepository;
 
     private TransactionService transactionService;
-    @Value("transaction.payee.cartName")
-    private static String payeeCartName;
+    @Value("${transaction.payee.cartName:Pagamento Multiplo}")
+    private String payeeCartName;
 
     @BeforeEach
     void setUp() {
