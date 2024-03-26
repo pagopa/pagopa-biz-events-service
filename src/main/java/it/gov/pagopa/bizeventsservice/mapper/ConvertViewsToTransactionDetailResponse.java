@@ -5,20 +5,36 @@ import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.CartItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.InfoTransaction;
-
+import it.gov.pagopa.bizeventsservice.util.DateValidator;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.time.DateTimeException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Component
 public class ConvertViewsToTransactionDetailResponse {
     private ConvertViewsToTransactionDetailResponse(){}
-
-    @Value("transaction.payee.cartName")
+    
     private static String payeeCartName;
+    
+    private static final List<String> LIST_RECEIPT_DATE_FORMAT_IN = Arrays.asList("yyyy-MM-dd'T'HH:mm:ss");
+    private static final String RECEIPT_DATE_FORMAT_OUT = "yyyy-MM-dd'T'HH:mm:ssX";
+    
+    @Value("${transaction.payee.cartName:Pagamento Multiplo}")
+    public void setPayeeCartName(String payeeCartNameValue){
+        payeeCartName = payeeCartNameValue;
+    }
 
     public static TransactionDetailResponse convertTransactionDetails(BizEventsViewGeneral bizEventsViewGeneral, List<BizEventsViewCart> listOfCartViews) {
         List<CartItem> listOfCartItems = new ArrayList<>();
@@ -46,7 +62,7 @@ public class ConvertViewsToTransactionDetailResponse {
                                 .transactionId(bizEventsViewGeneral.getTransactionId())
                                 .authCode(bizEventsViewGeneral.getAuthCode())
                                 .rrn(bizEventsViewGeneral.getRrn())
-                                .transactionDate(bizEventsViewGeneral.getTransactionDate())
+                                .transactionDate(dateFormatZoned(bizEventsViewGeneral.getTransactionDate()))
                                 .pspName(bizEventsViewGeneral.getPspName())
                                 .walletInfo(bizEventsViewGeneral.getWalletInfo())
                                 .payer(bizEventsViewGeneral.getPayer())
@@ -71,7 +87,7 @@ public class ConvertViewsToTransactionDetailResponse {
                 .payeeName(listOfCartViews.size() > 1 ? payeeCartName : listOfCartViews.get(0).getPayee().getName())
                 .payeeTaxCode(listOfCartViews.size() > 1 ? "" : listOfCartViews.get(0).getPayee().getTaxCode())
                 .amount(currencyFormat(totalAmount.get().toString()))
-                .transactionDate(viewUser.getTransactionDate())
+                .transactionDate(dateFormatZoned(viewUser.getTransactionDate()))
                 .isCart(listOfCartViews.size() > 1)
                 .build();
     }
@@ -82,5 +98,25 @@ public class ConvertViewsToTransactionDetailResponse {
         numberFormat.setMaximumFractionDigits(2);
         numberFormat.setMinimumFractionDigits(2);
         return numberFormat.format(valueToFormat);
+    }
+    
+    private static String dateFormatZoned(String date) {
+    	String dateSub = StringUtils.substringBeforeLast(date, ".");
+    	if (!DateValidator.isValid(dateSub, RECEIPT_DATE_FORMAT_OUT)) {
+    		return dateFormat(dateSub);
+    	} 	
+    	return dateSub;
+    }
+    
+   
+    private static String dateFormat(String date) { 	
+    	for (String format: LIST_RECEIPT_DATE_FORMAT_IN) {
+    		if (DateValidator.isValid(date, format)) {
+    			LocalDateTime ldt = LocalDateTime.parse(date, DateTimeFormatter.ofPattern(format));
+        		ZonedDateTime zdt = ZonedDateTime.of(ldt, ZoneOffset.UTC);   
+        		return DateTimeFormatter.ofPattern(RECEIPT_DATE_FORMAT_OUT).format(zdt);
+    		}
+    	}
+    	throw new DateTimeException("The date ["+date+"] is not in one of the expected formats "+LIST_RECEIPT_DATE_FORMAT_IN+" and cannot be parsed");
     }
 }
