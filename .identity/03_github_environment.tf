@@ -102,3 +102,11 @@ resource "github_actions_environment_secret" "secret_integration_test_cosmos_key
   secret_name      = "COSMOS_DB_PRIMARY_KEY"
   plaintext_value  = data.azurerm_key_vault_secret.key_vault_integration_cosmos_negative_biz_key[0].value
 }
+
+#tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
+resource "github_actions_secret" "secret_slack_webhook" {
+  count        = var.env_short != "p" ? 1 : 0
+  repository      = local.github.repository
+  secret_name     = "SLACK_WEBHOOK_URL"
+  plaintext_value = data.azurerm_key_vault_secret.key_vault_integration_test_webhook_slack[0].value
+}
