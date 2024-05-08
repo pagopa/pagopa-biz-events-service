@@ -21,6 +21,6 @@ public class BizEventsViewUser {
     private String taxCode;
     private String transactionId;
     private String transactionDate;
-    private boolean hidden;
-    private boolean isPayer;
+    private Boolean hidden;
+    private Boolean isPayer;
 }

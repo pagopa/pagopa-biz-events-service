@@ -20,7 +20,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class TransactionService implements ITransactionService {
@@ -44,14 +46,15 @@ public class TransactionService implements ITransactionService {
         final Sort sort = Sort.by(Sort.Direction.DESC, "transactionDate");
         final CosmosPageRequest pageRequest = new CosmosPageRequest(0, size, continuationToken, sort);
         final Page<BizEventsViewUser> page = this.bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(taxCode, pageRequest);
-        List<BizEventsViewUser> listOfViewUser = page.getContent();
+        Set<String> set = new HashSet<>(page.getContent().size());
+        List<BizEventsViewUser> listOfViewUser = page.getContent().stream().filter(p -> set.add(p.getTransactionId())).toList();
 
         if(listOfViewUser.isEmpty()){
             throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TAX_CODE, taxCode);
         }
         for (BizEventsViewUser viewUser : listOfViewUser) {
             List<BizEventsViewCart> listOfViewCart;
-            if(viewUser.isPayer()){
+            if(Boolean.TRUE.equals(viewUser.getIsPayer())){
                 listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(viewUser.getTransactionId());
             } else {
                 listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(viewUser.getTransactionId(), taxCode);
@@ -76,7 +79,7 @@ public class TransactionService implements ITransactionService {
     @Override
     public TransactionDetailResponse getTransactionDetails(String taxCode, String eventReference) {
         List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(eventReference);
-        if (bizEventsViewGeneral.size() != 1) {
+        if (bizEventsViewGeneral.isEmpty()) {
             throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_TRANSACTION_ID, eventReference);
         }
 
