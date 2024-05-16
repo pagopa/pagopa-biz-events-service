@@ -1,7 +1,5 @@
 package it.gov.pagopa.bizeventsservice.client;
 
-import java.io.File;
-
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -28,5 +26,5 @@ public interface IReceiptPDFClient {
 			maxAttemptsExpression = "${retry.maxAttempts}",
 			backoff = @Backoff(delayExpression = "${retry.maxDelay}"))
 	@GetMapping(value = "/messages/{id}/{attachment_url}")
-	File getReceipt(@RequestHeader("fiscal_code") String fiscalCode, @PathVariable("id") String id, @PathVariable("attachment_url") String attachmentUrl);
+	byte[] getReceipt(@RequestHeader("fiscal_code") String fiscalCode, @PathVariable("id") String id, @PathVariable("attachment_url") String attachmentUrl);
 }

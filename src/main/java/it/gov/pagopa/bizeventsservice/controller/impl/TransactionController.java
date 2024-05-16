@@ -12,10 +12,12 @@ import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
+import feign.FeignException;
+
 import java.util.List;
 
 import javax.validation.constraints.NotBlank;
@@ -62,30 +64,34 @@ public class TransactionController implements ITransactionController {
     }
 
     @Override
-    public ResponseEntity<File> getPDFReceipt(@NotBlank String fiscalCode, @NotBlank String eventId) {
-    	
-    	ResponseEntity<?> notFound = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    	
+    public ResponseEntity<byte[]> getPDFReceipt(@NotBlank String fiscalCode, @NotBlank String eventId) {
+    	return acquirePDFReceipt(fiscalCode, eventId);
+    }
+
+    private ResponseEntity<byte[]> acquirePDFReceipt(String fiscalCode, String eventId) {
     	try {
     		BizEvent bizEvent = bizEventsService.getBizEvent(eventId);
-    		if (bizEvent.getIdPaymentManager() != null) {
+    		if (bizEvent.getIdPaymentManager() == null) {
     			// call the receipt-pdf-service to retrieve the PDF receipt
     			AttachmentsDetailsResponse response = receiptClient.getAttachments(fiscalCode, eventId);
     			String url = response.getAttachments().get(0).getUrl();
 
-    			return new ResponseEntity<>(
-    					receiptClient.getReceipt(fiscalCode, eventId, url),
-    					HttpStatus.OK);
+    			byte[] receiptFile = receiptClient.getReceipt(fiscalCode, eventId, url);
+
+    			return ResponseEntity
+    					.ok()
+    					.contentLength(receiptFile.length)
+    					.contentType(MediaType.APPLICATION_PDF)
+    					.header("content-disposition", "filename=receipt")
+    					.body(receiptFile);
     		} 
-    		
-    	} catch (AppException e) {
-    		if (e.getHttpStatus().equals(HttpStatus.NOT_FOUND)) {
-    			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    		}
-    	} catch (Exception e) {
-    		e.printStackTrace();
-    	}
-    	
-    	return (ResponseEntity<File>)notFound;
+
+    	} 
+    	catch (FeignException.NotFound e) {
+    		// TODO receipt generation
+    		throw new AppException(HttpStatus.NOT_FOUND, "Receipt Not Found", "Something was wrong - " + e.getMessage());
+    	} 
+    	// For a PM type event there is no receipt
+    	throw new AppException(HttpStatus.NOT_FOUND, "Receipt Not Found", "It was not possible to obtain the receipt for the event with id "+eventId+" and tax code " + fiscalCode);
     }
 }
