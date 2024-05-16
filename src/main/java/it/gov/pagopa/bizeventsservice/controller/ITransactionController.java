@@ -93,11 +93,10 @@ public interface ITransactionController {
     @Operation(summary = "Retrieve the PDF receipt given event id.", security = {
             @SecurityRequirement(name = "ApiKey")}, operationId = "getPDFReceipt")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Obtained the PDF receipt.",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "File", implementation = Byte.class))),
+    		@ApiResponse(responseCode = "200", description = "Obtained the PDF receipt.", content = @Content(schema = @Schema(type = "string", format = "binary"))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "404", description = "Not found the receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
-            @ApiResponse(responseCode = "422", description = "Unprocessable recipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
+            @ApiResponse(responseCode = "422", description = "Unprocessable receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
     @GetMapping(value = "/{event-id}/pdf")

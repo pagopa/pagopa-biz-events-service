@@ -82,6 +82,7 @@ microservice-chart:
     RETRY_MAX_DELAY: "10000"
     RETRY_MAX_ATTEMPTS: "1"
     CONNECTION_TIMEOUT: "10000"
+    PM_REFERENCE_CREATION_DATE: "1680307200000"
     OTEL_SERVICE_NAME: "pagopabizeventsservice"
     OTEL_RESOURCE_ATTRIBUTES: "service.name=pagopareceiptspdfserviceotl,deployment.environment=uat"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"

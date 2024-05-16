@@ -11,6 +11,7 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,9 @@ public class TransactionController implements ITransactionController {
     private final ITransactionService transactionService;
     private final IBizEventsService bizEventsService;
     private final IReceiptPDFClient receiptClient;
+    
+    @Value(value = "${pm.reference.creation.date.ms}")
+    private Long referenceCreationDate;
 
     @Autowired
     public TransactionController(ITransactionService transactionService, IBizEventsService bizEventsService, IReceiptPDFClient receiptClient) {
@@ -71,7 +75,7 @@ public class TransactionController implements ITransactionController {
     private ResponseEntity<byte[]> acquirePDFReceipt(String fiscalCode, String eventId) {
     	try {
     		BizEvent bizEvent = bizEventsService.getBizEvent(eventId);
-    		if (bizEvent.getIdPaymentManager() == null) {
+    		if (bizEvent.getIdPaymentManager() == null ||  (bizEvent.getIdPaymentManager() != null  && bizEvent.getTimestamp() > referenceCreationDate)) {
     			// call the receipt-pdf-service to retrieve the PDF receipt
     			AttachmentsDetailsResponse response = receiptClient.getAttachments(fiscalCode, eventId);
     			String url = response.getAttachments().get(0).getUrl();

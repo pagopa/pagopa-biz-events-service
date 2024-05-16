@@ -199,7 +199,7 @@ public class TransactionControllerTest {
     @Test
     void getPDFReceiptForPMEvent_ShouldReturnNOTFOUND() throws Exception {
     	
-    	BizEvent bizEvent = BizEvent.builder().id("mock_id").idPaymentManager("123456789").build();
+    	BizEvent bizEvent = BizEvent.builder().id("mock_id").idPaymentManager("123456789").timestamp(1648771200000L).build();
     	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
         
     	mvc.perform(get(TRANSACTION_RECEIPT_PATH)

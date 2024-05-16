@@ -4,7 +4,7 @@
     "title" : "Biz-Events Service",
     "description" : "Microservice for exposing REST APIs about payment receipts.",
     "termsOfService" : "https://www.pagopa.gov.it/",
-    "version" : "0.1.25"
+    "version" : "0.1.26"
   },
   "servers" : [ {
     "url" : "http://localhost",
@@ -34,17 +34,6 @@
           }
         } ],
         "responses" : {
-          "429" : {
-            "description" : "Too many requests.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
           "404" : {
             "description" : "Not found the receipt.",
             "headers" : {
@@ -63,8 +52,8 @@
               }
             }
           },
-          "200" : {
-            "description" : "Obtained receipt.",
+          "429" : {
+            "description" : "Too many requests.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -72,17 +61,10 @@
                   "type" : "string"
                 }
               }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/CtReceiptModelResponse"
-                }
-              }
             }
           },
-          "422" : {
-            "description" : "Unable to process the request.",
+          "500" : {
+            "description" : "Service unavailable.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -99,8 +81,8 @@
               }
             }
           },
-          "500" : {
-            "description" : "Service unavailable.",
+          "422" : {
+            "description" : "Unable to process the request.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -124,6 +106,24 @@
                 "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Obtained receipt.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CtReceiptModelResponse"
                 }
               }
             }
@@ -173,17 +173,6 @@
           }
         } ],
         "responses" : {
-          "429" : {
-            "description" : "Too many requests.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
           "404" : {
             "description" : "Not found the receipt.",
             "headers" : {
@@ -202,8 +191,8 @@
               }
             }
           },
-          "200" : {
-            "description" : "Obtained receipt.",
+          "429" : {
+            "description" : "Too many requests.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -211,17 +200,10 @@
                   "type" : "string"
                 }
               }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/CtReceiptModelResponse"
-                }
-              }
             }
           },
-          "422" : {
-            "description" : "Unable to process the request.",
+          "500" : {
+            "description" : "Service unavailable.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -238,8 +220,8 @@
               }
             }
           },
-          "500" : {
-            "description" : "Service unavailable.",
+          "422" : {
+            "description" : "Unable to process the request.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -266,6 +248,24 @@
                 }
               }
             }
+          },
+          "200" : {
+            "description" : "Obtained receipt.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CtReceiptModelResponse"
+                }
+              }
+            }
           }
         },
         "security" : [ {
@@ -288,6 +288,24 @@
         "description" : "Return OK if application is started",
         "operationId" : "healthCheck",
         "responses" : {
+          "400" : {
+            "description" : "Bad Request",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
           "401" : {
             "description" : "Unauthorized",
             "headers" : {
@@ -306,35 +324,6 @@
                 "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
-                }
-              }
-            }
-          },
-          "429" : {
-            "description" : "Too many requests",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
-          "400" : {
-            "description" : "Bad Request",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -371,6 +360,17 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/AppInfo"
+                }
+              }
+            }
+          },
+          "429" : {
+            "description" : "Too many requests",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
