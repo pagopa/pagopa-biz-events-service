@@ -1,14 +1,18 @@
 package it.gov.pagopa.bizeventsservice.controller;
 
 
+import it.gov.pagopa.bizeventsservice.client.IReceiptPDFClient;
+import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
+import it.gov.pagopa.bizeventsservice.model.response.Attachment;
+import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
+import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.TestUtil;
-import it.gov.pagopa.bizeventsservice.util.ViewGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +23,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import feign.FeignException;
+
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
@@ -45,12 +53,21 @@ public class TransactionControllerTest {
     public static final String SIZE_HEADER_KEY = "size";
     public static final String SIZE = "10";
     public static final String TRANSACTION_DISABLE_PATH = "/transactions/transaction-id/disable";
+    public static final String TRANSACTION_RECEIPT_PATH = "/transactions/event-id/pdf";
 
     @Autowired
     private MockMvc mvc;
 
     @MockBean
     private ITransactionService transactionService;
+    
+    @MockBean
+    private IBizEventsService bizEventsService;
+    
+    @MockBean
+    private IReceiptPDFClient receiptClient;
+    
+    private byte[] receipt = {69, 121, 101, 45, 62, 118, 101, 114, (byte) 196, (byte) 195, 61, 101, 98};
 
     @BeforeEach
     void setUp() throws IOException {
@@ -60,6 +77,10 @@ public class TransactionControllerTest {
         TransactionDetailResponse transactionDetailResponse = TestUtil.readModelFromFile("biz-events/transactionDetails.json", TransactionDetailResponse.class);
         when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), anyString(), anyInt())).thenReturn(transactionListResponse);
         when(transactionService.getTransactionDetails(anyString(), anyString())).thenReturn(transactionDetailResponse);
+        Attachment attachmentDetail = mock (Attachment.class);
+        AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();   
+        when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
+        when(receiptClient.getReceipt(anyString(), anyString(), any())).thenReturn(receipt);
     }
 
     @Test
@@ -157,6 +178,67 @@ public class TransactionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
+    }
+    
+    @Test
+    void getPDFReceipt_ShouldReturnOK() throws Exception {
+    	
+    	BizEvent bizEvent = mock (BizEvent.class);
+    	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
+        
+    	MvcResult result = mvc.perform(get(TRANSACTION_RECEIPT_PATH)
+                .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+        .andReturn();
+    	
+    	assertEquals(receipt.length, result.getResponse().getContentAsByteArray().length);	
+    }
+    
+    @Test
+    void getPDFReceiptForPMEvent_ShouldReturnNOTFOUND() throws Exception {
+    	
+    	BizEvent bizEvent = BizEvent.builder().id("mock_id").idPaymentManager("123456789").build();
+    	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
+        
+    	mvc.perform(get(TRANSACTION_RECEIPT_PATH)
+                .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andReturn();
+    }
+    
+    @Test // TODO This test will need to be modified when the receipt generation is introduced
+    void getPDFReceiptForMissingEventId_ShouldReturnNOTFOUND() throws Exception {
+    	
+    	BizEvent bizEvent = mock (BizEvent.class);
+    	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
+    	when(receiptClient.getAttachments(anyString(), eq("missing-id"))).thenThrow(FeignException.NotFound.class);
+        
+    	mvc.perform(get("/transactions/missing-id/pdf")
+                .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andReturn();
+    }
+    
+    @Test
+    void getPDFReceiptForUnhandledException_ShouldReturnKO() throws Exception {
+    	
+    	BizEvent bizEvent = mock (BizEvent.class);
+    	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
+    	// Override @BeforeEach condition
+    	when(receiptClient.getAttachments(anyString(), eq("event-id"))).thenThrow(FeignException.BadRequest.class);
+        
+    	mvc.perform(get(TRANSACTION_RECEIPT_PATH)
+                .header(FISCAL_CODE_HEADER_KEY, INVALID_FISCAL_CODE)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isInternalServerError())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andReturn();
     }
 
 }

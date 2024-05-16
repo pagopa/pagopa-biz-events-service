@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.constraints.NotBlank;
 
-import java.io.File;
 import java.util.List;
 
 @Tag(name = "IO Transactions REST APIs")
@@ -92,17 +91,17 @@ public interface ITransactionController {
             @Parameter(description = "The id of the transaction.", required = true) @NotBlank @PathVariable("transaction-id") String transactionId);
     
     @Operation(summary = "Retrieve the PDF receipt given event id.", security = {
-            @SecurityRequirement(name = "ApiKey")}, operationId = "disableTransaction")
+            @SecurityRequirement(name = "ApiKey")}, operationId = "getPDFReceipt")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Disabled Transactions.",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "200", description = "Obtained the PDF receipt.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "File", implementation = Byte.class))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
-            @ApiResponse(responseCode = "404", description = "Not found the receipt.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
-            @ApiResponse(responseCode = "422", description = "Unprocessable recipt.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
+            @ApiResponse(responseCode = "404", description = "Not found the receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
+            @ApiResponse(responseCode = "422", description = "Unprocessable recipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
-    @GetMapping(value = "/{event-id}/pdf", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<File> getPDFReceipt(
+    @GetMapping(value = "/{event-id}/pdf")
+    ResponseEntity<byte[]> getPDFReceipt(
     		@RequestHeader("x-fiscal-code") @NotBlank String fiscalCode,
             @Parameter(description = "The id of the event.", required = true) @NotBlank @PathVariable("event-id") String eventId);
 
