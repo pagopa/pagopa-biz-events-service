@@ -37,4 +37,3 @@ yarn.lock
 
 # Terraform
 **/.terraform/
-/.classpath
