@@ -34,7 +34,6 @@ public class BizEvent {
 	private PaymentInfo paymentInfo;
 	private List<Transfer> transferList;
 	private TransactionDetails transactionDetails;
-	private Long timestamp; 
 	
 	// internal management fields
 	private StatusType eventStatus;
