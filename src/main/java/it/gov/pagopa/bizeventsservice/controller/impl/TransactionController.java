@@ -2,7 +2,6 @@ package it.gov.pagopa.bizeventsservice.controller.impl;
 
 import it.gov.pagopa.bizeventsservice.client.IReceiptPDFClient;
 import it.gov.pagopa.bizeventsservice.controller.ITransactionController;
-import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
@@ -11,7 +10,6 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,9 +31,6 @@ public class TransactionController implements ITransactionController {
     private final ITransactionService transactionService;
     private final IBizEventsService bizEventsService;
     private final IReceiptPDFClient receiptClient;
-    
-    @Value(value = "${pm.reference.creation.date.ms}")
-    private Long referenceCreationDate;
 
     @Autowired
     public TransactionController(ITransactionService transactionService, IBizEventsService bizEventsService, IReceiptPDFClient receiptClient) {
@@ -74,28 +69,25 @@ public class TransactionController implements ITransactionController {
 
     private ResponseEntity<byte[]> acquirePDFReceipt(String fiscalCode, String eventId) {
     	try {
-    		BizEvent bizEvent = bizEventsService.getBizEvent(eventId);
-    		if (bizEvent.getIdPaymentManager() == null ||  (bizEvent.getIdPaymentManager() != null  && bizEvent.getTimestamp() > referenceCreationDate)) {
-    			// call the receipt-pdf-service to retrieve the PDF receipt
-    			AttachmentsDetailsResponse response = receiptClient.getAttachments(fiscalCode, eventId);
-    			String url = response.getAttachments().get(0).getUrl();
+    		// to check if is an OLD event present only on the PM --> the receipt is not available for events present exclusively on the PM
+    		bizEventsService.getBizEvent(eventId);
 
-    			byte[] receiptFile = receiptClient.getReceipt(fiscalCode, eventId, url);
+    		// call the receipt-pdf-service to retrieve the PDF receipt
+    		AttachmentsDetailsResponse response = receiptClient.getAttachments(fiscalCode, eventId);
+    		String url = response.getAttachments().get(0).getUrl();
 
-    			return ResponseEntity
-    					.ok()
-    					.contentLength(receiptFile.length)
-    					.contentType(MediaType.APPLICATION_PDF)
-    					.header("content-disposition", "filename=receipt")
-    					.body(receiptFile);
-    		} 
+    		byte[] receiptFile = receiptClient.getReceipt(fiscalCode, eventId, url);
 
-    	} 
-    	catch (FeignException.NotFound e) {
+    		return ResponseEntity
+    				.ok()
+    				.contentLength(receiptFile.length)
+    				.contentType(MediaType.APPLICATION_PDF)
+    				.header("content-disposition", "filename=receipt")
+    				.body(receiptFile);
+
+    	} catch (FeignException.NotFound e) {
     		// TODO receipt generation
     		throw new AppException(HttpStatus.NOT_FOUND, "Receipt Not Found", "Something was wrong - " + e.getMessage());
-    	} 
-    	// For a PM type event there is no receipt
-    	throw new AppException(HttpStatus.NOT_FOUND, "Receipt Not Found", "It was not possible to obtain the receipt for the event with id "+eventId+" and tax code " + fiscalCode);
+    	}
     }
 }

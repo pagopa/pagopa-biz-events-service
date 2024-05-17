@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -197,10 +198,9 @@ public class TransactionControllerTest {
     }
     
     @Test
-    void getPDFReceiptForPMEvent_ShouldReturnNOTFOUND() throws Exception {
-    	
-    	BizEvent bizEvent = BizEvent.builder().id("mock_id").idPaymentManager("123456789").timestamp(1648771200000L).build();
-    	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
+    void getPDFReceiptForOldPMEvent_ShouldReturnNOTFOUND() throws Exception {
+    	AppException ex = new AppException(HttpStatus.NOT_FOUND, "mock", "mock");
+    	when (bizEventsService.getBizEvent(anyString())).thenThrow(ex);
         
     	mvc.perform(get(TRANSACTION_RECEIPT_PATH)
                 .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
