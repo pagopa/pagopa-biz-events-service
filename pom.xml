@@ -21,6 +21,7 @@
 		<modelmapper-version>3.1.0</modelmapper-version>
 		<cosmos-data-version>3.29.1</cosmos-data-version>
         <elasticsearch.version>1.5.0</elasticsearch.version>
+        <spring-cloud.version>2021.0.9</spring-cloud.version>
     </properties>
 
     <dependencies>
@@ -38,6 +39,16 @@
             <groupId>com.azure</groupId>
             <artifactId>azure-spring-data-cosmos</artifactId>
             <version>${cosmos-data-version}</version>
+        </dependency>
+        
+        <!-- Feign -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
         </dependency>
 
         <!-- Spring utils-->
@@ -99,6 +110,18 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    
+    <dependencyManagement>
+     <dependencies>
+         <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-dependencies</artifactId>
+            <version>${spring-cloud.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+     </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>

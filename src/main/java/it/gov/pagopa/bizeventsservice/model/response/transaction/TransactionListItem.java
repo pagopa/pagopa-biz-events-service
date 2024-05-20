@@ -15,10 +15,15 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 public class TransactionListItem implements Serializable {
-    private String transactionId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8763325343304031081L;
+	private String transactionId;
     private String payeeName;
     private String payeeTaxCode;
     private String amount;
     private String transactionDate;
     private Boolean isCart;
+    private Boolean isPayer;
 }

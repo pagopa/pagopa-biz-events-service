@@ -89,6 +89,7 @@ public class ConvertViewsToTransactionDetailResponse {
                 .amount(currencyFormat(totalAmount.get().toString()))
                 .transactionDate(dateFormatZoned(viewUser.getTransactionDate()))
                 .isCart(listOfCartViews.size() > 1)
+                .isPayer(viewUser.getIsPayer())
                 .build();
     }
 
