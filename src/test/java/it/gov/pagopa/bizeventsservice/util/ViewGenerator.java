@@ -36,6 +36,7 @@ public class ViewGenerator {
                 .transactionId(TRANSACTION_ID)
                 .transactionDate(TRANSACTION_DATE)
                 .hidden(false)
+                .isPayer(Boolean.FALSE)
                 .build();
     }
 

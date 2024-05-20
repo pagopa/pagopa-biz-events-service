@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 /**
  * Response model for transaction detail API
  */
@@ -18,8 +21,13 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(Include.NON_NULL)
 public class InfoTransaction implements Serializable {
-    private String transactionId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3548526079754223084L;
+	private String transactionId;
     private String authCode;
     private String rrn;
     private String transactionDate;

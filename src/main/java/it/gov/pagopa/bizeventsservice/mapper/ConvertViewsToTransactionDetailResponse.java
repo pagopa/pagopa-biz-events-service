@@ -36,10 +36,10 @@ public class ConvertViewsToTransactionDetailResponse {
         payeeCartName = payeeCartNameValue;
     }
 
-    public static TransactionDetailResponse convertTransactionDetails(BizEventsViewGeneral bizEventsViewGeneral, List<BizEventsViewCart> listOfCartViews) {
+    public static TransactionDetailResponse convertTransactionDetails(String taxCode, BizEventsViewGeneral bizEventsViewGeneral, List<BizEventsViewCart> listOfCartViews) {
         List<CartItem> listOfCartItems = new ArrayList<>();
         AtomicReference<BigDecimal> totalAmount = new AtomicReference<>(BigDecimal.ZERO);
-
+        
         for (BizEventsViewCart bizEventsViewCart : listOfCartViews) {
 
             listOfCartItems.add(
@@ -55,7 +55,9 @@ public class ConvertViewsToTransactionDetailResponse {
             BigDecimal amountExtracted = new BigDecimal(bizEventsViewCart.getAmount());
             totalAmount.updateAndGet(v -> v.add(amountExtracted));
         }
-
+        
+        // PAGOPA-1763: if the tax code refers to a debtor, do not show the sections relating to the payer
+        boolean isDebtor = !bizEventsViewGeneral.getPayer().getTaxCode().equals(taxCode);
         return TransactionDetailResponse.builder()
                 .infoTransaction(
                         InfoTransaction.builder()
@@ -64,11 +66,11 @@ public class ConvertViewsToTransactionDetailResponse {
                                 .rrn(bizEventsViewGeneral.getRrn())
                                 .transactionDate(dateFormatZoned(bizEventsViewGeneral.getTransactionDate()))
                                 .pspName(bizEventsViewGeneral.getPspName())
-                                .walletInfo(bizEventsViewGeneral.getWalletInfo())
-                                .payer(bizEventsViewGeneral.getPayer())
-                                .amount(currencyFormat(totalAmount.get().toString()))
-                                .fee(bizEventsViewGeneral.getFee())
-                                .paymentMethod(bizEventsViewGeneral.getPaymentMethod())
+                                .walletInfo(isDebtor ? null:bizEventsViewGeneral.getWalletInfo())
+                                .payer(isDebtor ? null:bizEventsViewGeneral.getPayer())
+                                .amount(isDebtor ? null:currencyFormat(totalAmount.get().toString()))
+                                .fee(isDebtor ? null:bizEventsViewGeneral.getFee())
+                                .paymentMethod(isDebtor ? null:bizEventsViewGeneral.getPaymentMethod())
                                 .origin(bizEventsViewGeneral.getOrigin())
                                 .build()
                 )
@@ -82,14 +84,21 @@ public class ConvertViewsToTransactionDetailResponse {
             BigDecimal amountExtracted = new BigDecimal(bizEventsViewCart.getAmount());
             totalAmount.updateAndGet(v -> v.add(amountExtracted));
         }
+        
+        // PAGOPA-1763: isDebtor = true if at least one of the cart elements contains an element whose Tax Code is attributable to the debtor
+        boolean isDebtor = !viewUser.getIsPayer() && 
+        		listOfCartViews.stream().anyMatch(c -> c.getDebtor() != null && viewUser.getTaxCode().equals(c.getDebtor().getTaxCode()));
+        
         return TransactionListItem.builder()
                 .transactionId(viewUser.getTransactionId())
                 .payeeName(listOfCartViews.size() > 1 ? payeeCartName : listOfCartViews.get(0).getPayee().getName())
                 .payeeTaxCode(listOfCartViews.size() > 1 ? "" : listOfCartViews.get(0).getPayee().getTaxCode())
-                .amount(currencyFormat(totalAmount.get().toString()))
+                // PAGOPA-1763: the amount value must be returned only if it is not a cart type transaction
+                .amount(listOfCartViews.size() > 1 ? null : currencyFormat(totalAmount.get().toString()))
                 .transactionDate(dateFormatZoned(viewUser.getTransactionDate()))
                 .isCart(listOfCartViews.size() > 1)
                 .isPayer(viewUser.getIsPayer())
+                .isDebtor(isDebtor)
                 .build();
     }
 

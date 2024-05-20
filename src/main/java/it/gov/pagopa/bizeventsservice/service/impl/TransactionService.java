@@ -64,7 +64,6 @@ public class TransactionService implements ITransactionService {
                 TransactionListItem transactionListItem = ConvertViewsToTransactionDetailResponse.convertTransactionListItem(viewUser, listOfViewCart);
                 listOfTransactionListItem.add(transactionListItem);
             }
-            //TODO handle error in case a transaction is invalid (empty)
         }
 
         CosmosPageRequest pageResponse = (CosmosPageRequest) page.getPageable().next();
@@ -93,7 +92,7 @@ public class TransactionService implements ITransactionService {
             throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE, eventReference);
         }
 
-        return ConvertViewsToTransactionDetailResponse.convertTransactionDetails(bizEventsViewGeneral.get(0), listOfCartViews);
+        return ConvertViewsToTransactionDetailResponse.convertTransactionDetails(taxCode, bizEventsViewGeneral.get(0), listOfCartViews);
     }
 
     @Override
