@@ -21,6 +21,6 @@ public class TransactionDetailResponse implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 4998486115671575833L;
-	private InfoTransaction infoTransaction;
+	private InfoTransactionView infoTransaction;
     private List<CartItem> carts;
 }

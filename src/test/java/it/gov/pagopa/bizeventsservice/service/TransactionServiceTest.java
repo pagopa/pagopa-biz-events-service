@@ -141,7 +141,7 @@ public class TransactionServiceTest {
 
         BizEventsViewGeneral viewGeneral = generalViewList.get(0);
         Assertions.assertNotNull(transactionDetailResponse);
-        InfoTransaction infoTransaction = transactionDetailResponse.getInfoTransaction();
+        InfoTransactionView infoTransaction = transactionDetailResponse.getInfoTransaction();
         Assertions.assertEquals(viewGeneral.getTransactionId(), infoTransaction.getTransactionId());
         Assertions.assertEquals(viewGeneral.getAuthCode(), infoTransaction.getAuthCode());
         Assertions.assertEquals(viewGeneral.getRrn(), infoTransaction.getRrn());

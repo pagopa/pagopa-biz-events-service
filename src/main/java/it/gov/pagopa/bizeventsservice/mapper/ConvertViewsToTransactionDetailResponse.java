@@ -4,10 +4,11 @@ import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.CartItem;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.InfoTransaction;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.InfoTransactionView;
 import it.gov.pagopa.bizeventsservice.util.DateValidator;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -60,7 +61,7 @@ public class ConvertViewsToTransactionDetailResponse {
         boolean isDebtor = !bizEventsViewGeneral.getPayer().getTaxCode().equals(taxCode);
         return TransactionDetailResponse.builder()
                 .infoTransaction(
-                        InfoTransaction.builder()
+                        InfoTransactionView.builder()
                                 .transactionId(bizEventsViewGeneral.getTransactionId())
                                 .authCode(bizEventsViewGeneral.getAuthCode())
                                 .rrn(bizEventsViewGeneral.getRrn())
@@ -68,8 +69,8 @@ public class ConvertViewsToTransactionDetailResponse {
                                 .pspName(bizEventsViewGeneral.getPspName())
                                 .walletInfo(isDebtor ? null:bizEventsViewGeneral.getWalletInfo())
                                 .payer(isDebtor ? null:bizEventsViewGeneral.getPayer())
-                                .amount(isDebtor ? null:currencyFormat(totalAmount.get().toString()))
-                                .fee(isDebtor ? null:bizEventsViewGeneral.getFee())
+                                .amount(currencyFormat(totalAmount.get().toString()))
+                                .fee(bizEventsViewGeneral.getFee())
                                 .paymentMethod(isDebtor ? null:bizEventsViewGeneral.getPaymentMethod())
                                 .origin(bizEventsViewGeneral.getOrigin())
                                 .build()
@@ -85,10 +86,6 @@ public class ConvertViewsToTransactionDetailResponse {
             totalAmount.updateAndGet(v -> v.add(amountExtracted));
         }
         
-        // PAGOPA-1763: isDebtor = true if at least one of the cart elements contains an element whose Tax Code is attributable to the debtor
-        boolean isDebtor = !viewUser.getIsPayer() && 
-        		listOfCartViews.stream().anyMatch(c -> c.getDebtor() != null && viewUser.getTaxCode().equals(c.getDebtor().getTaxCode()));
-        
         return TransactionListItem.builder()
                 .transactionId(viewUser.getTransactionId())
                 .payeeName(listOfCartViews.size() > 1 ? payeeCartName : listOfCartViews.get(0).getPayee().getName())
@@ -97,8 +94,8 @@ public class ConvertViewsToTransactionDetailResponse {
                 .amount(listOfCartViews.size() > 1 ? null : currencyFormat(totalAmount.get().toString()))
                 .transactionDate(dateFormatZoned(viewUser.getTransactionDate()))
                 .isCart(listOfCartViews.size() > 1)
-                .isPayer(viewUser.getIsPayer())
-                .isDebtor(isDebtor)
+                .isPayer(BooleanUtils.isTrue(viewUser.getIsPayer()))
+                .isDebtor(BooleanUtils.isTrue(viewUser.getIsDebtor()))
                 .build();
     }
 

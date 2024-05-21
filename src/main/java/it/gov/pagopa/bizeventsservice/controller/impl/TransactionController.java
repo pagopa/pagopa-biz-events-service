@@ -3,10 +3,10 @@ package it.gov.pagopa.bizeventsservice.controller.impl;
 import it.gov.pagopa.bizeventsservice.client.IReceiptPDFClient;
 import it.gov.pagopa.bizeventsservice.controller.ITransactionController;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListWrapResponse;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import feign.FeignException;
-
-import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 
@@ -40,13 +38,13 @@ public class TransactionController implements ITransactionController {
     }
 
     @Override
-    public ResponseEntity<List<TransactionListItem>> getTransactionList(
+    public ResponseEntity<TransactionListWrapResponse> getTransactionList(
             String fiscalCode, String continuationToken, Integer size) {
         TransactionListResponse transactionListResponse = transactionService.getTransactionList(fiscalCode, continuationToken, size);
 
         return ResponseEntity.ok()
                 .header(X_CONTINUATION_TOKEN, transactionListResponse.getContinuationToken())
-                .body(transactionListResponse.getTransactionList());
+                .body(TransactionListWrapResponse.builder().transactions(transactionListResponse.getTransactionList()).build());
     }
 
     @Override

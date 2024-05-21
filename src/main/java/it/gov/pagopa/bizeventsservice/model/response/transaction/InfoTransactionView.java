@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
-public class InfoTransaction implements Serializable {
+public class InfoTransactionView implements Serializable {
     /**
 	 * 
 	 */
