@@ -1,7 +1,7 @@
 package it.gov.pagopa.bizeventsservice.controller;
 
 
-import it.gov.pagopa.bizeventsservice.client.IReceiptPDFClient;
+import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
@@ -66,7 +66,7 @@ public class TransactionControllerTest {
     private IBizEventsService bizEventsService;
     
     @MockBean
-    private IReceiptPDFClient receiptClient;
+    private IReceiptGetPDFClient receiptClient;
     
     private byte[] receipt = {69, 121, 101, 45, 62, 118, 101, 114, (byte) 196, (byte) 195, 61, 101, 98};
 

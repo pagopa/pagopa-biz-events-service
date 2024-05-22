@@ -5,12 +5,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PDFReceiptFeignConfig extends AuthFeignConfig {
+public class PDFGetReceiptFeignConfig extends AuthFeignConfig {
 
-  private static final String RECEIPT_SUBKEY_PLACEHOLDER = "${pdf.receipt.subscription-key}";
+  private static final String RECEIPT_SUBKEY_PLACEHOLDER = "${pdf.get.receipt.subscription-key}";
 
   @Autowired
-  public PDFReceiptFeignConfig(@Value(RECEIPT_SUBKEY_PLACEHOLDER) String subscriptionKey) {
+  public PDFGetReceiptFeignConfig(@Value(RECEIPT_SUBKEY_PLACEHOLDER) String subscriptionKey) {
     this.subscriptionKey = subscriptionKey;
   }
 }

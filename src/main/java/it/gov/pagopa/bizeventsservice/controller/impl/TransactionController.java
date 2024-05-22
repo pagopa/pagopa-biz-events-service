@@ -1,8 +1,8 @@
 package it.gov.pagopa.bizeventsservice.controller.impl;
 
-import it.gov.pagopa.bizeventsservice.client.IReceiptPDFClient;
+import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
+import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
 import it.gov.pagopa.bizeventsservice.controller.ITransactionController;
-import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
@@ -28,13 +28,16 @@ public class TransactionController implements ITransactionController {
 
     private final ITransactionService transactionService;
     private final IBizEventsService bizEventsService;
-    private final IReceiptPDFClient receiptClient;
+    private final IReceiptGetPDFClient receiptClient;
+    private final IReceiptGeneratePDFClient generateReceiptClient;
 
     @Autowired
-    public TransactionController(ITransactionService transactionService, IBizEventsService bizEventsService, IReceiptPDFClient receiptClient) {
+    public TransactionController(ITransactionService transactionService, IBizEventsService bizEventsService, 
+    		IReceiptGetPDFClient receiptClient, IReceiptGeneratePDFClient generateReceiptClient) {
         this.transactionService = transactionService;
         this.bizEventsService = bizEventsService;
         this.receiptClient = receiptClient;
+        this.generateReceiptClient = generateReceiptClient;
     }
 
     @Override
@@ -66,26 +69,29 @@ public class TransactionController implements ITransactionController {
     }
 
     private ResponseEntity<byte[]> acquirePDFReceipt(String fiscalCode, String eventId) {
+    	// to check if is an OLD event present only on the PM --> the receipt is not available for events present exclusively on the PM
+		bizEventsService.getBizEvent(eventId);
+		// call the receipt-pdf-service to retrieve the PDF receipt details
+		AttachmentsDetailsResponse response = receiptClient.getAttachments(fiscalCode, eventId);
+		String url = response.getAttachments().get(0).getUrl();
     	try {
-    		// to check if is an OLD event present only on the PM --> the receipt is not available for events present exclusively on the PM
-    		bizEventsService.getBizEvent(eventId);
-
-    		// call the receipt-pdf-service to retrieve the PDF receipt
-    		AttachmentsDetailsResponse response = receiptClient.getAttachments(fiscalCode, eventId);
-    		String url = response.getAttachments().get(0).getUrl();
-
-    		byte[] receiptFile = receiptClient.getReceipt(fiscalCode, eventId, url);
-
-    		return ResponseEntity
-    				.ok()
-    				.contentLength(receiptFile.length)
-    				.contentType(MediaType.APPLICATION_PDF)
-    				.header("content-disposition", "filename=receipt")
-    				.body(receiptFile);
-
+    		return this.getAttachment(fiscalCode, eventId, url);
     	} catch (FeignException.NotFound e) {
-    		// TODO receipt generation
-    		throw new AppException(HttpStatus.NOT_FOUND, "Receipt Not Found", "Something was wrong - " + e.getMessage());
+    		// re-generate the PDF receipt and return the generated file by getAttachment call
+    		generateReceiptClient.generateReceipt(eventId, "false", "{}");
+    		return this.getAttachment(fiscalCode, eventId, url);
     	}
     }
+
+	private ResponseEntity<byte[]> getAttachment(String fiscalCode, String eventId, String url) {
+		// call the receipt-pdf-service to retrieve the PDF receipt attachment
+		byte[] receiptFile = receiptClient.getReceipt(fiscalCode, eventId, url);
+
+		return ResponseEntity
+				.ok()
+				.contentLength(receiptFile.length)
+				.contentType(MediaType.APPLICATION_PDF)
+				.header("content-disposition", "filename=receipt")
+				.body(receiptFile);
+	}
 }
