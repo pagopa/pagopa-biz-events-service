@@ -58,7 +58,7 @@ public class ConvertViewsToTransactionDetailResponse {
         }
         
         // PAGOPA-1763: if the tax code refers to a debtor, do not show the sections relating to the payer
-        boolean isDebtor = !bizEventsViewGeneral.getPayer().getTaxCode().equals(taxCode);
+        boolean isDebtor = bizEventsViewGeneral.getPayer() == null || !bizEventsViewGeneral.getPayer().getTaxCode().equals(taxCode);
         return TransactionDetailResponse.builder()
                 .infoTransaction(
                         InfoTransactionView.builder()
