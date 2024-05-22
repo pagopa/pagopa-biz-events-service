@@ -4,10 +4,11 @@ import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.CartItem;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.InfoTransaction;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.InfoTransactionView;
 import it.gov.pagopa.bizeventsservice.util.DateValidator;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -36,10 +37,10 @@ public class ConvertViewsToTransactionDetailResponse {
         payeeCartName = payeeCartNameValue;
     }
 
-    public static TransactionDetailResponse convertTransactionDetails(BizEventsViewGeneral bizEventsViewGeneral, List<BizEventsViewCart> listOfCartViews) {
+    public static TransactionDetailResponse convertTransactionDetails(String taxCode, BizEventsViewGeneral bizEventsViewGeneral, List<BizEventsViewCart> listOfCartViews) {
         List<CartItem> listOfCartItems = new ArrayList<>();
         AtomicReference<BigDecimal> totalAmount = new AtomicReference<>(BigDecimal.ZERO);
-
+        
         for (BizEventsViewCart bizEventsViewCart : listOfCartViews) {
 
             listOfCartItems.add(
@@ -55,20 +56,22 @@ public class ConvertViewsToTransactionDetailResponse {
             BigDecimal amountExtracted = new BigDecimal(bizEventsViewCart.getAmount());
             totalAmount.updateAndGet(v -> v.add(amountExtracted));
         }
-
+        
+        // PAGOPA-1763: if the tax code refers to a debtor, do not show the sections relating to the payer
+        boolean isDebtor = !bizEventsViewGeneral.getPayer().getTaxCode().equals(taxCode);
         return TransactionDetailResponse.builder()
                 .infoTransaction(
-                        InfoTransaction.builder()
+                        InfoTransactionView.builder()
                                 .transactionId(bizEventsViewGeneral.getTransactionId())
                                 .authCode(bizEventsViewGeneral.getAuthCode())
                                 .rrn(bizEventsViewGeneral.getRrn())
                                 .transactionDate(dateFormatZoned(bizEventsViewGeneral.getTransactionDate()))
                                 .pspName(bizEventsViewGeneral.getPspName())
-                                .walletInfo(bizEventsViewGeneral.getWalletInfo())
-                                .payer(bizEventsViewGeneral.getPayer())
+                                .walletInfo(isDebtor ? null:bizEventsViewGeneral.getWalletInfo())
+                                .payer(isDebtor ? null:bizEventsViewGeneral.getPayer())
                                 .amount(currencyFormat(totalAmount.get().toString()))
                                 .fee(bizEventsViewGeneral.getFee())
-                                .paymentMethod(bizEventsViewGeneral.getPaymentMethod())
+                                .paymentMethod(isDebtor ? null:bizEventsViewGeneral.getPaymentMethod())
                                 .origin(bizEventsViewGeneral.getOrigin())
                                 .build()
                 )
@@ -82,14 +85,17 @@ public class ConvertViewsToTransactionDetailResponse {
             BigDecimal amountExtracted = new BigDecimal(bizEventsViewCart.getAmount());
             totalAmount.updateAndGet(v -> v.add(amountExtracted));
         }
+        
         return TransactionListItem.builder()
                 .transactionId(viewUser.getTransactionId())
                 .payeeName(listOfCartViews.size() > 1 ? payeeCartName : listOfCartViews.get(0).getPayee().getName())
                 .payeeTaxCode(listOfCartViews.size() > 1 ? "" : listOfCartViews.get(0).getPayee().getTaxCode())
-                .amount(currencyFormat(totalAmount.get().toString()))
+                // PAGOPA-1763: the amount value must be returned only if it is not a cart type transaction
+                .amount(listOfCartViews.size() > 1 ? null : currencyFormat(totalAmount.get().toString()))
                 .transactionDate(dateFormatZoned(viewUser.getTransactionDate()))
                 .isCart(listOfCartViews.size() > 1)
-                .isPayer(viewUser.getIsPayer())
+                .isPayer(BooleanUtils.isTrue(viewUser.getIsPayer()))
+                .isDebtor(BooleanUtils.isTrue(viewUser.getIsDebtor()))
                 .build();
     }
 

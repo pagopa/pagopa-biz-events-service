@@ -18,6 +18,7 @@ public class ViewGenerator {
     public static final String BRAND = "brand";
     public static final String ACCOUNT_HOLDER = "accountHolder";
     public static final String BLURRED_NUMBER = "blurredNumber";
+    public static final String MASKED_EMAIL = "maskedEmail@email.com";
     public static final String PAYER_NAME = "payerName";
     public static final String EVENT_ID = "eventId";
     public static final String SUBJECT = "subject";
@@ -36,6 +37,7 @@ public class ViewGenerator {
                 .transactionId(TRANSACTION_ID)
                 .transactionDate(TRANSACTION_DATE)
                 .hidden(false)
+                .isPayer(Boolean.FALSE)
                 .build();
     }
 
@@ -61,6 +63,7 @@ public class ViewGenerator {
                         .brand(BRAND)
                         .accountHolder(ACCOUNT_HOLDER)
                         .blurredNumber(BLURRED_NUMBER)
+                        .maskedEmail(MASKED_EMAIL)
                         .build())
                 .payer(UserDetail.builder()
                         .name(PAYER_NAME)

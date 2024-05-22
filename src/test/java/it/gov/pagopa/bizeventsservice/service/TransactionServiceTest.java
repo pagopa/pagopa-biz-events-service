@@ -111,7 +111,8 @@ public class TransactionServiceTest {
         Assertions.assertEquals(listOfViewUser.size(), transactionListItems.size());
 
         for(TransactionListItem listItem : transactionListItems){
-            Assertions.assertEquals(ViewGenerator.FORMATTED_GRAND_TOTAL, listItem.getAmount());
+        	// PAGOPA-1763: the amount value must be returned only if it is not a cart type transaction
+        	Assertions.assertTrue(listItem.getIsCart() ? listItem.getAmount()==null:listItem.getAmount().equals(ViewGenerator.FORMATTED_GRAND_TOTAL));
             Assertions.assertEquals(payeeCartName, listItem.getPayeeName());
             Assertions.assertEquals("", listItem.getPayeeTaxCode());
         }
@@ -140,7 +141,7 @@ public class TransactionServiceTest {
 
         BizEventsViewGeneral viewGeneral = generalViewList.get(0);
         Assertions.assertNotNull(transactionDetailResponse);
-        InfoTransaction infoTransaction = transactionDetailResponse.getInfoTransaction();
+        InfoTransactionView infoTransaction = transactionDetailResponse.getInfoTransaction();
         Assertions.assertEquals(viewGeneral.getTransactionId(), infoTransaction.getTransactionId());
         Assertions.assertEquals(viewGeneral.getAuthCode(), infoTransaction.getAuthCode());
         Assertions.assertEquals(viewGeneral.getRrn(), infoTransaction.getRrn());
@@ -149,6 +150,7 @@ public class TransactionServiceTest {
         Assertions.assertEquals(viewGeneral.getWalletInfo().getAccountHolder(), infoTransaction.getWalletInfo().getAccountHolder());
         Assertions.assertEquals(viewGeneral.getWalletInfo().getBrand(), infoTransaction.getWalletInfo().getBrand());
         Assertions.assertEquals(viewGeneral.getWalletInfo().getBlurredNumber(), infoTransaction.getWalletInfo().getBlurredNumber());
+        Assertions.assertEquals(viewGeneral.getWalletInfo().getMaskedEmail(), infoTransaction.getWalletInfo().getMaskedEmail());
         Assertions.assertEquals(viewGeneral.getPayer().getName(), infoTransaction.getPayer().getName());
         Assertions.assertEquals(viewGeneral.getPayer().getTaxCode(), infoTransaction.getPayer().getTaxCode());
         Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, infoTransaction.getAmount());

@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 /**
  * Response model for transaction list API
  */
@@ -14,6 +17,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonInclude(Include.NON_NULL)
 public class TransactionListItem implements Serializable {
     /**
 	 * 
@@ -26,4 +30,6 @@ public class TransactionListItem implements Serializable {
     private String transactionDate;
     private Boolean isCart;
     private Boolean isPayer;
+    @Builder.Default
+    private Boolean isDebtor = false;
 }

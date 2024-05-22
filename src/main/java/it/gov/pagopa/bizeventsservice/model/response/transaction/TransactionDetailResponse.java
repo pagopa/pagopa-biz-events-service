@@ -17,6 +17,10 @@ import java.util.List;
 @AllArgsConstructor
 public class TransactionDetailResponse implements Serializable {
 
-    private InfoTransaction infoTransaction;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4998486115671575833L;
+	private InfoTransactionView infoTransaction;
     private List<CartItem> carts;
 }
