@@ -150,6 +150,7 @@ public class TransactionServiceTest {
         Assertions.assertEquals(viewGeneral.getWalletInfo().getAccountHolder(), infoTransaction.getWalletInfo().getAccountHolder());
         Assertions.assertEquals(viewGeneral.getWalletInfo().getBrand(), infoTransaction.getWalletInfo().getBrand());
         Assertions.assertEquals(viewGeneral.getWalletInfo().getBlurredNumber(), infoTransaction.getWalletInfo().getBlurredNumber());
+        Assertions.assertEquals(viewGeneral.getWalletInfo().getMaskedEmail(), infoTransaction.getWalletInfo().getMaskedEmail());
         Assertions.assertEquals(viewGeneral.getPayer().getName(), infoTransaction.getPayer().getName());
         Assertions.assertEquals(viewGeneral.getPayer().getTaxCode(), infoTransaction.getPayer().getTaxCode());
         Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, infoTransaction.getAmount());

@@ -693,10 +693,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/TransactionListItem"
-                  }
+                  "$ref" : "#/components/schemas/TransactionListWrapResponse"
                 }
               }
             }
@@ -1173,6 +1170,17 @@
           }
         }
       },
+      "TransactionListWrapResponse" : {
+        "type" : "object",
+        "properties" : {
+          "transactions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TransactionListItem"
+            }
+          }
+        }
+      },
       "CartItem" : {
         "type" : "object",
         "properties" : {
@@ -1196,23 +1204,43 @@
           }
         }
       },
-      "InfoTransaction" : {
+      "InfoTransactionView" : {
         "type" : "object",
         "properties" : {
-          "brand" : {
+          "transactionId" : {
             "type" : "string"
           },
-          "brandLogo" : {
+          "authCode" : {
             "type" : "string"
           },
-          "clientId" : {
+          "rrn" : {
             "type" : "string"
           },
-          "paymentMethodName" : {
+          "transactionDate" : {
             "type" : "string"
           },
-          "type" : {
+          "pspName" : {
             "type" : "string"
+          },
+          "walletInfo" : {
+            "$ref" : "#/components/schemas/WalletInfo"
+          },
+          "paymentMethod" : {
+            "type" : "string",
+            "enum" : [ "BBT", "BP", "AD", "CP", "PO", "OBEP", "JIF", "MYBK", "PPAL", "UNKNOWN" ]
+          },
+          "payer" : {
+            "$ref" : "#/components/schemas/UserDetail"
+          },
+          "amount" : {
+            "type" : "string"
+          },
+          "fee" : {
+            "type" : "string"
+          },
+          "origin" : {
+            "type" : "string",
+            "enum" : [ "INTERNAL", "PM", "NDP001PROD", "NDP002PROD", "NDP003PROD", "UNKNOWN" ]
           }
         }
       },
@@ -1220,7 +1248,7 @@
         "type" : "object",
         "properties" : {
           "infoTransaction" : {
-            "$ref" : "#/components/schemas/InfoTransaction"
+            "$ref" : "#/components/schemas/InfoTransactionView"
           },
           "carts" : {
             "type" : "array",
@@ -1237,6 +1265,23 @@
             "type" : "string"
           },
           "taxCode" : {
+            "type" : "string"
+          }
+        }
+      },
+      "WalletInfo" : {
+        "type" : "object",
+        "properties" : {
+          "accountHolder" : {
+            "type" : "string"
+          },
+          "brand" : {
+            "type" : "string"
+          },
+          "blurredNumber" : {
+            "type" : "string"
+          },
+          "maskedEmail" : {
             "type" : "string"
           }
         }
@@ -1628,6 +1673,26 @@
             "type" : "string"
           },
           "label" : {
+            "type" : "string"
+          }
+        }
+      },
+      "InfoTransaction" : {
+        "type" : "object",
+        "properties" : {
+          "brand" : {
+            "type" : "string"
+          },
+          "brandLogo" : {
+            "type" : "string"
+          },
+          "clientId" : {
+            "type" : "string"
+          },
+          "paymentMethodName" : {
+            "type" : "string"
+          },
+          "type" : {
             "type" : "string"
           }
         }
