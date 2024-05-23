@@ -80,6 +80,7 @@ microservice-chart:
     COSMOS_QUERY_METRICS: 'false'
     PDF_RECEIPT_HOST: 'https://api.platform.pagopa.it/receipts/service/v1'
     PDF_GENERATE_RECEIPT_HOST: 'https://api.platform.pagopa.it/receipts/helpdesk/v1'
+    PDF_GENERATE_RECEIPT_PATH: '/receipts/{event-id}/regenerate-receipt-pdf'
     GET_PDF_RETRY_MAX_DELAY: "10000"
     GET_PDF_RETRY_MAX_ATTEMPTS: "1"
     GENERATE_PDF_RETRY_MAX_DELAY: "10000"

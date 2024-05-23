@@ -19,6 +19,6 @@ public interface IReceiptGeneratePDFClient {
 			exclude = FeignException.FeignClientException.class,
 			maxAttemptsExpression = "${generate.pdf.retry.maxAttempts}",
 			backoff = @Backoff(delayExpression = "${generate.pdf.retry.maxDelay}"))
-	@PostMapping(value = "/receipts/{event-id}/regenerate-receipt-pdf", consumes = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "${service.generate.pdf.receipt.path}", consumes = MediaType.APPLICATION_JSON_VALUE)
 	String generateReceipt(@PathVariable("event-id") String eventId, @RequestParam("isCart") String isCart, @RequestBody String body);
 }
