@@ -1,6 +1,7 @@
 package it.gov.pagopa.bizeventsservice.controller;
 
 
+import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
@@ -68,6 +69,9 @@ public class TransactionControllerTest {
     @MockBean
     private IReceiptGetPDFClient receiptClient;
     
+    @MockBean
+    private IReceiptGeneratePDFClient generateReceiptClient;
+    
     private byte[] receipt = {69, 121, 101, 45, 62, 118, 101, 114, (byte) 196, (byte) 195, 61, 101, 98};
 
     @BeforeEach
@@ -82,6 +86,7 @@ public class TransactionControllerTest {
         AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();   
         when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
         when(receiptClient.getReceipt(anyString(), anyString(), any())).thenReturn(receipt);
+        when(generateReceiptClient.generateReceipt(anyString(), anyString(), any())).thenReturn("OK");
     }
 
     @Test
@@ -210,7 +215,7 @@ public class TransactionControllerTest {
         .andReturn();
     }
     
-    @Test // TODO This test will need to be modified when the receipt generation is introduced
+    @Test
     void getPDFReceiptForMissingEventId_ShouldReturnNOTFOUND() throws Exception {
     	
     	BizEvent bizEvent = mock (BizEvent.class);
@@ -239,6 +244,23 @@ public class TransactionControllerTest {
         .andExpect(status().isInternalServerError())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andReturn();
+    }
+    
+    @Test
+    void getPDFReceiptForMissingPDFFile_ShouldReturnOK() throws Exception {
+    	
+    	BizEvent bizEvent = mock (BizEvent.class);
+    	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
+    	when(receiptClient.getReceipt(anyString(), eq("missing-pdf-file"), any())).thenThrow(FeignException.NotFound.class).thenReturn(receipt);
+        
+    	MvcResult result = mvc.perform(get("/transactions/missing-pdf-file/pdf")
+                .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+        .andReturn();
+    	
+    	assertEquals(receipt.length, result.getResponse().getContentAsByteArray().length);	
     }
 
 }
