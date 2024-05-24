@@ -79,8 +79,12 @@ microservice-chart:
     COSMOS_DB_VIEW_CART_CONTAINER_NAME: 'biz-events-view-cart'
     COSMOS_QUERY_METRICS: 'false'
     PDF_RECEIPT_HOST: 'https://api.platform.pagopa.it/receipts/service/v1'
-    RETRY_MAX_DELAY: "10000"
-    RETRY_MAX_ATTEMPTS: "1"
+    PDF_GENERATE_RECEIPT_HOST: 'https://api.platform.pagopa.it/receipts/helpdesk/v1'
+    PDF_GENERATE_RECEIPT_PATH: '/receipts/{event-id}/regenerate-receipt-pdf'
+    GET_PDF_RETRY_MAX_DELAY: "10000"
+    GET_PDF_RETRY_MAX_ATTEMPTS: "1"
+    GENERATE_PDF_RETRY_MAX_DELAY: "10000"
+    GENERATE_PDF_RETRY_MAX_ATTEMPTS: "1"
     CONNECTION_TIMEOUT: "10000"
     OTEL_SERVICE_NAME: "pagopabizeventsservice"
     OTEL_RESOURCE_ATTRIBUTES: "service.name=pagopareceiptspdfserviceotl,deployment.environment=prod"
@@ -94,6 +98,7 @@ microservice-chart:
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-p-connection-string'
     COSMOS_DB_PRIMARY_KEY: 'cosmos-p-biz-key'
     PDF_RECEIPT_SUBSCRIPTION_KEY: "bizevent-p-receiptpdfservice-subscription-key"
+    PDF_GENERATE_RECEIPT_SUBSCRIPTION_KEY: "bizevent-p-generatepdfservice-subscription-key"
     OTEL_EXPORTER_OTLP_HEADERS: 'elastic-otl-secret-token'
   keyvault:
     name: "pagopa-p-bizevents-kv"

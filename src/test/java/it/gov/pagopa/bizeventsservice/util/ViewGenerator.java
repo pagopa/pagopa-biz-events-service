@@ -38,6 +38,7 @@ public class ViewGenerator {
                 .transactionDate(TRANSACTION_DATE)
                 .hidden(false)
                 .isPayer(Boolean.FALSE)
+                .isDebtor(Boolean.TRUE)
                 .build();
     }
 
