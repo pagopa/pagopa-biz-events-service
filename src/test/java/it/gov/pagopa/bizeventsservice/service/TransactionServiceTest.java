@@ -112,7 +112,8 @@ public class TransactionServiceTest {
 
         for(TransactionListItem listItem : transactionListItems){
         	// PAGOPA-1763: the amount value must be returned only if it is not a cart type transaction
-        	Assertions.assertTrue(listItem.getIsCart() ? listItem.getAmount()==null:listItem.getAmount().equals(ViewGenerator.FORMATTED_GRAND_TOTAL));
+        	Assertions.assertTrue(listItem.getIsCart() && Boolean.TRUE.equals(listItem.getIsDebtor()) ? 
+        			listItem.getAmount()==null:listItem.getAmount().equals(ViewGenerator.FORMATTED_GRAND_TOTAL));
             Assertions.assertEquals(payeeCartName, listItem.getPayeeName());
             Assertions.assertEquals("", listItem.getPayeeTaxCode());
         }

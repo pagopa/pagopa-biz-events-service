@@ -91,7 +91,7 @@ public class ConvertViewsToTransactionDetailResponse {
                 .payeeName(listOfCartViews.size() > 1 ? payeeCartName : listOfCartViews.get(0).getPayee().getName())
                 .payeeTaxCode(listOfCartViews.size() > 1 ? "" : listOfCartViews.get(0).getPayee().getTaxCode())
                 // PAGOPA-1763: the amount value must be returned only if it is not a cart type transaction
-                .amount(listOfCartViews.size() > 1 ? null : currencyFormat(totalAmount.get().toString()))
+                .amount(listOfCartViews.size() > 1 && BooleanUtils.isTrue(viewUser.getIsDebtor()) ? null : currencyFormat(totalAmount.get().toString()))
                 .transactionDate(dateFormatZoned(viewUser.getTransactionDate()))
                 .isCart(listOfCartViews.size() > 1)
                 .isPayer(BooleanUtils.isTrue(viewUser.getIsPayer()))
