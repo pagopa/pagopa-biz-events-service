@@ -41,6 +41,7 @@
           {
             "name": "X-Request-Id",
             "in": "header",
+            "required": false,            
             "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
             "schema": {
               "type": "string"
@@ -165,6 +166,7 @@
           {
             "name": "X-Request-Id",
             "in": "header",
+            "required": false,
             "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
             "schema": {
               "type": "string"
@@ -291,6 +293,7 @@
           {
             "name": "X-Request-Id",
             "in": "header",
+            "required": false,
             "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
             "schema": {
               "type": "string"
@@ -410,6 +413,7 @@
           {
             "name": "X-Request-Id",
             "in": "header",
+            "required": false,
             "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
             "schema": {
               "type": "string"
