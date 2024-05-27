@@ -37,15 +37,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "X-Request-Id",
-            "in": "header",
-            "required": false,            
-            "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -127,7 +118,18 @@
             "ApiKey": []
           }
         ]
-      }
+      },
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": false,
+          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
     },
     "/transactions": {
       "get": {
@@ -162,16 +164,7 @@
               "format": "int32",
               "default": 10
             }
-          },
-          {
-            "name": "X-Request-Id",
-            "in": "header",
-            "required": false,
-            "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-            "schema": {
-              "type": "string"
-            }
-          }          
+          }
         ],
         "responses": {
           "200": {
@@ -263,7 +256,18 @@
             "ApiKey": []
           }
         ]
-      }
+      },
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": false,
+          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
     },
     "/transactions/{transaction-id}": {
       "get": {
@@ -289,16 +293,7 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "X-Request-Id",
-            "in": "header",
-            "required": false,
-            "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-            "schema": {
-              "type": "string"
-            }
-          }            
+          }
         ],
         "responses": {
           "500": {
@@ -383,7 +378,18 @@
             "ApiKey": []
           }
         ]
-      }
+      },
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": false,
+          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
     },
     "/transactions/{event-id}/pdf": {
       "get": {
@@ -409,16 +415,7 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "X-Request-Id",
-            "in": "header",
-            "required": false,
-            "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-            "schema": {
-              "type": "string"
-            }
-          }          
+          }
         ],
         "responses": {
           "422": {
@@ -486,8 +483,13 @@
               }
             },
             "content": {
-              "application/pdf": {}
-            }
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }     
           },
           "429": {
             "description": "Too many requests.",
@@ -517,7 +519,18 @@
             "ApiKey": []
           }
         ]
-      }
+      },
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": false,
+          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
     },
     "/info": {
       "get": {
@@ -621,7 +634,17 @@
             "ApiKey": []
           }
         ]
-      }
+      },
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
     }
   },
   "components": {
