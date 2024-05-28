@@ -77,7 +77,8 @@ public class OpenApiConfig {
                 value.addParametersItem(new Parameter().in("header")
                         .name(HEADER_REQUEST_ID)
                         .schema(new StringSchema())
-                        .description("This header identifies the call, if not passed it is self-generated. This ID is returned in the response."));
+                        .description("This header identifies the call, if not passed it is self-generated. This ID is returned in the response.")
+                        .required(false));
             }
 
             // add Request-ID as response header
