@@ -394,7 +394,7 @@
         "operationId": "getPDFReceipt",
         "parameters": [
           {
-            "name": "x-fiscal-code",
+            "name": "walletId",
             "in": "header",
             "required": true,
             "schema": {
