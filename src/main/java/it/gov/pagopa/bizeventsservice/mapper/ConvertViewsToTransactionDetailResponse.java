@@ -86,6 +86,9 @@ public class ConvertViewsToTransactionDetailResponse {
             totalAmount.updateAndGet(v -> v.add(amountExtracted));
         }
         
+        // check if the cart contains an item in which the user is a debtor
+        boolean userHasDebtorItemInTheCart = listOfCartViews.stream().anyMatch(x -> viewUser.getTaxCode().equals(x.getDebtor().getTaxCode()));
+        
         return TransactionListItem.builder()
                 .transactionId(viewUser.getTransactionId())
                 .payeeName(listOfCartViews.size() > 1 ? payeeCartName : listOfCartViews.get(0).getPayee().getName())
@@ -95,7 +98,7 @@ public class ConvertViewsToTransactionDetailResponse {
                 .transactionDate(dateFormatZoned(viewUser.getTransactionDate()))
                 .isCart(listOfCartViews.size() > 1)
                 .isPayer(BooleanUtils.isTrue(viewUser.getIsPayer()))
-                .isDebtor(BooleanUtils.isTrue(viewUser.getIsDebtor()))
+                .isDebtor(userHasDebtorItemInTheCart ? userHasDebtorItemInTheCart: BooleanUtils.isTrue(viewUser.getIsDebtor()))
                 .build();
     }
 
