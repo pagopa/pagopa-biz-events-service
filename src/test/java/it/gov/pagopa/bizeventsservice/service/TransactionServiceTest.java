@@ -9,6 +9,7 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
+import it.gov.pagopa.bizeventsservice.repository.redis.RedisRepository;
 import it.gov.pagopa.bizeventsservice.service.impl.TransactionService;
 import it.gov.pagopa.bizeventsservice.util.ViewGenerator;
 import org.junit.jupiter.api.*;
@@ -40,6 +41,8 @@ public class TransactionServiceTest {
     private BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
     @MockBean
     private BizEventsViewCartRepository bizEventsViewCartRepository;
+    @MockBean
+    private RedisRepository redisRepository;
 
     private TransactionService transactionService;
     @Value("${transaction.payee.cartName:Pagamento Multiplo}")
@@ -47,7 +50,7 @@ public class TransactionServiceTest {
 
     @BeforeEach
     void setUp() {
-        transactionService = spy(new TransactionService(bizEventsViewGeneralRepository, bizEventsViewCartRepository, bizEventsViewUserRepository));
+        transactionService = spy(new TransactionService(bizEventsViewGeneralRepository, bizEventsViewCartRepository, bizEventsViewUserRepository, redisRepository));
     }
 
     @Test

@@ -13,6 +13,8 @@ import org.springframework.retry.annotation.EnableRetry;
 public class Application {
 
     public static void main(String[] args) {
+    	// to avoid java.lang.ClassCastException for objects fetched from the REDIS cache
+    	System.setProperty("spring.devtools.restart.enabled", "false");
         SpringApplication.run(Application.class, args);
     }
 

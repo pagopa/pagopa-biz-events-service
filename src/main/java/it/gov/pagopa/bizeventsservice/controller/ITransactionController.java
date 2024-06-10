@@ -34,6 +34,7 @@ public interface ITransactionController {
     String X_CONTINUATION_TOKEN = "x-continuation-token";
     String X_FISCAL_CODE = "x-fiscal-code";
     String PAGE_SIZE = "size";
+    String PAGE_NUMBER = "page";
 
     /**
      * recovers biz-event data for the transaction list
@@ -59,6 +60,30 @@ public interface ITransactionController {
             @RequestHeader(name = X_CONTINUATION_TOKEN, required = false) String continuationToken,
             @RequestParam(name = PAGE_SIZE, required = false, defaultValue = "10") Integer size
 
+    );
+    
+    /**
+     * recovers biz-event data for the transaction list
+     *
+     * @param fiscalCode        tokenized user fiscal code
+     * @param page              optional parameter defining page number, default to 0 (first page)
+     * @param size              optional parameter defining page size, defaults to 10
+     * @return the transaction list
+     */
+    @GetMapping(value = "/cached", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Obtained transaction list.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "TransactionListWrapResponse", implementation = TransactionListWrapResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "404", description = "Not found the transaction.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
+            @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
+    @Operation(summary = "Retrieve the paged transaction list from biz events.", security = {
+            @SecurityRequirement(name = "ApiKey")}, operationId = "getTransactionList")
+    ResponseEntity<TransactionListWrapResponse> getCachedTransactionList(
+            @RequestHeader(name = X_FISCAL_CODE) String fiscalCode,
+            @RequestParam(name = PAGE_NUMBER, required = false, defaultValue = "0") Integer page,
+            @RequestParam(name = PAGE_SIZE, required = false, defaultValue = "10") Integer size
     );
 
     @Operation(summary = "Retrieve the transaction details given its id.", security = {
