@@ -13,6 +13,7 @@ public interface ITransactionService {
      * @return transaction list
      */
     TransactionListResponse getTransactionList(String fiscalCode, String continuationToken, Integer size);
+    TransactionListResponse getCachedTransactionList(String fiscalCode, Integer page, Integer size);
     TransactionDetailResponse getTransactionDetails(String fiscalCode, String transactionId);
 
     void disableTransaction(String fiscalCode, String transactionId);

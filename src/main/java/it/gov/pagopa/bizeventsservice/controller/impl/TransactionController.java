@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import feign.FeignException;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
 /**
@@ -50,6 +52,13 @@ public class TransactionController implements ITransactionController {
                 .header(X_CONTINUATION_TOKEN, transactionListResponse.getContinuationToken())
                 .body(TransactionListWrapResponse.builder().transactions(transactionListResponse.getTransactionList()).build());
     }
+    
+    @Override
+	public ResponseEntity<TransactionListWrapResponse> getCachedTransactionList(String fiscalCode,
+			@Valid @Min(0) Integer page, Integer size) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
     @Override
     public ResponseEntity<TransactionDetailResponse> getTransactionDetails(String fiscalCode, String eventReference) {
