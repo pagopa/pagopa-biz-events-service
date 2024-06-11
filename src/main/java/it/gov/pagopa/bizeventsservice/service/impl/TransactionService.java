@@ -16,6 +16,8 @@ import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.repository.redis.RedisRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
+import it.gov.pagopa.bizeventsservice.util.Constants;
+import it.gov.pagopa.bizeventsservice.util.Util;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -97,9 +98,9 @@ public class TransactionService implements ITransactionService {
     	
     	List<TransactionListItem> listOfTransactionListItem = new ArrayList<>();
         
-        List<List<BizEventsViewUser>> pagedListOfViewUser = this.getPaginatedList(taxCode, size);
+        List<List<BizEventsViewUser>> pagedListOfViewUser = this.retrievePaginatedList(taxCode, size);
             
-        for (BizEventsViewUser viewUser : pagedListOfViewUser.get(0)) {
+        for (BizEventsViewUser viewUser : pagedListOfViewUser.get(page)) {
             List<BizEventsViewCart> listOfViewCart;
             if(Boolean.TRUE.equals(viewUser.getIsPayer())){
                 listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(viewUser.getTransactionId());
@@ -156,44 +157,24 @@ public class TransactionService implements ITransactionService {
         bizEventsViewUserRepository.save(bizEventsViewUser);
     }
     
-    private List<List<BizEventsViewUser>> getPaginatedList (String taxCode, Integer size) {
+    private List<List<BizEventsViewUser>> retrievePaginatedList (String taxCode, Integer size) {
     	List<List<BizEventsViewUser>> pagedListOfViewUser = null;
     	byte [] data;
     	// read from the REDIS cache for the paginated list
-    	if ((data=redisRepository.get(taxCode)) != null){
+    	if ((data=redisRepository.get(Constants.REDIS_KEY_PREFIX+taxCode)) != null){
     		pagedListOfViewUser = SerializationUtils.deserialize(data);
         } else {
         	List<BizEventsViewUser> fullListOfViewUser = this.bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(taxCode);
         	if(CollectionUtils.isEmpty(fullListOfViewUser)){
                throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TAX_CODE, taxCode);
             }
-        	Set<String> set = new HashSet<>(fullListOfViewUser.size());
-            List<BizEventsViewUser> mergedListByTIDOfViewUser = fullListOfViewUser.stream()
-            		.sorted(Comparator.comparing(BizEventsViewUser::getIsDebtor,Comparator.reverseOrder()))
-            		.filter(p -> set.add(p.getTransactionId())).toList();
-            pagedListOfViewUser = TransactionService.getPages(mergedListByTIDOfViewUser, size);
+            pagedListOfViewUser = Util.getPaginatedList(fullListOfViewUser, size);
             // write in the REDIS cache the paginated list
-        	redisRepository.save(taxCode, SerializationUtils.serialize((Serializable)pagedListOfViewUser), redisTTL);
+        	redisRepository.save(Constants.REDIS_KEY_PREFIX+taxCode, SerializationUtils.serialize((Serializable)pagedListOfViewUser), redisTTL);
         }
     	return pagedListOfViewUser;
     }
     
-    private static <T> List<List<T>> getPages(Collection<T> c, Integer pageSize) {
-        
-    	List<T> list = new ArrayList<>(c);
-        
-    	if (pageSize == null || pageSize <= 0 || pageSize > list.size()) { 
-    		pageSize = list.size(); 
-    	}
-    	
-        int numPages = (int) Math.ceil((double)list.size() / (double)pageSize);
-        List<List<T>> pages = new ArrayList<>(numPages);
-        for (int pageNum = 0; pageNum < numPages; pageNum++) {
-        	int toIndex = pageNum;
-        	// subList() method is an instance of 'RandomAccessSubList' which is not serializable --> create a new ArrayList which is
-            pages.add(new ArrayList<>(list.subList(pageNum * pageSize, Math.min(++toIndex * pageSize, list.size()))));
-        }
-        return pages;
-    }
+    
 	
 }
