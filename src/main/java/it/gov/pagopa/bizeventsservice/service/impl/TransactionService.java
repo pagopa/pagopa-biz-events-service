@@ -28,10 +28,12 @@ import org.springframework.util.CollectionUtils;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService implements ITransactionService {
@@ -99,7 +101,7 @@ public class TransactionService implements ITransactionService {
         
         List<List<BizEventsViewUser>> pagedListOfViewUser = this.getPaginatedList(taxCode, size);
             
-        for (BizEventsViewUser viewUser : pagedListOfViewUser.get(0)) {
+        for (BizEventsViewUser viewUser : pagedListOfViewUser.get(page)) {
             List<BizEventsViewCart> listOfViewCart;
             if(Boolean.TRUE.equals(viewUser.getIsPayer())){
                 listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(viewUser.getTransactionId());
@@ -168,9 +170,17 @@ public class TransactionService implements ITransactionService {
                throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TAX_CODE, taxCode);
             }
         	Set<String> set = new HashSet<>(fullListOfViewUser.size());
+        	// sorting based on the isDebtor field (true first) and then grouping by transactionId (the cart case requires that only one item be taken from those present)
             List<BizEventsViewUser> mergedListByTIDOfViewUser = fullListOfViewUser.stream()
             		.sorted(Comparator.comparing(BizEventsViewUser::getIsDebtor,Comparator.reverseOrder()))
-            		.filter(p -> set.add(p.getTransactionId())).toList();
+            		.filter(p -> set.add(p.getTransactionId())).collect(Collectors.toList());
+            
+            // sorting by transactionDate as per business request
+            Collections.sort(mergedListByTIDOfViewUser, 
+            	     Comparator.comparing(BizEventsViewUser::getTransactionDate, 
+            	        Comparator.nullsLast(Comparator.naturalOrder()))
+            	     .reversed());
+            
             pagedListOfViewUser = TransactionService.getPages(mergedListByTIDOfViewUser, size);
             // write in the REDIS cache the paginated list
         	redisRepository.save(taxCode, SerializationUtils.serialize((Serializable)pagedListOfViewUser), redisTTL);
