@@ -86,6 +86,8 @@ microservice-chart:
     GENERATE_PDF_RETRY_MAX_DELAY: "10000"
     GENERATE_PDF_RETRY_MAX_ATTEMPTS: "1"
     CONNECTION_TIMEOUT: "10000"
+    REDIS_PORT: "6380"
+    REDIS_TTL: "5" # 5 minutes
     OTEL_SERVICE_NAME: "pagopabizeventsservice"
     OTEL_RESOURCE_ATTRIBUTES: "service.name=pagopareceiptspdfserviceotl,deployment.environment=dev"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
@@ -99,6 +101,8 @@ microservice-chart:
     COSMOS_DB_PRIMARY_KEY: 'cosmos-d-biz-key'
     PDF_RECEIPT_SUBSCRIPTION_KEY: "bizevent-d-receiptpdfservice-subscription-key"
     PDF_GENERATE_RECEIPT_SUBSCRIPTION_KEY: "bizevent-d-generatepdfservice-subscription-key"
+    REDIS_PWD: 'redis-password'
+    REDIS_HOST: 'redis-hostname'
     OTEL_EXPORTER_OTLP_HEADERS: 'elastic-otl-secret-token'
   keyvault:
     name: "pagopa-d-bizevents-kv"
