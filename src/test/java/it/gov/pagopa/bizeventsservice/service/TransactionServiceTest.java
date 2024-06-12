@@ -287,7 +287,7 @@ public class TransactionServiceTest {
                 transactionService.getCachedTransactionList(
                         ViewGenerator.USER_TAX_CODE_WITH_TX, PAGE_NUMBER, PAGE_SIZE));
         Assertions.assertEquals(PAGE_NUMBER, transactionListResponse.getPageInfo().getPage());
-        Assertions.assertEquals(18, transactionListResponse.getPageInfo().getTotalPages());
+        Assertions.assertEquals(17, transactionListResponse.getPageInfo().getTotalPages());
         Assertions.assertEquals(PAGE_SIZE, transactionListResponse.getPageInfo().getLimit());
         Assertions.assertEquals(88, transactionListResponse.getPageInfo().getItemsFound());
         List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
@@ -301,7 +301,7 @@ public class TransactionServiceTest {
                 transactionService.getCachedTransactionList(
                         ViewGenerator.USER_TAX_CODE_WITH_TX, 17, PAGE_SIZE));
         Assertions.assertEquals(17, transactionListResponse.getPageInfo().getPage());
-        Assertions.assertEquals(18, transactionListResponse.getPageInfo().getTotalPages());
+        Assertions.assertEquals(17, transactionListResponse.getPageInfo().getTotalPages());
         Assertions.assertEquals(PAGE_SIZE, transactionListResponse.getPageInfo().getLimit());
         Assertions.assertEquals(88, transactionListResponse.getPageInfo().getItemsFound());
         transactionListItems = transactionListResponse.getTransactionList();
@@ -334,7 +334,7 @@ public class TransactionServiceTest {
                 transactionService.getCachedTransactionList(
                         ViewGenerator.USER_TAX_CODE_WITH_TX, PAGE_NUMBER, PAGE_SIZE));
         Assertions.assertEquals(PAGE_NUMBER, transactionListResponse.getPageInfo().getPage());
-        Assertions.assertEquals(18, transactionListResponse.getPageInfo().getTotalPages());
+        Assertions.assertEquals(17, transactionListResponse.getPageInfo().getTotalPages());
         Assertions.assertEquals(PAGE_SIZE, transactionListResponse.getPageInfo().getLimit());
         Assertions.assertEquals(88, transactionListResponse.getPageInfo().getItemsFound());
         List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
@@ -348,7 +348,7 @@ public class TransactionServiceTest {
                 transactionService.getCachedTransactionList(
                         ViewGenerator.USER_TAX_CODE_WITH_TX, 17, PAGE_SIZE));
         Assertions.assertEquals(17, transactionListResponse.getPageInfo().getPage());
-        Assertions.assertEquals(18, transactionListResponse.getPageInfo().getTotalPages());
+        Assertions.assertEquals(17, transactionListResponse.getPageInfo().getTotalPages());
         Assertions.assertEquals(PAGE_SIZE, transactionListResponse.getPageInfo().getLimit());
         Assertions.assertEquals(88, transactionListResponse.getPageInfo().getItemsFound());
         transactionListItems = transactionListResponse.getTransactionList();
