@@ -120,7 +120,7 @@ public class TransactionService implements ITransactionService {
                 		.limit(size)
                 		.page(page)
                 		.itemsFound(pagedListOfViewUser.stream().mapToInt(i -> i.size()).sum())
-                		.totalPages(pagedListOfViewUser.size() - 1)
+                		.totalPages(pagedListOfViewUser.size())
                 		.build())
                 .build();
 	}
