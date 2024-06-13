@@ -4,7 +4,7 @@
     "title": "Biz-Events Service",
     "description": "Microservice for exposing REST APIs about payment receipts.",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.1.35"
+    "version": "0.1.36"
   },
   "servers": [
     {
@@ -15,7 +15,9 @@
   "paths": {
     "/transactions/{transaction-id}/disable": {
       "post": {
-        "tags": ["IO Transactions REST APIs"],
+        "tags": [
+          "IO Transactions REST APIs"
+        ],
         "summary": "Disable the transaction details given its id.",
         "operationId": "disableTransaction",
         "parameters": [
@@ -124,7 +126,9 @@
     },
     "/transactions": {
       "get": {
-        "tags": ["IO Transactions REST APIs"],
+        "tags": [
+          "IO Transactions REST APIs"
+        ],
         "summary": "Retrieve the paged transaction list from biz events.",
         "operationId": "getTransactionList",
         "parameters": [
@@ -250,7 +254,9 @@
     },
     "/transactions/{transaction-id}": {
       "get": {
-        "tags": ["IO Transactions REST APIs"],
+        "tags": [
+          "IO Transactions REST APIs"
+        ],
         "summary": "Retrieve the transaction details given its id.",
         "operationId": "getTransactionDetails",
         "parameters": [
@@ -360,7 +366,9 @@
     },
     "/transactions/{event-id}/pdf": {
       "get": {
-        "tags": ["IO Transactions REST APIs"],
+        "tags": [
+          "IO Transactions REST APIs"
+        ],
         "summary": "Retrieve the PDF receipt given event id.",
         "operationId": "getPDFReceipt",
         "parameters": [
@@ -489,7 +497,9 @@
     },
     "/transactions/cached": {
       "get": {
-        "tags": ["IO Transactions REST APIs"],
+        "tags": [
+          "IO Transactions REST APIs"
+        ],
         "summary": "Retrieve the paged transaction list from biz events.",
         "operationId": "getTransactionList_1",
         "parameters": [
@@ -601,7 +611,9 @@
     },
     "/info": {
       "get": {
-        "tags": ["Home"],
+        "tags": [
+          "Home"
+        ],
         "summary": "health check",
         "description": "Return OK if application is started",
         "operationId": "healthCheck",
@@ -727,7 +739,12 @@
         }
       },
       "PageInfo": {
-        "required": ["items_found", "limit", "page", "total_pages"],
+        "required": [
+          "items_found",
+          "limit",
+          "page",
+          "total_pages"
+        ],
         "type": "object",
         "properties": {
           "page": {
