@@ -951,12 +951,11 @@
       }
     },
     "securitySchemes": {
-      "ApiKey": {
-        "type": "apiKey",
-        "description": "The API key to access this function app.",
-        "name": "Ocp-Apim-Subscription-Key",
-        "in": "header"
-      }
+      "Authorization": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "JWT token associated to the user"
+      }      
     }
   }
 }
