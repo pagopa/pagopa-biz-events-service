@@ -21,14 +21,7 @@
         "summary": "Disable the transaction details given its id.",
         "operationId": "disableTransaction",
         "parameters": [
-          {
-            "name": "walletId",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
+
           {
             "name": "transaction-id",
             "in": "path",
@@ -137,14 +130,7 @@
         "summary": "Retrieve the paged transaction list from biz events.",
         "operationId": "getTransactionList",
         "parameters": [
-          {
-            "name": "walletId",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
+
           {
             "name": "x-continuation-token",
             "in": "header",
@@ -273,14 +259,7 @@
         "summary": "Retrieve the transaction details given its id.",
         "operationId": "getTransactionDetails",
         "parameters": [
-          {
-            "name": "walletId",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
+
           {
             "name": "transaction-id",
             "in": "path",
@@ -393,14 +372,7 @@
         "summary": "Retrieve the PDF receipt given event id.",
         "operationId": "getPDFReceipt",
         "parameters": [
-          {
-            "name": "walletId",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
+
           {
             "name": "event-id",
             "in": "path",
