@@ -1,5 +1,7 @@
 package it.gov.pagopa.bizeventsservice.entity.view;
 
+import java.io.Serializable;
+
 import com.azure.spring.data.cosmos.core.mapping.Container;
 import com.azure.spring.data.cosmos.core.mapping.GeneratedValue;
 import com.azure.spring.data.cosmos.core.mapping.PartitionKey;
@@ -14,8 +16,13 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class BizEventsViewUser {
-    @GeneratedValue
+public class BizEventsViewUser implements Serializable {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4997399615775767480L;
+	
+	@GeneratedValue
     private String id;
     @PartitionKey
     private String taxCode;

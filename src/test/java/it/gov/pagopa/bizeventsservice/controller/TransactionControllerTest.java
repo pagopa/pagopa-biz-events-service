@@ -48,12 +48,15 @@ public class TransactionControllerTest {
     public static final String INVALID_FISCAL_CODE = "INVALID_TX_FISCAL_CODE";
     public static final String VALID_FISCAL_CODE = "AAAAAA00A00A000A";
     public static final String LIST_TRANSACTION_PATH = "/transactions";
+    public static final String LIST_CACHED_TRANSACTION_PATH = "/transactions/cached";
     public static final String FISCAL_CODE_HEADER_KEY = "x-fiscal-code";
     public static final String TRANSACTION_DETAILS_PATH = "/transactions/transaction-id";
     private static final String CONTINUATION_TOKEN_HEADER_KEY = "x-continuation-token";
     public static final String CONTINUATION_TOKEN = "continuationToken";
     public static final String SIZE_HEADER_KEY = "size";
     public static final String SIZE = "10";
+    public static final String PAGE_HEADER_KEY = "page";
+    public static final String PAGE_NUM = "0";
     public static final String TRANSACTION_DISABLE_PATH = "/transactions/transaction-id/disable";
     public static final String TRANSACTION_RECEIPT_PATH = "/transactions/event-id/pdf";
 
@@ -81,6 +84,7 @@ public class TransactionControllerTest {
         TransactionListResponse transactionListResponse = TransactionListResponse.builder().transactionList(transactionListItems).build();
         TransactionDetailResponse transactionDetailResponse = TestUtil.readModelFromFile("biz-events/transactionDetails.json", TransactionDetailResponse.class);
         when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), anyString(), anyInt())).thenReturn(transactionListResponse);
+        when(transactionService.getCachedTransactionList(eq(VALID_FISCAL_CODE), anyInt(), anyInt())).thenReturn(transactionListResponse);
         when(transactionService.getTransactionDetails(anyString(), anyString())).thenReturn(transactionDetailResponse);
         Attachment attachmentDetail = mock (Attachment.class);
         AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();   
@@ -122,6 +126,21 @@ public class TransactionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
+    }
+    
+    @Test
+    void getCachedListTransactionShouldReturnData() throws Exception {
+        MvcResult result = mvc.perform(get(LIST_CACHED_TRANSACTION_PATH)
+                        .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
+                        .queryParam(SIZE_HEADER_KEY, SIZE)
+                        .queryParam(PAGE_HEADER_KEY, PAGE_NUM)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+        assertNotNull(result.getResponse().getContentAsString());
+        assertTrue(result.getResponse().getContentAsString().contains("b77d4987-a3e4-48d4-a2fd-af504f8b79e9"));
+        assertTrue(result.getResponse().getContentAsString().contains("100.0"));
     }
 
     @Test

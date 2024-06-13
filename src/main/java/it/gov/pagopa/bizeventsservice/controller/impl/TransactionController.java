@@ -50,6 +50,17 @@ public class TransactionController implements ITransactionController {
                 .header(X_CONTINUATION_TOKEN, transactionListResponse.getContinuationToken())
                 .body(TransactionListWrapResponse.builder().transactions(transactionListResponse.getTransactionList()).build());
     }
+    
+    @Override
+	public ResponseEntity<TransactionListWrapResponse> getCachedTransactionList(String fiscalCode, 
+			Integer page, Integer size) {
+    	TransactionListResponse transactionListResponse = transactionService.getCachedTransactionList(fiscalCode, page, size);
+		return ResponseEntity.ok()
+				.body(TransactionListWrapResponse.builder()
+						.transactions(transactionListResponse.getTransactionList())
+						.pageInfo(transactionListResponse.getPageInfo())
+						.build());
+	}
 
     @Override
     public ResponseEntity<TransactionDetailResponse> getTransactionDetails(String fiscalCode, String eventReference) {

@@ -51,6 +51,35 @@ public class ViewGenerator {
         }
         return listOfViewUser;
     }
+    
+    public static List<BizEventsViewUser> generateListOf95MixedBizEventsViewUser(){
+        List<BizEventsViewUser> listOfViewUser = new ArrayList<>();
+        for(int i = 0; i < 85; i++){
+            BizEventsViewUser viewUser = generateBizEventsViewUser();
+            viewUser.setTransactionId(viewUser.getTransactionId()+"_nocart_"+i);
+            viewUser.setTransactionDate("2024-06-08T12:07:46Z");
+            listOfViewUser.add(viewUser);
+        }
+        for(int i = 0; i < 5; i++){
+            BizEventsViewUser viewUser = generateBizEventsViewUser();
+            viewUser.setTransactionId(viewUser.getTransactionId()+"_cart_1");
+            viewUser.setTransactionDate("2024-06-12T11:07:46Z");
+            listOfViewUser.add(viewUser);
+        }
+        for(int i = 0; i < 3; i++){
+            BizEventsViewUser viewUser = generateBizEventsViewUser();
+            viewUser.setTransactionId(viewUser.getTransactionId()+"_cart_2");
+            viewUser.setTransactionDate("2024-06-10T11:07:46Z");
+            listOfViewUser.add(viewUser);
+        }
+        for(int i = 0; i < 2; i++){
+            BizEventsViewUser viewUser = generateBizEventsViewUser();
+            viewUser.setTransactionId(viewUser.getTransactionId()+"_cart_3");
+            viewUser.setTransactionDate("2024-06-07T11:07:46Z");
+            listOfViewUser.add(viewUser);
+        }
+        return listOfViewUser;
+    }
 
     public static BizEventsViewGeneral generateBizEventsViewGeneral(){
         return BizEventsViewGeneral.builder()
