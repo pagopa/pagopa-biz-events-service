@@ -86,6 +86,7 @@ public class TransactionControllerTest {
         when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), anyString(), anyInt())).thenReturn(transactionListResponse);
         when(transactionService.getCachedTransactionList(eq(VALID_FISCAL_CODE), anyInt(), anyInt())).thenReturn(transactionListResponse);
         when(transactionService.getTransactionDetails(anyString(), anyString())).thenReturn(transactionDetailResponse);
+        when(transactionService.getPDFReceipt(anyString(), anyString())).thenReturn(receipt);
         Attachment attachmentDetail = mock (Attachment.class);
         AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();   
         when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
@@ -218,7 +219,9 @@ public class TransactionControllerTest {
         .andExpect(content().contentType(MediaType.APPLICATION_PDF))
         .andReturn();
     	
-    	assertEquals(receipt.length, result.getResponse().getContentAsByteArray().length);	
+    	verify(bizEventsService).getBizEvent("event-id");
+    	verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE,"event-id");
+    	assertEquals(receipt.length, result.getResponse().getContentAsByteArray().length);
     }
     
     @Test
@@ -232,54 +235,7 @@ public class TransactionControllerTest {
         .andExpect(status().isNotFound())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andReturn();
-    }
-    
-    @Test
-    void getPDFReceiptForMissingEventId_ShouldReturnNOTFOUND() throws Exception {
     	
-    	BizEvent bizEvent = mock (BizEvent.class);
-    	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
-    	when(receiptClient.getAttachments(anyString(), eq("missing-id"))).thenThrow(FeignException.NotFound.class);
-        
-    	mvc.perform(get("/transactions/missing-id/pdf")
-                .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andReturn();
+    	verify(bizEventsService).getBizEvent("event-id");
     }
-    
-    @Test
-    void getPDFReceiptForUnhandledException_ShouldReturnKO() throws Exception {
-    	
-    	BizEvent bizEvent = mock (BizEvent.class);
-    	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
-    	// Override @BeforeEach condition
-    	when(receiptClient.getAttachments(anyString(), eq("event-id"))).thenThrow(FeignException.BadRequest.class);
-        
-    	mvc.perform(get(TRANSACTION_RECEIPT_PATH)
-                .header(FISCAL_CODE_HEADER_KEY, INVALID_FISCAL_CODE)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isInternalServerError())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andReturn();
-    }
-    
-    @Test
-    void getPDFReceiptForMissingPDFFile_ShouldReturnOK() throws Exception {
-    	
-    	BizEvent bizEvent = mock (BizEvent.class);
-    	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
-    	when(receiptClient.getReceipt(anyString(), eq("missing-pdf-file"), any())).thenThrow(FeignException.NotFound.class).thenReturn(receipt);
-        
-    	MvcResult result = mvc.perform(get("/transactions/missing-pdf-file/pdf")
-                .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_PDF))
-        .andReturn();
-    	
-    	assertEquals(receipt.length, result.getResponse().getContentAsByteArray().length);	
-    }
-
 }

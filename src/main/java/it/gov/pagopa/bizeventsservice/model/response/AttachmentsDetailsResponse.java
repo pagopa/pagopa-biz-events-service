@@ -1,7 +1,7 @@
 package it.gov.pagopa.bizeventsservice.model.response;
 
-import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
  * Model class for the attachment details response
  */
 @Getter
-@Builder
+@SuperBuilder
 @Jacksonized
 public class AttachmentsDetailsResponse {
 
