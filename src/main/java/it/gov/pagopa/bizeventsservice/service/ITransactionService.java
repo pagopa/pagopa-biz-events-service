@@ -15,6 +15,7 @@ public interface ITransactionService {
     TransactionListResponse getTransactionList(String fiscalCode, String continuationToken, Integer size);
     TransactionListResponse getCachedTransactionList(String fiscalCode, Integer page, Integer size);
     TransactionDetailResponse getTransactionDetails(String fiscalCode, String transactionId);
+    byte[] getPDFReceipt (String fiscalCode, String eventId);
 
     void disableTransaction(String fiscalCode, String transactionId);
 }

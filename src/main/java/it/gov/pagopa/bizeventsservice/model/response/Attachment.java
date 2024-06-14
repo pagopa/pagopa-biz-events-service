@@ -1,12 +1,12 @@
 package it.gov.pagopa.bizeventsservice.model.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
 @Getter
-@Builder
+@SuperBuilder
 @Jacksonized
 public class Attachment {
 

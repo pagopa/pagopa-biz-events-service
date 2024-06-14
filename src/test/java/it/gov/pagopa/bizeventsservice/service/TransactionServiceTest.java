@@ -1,10 +1,15 @@
 package it.gov.pagopa.bizeventsservice.service;
 
 import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
+
+import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
+import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
+import it.gov.pagopa.bizeventsservice.model.response.Attachment;
+import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
@@ -28,6 +33,8 @@ import java.io.Serializable;
 import java.util.*;
 
 import static it.gov.pagopa.bizeventsservice.util.ViewGenerator.generateBizEventsViewUser;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -49,14 +56,26 @@ public class TransactionServiceTest {
     private BizEventsViewCartRepository bizEventsViewCartRepository;
     @MockBean
     private RedisRepository redisRepository;
+    @MockBean
+    private IReceiptGetPDFClient receiptClient;
+    @MockBean
+    private IReceiptGeneratePDFClient generateReceiptClient;
 
     private TransactionService transactionService;
     @Value("${transaction.payee.cartName:Pagamento Multiplo}")
     private String payeeCartName;
+    
+    private byte[] receipt = {69, 121, 101, 45, 62, 118, 101, 114, (byte) 196, (byte) 195, 61, 101, 98};
 
     @BeforeEach
     void setUp() {
-        transactionService = spy(new TransactionService(bizEventsViewGeneralRepository, bizEventsViewCartRepository, bizEventsViewUserRepository, redisRepository));
+        transactionService = spy(new TransactionService(bizEventsViewGeneralRepository, bizEventsViewCartRepository, bizEventsViewUserRepository, 
+        		redisRepository, receiptClient, generateReceiptClient));
+        Attachment attachmentDetail = mock (Attachment.class);
+        AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();   
+        when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
+        when(receiptClient.getReceipt(anyString(), anyString(), any())).thenReturn(receipt);
+        when(generateReceiptClient.generateReceipt(anyString(), anyString(), any())).thenReturn("OK");
     }
 
     @Test
