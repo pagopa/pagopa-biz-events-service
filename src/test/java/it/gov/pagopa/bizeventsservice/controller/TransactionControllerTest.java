@@ -25,8 +25,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import feign.FeignException;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;

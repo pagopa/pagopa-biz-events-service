@@ -29,7 +29,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.io.Serializable;
@@ -41,9 +40,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -393,7 +389,7 @@ public class TransactionServiceTest {
     }
     
     @Test
-    void getPDFReceiptOK() throws Exception {
+    void getPDFReceiptOK() {
     	
     	BizEvent bizEvent = mock (BizEvent.class);
     	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
@@ -407,7 +403,7 @@ public class TransactionServiceTest {
     }
     
     @Test
-    void getPDFReceiptForMissingEventIdOK() throws Exception {
+    void getPDFReceiptForMissingEventIdOK() {
     	
     	BizEvent bizEvent = mock (BizEvent.class);
     	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
@@ -428,7 +424,7 @@ public class TransactionServiceTest {
     }
     
     @Test
-    void getPDFReceiptForMissingPDFFileOK() throws Exception {
+    void getPDFReceiptForMissingPDFFileOK() {
     	
     	BizEvent bizEvent = mock (BizEvent.class);
     	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
@@ -447,7 +443,7 @@ public class TransactionServiceTest {
     }
     
     @Test
-    void getPDFReceiptForUnhandledExceptionKO() throws Exception {
+    void getPDFReceiptForUnhandledExceptionKO() {
 
     	BizEvent bizEvent = mock (BizEvent.class);
     	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
