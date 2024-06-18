@@ -161,14 +161,17 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public void disableTransaction(String fiscalCode, String transactionId) {
-        List<BizEventsViewUser> listOfViewUser = this.bizEventsViewUserRepository
+        
+    	List<BizEventsViewUser> listOfViewUser = this.bizEventsViewUserRepository
                 .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
-        if (listOfViewUser.size() != 1) {
+        
+        if (CollectionUtils.isEmpty(listOfViewUser)) {
             throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TRANSACTION_ID, fiscalCode, transactionId);
-        }
-        BizEventsViewUser bizEventsViewUser = listOfViewUser.get(0);
-        bizEventsViewUser.setHidden(true);
-        bizEventsViewUserRepository.save(bizEventsViewUser);
+        } 
+        
+        // PAGOPA-1831: set hidden to true for all transactions with the same transactionId for the given fiscalCode
+        listOfViewUser.forEach(u -> u.setHidden(true));
+        bizEventsViewUserRepository.saveAll(listOfViewUser);
     }
     
     private List<List<BizEventsViewUser>> retrievePaginatedList (String taxCode, Integer size) {
