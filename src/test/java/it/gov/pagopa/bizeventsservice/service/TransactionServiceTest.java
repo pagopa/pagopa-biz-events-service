@@ -36,11 +36,9 @@ import java.io.Serializable;
 import java.util.*;
 
 import static it.gov.pagopa.bizeventsservice.util.ViewGenerator.generateBizEventsViewUser;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
