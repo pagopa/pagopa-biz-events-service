@@ -1,6 +1,10 @@
 package it.gov.pagopa.bizeventsservice.service.impl;
 
 import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
+
+import feign.FeignException;
+import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
+import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
@@ -8,6 +12,7 @@ import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.PageInfo;
+import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
@@ -41,17 +46,26 @@ public class TransactionService implements ITransactionService {
     private final BizEventsViewCartRepository bizEventsViewCartRepository;
     private final BizEventsViewUserRepository bizEventsViewUserRepository;
     private final RedisRepository redisRepository;
+    private final IReceiptGetPDFClient receiptClient;
+    private final IReceiptGeneratePDFClient generateReceiptClient;
+    
     
     @Value("${spring.redis.ttl}")
     private long redisTTL;
 
     @Autowired
-    public TransactionService(BizEventsViewGeneralRepository bizEventsViewGeneralRepository, BizEventsViewCartRepository bizEventsViewCartRepository, 
-    		BizEventsViewUserRepository bizEventsViewUserRepository, RedisRepository redisRepository) {
+    public TransactionService(BizEventsViewGeneralRepository bizEventsViewGeneralRepository, 
+    		BizEventsViewCartRepository bizEventsViewCartRepository, 
+    		BizEventsViewUserRepository bizEventsViewUserRepository,
+    		RedisRepository redisRepository,
+    		IReceiptGetPDFClient receiptClient, 
+    		IReceiptGeneratePDFClient generateReceiptClient) {
         this.bizEventsViewGeneralRepository = bizEventsViewGeneralRepository;
         this.bizEventsViewCartRepository = bizEventsViewCartRepository;
         this.bizEventsViewUserRepository = bizEventsViewUserRepository;
         this.redisRepository = redisRepository;
+        this.receiptClient = receiptClient;
+        this.generateReceiptClient = generateReceiptClient;  
     }
 
     @Override
@@ -174,7 +188,33 @@ public class TransactionService implements ITransactionService {
         }
     	return pagedListOfViewUser;
     }
-    
-    
+
+	@Override
+	public byte[] getPDFReceipt(String fiscalCode, String eventId) {
+		return this.acquirePDFReceipt(fiscalCode, eventId);
+	}
 	
+	private byte[] acquirePDFReceipt(String fiscalCode, String eventId) {
+		String url = "";
+    	try {
+    		// call the receipt-pdf-service to retrieve the PDF receipt details
+    		AttachmentsDetailsResponse response = receiptClient.getAttachments(fiscalCode, eventId);
+    		url = response.getAttachments().get(0).getUrl();
+    	} catch (FeignException.NotFound e) {
+    		generateReceiptClient.generateReceipt(eventId, "false", "{}");
+    		url = receiptClient.getAttachments(fiscalCode, eventId).getAttachments().get(0).getUrl();
+    	} 
+    	return this.getAttachment(fiscalCode, eventId, url);
+    }
+
+    private byte[] getAttachment(String fiscalCode, String eventId, String url) {
+    	try {
+    		// call the receipt-pdf-service to retrieve the PDF receipt attachment
+    		return receiptClient.getReceipt(fiscalCode, eventId, url);
+    	} catch (FeignException.NotFound e) {
+    		// re-generate the PDF receipt and return the generated file by getReceipt call
+    		generateReceiptClient.generateReceipt(eventId, "false", "{}");
+    		return receiptClient.getReceipt(fiscalCode, eventId, url);
+    	}
+    }
 }

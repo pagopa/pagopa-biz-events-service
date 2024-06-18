@@ -1,10 +1,17 @@
 package it.gov.pagopa.bizeventsservice.service;
 
 import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
+
+import feign.FeignException;
+import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
+import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
+import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
+import it.gov.pagopa.bizeventsservice.model.response.Attachment;
+import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
@@ -28,6 +35,10 @@ import java.io.Serializable;
 import java.util.*;
 
 import static it.gov.pagopa.bizeventsservice.util.ViewGenerator.generateBizEventsViewUser;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -40,6 +51,10 @@ public class TransactionServiceTest {
     public static final int PAGE_NUMBER = 0;
     public static final String CONTINUATION_TOKEN = "0";
     public static final String TRANSACTION_ID = "transactionId";
+    public static final String TRANSACTION_DISABLE_PATH = "/transactions/transaction-id/disable";
+    public static final String TRANSACTION_RECEIPT_PATH = "/transactions/event-id/pdf";
+    public static final String VALID_FISCAL_CODE = "AAAAAA00A00A000A";
+    public static final String FISCAL_CODE_HEADER_KEY = "x-fiscal-code";
 
     @MockBean
     private BizEventsViewUserRepository bizEventsViewUserRepository;
@@ -49,14 +64,28 @@ public class TransactionServiceTest {
     private BizEventsViewCartRepository bizEventsViewCartRepository;
     @MockBean
     private RedisRepository redisRepository;
-
+    @MockBean
+    private IReceiptGetPDFClient receiptClient;
+    @MockBean
+    private IReceiptGeneratePDFClient generateReceiptClient;
+    @MockBean
+    private IBizEventsService bizEventsService;
+    
     private TransactionService transactionService;
     @Value("${transaction.payee.cartName:Pagamento Multiplo}")
     private String payeeCartName;
+    
+    private byte[] receipt = {69, 121, 101, 45, 62, 118, 101, 114, (byte) 196, (byte) 195, 61, 101, 98};
 
     @BeforeEach
     void setUp() {
-        transactionService = spy(new TransactionService(bizEventsViewGeneralRepository, bizEventsViewCartRepository, bizEventsViewUserRepository, redisRepository));
+        transactionService = spy(new TransactionService(bizEventsViewGeneralRepository, bizEventsViewCartRepository, bizEventsViewUserRepository, 
+        		redisRepository, receiptClient, generateReceiptClient));
+        Attachment attachmentDetail = mock (Attachment.class);
+        AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();   
+        when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
+        when(receiptClient.getReceipt(anyString(), anyString(), any())).thenReturn(receipt);
+        when(generateReceiptClient.generateReceipt(anyString(), anyString(), any())).thenReturn("OK");
     }
 
     @Test
@@ -357,5 +386,75 @@ public class TransactionServiceTest {
         Assertions.assertEquals("2024-06-07T11:07:46Z", transactionListItems.get(2).getTransactionDate());
            
         verify(bizEventsViewUserRepository, times(0)).getBizEventsViewUserByTaxCode(ViewGenerator.USER_TAX_CODE_WITH_TX);
+    }
+    
+    @Test
+    void getPDFReceiptOK() {
+    	
+    	BizEvent bizEvent = mock (BizEvent.class);
+    	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
+    	
+    	byte[] res =
+                Assertions.assertDoesNotThrow(() ->
+                transactionService.getPDFReceipt(
+                		VALID_FISCAL_CODE, "event-id"));
+  
+    	assertEquals(receipt.length, res.length);	
+    }
+    
+    @Test
+    void getPDFReceiptForMissingEventIdOK() {
+    	
+    	BizEvent bizEvent = mock (BizEvent.class);
+    	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
+    	Attachment attachmentDetail = mock (Attachment.class);
+        AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();  
+    	when(receiptClient.getAttachments(anyString(), eq("missing-id"))).thenThrow(FeignException.NotFound.class).thenReturn(attachments);
+        
+    	byte[] res =
+                Assertions.assertDoesNotThrow(() ->
+                transactionService.getPDFReceipt(
+                		VALID_FISCAL_CODE, "missing-id"));
+  
+    	verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE,"missing-id");
+    	verify(receiptClient, times(2)).getAttachments(VALID_FISCAL_CODE,"missing-id");
+    	verify(generateReceiptClient).generateReceipt("missing-id", "false", "{}");
+    	verify(receiptClient).getReceipt(eq(VALID_FISCAL_CODE), eq("missing-id"), any());
+    	assertEquals(receipt.length, res.length);
+    }
+    
+    @Test
+    void getPDFReceiptForMissingPDFFileOK() {
+    	
+    	BizEvent bizEvent = mock (BizEvent.class);
+    	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
+    	when(receiptClient.getReceipt(anyString(), eq("missing-pdf-file"), any())).thenThrow(FeignException.NotFound.class).thenReturn(receipt);
+        
+    	byte[] res =
+                Assertions.assertDoesNotThrow(() ->
+                transactionService.getPDFReceipt(
+                		VALID_FISCAL_CODE, "missing-pdf-file"));
+    	
+    	verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE,"missing-pdf-file");
+    	verify(receiptClient).getAttachments(VALID_FISCAL_CODE,"missing-pdf-file");
+    	verify(generateReceiptClient).generateReceipt("missing-pdf-file", "false", "{}");
+    	verify(receiptClient, times(2)).getReceipt(eq(VALID_FISCAL_CODE), eq("missing-pdf-file"), any());
+    	assertEquals(receipt.length, res.length);	
+    }
+    
+    @Test
+    void getPDFReceiptForUnhandledExceptionKO() {
+
+    	BizEvent bizEvent = mock (BizEvent.class);
+    	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
+    	// Override @BeforeEach condition
+    	when(receiptClient.getAttachments(anyString(), eq("event-id"))).thenThrow(FeignException.BadRequest.class);
+
+
+    	Assertions.assertThrows(FeignException.BadRequest.class, () ->
+    	transactionService.getPDFReceipt(
+    			INVALID_FISCAL_CODE, "event-id"));
+
+    	verify(receiptClient).getAttachments(INVALID_FISCAL_CODE,"event-id");
     }
 }
