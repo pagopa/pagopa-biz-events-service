@@ -1,5 +1,5 @@
 package it.gov.pagopa.bizeventsservice.model.response.enumeration;
 
 public enum UserType {
-    F, G, GUEST
+    F, G, GUEST, REGISTERED
 }

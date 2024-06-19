@@ -3,6 +3,7 @@ package it.gov.pagopa.bizeventsservice.service;
 import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 
 import feign.FeignException;
+import io.lettuce.core.GeoArgs.Sort;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
@@ -10,6 +11,7 @@ import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
+import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 import it.gov.pagopa.bizeventsservice.model.response.Attachment;
 import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
@@ -29,6 +31,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -378,7 +381,7 @@ public class TransactionServiceTest {
         when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(contains("_nocart"), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
         .thenReturn(listOfSingleViewCart);
         // taxcode is in cache
-        byte[] data = SerializationUtils.serialize((Serializable)Util.getPaginatedList(listOfViewUser, PAGE_SIZE));
+        byte[] data = SerializationUtils.serialize((Serializable)Util.getPaginatedList(listOfViewUser, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
         when(redisRepository.get(anyString())).thenReturn(data);
         
         

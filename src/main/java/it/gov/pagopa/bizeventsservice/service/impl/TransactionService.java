@@ -12,6 +12,7 @@ import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.PageInfo;
+import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
@@ -29,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -112,7 +114,7 @@ public class TransactionService implements ITransactionService {
     	
     	List<TransactionListItem> listOfTransactionListItem = new ArrayList<>();
         
-        List<List<BizEventsViewUser>> pagedListOfViewUser = this.retrievePaginatedList(taxCode, size);
+        List<List<BizEventsViewUser>> pagedListOfViewUser = this.retrievePaginatedList(taxCode, size, TransactionListOrder.TRANSACTION_DATE, Sort.Direction.DESC);
             
         for (BizEventsViewUser viewUser : pagedListOfViewUser.get(page)) {
             List<BizEventsViewCart> listOfViewCart;
@@ -174,20 +176,22 @@ public class TransactionService implements ITransactionService {
         bizEventsViewUserRepository.saveAll(listOfViewUser);
     }
     
-    private List<List<BizEventsViewUser>> retrievePaginatedList (String taxCode, Integer size) {
+    private List<List<BizEventsViewUser>> retrievePaginatedList (String taxCode, Integer size, TransactionListOrder order, Direction direction) {
     	List<List<BizEventsViewUser>> pagedListOfViewUser = null;
     	byte [] data;
-    	// read from the REDIS cache for the paginated list
+    	// read from the REDIS cache for the list
     	if ((data=redisRepository.get(Constants.REDIS_KEY_PREFIX+taxCode)) != null){
-    		pagedListOfViewUser = SerializationUtils.deserialize(data);
+    		List<BizEventsViewUser> mergedListOfViewUser = SerializationUtils.deserialize(data);
+    		pagedListOfViewUser = Util.getPaginatedList(mergedListOfViewUser, size, order, direction);
         } else {
         	List<BizEventsViewUser> fullListOfViewUser = this.bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(taxCode);
         	if(CollectionUtils.isEmpty(fullListOfViewUser)){
                throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TAX_CODE, taxCode);
             }
-            pagedListOfViewUser = Util.getPaginatedList(fullListOfViewUser, size);
+        	List<BizEventsViewUser> mergedListOfViewUser = new ArrayList<>(Util.getMergedListByTID(fullListOfViewUser));
             // write in the REDIS cache the paginated list
-        	redisRepository.save(Constants.REDIS_KEY_PREFIX+taxCode, SerializationUtils.serialize((Serializable)pagedListOfViewUser), redisTTL);
+        	redisRepository.save(Constants.REDIS_KEY_PREFIX+taxCode, SerializationUtils.serialize((Serializable)mergedListOfViewUser), redisTTL);
+        	pagedListOfViewUser = Util.getPaginatedList(mergedListOfViewUser, size, order, direction);
         }
     	return pagedListOfViewUser;
     }
