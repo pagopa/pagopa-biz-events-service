@@ -3,6 +3,7 @@ package it.gov.pagopa.bizeventsservice.service;
 import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 
 import feign.FeignException;
+import io.lettuce.core.GeoArgs.Sort;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
@@ -378,7 +379,8 @@ public class TransactionServiceTest {
         when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(contains("_nocart"), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
         .thenReturn(listOfSingleViewCart);
         // taxcode is in cache
-        byte[] data = SerializationUtils.serialize((Serializable)Util.getPaginatedList(listOfViewUser, PAGE_SIZE));
+        List<BizEventsViewUser> mergedListOfViewUser = new ArrayList<>(Util.getMergedListByTID(listOfViewUser));
+        byte[] data = SerializationUtils.serialize((Serializable)mergedListOfViewUser);
         when(redisRepository.get(anyString())).thenReturn(data);
         
         
