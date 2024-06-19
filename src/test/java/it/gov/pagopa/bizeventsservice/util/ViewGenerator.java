@@ -33,6 +33,7 @@ public class ViewGenerator {
 
     public static BizEventsViewUser generateBizEventsViewUser(){
         return BizEventsViewUser.builder()
+        		.id(EVENT_ID)
                 .taxCode(USER_TAX_CODE_WITH_TX)
                 .transactionId(TRANSACTION_ID)
                 .transactionDate(TRANSACTION_DATE)

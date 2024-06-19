@@ -23,6 +23,7 @@ import it.gov.pagopa.bizeventsservice.util.ViewGenerator;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.*;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -281,8 +282,32 @@ public class TransactionServiceTest {
                 .thenReturn(viewUserList);
         Assertions.assertDoesNotThrow(() -> transactionService.disableTransaction(
                 ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
-        viewUserList.get(0).setHidden(true);
-        verify(bizEventsViewUserRepository).save(viewUserList.get(0));
+        
+        ArgumentCaptor<List<BizEventsViewUser>> argument = ArgumentCaptor.forClass(List.class);
+        verify(bizEventsViewUserRepository).saveAll(argument.capture());
+        assertEquals(Boolean.TRUE, argument.getValue().get(0).getHidden());
+    }
+    
+    @Test
+    void transactionViewUserCartDisabled() {
+    	
+    	List<BizEventsViewUser> viewUserList = new ArrayList<>();
+    	
+    	for (int i=0; i<10; i++) {
+    		BizEventsViewUser u = generateBizEventsViewUser();
+    		u.setId(u.getId()+"_"+i);
+    		viewUserList.add(u);
+    	}
+    	
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndTransactionId(anyString(),anyString()))
+                .thenReturn(viewUserList);
+        
+        Assertions.assertDoesNotThrow(() -> transactionService.disableTransaction(
+                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+        
+        ArgumentCaptor<List<BizEventsViewUser>> argument = ArgumentCaptor.forClass(List.class);
+        verify(bizEventsViewUserRepository).saveAll(argument.capture());
+        argument.getValue().forEach(u -> assertEquals(Boolean.TRUE, u.getHidden()));
     }
 
     @Test
