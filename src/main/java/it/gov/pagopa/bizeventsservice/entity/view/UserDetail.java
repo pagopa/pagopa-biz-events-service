@@ -7,12 +7,21 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(Include.NON_NULL)
 public class UserDetail implements Serializable {
 
-    private String name;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5682201542579999764L;
+	
+	private String name;
     private String taxCode;
 }
