@@ -13,7 +13,7 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
-import it.gov.pagopa.bizeventsservice.util.TestUtil;
+import it.gov.pagopa.bizeventsservice.util.Utility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,9 +78,9 @@ public class TransactionControllerTest {
     @BeforeEach
     void setUp() throws IOException {
         // precondition
-        List<TransactionListItem> transactionListItems = TestUtil.readModelFromFile("biz-events/getTransactionList.json", List.class);
+        List<TransactionListItem> transactionListItems = Utility.readModelFromFile("biz-events/getTransactionList.json", List.class);
         TransactionListResponse transactionListResponse = TransactionListResponse.builder().transactionList(transactionListItems).build();
-        TransactionDetailResponse transactionDetailResponse = TestUtil.readModelFromFile("biz-events/transactionDetails.json", TransactionDetailResponse.class);
+        TransactionDetailResponse transactionDetailResponse = Utility.readModelFromFile("biz-events/transactionDetails.json", TransactionDetailResponse.class);
         when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), anyString(), anyInt())).thenReturn(transactionListResponse);
         when(transactionService.getCachedTransactionList(eq(VALID_FISCAL_CODE), anyInt(), anyInt())).thenReturn(transactionListResponse);
         when(transactionService.getTransactionDetails(anyString(), anyString())).thenReturn(transactionDetailResponse);

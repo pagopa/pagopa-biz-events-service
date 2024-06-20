@@ -378,7 +378,8 @@ public class TransactionServiceTest {
         when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(contains("_nocart"), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
         .thenReturn(listOfSingleViewCart);
         // taxcode is in cache
-        byte[] data = SerializationUtils.serialize((Serializable)Util.getPaginatedList(listOfViewUser, PAGE_SIZE));
+        List<BizEventsViewUser> mergedListOfViewUser = new ArrayList<>(Util.getMergedListByTID(listOfViewUser));
+        byte[] data = SerializationUtils.serialize((Serializable)mergedListOfViewUser);
         when(redisRepository.get(anyString())).thenReturn(data);
         
         
