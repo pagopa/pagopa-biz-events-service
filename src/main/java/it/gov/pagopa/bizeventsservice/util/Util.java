@@ -50,7 +50,7 @@ public class Util {
         return pages;
     }
     
-	private static void getSortedList(List<BizEventsViewUser> mergedListByTIDOfViewUser, TransactionListOrder order,
+	public static void getSortedList(List<BizEventsViewUser> mergedListByTIDOfViewUser, TransactionListOrder order,
 			Direction direction) {
 		if (TransactionListOrder.TRANSACTION_DATE.equals(order)) {
 			switch (direction) {
@@ -64,6 +64,18 @@ public class Util {
 						Comparator.nullsLast(Comparator.naturalOrder())).reversed());
 				break;
 			}
+		} else if (TransactionListOrder.TAX_CODE.equals(order)){
+			switch (direction) {
+			case ASC:
+				Collections.sort(mergedListByTIDOfViewUser, Comparator.comparing(BizEventsViewUser::getTaxCode,
+						Comparator.nullsLast(Comparator.naturalOrder())));
+				break;
+			case DESC:
+			default:
+				Collections.sort(mergedListByTIDOfViewUser, Comparator.comparing(BizEventsViewUser::getTaxCode,
+						Comparator.nullsLast(Comparator.naturalOrder())).reversed());
+				break;
+			}	
 		} else {
 			// the default sorting is by transaction date and DESC direction
 			Collections.sort(mergedListByTIDOfViewUser, Comparator
