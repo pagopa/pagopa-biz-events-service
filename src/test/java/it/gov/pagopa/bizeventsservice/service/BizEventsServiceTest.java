@@ -28,7 +28,7 @@ import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.service.impl.BizEventsService;
-import it.gov.pagopa.bizeventsservice.util.TestUtil;
+import it.gov.pagopa.bizeventsservice.util.UtilityForTest;
 
 @TestMethodOrder(OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -54,8 +54,8 @@ class BizEventsServiceTest {
 
     @BeforeAll
     public void beforeAll() throws IOException {
-        bizEventEntity = TestUtil.readModelFromFile("biz-events/bizEvent.json", BizEvent.class);
-        bizEventEntityDuplicated = TestUtil.readModelFromFile("biz-events/bizEvent_duplicate.json", BizEvent.class);
+        bizEventEntity = UtilityForTest.readModelFromFile("biz-events/bizEvent.json", BizEvent.class);
+        bizEventEntityDuplicated = UtilityForTest.readModelFromFile("biz-events/bizEvent_duplicate.json", BizEvent.class);
     }
 
     @BeforeEach
