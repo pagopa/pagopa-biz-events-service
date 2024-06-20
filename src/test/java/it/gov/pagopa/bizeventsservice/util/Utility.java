@@ -12,10 +12,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class UtilityForTest {
+public class Utility {
 
 	public static <T> T readModelFromFile(String relativePath, Class<T> clazz) throws IOException {
-		ClassLoader classLoader = UtilityForTest.class.getClassLoader();
+		ClassLoader classLoader = Utility.class.getClassLoader();
 		File file = new File(Objects.requireNonNull(classLoader.getResource(relativePath)).getPath());
 		var content = Files.readString(file.toPath());
 		ObjectMapper objectMapper = new ObjectMapper();

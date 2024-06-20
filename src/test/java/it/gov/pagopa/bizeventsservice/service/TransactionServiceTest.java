@@ -3,7 +3,6 @@ package it.gov.pagopa.bizeventsservice.service;
 import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 
 import feign.FeignException;
-import io.lettuce.core.GeoArgs.Sort;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;

@@ -10,7 +10,7 @@ import org.springframework.data.domain.Sort.Direction;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 
-public class UtilTest {
+class UtilTest {
 	
 	@Test
 	void checkListSortingByOrderAndDirection()  {

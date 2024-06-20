@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
-import it.gov.pagopa.bizeventsservice.util.UtilityForTest;
+import it.gov.pagopa.bizeventsservice.util.Utility;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -39,7 +39,7 @@ class PaymentsControllerTest {
 	@BeforeEach
     void setUp() throws IOException {
 		// precondition
-		CtReceiptModelResponse ctReceiptModel = UtilityForTest.readModelFromFile("receipts/getOrganizationReceipt.json", CtReceiptModelResponse.class);
+		CtReceiptModelResponse ctReceiptModel = Utility.readModelFromFile("receipts/getOrganizationReceipt.json", CtReceiptModelResponse.class);
         when(bizEventsService.getOrganizationReceipt(anyString(), anyString(), anyString())).thenReturn(ctReceiptModel);
         when(bizEventsService.getOrganizationReceipt(anyString(), anyString())).thenReturn(ctReceiptModel);
     }
