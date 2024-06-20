@@ -10,6 +10,7 @@ import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
+import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 import it.gov.pagopa.bizeventsservice.model.response.Attachment;
 import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
@@ -29,6 +30,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -339,7 +341,7 @@ public class TransactionServiceTest {
         TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
                 transactionService.getCachedTransactionList(
-                        ViewGenerator.USER_TAX_CODE_WITH_TX, PAGE_NUMBER, PAGE_SIZE));
+                        ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, PAGE_NUMBER, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
         Assertions.assertEquals(PAGE_NUMBER, transactionListResponse.getPageInfo().getPage());
         Assertions.assertEquals(18, transactionListResponse.getPageInfo().getTotalPages());
         Assertions.assertEquals(PAGE_SIZE, transactionListResponse.getPageInfo().getLimit());
@@ -353,7 +355,7 @@ public class TransactionServiceTest {
         transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
                 transactionService.getCachedTransactionList(
-                        ViewGenerator.USER_TAX_CODE_WITH_TX, 17, PAGE_SIZE));
+                        ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, 17, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
         Assertions.assertEquals(17, transactionListResponse.getPageInfo().getPage());
         Assertions.assertEquals(18, transactionListResponse.getPageInfo().getTotalPages());
         Assertions.assertEquals(PAGE_SIZE, transactionListResponse.getPageInfo().getLimit());
@@ -387,7 +389,7 @@ public class TransactionServiceTest {
         TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
                 transactionService.getCachedTransactionList(
-                        ViewGenerator.USER_TAX_CODE_WITH_TX, PAGE_NUMBER, PAGE_SIZE));
+                        ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, PAGE_NUMBER, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
         Assertions.assertEquals(PAGE_NUMBER, transactionListResponse.getPageInfo().getPage());
         Assertions.assertEquals(18, transactionListResponse.getPageInfo().getTotalPages());
         Assertions.assertEquals(PAGE_SIZE, transactionListResponse.getPageInfo().getLimit());
@@ -401,7 +403,7 @@ public class TransactionServiceTest {
         transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
                 transactionService.getCachedTransactionList(
-                        ViewGenerator.USER_TAX_CODE_WITH_TX, 17, PAGE_SIZE));
+                        ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, 17, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
         Assertions.assertEquals(17, transactionListResponse.getPageInfo().getPage());
         Assertions.assertEquals(18, transactionListResponse.getPageInfo().getTotalPages());
         Assertions.assertEquals(PAGE_SIZE, transactionListResponse.getPageInfo().getLimit());

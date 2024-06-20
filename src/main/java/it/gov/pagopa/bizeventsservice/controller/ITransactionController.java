@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.gov.pagopa.bizeventsservice.model.ProblemJson;
+import it.gov.pagopa.bizeventsservice.model.filterandorder.Order;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListWrapResponse;
 
@@ -22,7 +23,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.data.domain.Sort;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
 
@@ -82,9 +85,12 @@ public interface ITransactionController {
             @SecurityRequirement(name = "ApiKey")}, operationId = "getTransactionList")
     ResponseEntity<TransactionListWrapResponse> getCachedTransactionList(
             @RequestHeader(name = X_FISCAL_CODE) String fiscalCode,
+            @Valid @Parameter(description = "Filter by payer") @RequestParam(value = "is_payer", required = false) Boolean isPayer,
+            @Valid @Parameter(description = "Filter by debtor") @RequestParam(value = "is_debtor", required = false) Boolean isDebtor,
             @RequestParam(name = PAGE_NUMBER, required = false, defaultValue = "0") Integer page,
-            @RequestParam(name = PAGE_SIZE, required = false, defaultValue = "10") Integer size
-    );
+            @RequestParam(name = PAGE_SIZE, required = false, defaultValue = "10") Integer size,
+            @RequestParam(required = false, name = "orderby", defaultValue = "TRANSACTION_DATE") @Parameter(description = "Order by TRANSACTION_DATE") Order.TransactionListOrder orderBy,
+            @RequestParam(required = false, name = "ordering", defaultValue = "DESC") @Parameter(description = "Direction of ordering") Sort.Direction ordering);
 
     @Operation(summary = "Retrieve the transaction details given its id.", security = {
             @SecurityRequirement(name = "ApiKey")}, operationId = "getTransactionDetails")

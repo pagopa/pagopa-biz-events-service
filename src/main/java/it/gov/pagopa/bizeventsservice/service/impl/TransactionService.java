@@ -84,7 +84,7 @@ public class TransactionService implements ITransactionService {
         		.filter(p -> set.add(p.getTransactionId())).toList();
 
         if(listOfViewUser.isEmpty()){
-            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TAX_CODE, taxCode);
+            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TAX_CODE_AND_FILTER, taxCode);
         }
         for (BizEventsViewUser viewUser : listOfViewUser) {
             List<BizEventsViewCart> listOfViewCart;
@@ -110,11 +110,13 @@ public class TransactionService implements ITransactionService {
     }
     
     @Override
-	public TransactionListResponse getCachedTransactionList(String taxCode, Integer page, Integer size) {
+	public TransactionListResponse getCachedTransactionList(String taxCode, Boolean isPayer, 
+			Boolean isDebtor, Integer page, Integer size, TransactionListOrder orderBy, Direction ordering) {
     	
     	List<TransactionListItem> listOfTransactionListItem = new ArrayList<>();
         
-        List<List<BizEventsViewUser>> pagedListOfViewUser = this.retrievePaginatedList(taxCode, size, TransactionListOrder.TRANSACTION_DATE, Sort.Direction.DESC);
+        List<List<BizEventsViewUser>> pagedListOfViewUser = this.retrievePaginatedList(taxCode, isPayer, isDebtor, 
+        		size, orderBy, ordering);
             
         for (BizEventsViewUser viewUser : pagedListOfViewUser.get(page)) {
             List<BizEventsViewCart> listOfViewCart;
@@ -176,13 +178,14 @@ public class TransactionService implements ITransactionService {
         bizEventsViewUserRepository.saveAll(listOfViewUser);
     }
     
-    private List<List<BizEventsViewUser>> retrievePaginatedList (String taxCode, Integer size, TransactionListOrder order, Direction direction) {
+    private List<List<BizEventsViewUser>> retrievePaginatedList (String taxCode, Boolean isPayer, Boolean isDebtor, 
+    		Integer size, TransactionListOrder order, Direction direction) {
     	List<List<BizEventsViewUser>> pagedListOfViewUser = null;
     	byte [] data;
     	// read from the REDIS cache for the list
     	if ((data=redisRepository.get(Constants.REDIS_KEY_PREFIX+taxCode)) != null){
     		List<BizEventsViewUser> mergedListOfViewUser = SerializationUtils.deserialize(data);
-    		pagedListOfViewUser = Util.getPaginatedList(mergedListOfViewUser, size, order, direction);
+    		pagedListOfViewUser = Util.getPaginatedList(mergedListOfViewUser, isPayer, isDebtor, size, order, direction);
         } else {
         	List<BizEventsViewUser> fullListOfViewUser = this.bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(taxCode);
         	if(CollectionUtils.isEmpty(fullListOfViewUser)){
@@ -191,7 +194,7 @@ public class TransactionService implements ITransactionService {
         	List<BizEventsViewUser> mergedListOfViewUser = new ArrayList<>(Util.getMergedListByTID(fullListOfViewUser));
             // write in the REDIS cache the paginated list
         	redisRepository.save(Constants.REDIS_KEY_PREFIX+taxCode, SerializationUtils.serialize((Serializable)mergedListOfViewUser), redisTTL);
-        	pagedListOfViewUser = Util.getPaginatedList(mergedListOfViewUser, size, order, direction);
+        	pagedListOfViewUser = Util.getPaginatedList(mergedListOfViewUser, isPayer, isDebtor, size, order, direction);
         }
     	return pagedListOfViewUser;
     }

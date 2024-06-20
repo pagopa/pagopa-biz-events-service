@@ -17,10 +17,11 @@ public class Util {
 	
 	private Util() {}
 	
-	public static List<List<BizEventsViewUser>> getPaginatedList(List<BizEventsViewUser> mergedListByTIDOfViewUser, int pageSize, TransactionListOrder order, Direction direction) {
-		
-		Util.getSortedList(mergedListByTIDOfViewUser, order, direction);		
-        return Util.getPages(mergedListByTIDOfViewUser, pageSize);
+	public static List<List<BizEventsViewUser>> getPaginatedList(List<BizEventsViewUser> mergedListByTIDOfViewUser, Boolean isPayer, Boolean isDebtor, 
+			int pageSize, TransactionListOrder order, Direction direction) {
+		List<BizEventsViewUser> filteredListOfViewUser = new ArrayList<>(Util.getFilteredList(mergedListByTIDOfViewUser, isPayer, isDebtor));
+		Util.getSortedList(filteredListOfViewUser, order, direction);		
+        return Util.getPages(filteredListOfViewUser, pageSize);
 	}
 
 	
@@ -50,37 +51,31 @@ public class Util {
         return pages;
     }
     
-	public static void getSortedList(List<BizEventsViewUser> mergedListByTIDOfViewUser, TransactionListOrder order,
+	public static void getSortedList(List<BizEventsViewUser> listToSort, TransactionListOrder order,
 			Direction direction) {
 		if (TransactionListOrder.TRANSACTION_DATE.equals(order)) {
 			switch (direction) {
 			case ASC:
-				Collections.sort(mergedListByTIDOfViewUser, Comparator.comparing(BizEventsViewUser::getTransactionDate,
+				Collections.sort(listToSort, Comparator.comparing(BizEventsViewUser::getTransactionDate,
 						Comparator.nullsLast(Comparator.naturalOrder())));
 				break;
 			case DESC:
 			default:
-				Collections.sort(mergedListByTIDOfViewUser, Comparator.comparing(BizEventsViewUser::getTransactionDate,
+				Collections.sort(listToSort, Comparator.comparing(BizEventsViewUser::getTransactionDate,
 						Comparator.nullsLast(Comparator.naturalOrder())).reversed());
 				break;
 			}
-		} else if (TransactionListOrder.TAX_CODE.equals(order)){
-			switch (direction) {
-			case ASC:
-				Collections.sort(mergedListByTIDOfViewUser, Comparator.comparing(BizEventsViewUser::getTaxCode,
-						Comparator.nullsLast(Comparator.naturalOrder())));
-				break;
-			case DESC:
-			default:
-				Collections.sort(mergedListByTIDOfViewUser, Comparator.comparing(BizEventsViewUser::getTaxCode,
-						Comparator.nullsLast(Comparator.naturalOrder())).reversed());
-				break;
-			}	
 		} else {
 			// the default sorting is by transaction date and DESC direction
-			Collections.sort(mergedListByTIDOfViewUser, Comparator
+			Collections.sort(listToSort, Comparator
 					.comparing(BizEventsViewUser::getTransactionDate, Comparator.nullsLast(Comparator.naturalOrder()))
 					.reversed());
 		}
+	}
+	
+	public static List<BizEventsViewUser> getFilteredList(List<BizEventsViewUser> listToFilter, Boolean isPayer, Boolean isDebtor) {
+		return listToFilter.stream()
+		        .filter(u -> (isPayer == null || u.getIsPayer().equals(isPayer)) && (isDebtor == null || u.getIsDebtor().equals(isDebtor)))
+		        .toList();
 	}
 }

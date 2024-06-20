@@ -17,8 +17,7 @@ public class Order {
     @Getter
     @AllArgsConstructor
     public enum TransactionListOrder implements OrderType {
-        TRANSACTION_DATE("transactionDate"),
-        TAX_CODE("taxCode");
+        TRANSACTION_DATE("transactionDate");
 
         private final String columnName;
 
