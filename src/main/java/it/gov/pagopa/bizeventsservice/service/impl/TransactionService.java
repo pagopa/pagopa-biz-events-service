@@ -121,8 +121,10 @@ public class TransactionService implements ITransactionService {
         
         List<List<BizEventsViewUser>> pagedListOfViewUser = this.retrievePaginatedList(taxCode, isPayer, isDebtor, 
         		size, orderBy, ordering);
+        
+        List<BizEventsViewUser> requestedViewUserPage = !CollectionUtils.isEmpty(pagedListOfViewUser) ? pagedListOfViewUser.get(page) : new ArrayList<>();
             
-        for (BizEventsViewUser viewUser : pagedListOfViewUser.get(page)) {
+        for (BizEventsViewUser viewUser : requestedViewUserPage) {
             List<BizEventsViewCart> listOfViewCart;
             if(Boolean.TRUE.equals(viewUser.getIsPayer())){
                 listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(viewUser.getTransactionId());
