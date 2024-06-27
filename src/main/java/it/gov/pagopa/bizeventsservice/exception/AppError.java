@@ -19,7 +19,7 @@ public enum AppError {
     INVALID_FISCAL_CODE(HttpStatus.BAD_REQUEST, INVALID_DATA, "Provided Fiscal Code %s is invalid"),
 
     VIEW_USER_NOT_FOUND_WITH_TAX_CODE(HttpStatus.NOT_FOUND, VIEW_USER_NOT_FOUND, "Not found a biz-events-view-user with the given tax code %s"),
-    VIEW_USER_NOT_FOUND_WITH_TAX_CODE_AND_FILTER(HttpStatus.NOT_FOUND, VIEW_USER_NOT_FOUND, "Not found a biz-events-view-user with the given tax code %s with the filter isPayer %s and isDebtor %s"),
+    VIEW_USER_NOT_FOUND_WITH_TAX_CODE_AND_FILTER(HttpStatus.NOT_FOUND, VIEW_USER_NOT_FOUND, "Not found a biz-events-view-user with the given tax code %s and is payer filter to %s and is debtor filter to %s"),
     VIEW_USER_NOT_FOUND_WITH_TRANSACTION_ID(HttpStatus.NOT_FOUND, VIEW_USER_NOT_FOUND, "Not found a biz-events-view-user with tax code %s and id %s"),
     VIEW_GENERAL_NOT_FOUND_WITH_TRANSACTION_ID(HttpStatus.NOT_FOUND, VIEW_GENERAL_NOT_FOUND, "Not found a biz-events-view-general with id %s"),
     VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE(HttpStatus.NOT_FOUND, VIEW_CART_NOT_FOUND, "Not found a biz-events-view-cart with id %s for the given tax code"),

@@ -81,7 +81,7 @@ public class TransactionControllerTest {
         List<TransactionListItem> transactionListItems = Utility.readModelFromFile("biz-events/getTransactionList.json", List.class);
         TransactionListResponse transactionListResponse = TransactionListResponse.builder().transactionList(transactionListItems).build();
         TransactionDetailResponse transactionDetailResponse = Utility.readModelFromFile("biz-events/transactionDetails.json", TransactionDetailResponse.class);
-        when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), anyString(), anyInt())).thenReturn(transactionListResponse);
+        when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyString(), anyInt(), any(), any())).thenReturn(transactionListResponse);
         // TODO: check precondition
         when(transactionService.getCachedTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyInt(), anyInt(), any(), any())).thenReturn(transactionListResponse);
         when(transactionService.getTransactionDetails(anyString(), anyString())).thenReturn(transactionDetailResponse);
@@ -118,7 +118,7 @@ public class TransactionControllerTest {
 
     @Test
     void getListTransactionWithInvalidFiscalCodeShouldReturnError() throws Exception {
-        when(transactionService.getTransactionList(eq(INVALID_FISCAL_CODE), any(), anyInt())).thenAnswer(x -> {
+        when(transactionService.getTransactionList(eq(INVALID_FISCAL_CODE), any(), any(), any(), anyInt(), any(), any())).thenAnswer(x -> {
             throw new AppException(AppError.INVALID_FISCAL_CODE, INVALID_FISCAL_CODE);
         });
         mvc.perform(get(LIST_TRANSACTION_PATH)

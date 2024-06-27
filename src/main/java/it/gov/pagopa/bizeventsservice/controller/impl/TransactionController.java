@@ -35,10 +35,12 @@ public class TransactionController implements ITransactionController {
         this.bizEventsService = bizEventsService;
     }
 
+   
     @Override
-    public ResponseEntity<TransactionListWrapResponse> getTransactionList(
-            String fiscalCode, String continuationToken, Integer size) {
-        TransactionListResponse transactionListResponse = transactionService.getTransactionList(fiscalCode, continuationToken, size);
+    public ResponseEntity<TransactionListWrapResponse> getTransactionList(String fiscalCode, Boolean isPayer, Boolean isDebtor, 
+    		String continuationToken, Integer size, TransactionListOrder orderBy, Direction ordering) {
+        TransactionListResponse transactionListResponse = transactionService.getTransactionList(fiscalCode, isPayer, isDebtor, 
+        		continuationToken, size, orderBy, ordering);
 
         return ResponseEntity.ok()
                 .header(X_CONTINUATION_TOKEN, transactionListResponse.getContinuationToken())
@@ -82,4 +84,6 @@ public class TransactionController implements ITransactionController {
 				.header("content-disposition", "filename=receipt")
 				.body(receiptFile);
     }
+
+	
 }

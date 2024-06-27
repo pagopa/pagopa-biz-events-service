@@ -15,16 +15,9 @@ import java.util.List;
  */
 @Repository
 public interface BizEventsViewUserRepository extends CosmosRepository<BizEventsViewUser, String> {
-	/*
+	
     @Query("SELECT * FROM c WHERE c.taxCode = @taxCode AND c.hidden = false AND (IS_NULL(@isPayer) = true OR c.isPayer = @isPayer) AND (IS_NULL(@isDebtor) = true OR c.isDebtor = @isDebtor)")
     Page<BizEventsViewUser> getBizEventsViewUserByTaxCode(@Param("taxCode") String taxCode, @Param("isPayer") Boolean isPayer, @Param("isDebtor") Boolean isDebtor, Pageable pageable);
-    */
-	@Query("select * from c where c.taxCode = @taxCode and c.hidden = false")
-    Page<BizEventsViewUser> getBizEventsViewUserByTaxCode(@Param("taxCode") String taxCode, Pageable pageable);
-    
-	/*
-    @Query("SELECT * FROM c WHERE c.taxCode = @taxCode AND c.hidden = false AND (IS_NULL(@isPayer) = true OR c.isPayer = @isPayer) AND (IS_NULL(@isDebtor) = true OR c.isDebtor = @isDebtor)")
-    List<BizEventsViewUser> getBizEventsViewUserByTaxCode(@Param("taxCode") String taxCode, @Param("isPayer") Boolean isPayer, @Param("isDebtor") Boolean isDebtor);*/
 	
 	@Query("select * from c where c.taxCode = @taxCode and c.hidden = false")
 	List<BizEventsViewUser> getBizEventsViewUserByTaxCode(@Param("taxCode") String taxCode);

@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -71,20 +72,23 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public TransactionListResponse getTransactionList(
-            String taxCode, String continuationToken, Integer size) {
+    public TransactionListResponse getTransactionList(String taxCode, Boolean isPayer, 
+    		Boolean isDebtor, String continuationToken, Integer size, TransactionListOrder orderBy, Direction ordering) {
         List<TransactionListItem> listOfTransactionListItem = new ArrayList<>();
+        
+        String columnName = Optional.ofNullable(orderBy).map(o -> o.getColumnName()).orElse("transactionDate");
+        String direction = Optional.ofNullable(ordering).map(Enum::name).orElse(Sort.Direction.DESC.name());
 
-        final Sort sort = Sort.by(Sort.Direction.DESC, "transactionDate");
+        final Sort sort = Sort.by(Sort.Direction.fromString(direction), columnName);
         final CosmosPageRequest pageRequest = new CosmosPageRequest(0, size, continuationToken, sort);
-        final Page<BizEventsViewUser> page = this.bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(taxCode, pageRequest);
+        final Page<BizEventsViewUser> page = this.bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(taxCode, isPayer, isDebtor, pageRequest);
         Set<String> set = new HashSet<>(page.getContent().size());
         List<BizEventsViewUser> listOfViewUser = page.getContent().stream()
         		.sorted(Comparator.comparing(BizEventsViewUser::getIsDebtor,Comparator.reverseOrder()))
         		.filter(p -> set.add(p.getTransactionId())).toList();
 
         if(listOfViewUser.isEmpty()){
-            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TAX_CODE_AND_FILTER, taxCode);
+            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TAX_CODE_AND_FILTER, taxCode, isPayer, isDebtor);
         }
         for (BizEventsViewUser viewUser : listOfViewUser) {
             List<BizEventsViewCart> listOfViewCart;

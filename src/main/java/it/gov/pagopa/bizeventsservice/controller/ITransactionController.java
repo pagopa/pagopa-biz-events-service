@@ -43,8 +43,12 @@ public interface ITransactionController {
      * recovers biz-event data for the transaction list
      *
      * @param fiscalCode        tokenized user fiscal code
+     * @param isPayer           optional flag defining the filter to select only the notices where the user is the payer
+     * @param isDebtor          optional flag defining the filter to select only the notices where the user is the debtor
      * @param continuationToken continuation token for paginated query
-     * @param size              optional parameter defining page size, defaults to 5
+     * @param size              optional parameter defining page size, defaults to 10
+     * @param orderBy           optional parameter defining the sort field for the returned list, defaults to TRANSACTION_DATE
+     * @param ordering          optional parameter defining the sorting direction of the returned list, defaults to DESC
      * @return the transaction list
      */
     @GetMapping
@@ -60,17 +64,24 @@ public interface ITransactionController {
             @SecurityRequirement(name = "ApiKey")}, operationId = "getTransactionList")
     ResponseEntity<TransactionListWrapResponse> getTransactionList(
             @RequestHeader(name = X_FISCAL_CODE) String fiscalCode,
+            @Valid @Parameter(description = "Filter by payer") @RequestParam(value = "is_payer", required = false) Boolean isPayer,
+            @Valid @Parameter(description = "Filter by debtor") @RequestParam(value = "is_debtor", required = false) Boolean isDebtor,
             @RequestHeader(name = X_CONTINUATION_TOKEN, required = false) String continuationToken,
-            @RequestParam(name = PAGE_SIZE, required = false, defaultValue = "10") Integer size
+            @RequestParam(name = PAGE_SIZE, required = false, defaultValue = "10") Integer size,
+            @RequestParam(required = false, name = "orderby", defaultValue = "TRANSACTION_DATE") @Parameter(description = "Order by TRANSACTION_DATE") Order.TransactionListOrder orderBy,
+            @RequestParam(required = false, name = "ordering", defaultValue = "DESC") @Parameter(description = "Direction of ordering") Sort.Direction ordering);
 
-    );
     
     /**
      * recovers biz-event data for the transaction list
      *
      * @param fiscalCode        tokenized user fiscal code
+     * @param isPayer           optional flag defining the filter to select only the notices where the user is the payer
+     * @param isDebtor          optional flag defining the filter to select only the notices where the user is the debtor
      * @param page              optional parameter defining page number, default to 0 (first page)
      * @param size              optional parameter defining page size, defaults to 10
+     * @param orderBy           optional parameter defining the sort field for the returned list, defaults to TRANSACTION_DATE
+     * @param ordering          optional parameter defining the sorting direction of the returned list, defaults to DESC
      * @return the transaction list
      */
     @GetMapping(value = "/cached", produces = MediaType.APPLICATION_JSON_VALUE)
