@@ -197,6 +197,17 @@
               }
             }
           },
+          "401" : {
+            "description" : "Wrong or missing function key.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
           "200" : {
             "description" : "Obtained transaction list.",
             "headers" : {
@@ -218,17 +229,6 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/TransactionListWrapResponse"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Wrong or missing function key.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
                 }
               }
             }
@@ -328,24 +328,6 @@
               }
             }
           },
-          "200" : {
-            "description" : "Obtained transaction details.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/TransactionDetailResponse"
-                }
-              }
-            }
-          },
           "500" : {
             "description" : "Service unavailable.",
             "headers" : {
@@ -378,6 +360,24 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Obtained transaction details.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionDetailResponse"
                 }
               }
             }
@@ -608,17 +608,6 @@
               }
             }
           },
-          "401" : {
-            "description" : "Wrong or missing function key.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
           "200" : {
             "description" : "Obtained transaction list.",
             "headers" : {
@@ -633,6 +622,17 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/TransactionListWrapResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Wrong or missing function key.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
