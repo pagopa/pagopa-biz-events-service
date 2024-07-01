@@ -82,7 +82,6 @@ public class TransactionControllerTest {
         TransactionListResponse transactionListResponse = TransactionListResponse.builder().transactionList(transactionListItems).build();
         TransactionDetailResponse transactionDetailResponse = Utility.readModelFromFile("biz-events/transactionDetails.json", TransactionDetailResponse.class);
         when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyString(), anyInt(), any(), any())).thenReturn(transactionListResponse);
-        // TODO: check precondition
         when(transactionService.getCachedTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyInt(), anyInt(), any(), any())).thenReturn(transactionListResponse);
         when(transactionService.getTransactionDetails(anyString(), anyString())).thenReturn(transactionDetailResponse);
         when(transactionService.getPDFReceipt(anyString(), anyString())).thenReturn(receipt);
@@ -197,7 +196,7 @@ public class TransactionControllerTest {
     void getTransactionDisableithInvalidFiscalCodeShouldReturnError() throws Exception {
         doAnswer(x -> {
             throw new AppException(AppError.INVALID_FISCAL_CODE, INVALID_FISCAL_CODE);
-        }).when(transactionService).disableTransaction(anyString(), anyString());;
+        }).when(transactionService).disableTransaction(anyString(), anyString());
         mvc.perform(post(TRANSACTION_DISABLE_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, INVALID_FISCAL_CODE)
                         .contentType(MediaType.APPLICATION_JSON))
