@@ -81,8 +81,8 @@ public class TransactionControllerTest {
         List<TransactionListItem> transactionListItems = Utility.readModelFromFile("biz-events/getTransactionList.json", List.class);
         TransactionListResponse transactionListResponse = TransactionListResponse.builder().transactionList(transactionListItems).build();
         TransactionDetailResponse transactionDetailResponse = Utility.readModelFromFile("biz-events/transactionDetails.json", TransactionDetailResponse.class);
-        when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), anyString(), anyInt())).thenReturn(transactionListResponse);
-        when(transactionService.getCachedTransactionList(eq(VALID_FISCAL_CODE), anyInt(), anyInt())).thenReturn(transactionListResponse);
+        when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyString(), anyInt(), any(), any())).thenReturn(transactionListResponse);
+        when(transactionService.getCachedTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyInt(), anyInt(), any(), any())).thenReturn(transactionListResponse);
         when(transactionService.getTransactionDetails(anyString(), anyString())).thenReturn(transactionDetailResponse);
         when(transactionService.getPDFReceipt(anyString(), anyString())).thenReturn(receipt);
         Attachment attachmentDetail = mock (Attachment.class);
@@ -117,7 +117,7 @@ public class TransactionControllerTest {
 
     @Test
     void getListTransactionWithInvalidFiscalCodeShouldReturnError() throws Exception {
-        when(transactionService.getTransactionList(eq(INVALID_FISCAL_CODE), any(), anyInt())).thenAnswer(x -> {
+        when(transactionService.getTransactionList(eq(INVALID_FISCAL_CODE), any(), any(), any(), anyInt(), any(), any())).thenAnswer(x -> {
             throw new AppException(AppError.INVALID_FISCAL_CODE, INVALID_FISCAL_CODE);
         });
         mvc.perform(get(LIST_TRANSACTION_PATH)
@@ -196,7 +196,7 @@ public class TransactionControllerTest {
     void getTransactionDisableithInvalidFiscalCodeShouldReturnError() throws Exception {
         doAnswer(x -> {
             throw new AppException(AppError.INVALID_FISCAL_CODE, INVALID_FISCAL_CODE);
-        }).when(transactionService).disableTransaction(anyString(), anyString());;
+        }).when(transactionService).disableTransaction(anyString(), anyString());
         mvc.perform(post(TRANSACTION_DISABLE_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, INVALID_FISCAL_CODE)
                         .contentType(MediaType.APPLICATION_JSON))

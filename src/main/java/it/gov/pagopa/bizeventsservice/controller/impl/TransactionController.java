@@ -3,12 +3,14 @@ package it.gov.pagopa.bizeventsservice.controller.impl;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
 import it.gov.pagopa.bizeventsservice.controller.ITransactionController;
+import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListWrapResponse;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,10 +35,12 @@ public class TransactionController implements ITransactionController {
         this.bizEventsService = bizEventsService;
     }
 
+   
     @Override
-    public ResponseEntity<TransactionListWrapResponse> getTransactionList(
-            String fiscalCode, String continuationToken, Integer size) {
-        TransactionListResponse transactionListResponse = transactionService.getTransactionList(fiscalCode, continuationToken, size);
+    public ResponseEntity<TransactionListWrapResponse> getTransactionList(String fiscalCode, Boolean isPayer, Boolean isDebtor, 
+    		String continuationToken, Integer size, TransactionListOrder orderBy, Direction ordering) {
+        TransactionListResponse transactionListResponse = transactionService.getTransactionList(fiscalCode, isPayer, isDebtor, 
+        		continuationToken, size, orderBy, ordering);
 
         return ResponseEntity.ok()
                 .header(X_CONTINUATION_TOKEN, transactionListResponse.getContinuationToken())
@@ -44,9 +48,10 @@ public class TransactionController implements ITransactionController {
     }
     
     @Override
-	public ResponseEntity<TransactionListWrapResponse> getCachedTransactionList(String fiscalCode, 
-			Integer page, Integer size) {
-    	TransactionListResponse transactionListResponse = transactionService.getCachedTransactionList(fiscalCode, page, size);
+	public ResponseEntity<TransactionListWrapResponse> getCachedTransactionList(String fiscalCode, Boolean isPayer, Boolean isDebtor,
+			Integer page, Integer size, TransactionListOrder orderBy, Direction ordering) {
+    	TransactionListResponse transactionListResponse = transactionService.getCachedTransactionList(fiscalCode, isPayer, isDebtor, 
+    			page, size, orderBy, ordering);
 		return ResponseEntity.ok()
 				.body(TransactionListWrapResponse.builder()
 						.transactions(transactionListResponse.getTransactionList())
@@ -79,4 +84,6 @@ public class TransactionController implements ITransactionController {
 				.header("content-disposition", "filename=receipt")
 				.body(receiptFile);
     }
+
+	
 }

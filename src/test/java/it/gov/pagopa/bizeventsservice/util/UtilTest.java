@@ -22,12 +22,6 @@ class UtilTest {
 		Util.getSortedList(mergedListOfViewUser, TransactionListOrder.TRANSACTION_DATE, Direction.DESC);
 		Assertions.assertEquals("2024-06-12T11:07:46Z", mergedListOfViewUser.get(0).getTransactionDate()); // first element
 		Assertions.assertEquals("2024-06-07T11:07:46Z", mergedListOfViewUser.get(mergedListOfViewUser.size()-1).getTransactionDate()); // last element
-		Util.getSortedList(mergedListOfViewUser, TransactionListOrder.TAX_CODE, Direction.ASC);
-		Assertions.assertEquals(ViewGenerator.USER_TAX_CODE_WITH_TX, mergedListOfViewUser.get(0).getTaxCode()); // first element
-		Assertions.assertEquals(ViewGenerator.USER_TAX_CODE_WITH_TX, mergedListOfViewUser.get(mergedListOfViewUser.size()-1).getTaxCode()); // last element
-		Util.getSortedList(mergedListOfViewUser, TransactionListOrder.TAX_CODE, Direction.DESC);
-		Assertions.assertEquals(ViewGenerator.USER_TAX_CODE_WITH_TX, mergedListOfViewUser.get(0).getTaxCode()); // first element
-		Assertions.assertEquals(ViewGenerator.USER_TAX_CODE_WITH_TX, mergedListOfViewUser.get(mergedListOfViewUser.size()-1).getTaxCode()); // last element
     }
 
 }

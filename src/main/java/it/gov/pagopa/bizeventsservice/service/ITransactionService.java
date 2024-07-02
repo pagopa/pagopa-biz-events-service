@@ -1,5 +1,8 @@
 package it.gov.pagopa.bizeventsservice.service;
 
+import org.springframework.data.domain.Sort.Direction;
+
+import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 
@@ -12,8 +15,8 @@ public interface ITransactionService {
      * @param size offset size
      * @return transaction list
      */
-    TransactionListResponse getTransactionList(String fiscalCode, String continuationToken, Integer size);
-    TransactionListResponse getCachedTransactionList(String fiscalCode, Integer page, Integer size);
+    TransactionListResponse getTransactionList(String fiscalCode, Boolean isPayer, Boolean isDebtor, String continuationToken, Integer size, TransactionListOrder orderBy, Direction ordering);
+    TransactionListResponse getCachedTransactionList(String fiscalCode, Boolean isPayer, Boolean isDebtor, Integer page, Integer size, TransactionListOrder orderBy, Direction ordering);
     TransactionDetailResponse getTransactionDetails(String fiscalCode, String transactionId);
     byte[] getPDFReceipt (String fiscalCode, String eventId);
 
