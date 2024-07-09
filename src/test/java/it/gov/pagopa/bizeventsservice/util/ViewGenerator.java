@@ -24,8 +24,8 @@ public class ViewGenerator {
     public static final String SUBJECT = "subject";
     public static final String PAYEE_NAME = "payeeName";
     public static final String AMOUNT = "100";
-    public static final String FORMATTED_AMOUNT = "100,00";
-    public static final String FORMATTED_GRAND_TOTAL = "500,00";
+    public static final String FORMATTED_AMOUNT = "100.00";
+    public static final String FORMATTED_GRAND_TOTAL = "500.00";
     public static final String PAYEE_TAX_CODE = "payeeTaxCode";
     public static final String DEBTOR_NAME = "debtorName";
     public static final String REF_NUMBER_TYPE = "refNumberType";

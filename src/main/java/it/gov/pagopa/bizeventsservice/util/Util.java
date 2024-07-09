@@ -56,19 +56,19 @@ public class Util {
 		if (TransactionListOrder.TRANSACTION_DATE.equals(order)) {
 			switch (direction) {
 			case ASC:
-				Collections.sort(listToSort, Comparator.comparing(BizEventsViewUser::getTransactionDate,
+				Collections.sort(listToSort, Comparator.comparing(BizEventsViewUser::getTransactionDateAsLocalDateTime,
 						Comparator.nullsLast(Comparator.naturalOrder())));
 				break;
 			case DESC:
 			default:
-				Collections.sort(listToSort, Comparator.comparing(BizEventsViewUser::getTransactionDate,
+				Collections.sort(listToSort, Comparator.comparing(BizEventsViewUser::getTransactionDateAsLocalDateTime,
 						Comparator.nullsLast(Comparator.naturalOrder())).reversed());
 				break;
 			}
 		} else {
 			// the default sorting is by transaction date and DESC direction
 			Collections.sort(listToSort, Comparator
-					.comparing(BizEventsViewUser::getTransactionDate, Comparator.nullsLast(Comparator.naturalOrder()))
+					.comparing(BizEventsViewUser::getTransactionDateAsLocalDateTime, Comparator.nullsLast(Comparator.naturalOrder()))
 					.reversed());
 		}
 	}
