@@ -1,6 +1,8 @@
 package it.gov.pagopa.bizeventsservice.entity.view;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import com.azure.spring.data.cosmos.core.mapping.Container;
 import com.azure.spring.data.cosmos.core.mapping.GeneratedValue;
@@ -31,4 +33,9 @@ public class BizEventsViewUser implements Serializable {
     private Boolean hidden;
     private Boolean isPayer;
     private Boolean isDebtor;
+    
+    public LocalDateTime getTransactionDateAsLocalDateTime() {
+    	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("[yyyy-MM-dd'T'HH:mm:ss'Z'][yyyy-MM-dd'T'HH:mm:ss.SSSSSS]");
+    	return LocalDateTime.parse(this.getTransactionDate(), formatter);
+    }
 }

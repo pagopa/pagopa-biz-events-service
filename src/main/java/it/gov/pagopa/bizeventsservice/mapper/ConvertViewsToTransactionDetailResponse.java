@@ -46,7 +46,7 @@ public class ConvertViewsToTransactionDetailResponse {
             listOfCartItems.add(
                     CartItem.builder()
                             .subject(bizEventsViewCart.getSubject())
-                            .amount(currencyFormat(String.valueOf(bizEventsViewCart.getAmount())))
+                            .amount(String.valueOf(bizEventsViewCart.getAmount()))
                             .debtor(bizEventsViewCart.getDebtor())
                             .payee(bizEventsViewCart.getPayee())
                             .refNumberType(bizEventsViewCart.getRefNumberType())
@@ -69,7 +69,7 @@ public class ConvertViewsToTransactionDetailResponse {
                                 .pspName(bizEventsViewGeneral.getPspName())
                                 .walletInfo(isDebtor ? null:bizEventsViewGeneral.getWalletInfo())
                                 .payer(isDebtor ? null:bizEventsViewGeneral.getPayer())
-                                .amount(currencyFormat(totalAmount.get().toString()))
+                                .amount(totalAmount.get().toString())
                                 .fee(bizEventsViewGeneral.getFee())
                                 .paymentMethod(isDebtor ? null:bizEventsViewGeneral.getPaymentMethod())
                                 .origin(bizEventsViewGeneral.getOrigin())
@@ -91,7 +91,7 @@ public class ConvertViewsToTransactionDetailResponse {
                 .payeeName(listOfCartViews.size() > 1 ? payeeCartName : listOfCartViews.get(0).getPayee().getName())
                 .payeeTaxCode(listOfCartViews.size() > 1 ? "" : listOfCartViews.get(0).getPayee().getTaxCode())
                 // PAGOPA-1763: the amount value must be returned only if it is not a cart type transaction
-                .amount(listOfCartViews.size() > 1 && BooleanUtils.isTrue(viewUser.getIsDebtor()) ? null : currencyFormat(totalAmount.get().toString()))
+                .amount(listOfCartViews.size() > 1 && BooleanUtils.isTrue(viewUser.getIsDebtor()) ? null : totalAmount.get().toString())
                 .transactionDate(dateFormatZoned(viewUser.getTransactionDate()))
                 .isCart(listOfCartViews.size() > 1)
                 .isPayer(BooleanUtils.isTrue(viewUser.getIsPayer()))
@@ -99,13 +99,15 @@ public class ConvertViewsToTransactionDetailResponse {
                 .build();
     }
 
+    /*
     private static String currencyFormat(String value) {
         BigDecimal valueToFormat = new BigDecimal(value);
-        NumberFormat numberFormat = NumberFormat.getInstance(Locale.ITALY);
+        NumberFormat numberFormat = NumberFormat.getInstance(Locale.ENGLISH);
         numberFormat.setMaximumFractionDigits(2);
         numberFormat.setMinimumFractionDigits(2);
+        String appo = numberFormat.format(valueToFormat);
         return numberFormat.format(valueToFormat);
-    }
+    }*/
     
     private static String dateFormatZoned(String date) {
     	String dateSub = StringUtils.substringBeforeLast(date, ".");
