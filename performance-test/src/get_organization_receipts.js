@@ -22,7 +22,8 @@ const databaseID = `${vars.databaseID}`;
 const containerID = `${vars.containerID}`;
 const numberOfEventsToPreload = `${vars.numberOfEventsToPreload}`;
 
-const accountPrimaryKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
+const subKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
+const accountPrimaryKey = `${__ENV.ACCOUNT_PRIMARY_KEY}`;
 
 var containerIds = new Array();
 
@@ -34,7 +35,8 @@ export function setup() {
 
 	for (let i = 0; i < numberOfEventsToPreload; i++) {
 		let id = makeidMix(25);
-		const response = createDocument(cosmosDBURI, databaseID, containerID, accountPrimaryKey, id);
+		const response = createDocument(cosmosDBURI, databaseID, containerID, accountPrimaryKey, id, id);
+		
 		check(response, { "status is 201": (res) => (res.status === 201) });
 		containerIds.push(id);
 	}
@@ -70,11 +72,12 @@ export default function(data) {
 
 	const params = {
 		headers: {
+			'Ocp-Apim-Subscription-Key': subKey,
 			'Content-Type': 'application/json'
 		},
 	};
 	
-	var itemToRecover = getRandomItemFromArray(data.ids);
+	let itemToRecover = getRandomItemFromArray(data.ids);
 	let organizationFiscalCode = "fiscalCode-" + itemToRecover
 	let iur = "iur-" + itemToRecover
 	let iuv = "iuv-" + itemToRecover

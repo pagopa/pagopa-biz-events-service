@@ -3,10 +3,14 @@
     {
       "env": "local",
       "bizEventServiceURI": "http://localhost:8080/",
+      "bizEventTrxURI": "http://localhost:8080/",
       "cosmosDBURI": "https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/",
       "databaseID":"db",
       "containerID":"biz-events",
-      "numberOfEventsToPreload":"1000"
+      "containerViewGeneralID":"biz-events-view-general",
+      "containerViewUserID":"biz-events-view-user",
+      "containerViewCartID":"biz-events-view-cart",
+      "numberOfEventsToPreload":"50"
     }
   ]
 }
