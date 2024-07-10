@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 /**
  * Response model for transaction detail API
  */
@@ -15,9 +18,12 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(Include.NON_NULL)
 public class CartItem implements Serializable {
 
-    private String subject;
+	private static final long serialVersionUID = -6391592801925923358L;
+	
+	private String subject;
     private String amount;
     private UserDetail payee;
     private UserDetail debtor;
