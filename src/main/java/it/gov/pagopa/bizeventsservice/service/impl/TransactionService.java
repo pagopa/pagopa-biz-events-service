@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService implements ITransactionService {
@@ -83,9 +84,14 @@ public class TransactionService implements ITransactionService {
         final CosmosPageRequest pageRequest = new CosmosPageRequest(0, size, continuationToken, sort);
         final Page<BizEventsViewUser> page = this.bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(taxCode, isPayer, isDebtor, pageRequest);
         Set<String> set = new HashSet<>(page.getContent().size());
+        
         List<BizEventsViewUser> listOfViewUser = page.getContent().stream()
         		.sorted(Comparator.comparing(BizEventsViewUser::getIsDebtor,Comparator.reverseOrder()))
-        		.filter(p -> set.add(p.getTransactionId())).toList();
+        		.filter(p -> set.add(p.getTransactionId()))
+        		.collect(Collectors.toList())
+        		.stream()
+        		.sorted(Comparator.comparing(BizEventsViewUser::getTransactionDate,Comparator.reverseOrder()))
+        		.toList();
 
         if(listOfViewUser.isEmpty()){
             throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TAX_CODE_AND_FILTER, taxCode, isPayer, isDebtor);
