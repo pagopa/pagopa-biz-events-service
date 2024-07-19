@@ -1,9 +1,9 @@
 import http from 'k6/http';
-import { check } from 'k6';
+import { check, group } from 'k6';
 import { SharedArray } from 'k6/data';
 
 import { createDocument, deleteDocument } from "./modules/cosmosdb_client.js";
-import { getTransactionDetails } from "./modules/bizeventservice_client.js";
+import { disableTransaction, getTransactionList } from "./modules/bizeventservice_client.js";
 import { makeidMix, getRandomItemFromArray } from './modules/helpers.js';
 
 const varsArray = new SharedArray('vars', function() {
@@ -18,7 +18,7 @@ const databaseID = `${vars.databaseID}`;
 const containerViewGeneralID = `${vars.containerViewGeneralID}`;
 const containerViewUserID = `${vars.containerViewUserID}`;
 const containerViewCartID = `${vars.containerViewCartID}`;
-const userTaxCode = "ZZZZQL69L16Q001Z";
+const userTaxCode = "YYYYQL69L16Q001Y";
 
 const subKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
 const accountPrimaryKey = `${__ENV.ACCOUNT_PRIMARY_KEY}`;
@@ -71,32 +71,57 @@ export function teardown(data) {
 
 
 export default function(data) {
-
-	// Get a transactionList
-	let tag = {
-		bizEventMethod: "GetTransactionDetails",
-	};
 	
-
-	const params = {
-		headers: {
-		    'Ocp-Apim-Subscription-Key': subKey,
-		    'x-fiscal-code': userTaxCode,
-			'Content-Type': 'application/json'
-		},
-	};
+	let idToDisable = getRandomItemFromArray(data.ids);
 	
-	let idToRecover = getRandomItemFromArray(data.ids);
+	group('01_DisableTransaction', function () {
+	    let tag = {
+			bizEventMethod: "DisableTransaction",
+		};
+		
+	
+		const params = {
+			headers: {
+			    'Ocp-Apim-Subscription-Key': subKey,
+			    'x-fiscal-code': userTaxCode,
+				'Content-Type': 'application/json'
+			},
+		};
+	
+		let response = disableTransaction(bizEventTrxURI, idToDisable, params);
+	
+		console.log(`DisableTransaction... [status: ${response.status}, transaction-id: ${idToDisable}]`);
+	
+		check(response, {"DisableTransaction status is 200": (res) => (res.status === 200)}, tag);
+    });
 
-	const response = getTransactionDetails(bizEventTrxURI, idToRecover, params);
-
-	console.log(`GetTransactionDetails... [status: ${response.status}, transaction-id: ${idToRecover}]`);
-
-	check(response, {"GetTransactionDetails status is 200": (res) => (res.status === 200)}, tag);
-	check(response, {"GetTransactionDetails transactionId is as expected": (res) => (JSON.parse(res.body).infoTransaction.transactionId == idToRecover)}, tag);
+    group('02_GetTransactionList', function () {
+	    let tag = {
+			bizEventMethod: "GetTransactionList",
+		};
+		
+		const params = {
+			headers: {
+			    'Ocp-Apim-Subscription-Key': subKey,
+			    'x-fiscal-code': userTaxCode,
+				'Content-Type': 'application/json'
+			},
+		};
+		
+		//retrieves all created transactions
+		let response = getTransactionList(bizEventTrxURI, numberOfEventsToPreload, params);
+	
+		console.log(`GetTransactionList... [status: ${response.status}, size: ${JSON.parse(response.body).transactions.length}]`);
+	
+		check(response, {"GetTransactionList status is 200": (res) => (res.status === 200)}, tag);
+		check(response, {"GetTransactionList size is as expected": (res) => (JSON.parse(res.body).transactions.length == (numberOfEventsToPreload - 1) )}, tag);
+		check(response, {"GetTransactionList is missing the disabled transactionId as expected": (res) => (JSON.parse(res.body).transactions.includes(idToDisable) == false)}, tag);
+    });
+	
+	
+	
 
 }
-
 
 
 function getTestItemViewGeneral(id) {
