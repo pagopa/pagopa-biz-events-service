@@ -6,7 +6,11 @@ services:
     volumes:
       - '${PWD}/src:/scripts'
     environment:
-      - API_SUBSCRIPTION_KEY=${sub_key}
+      - API_SUBSCRIPTION_KEY=${api_sub_key}
+      - TOKENIZER_API_SUBSCRIPTION_KEY=${tokenizer_api_sub_key}
+      - BIZ_COSMOS_ACCOUNT_PK=${biz_cosmos_account_pk}
+      - RECEIPT_COSMOS_ACCOUNT_PK=${receipt_cosmos_account_pk}
+      - STORAGE_ACCOUNT_PK=${storage_account_pk}
       - VARS=${env}.environment.json
       - TEST_TYPE=/scripts/test-types/${type}.json
       - K6_OUT=influxdb=http://nginx:8086/${db_name}

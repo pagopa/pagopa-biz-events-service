@@ -10,5 +10,5 @@ To invoke k6 tests use `run_performance_test.sh` script.
 Use this command to launch the tests:
 
 ``` shell
-sh run_performance_test.sh <local|dev|uat|prod> <load|stress|spike|soak|...> <api-subkey> <tokenizer-api-subkey> <biz-cosmos-account-pk> <receipt-cosmos-account-pk> <storage-account-pk> <script-name>
+sh run_performance_test.sh <local|dev|uat|prod> <load|stress|spike|soak|...> <db-name> <api-subkey> <tokenizer-api-subkey> <biz-cosmos-account-pk> <receipt-cosmos-account-pk> <storage-account-pk> <script-name>
 ```

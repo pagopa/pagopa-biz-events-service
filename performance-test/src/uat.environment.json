@@ -3,9 +3,19 @@
     {
       "env": "uat",
       "bizEventServiceURI": "https://api.uat.platform.pagopa.it/bizevents/service/v1/",
+      "bizEventTrxURI": "https://api.uat.platform.pagopa.it/bizevents/tx-service/v1/",
       "cosmosDBURI": "https://pagopa-u-weu-bizevents-ds-cosmos-account.documents.azure.com:443/",
       "databaseID":"db",
       "containerID":"biz-events",
+      "containerViewGeneralID":"biz-events-view-general",
+      "containerViewUserID":"biz-events-view-user",
+      "containerViewCartID":"biz-events-view-cart",
+      "receiptTestIdPrefix": "receipt-perf-test-id",
+      "receiptCosmosDBURI": "https://pagopa-u-weu-receipts-ds-cosmos-account.documents.azure.com:443/",
+      "receiptDatabaseID":"db",
+      "receiptContainerID":"receipts",
+      "blobStorageContainerID":"pagopa-u-weu-receipts-azure-blob-receipt-st-attach",
+      "tokenizerURL": "https://api.uat.tokenizer.pdv.pagopa.it/tokenizer/v1/tokens",
       "numberOfEventsToPreload":"1000"
     }
   ]
