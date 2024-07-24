@@ -4,18 +4,18 @@ export function getOrganizationReceipt(bizEventServiceURI, organizationfiscalcod
     return http.get(bizEventServiceURI+`organizations/${organizationfiscalcode}/receipts/${iur}/paymentoptions/${iuv}`, params)
 }
 
-export function getTransactionList(bizEventURI, size, params) {
-    return http.get(bizEventURI+`transactions?size=${size}`, params)
+export function getTransactionList(bizEventTrxURI, size, params) {
+    return http.get(bizEventTrxURI+`transactions?size=${size}`, params)
 }
 
-export function getTransactionDetails(bizEventURI, id, params) {
-    return http.get(bizEventURI+`transactions/${id}`, params)
+export function getTransactionDetails(bizEventTrxURI, id, params) {
+    return http.get(bizEventTrxURI+`transactions/${id}`, params)
 }
 
-export function getPDFReceipt(bizEventURI, id, params) {
-    return http.get(bizEventURI+`transactions/${id}/pdf`, params)
+export function getPDFReceipt(bizEventTrxURI, id, params) {
+    return http.get(bizEventTrxURI+`transactions/${id}/pdf`, params)
 }
 
-export function disableTransaction(bizEventURI, id, params) {
-    return http.post(bizEventURI+`transactions/${id}/disable`, {} , params)
+export function disableTransaction(bizEventTrxURI, id, params) {
+    return http.post(bizEventTrxURI+`transactions/${id}/disable`, {} , params)
 }
