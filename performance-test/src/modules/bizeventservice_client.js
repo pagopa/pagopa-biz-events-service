@@ -12,6 +12,10 @@ export function getTransactionDetails(bizEventURI, id, params) {
     return http.get(bizEventURI+`transactions/${id}`, params)
 }
 
+export function getPDFReceipt(bizEventURI, id, params) {
+    return http.get(bizEventURI+`transactions/${id}/pdf`, params)
+}
+
 export function disableTransaction(bizEventURI, id, params) {
     return http.post(bizEventURI+`transactions/${id}/disable`, {} , params)
 }

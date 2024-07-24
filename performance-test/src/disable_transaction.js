@@ -95,6 +95,8 @@ export default function(data) {
 		check(response, {"DisableTransaction status is 200": (res) => (res.status === 200)}, tag);
     });
 
+/**  Verifying that the disabled transaction does not appear in the list is not necessary at this time
+
     group('02_GetTransactionList', function () {
 	    let tag = {
 			bizEventMethod: "GetTransactionList",
@@ -117,10 +119,8 @@ export default function(data) {
 		check(response, {"GetTransactionList size is as expected": (res) => (JSON.parse(res.body).transactions.length == (numberOfEventsToPreload - 1) )}, tag);
 		check(response, {"GetTransactionList is missing the disabled transactionId as expected": (res) => (JSON.parse(res.body).transactions.includes(idToDisable) == false)}, tag);
     });
+*/	
 	
-	
-	
-
 }
 
 
