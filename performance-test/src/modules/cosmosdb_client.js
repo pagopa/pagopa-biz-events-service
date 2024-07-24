@@ -123,6 +123,7 @@ function getDocumentForTest(id) {
             "paymentInfo.idBundle",
             "paymentInfo.idCiBundle"
         ],
+        "receiptId": "9dd3d6b0c14a48b9ada3874cdd4d62c3",
         "debtorPosition": {
             "modelType": "2",
             "noticeNumber": "310978194271631307",
@@ -138,6 +139,7 @@ function getDocumentForTest(id) {
             "idPsp": "60001110001",
             "idBrokerPsp": "60001110001",
             "idChannel": "60000000001_08",
+            "channelDescription": "desc channel psp",
             "psp": "PSP Giacomo"
         },
         "debtor": {

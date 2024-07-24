@@ -21,7 +21,7 @@ const containerViewCartID = `${vars.containerViewCartID}`;
 const userTaxCode = "ZZZZQL69L16Q001Z";
 
 const subKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
-const accountPrimaryKey = `${__ENV.ACCOUNT_PRIMARY_KEY}`;
+const accountPrimaryKey = `${__ENV.BIZ_COSMOS_ACCOUNT_PRIMARY_KEY}`;
 
 var containerIds = new Array();
 

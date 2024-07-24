@@ -23,7 +23,7 @@ const containerID = `${vars.containerID}`;
 const numberOfEventsToPreload = `${vars.numberOfEventsToPreload}`;
 
 const subKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
-const accountPrimaryKey = `${__ENV.ACCOUNT_PRIMARY_KEY}`;
+const accountPrimaryKey = `${__ENV.BIZ_COSMOS_ACCOUNT_PRIMARY_KEY}`;
 
 var containerIds = new Array();
 
@@ -57,7 +57,7 @@ function precondition() {
 export function teardown(data) {
 	
 	for (const element of data.ids) {
-		const response = deleteDocument(cosmosDBURI, databaseID, containerID, accountPrimaryKey, element);
+		const response = deleteDocument(cosmosDBURI, databaseID, containerID, accountPrimaryKey, element, element);
 		check(response, { "status is 204": (res) => (res.status === 204) });
 	}
 }

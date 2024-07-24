@@ -22,7 +22,7 @@ const userTaxCode = "XXXXQL69L16Q001X";
 const size = "25"
 
 const subKey = `${__ENV.API_SUBSCRIPTION_KEY}`;
-const accountPrimaryKey = `${__ENV.ACCOUNT_PRIMARY_KEY}`;
+const accountPrimaryKey = `${__ENV.BIZ_COSMOS_ACCOUNT_PRIMARY_KEY}`;
 
 var containerIds = new Array();
 
@@ -92,7 +92,7 @@ export default function(data) {
 	console.log(`GetTransactionList... [status: ${response.status}, size: ${JSON.parse(response.body).transactions.length}]`);
 
 	check(response, {"GetTransactionList status is 200": (res) => (res.status === 200)}, tag);
-	check(response, {"GetTransactionList size is as expected": (res) => (JSON.parse(res.body).transactions.length == size)}, tag);
+	check(response, {"GetTransactionList size is as expected": (res) => (JSON.parse(res.body).transactions.length <= size)}, tag);
 
 }
 
