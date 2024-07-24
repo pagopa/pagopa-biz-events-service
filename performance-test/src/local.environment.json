@@ -10,7 +10,14 @@
       "containerViewGeneralID":"biz-events-view-general",
       "containerViewUserID":"biz-events-view-user",
       "containerViewCartID":"biz-events-view-cart",
-      "numberOfEventsToPreload":"50"
+      "receiptTestIdPrefix": "receipt-perf-test-id",
+      "receiptCosmosDBURI": "https://pagopa-d-weu-receipts-ds-cosmos-account.documents.azure.com:443/",
+      "receiptDatabaseID":"db",
+      "receiptContainerID":"receipts",
+      "blobStorageConnectionString":"DefaultEndpointsProtocol=https;AccountName=pagopadweureceiptsfnsa;AccountKey=Dusbar0FDNGLMt3EjcdQydBQd6ZwEofqLIlrqdBaeNshnbJh9huih3+IrXKp2bYdE9bhscptwymb+AStaDt3Pg==;EndpointSuffix=core.windows.net",
+      "blobStorageContainerID":"pagopa-d-weu-receipts-azure-blob-receipt-st-attach",
+      "tokenizerURL": "https://api.uat.tokenizer.pdv.pagopa.it/tokenizer/v1/tokens",
+      "numberOfEventsToPreload":"5"
     }
   ]
 }
