@@ -21,10 +21,11 @@ parameters:
     displayName: "Script name"
     type: string
     values:
-      - "get_organization_receipts"
+      - "get_organization_receipts" 
       - "get_transaction_list"
       - "get_transaction_details"
       - "hide_transaction"
+      - "get_pdf_receipt" # all
     default: "get_organization_receipts"
   - name: "DB_NAME"
     displayName: "DB name"
@@ -57,7 +58,7 @@ steps:
     displayName: Pull k6 image
   - script: |
       cd ./performance-test
-      sh ./run_performance_test.sh ${{ parameters.ENVIRONMENT }} ${{ parameters.TEST_TYPE }} ${{ parameters.SCRIPT }} ${{ parameters.DB_NAME}} $OCP_APIM_SUBSCRIPTION_KEY
+      sh ./run_performance_test.sh ${{ parameters.ENVIRONMENT }} ${{ parameters.TEST_TYPE }} ${{ parameters.SCRIPT }} ${{ parameters.DB_NAME}}
     displayName: Run k6 ${{ parameters.SCRIPT }} on ${{ parameters.ENVIRONMENT }}
     env:
       API_SUBSCRIPTION_KEY: ${{ variables.API_SUBSCRIPTION_KEY }}

@@ -11,15 +11,15 @@
   ],
   "stages": [
     {
-      "duration": "1s",
+      "duration": "10s",
       "target": 5
     },
     {
-      "duration": "2s",
+      "duration": "20s",
       "target": 5
     },
     {
-      "duration": "1s",
+      "duration": "10s",
       "target": 0
     }
   ],
