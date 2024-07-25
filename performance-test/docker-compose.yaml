@@ -9,6 +9,11 @@ services:
       - VARS=${env}.environment.json
       - TEST_TYPE=/scripts/test-types/${type}.json
       - K6_OUT=influxdb=http://nginx:8086/${db_name}
+      - API_SUBSCRIPTION_KEY=${API_SUBSCRIPTION_KEY}
+      - TOKENIZER_API_SUBSCRIPTION_KEY=${TOKENIZER_API_SUBSCRIPTION_KEY}
+      - BIZ_COSMOS_ACCOUNT_PRIMARY_KEY=${BIZ_COSMOS_ACCOUNT_PRIMARY_KEY}
+      - RECEIPT_COSMOS_ACCOUNT_PRIMARY_KEY=${RECEIPT_COSMOS_ACCOUNT_PRIMARY_KEY}
+      - STORAGE_ACCOUNT_PRIMARY_KEY=${STORAGE_ACCOUNT_PRIMARY_KEY}      
     command: run /scripts/${script}.js
     depends_on:
       - nginx
