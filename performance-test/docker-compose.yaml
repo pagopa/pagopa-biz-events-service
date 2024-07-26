@@ -5,6 +5,7 @@ services:
     container_name: k6
     volumes:
       - '${PWD}/src:/scripts'
+      - '${PWD}/src/resources:/resources'
     environment:
       - VARS=${env}.environment.json
       - TEST_TYPE=/scripts/test-types/${type}.json
