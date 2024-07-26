@@ -16,7 +16,7 @@
       "receiptContainerID":"receipts",
       "blobStorageContainerID":"pagopa-d-weu-receipts-azure-blob-receipt-st-attach",
       "tokenizerURL": "https://api.uat.tokenizer.pdv.pagopa.it/tokenizer/v1/tokens",
-      "numberOfEventsToPreload":"1"
+      "numberOfEventsToPreload":"10"
     }
   ]
 }
