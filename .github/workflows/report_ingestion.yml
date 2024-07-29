@@ -1,4 +1,4 @@
-name: ReportPdf
+name: ReportIngestion
 on:
   schedule:
     - cron: '00 05 * * *'
