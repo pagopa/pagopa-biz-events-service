@@ -87,9 +87,9 @@ From `./integration-test/src`
 2. `yarn test`
 
 #### Performance testing
-install [k6](https://k6.io/) and then from `./performance-test/src`
+install [k6](https://k6.io/) and then from `./performance-test/src` run the tests. An example is given:
 
-1. `k6 run --env VARS=local.environment.json --env TEST_TYPE=./test-types/load.json main_scenario.js`
+1. `k6 run --env VARS=local.environment.json --env TEST_TYPE=./test-types/load.json --env API_SUBSCRIPTION_KEY=<api-subkey> --env TOKENIZER_API_SUBSCRIPTION_KEY=<tokenizer-api-subkey> --env BIZ_COSMOS_ACCOUNT_PRIMARY_KEY=<biz-cosmos-pk> --env RECEIPT_COSMOS_ACCOUNT_PRIMARY_KEY=<receipt-cosmos-pk> --env STORAGE_ACCOUNT_PRIMARY_KEY= <storage-account-pk> get_pdf_receipt.js`
 
 
 ---

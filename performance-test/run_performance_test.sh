@@ -4,7 +4,6 @@ ENVIRONMENT=$1
 TYPE=$2
 SCRIPT=$3
 DB_NAME=$4
-API_SUBSCRIPTION_KEY=$5
 
 if [ -z "$ENVIRONMENT" ]
 then
@@ -27,7 +26,6 @@ export env=${ENVIRONMENT}
 export type=${TYPE}
 export script=${SCRIPT}
 export db_name=${DB_NAME}
-export sub_key=${API_SUBSCRIPTION_KEY}
 
 stack_name=$(cd .. && basename "$PWD")
 docker compose -p "${stack_name}" up -d --remove-orphans --force-recreate --build

@@ -1,0 +1,68 @@
+# azure-pipelines.yml
+trigger: none
+
+parameters:
+  - name: "ENVIRONMENT"
+    displayName: "Environment"
+    type: string
+    values:
+      - "dev"
+      - "uat"
+    default: "uat"
+  - name: "TEST_TYPE"
+    displayName: "Test type"
+    type: string
+    values:
+      - "load"
+      - "spike"
+      - "stress"
+    default: "laod"
+  - name: "SCRIPT"
+    displayName: "Script name"
+    type: string
+    values:
+      - "get_organization_receipts" 
+      - "get_transaction_list"
+      - "get_transaction_details"
+      - "hide_transaction"
+      - "get_pdf_receipt" # all
+    default: "get_organization_receipts"
+  - name: "DB_NAME"
+    displayName: "DB name"
+    type: string
+    values:
+      - pagopa_receipt_pdf_servicek6
+variables:
+  ${{ if eq(parameters['ENVIRONMENT'], 'dev') }}:
+    poolImage: 'pagopa-dev-loadtest-linux'
+    API_SUBSCRIPTION_KEY: "$(DEV_BIZ_SERVICE_API_SUBSCRIPTION_KEY)"
+    TOKENIZER_API_SUBSCRIPTION_KEY: "$(DEV_TOKENIZER_API_SUBSCRIPTION_KEY)"
+    BIZ_COSMOS_ACCOUNT_PRIMARY_KEY: "$(DEV_COSMOS_DB_PRIMARY_KEY)"
+    RECEIPT_COSMOS_ACCOUNT_PRIMARY_KEY: "$(DEV_RECEIPT_COSMOS_ACCOUNT_PRIMARY_KEY)"
+    STORAGE_ACCOUNT_PRIMARY_KEY: "$(DEV_BLOB_STORAGE_ACCOUNT_PRIMARY_KEY)"
+  ${{ if eq(parameters['ENVIRONMENT'], 'uat') }}:
+    poolImage: 'pagopa-uat-loadtest-linux'
+    API_SUBSCRIPTION_KEY: "$(UAT_BIZ_SERVICE_API_SUBSCRIPTION_KEY)"
+    TOKENIZER_API_SUBSCRIPTION_KEY: "$(UAT_TOKENIZER_API_SUBSCRIPTION_KEY)"
+    BIZ_COSMOS_ACCOUNT_PRIMARY_KEY: "$(UAT_COSMOS_DB_PRIMARY_KEY)"
+    RECEIPT_COSMOS_ACCOUNT_PRIMARY_KEY: "$(UAT_RECEIPT_COSMOS_ACCOUNT_PRIMARY_KEY)"
+    STORAGE_ACCOUNT_PRIMARY_KEY: "$(UAT_BLOB_STORAGE_ACCOUNT_PRIMARY_KEY)"
+
+pool:
+  name: $(poolImage)
+
+steps:
+  - script: |
+      cd ./performance-test/src
+      docker pull grafana/k6
+    displayName: Pull k6 image
+  - script: |
+      cd ./performance-test
+      sh ./run_performance_test.sh ${{ parameters.ENVIRONMENT }} ${{ parameters.TEST_TYPE }} ${{ parameters.SCRIPT }} ${{ parameters.DB_NAME}}
+    displayName: Run k6 ${{ parameters.SCRIPT }} on ${{ parameters.ENVIRONMENT }}
+    env:
+      API_SUBSCRIPTION_KEY: ${{ variables.API_SUBSCRIPTION_KEY }}
+      TOKENIZER_API_SUBSCRIPTION_KEY: ${{ variables.TOKENIZER_API_SUBSCRIPTION_KEY }}
+      BIZ_COSMOS_ACCOUNT_PRIMARY_KEY: ${{ variables.BIZ_COSMOS_ACCOUNT_PRIMARY_KEY }}
+      RECEIPT_COSMOS_ACCOUNT_PRIMARY_KEY: ${{ variables.RECEIPT_COSMOS_ACCOUNT_PRIMARY_KEY }}
+      STORAGE_ACCOUNT_PRIMARY_KEY: ${{ variables.STORAGE_ACCOUNT_PRIMARY_KEY }}
