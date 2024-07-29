@@ -65,11 +65,11 @@ const endReport = async function() {
   // console.log(report);
   for (let m of report.months) {
     // console.log(m);
-    report.text +=`${m.month} - 🟢 INGESTED:${m.INGESTED} 🔴 TODO:${m.TODO}\n`
+    report.text +=`${m.month}\t\t - 🟢 INGESTED:\`${m.INGESTED.toLocaleString('it-IT')}\` 🔴 TODO:\`${m.TODO.toLocaleString('it-IT')}\`\n`
   }
   delete report["months"]
 
-  // console.log("End");
+  console.log(report);
   fs.writeFileSync('report.json', JSON.stringify(report));
 }
 
