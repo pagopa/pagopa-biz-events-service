@@ -16,7 +16,7 @@ parameters:
       - "load"
       - "spike"
       - "stress"
-    default: "laod"
+    default: "load"
   - name: "SCRIPT"
     displayName: "Script name"
     type: string

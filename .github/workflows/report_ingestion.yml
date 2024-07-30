@@ -1,7 +1,9 @@
 name: ReportIngestion
 on:
-  schedule:
-    - cron: '00 05 * * *'
+  # Manual
+  
+  # schedule:
+  #   - cron: '00 05 * * *'
 
   workflow_dispatch:
     inputs:
