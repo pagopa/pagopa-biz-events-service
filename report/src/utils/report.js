@@ -30,10 +30,11 @@ let reportT = '{"text":"📈 Ingestion BizView 2024 :\\n", "months":[\
   {"month":"November","INGESTED":0,"TODO":0},\
   {"month":"December","INGESTED":0,"TODO":0}]\
 }'
+
 report = JSON.parse(reportT);
 // console.log(report);
 
-const months4Year = [6,5,4,3,2,1]; // giu'24 to gen'24
+const months4Year = [7,6,5,4,3,2,1]; // giu'24 to gen'24
 // const months4Year = [7]; // giu'24 to gen'24
 
 
