@@ -66,7 +66,7 @@ const endReport = async function() {
   // console.log(report);
   for (let m of report.months) {
     // console.log(m);
-    report.text +=`${m.month}\t\t - 🟢 INGESTED:\`${m.INGESTED.toLocaleString('it-IT')}\` 🔴 TODO:\`${m.TODO.toLocaleString('it-IT')}\`\n`
+    report.text +=`${m.month.toString().padEnd(12,' ')} - 🟢 INGESTED:\`${m.INGESTED.toLocaleString('it-IT').padEnd(12,' ')}\` 🔴 TODO:\`${m.TODO.toLocaleString('it-IT')}\`\n`
   }
   delete report["months"]
 
