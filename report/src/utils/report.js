@@ -34,7 +34,7 @@ let reportT = '{"text":"📈 Ingestion BizView 2024 :\\n", "months":[\
 report = JSON.parse(reportT);
 // console.log(report);
 
-const months4Year = [7,6,5]; // giu'24 to gen'24
+const months4Year = [7,6,5,4,3,2,1]; // giu'24 to gen'24
 // const months4Year = [7]; // giu'24 to gen'24
 
 
@@ -57,7 +57,7 @@ const endReport = async function() {
   await_list = [];
   for (let monthIdx of months4Year) {
     const from = `2024-0${monthIdx}-01T00:00:00`;
-    const to = `2024-0${monthIdx}-31T23:59:59`;
+    const to = `2024-0${monthIdx}-30T23:59:59`;
     dateFrom = formatDate(new Date(from));
     dateTo = formatDate(new Date(to))
     await_list.push(start(monthIdx,dateFrom,dateTo));
