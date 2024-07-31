@@ -27,10 +27,6 @@ const biz_client = new CosmosClient({
 const bizContainer = biz_client.database(biz_databaseId).container(bizContainerId);
 
 
-
-c.transactionDetails.transactionDetails.user.fiscalCode
-
-
 async function getBizCount(data_from, data_to) {
     return await bizContainer.items
         .query({
