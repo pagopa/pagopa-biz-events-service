@@ -23,7 +23,7 @@ then
 fi
 
 export env=${ENVIRONMENT}
-export type=${TEST_TYPE}
+export type=${TYPE}
 export script=${SCRIPT}
 export db_name=${DB_NAME}
 
