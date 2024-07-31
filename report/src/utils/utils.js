@@ -27,14 +27,18 @@ const biz_client = new CosmosClient({
 const bizContainer = biz_client.database(biz_databaseId).container(bizContainerId);
 
 
+
+c.transactionDetails.transactionDetails.user.fiscalCode
+
+
 async function getBizCount(data_from, data_to) {
     return await bizContainer.items
         .query({
             query: `SELECT count(1) as eventStatusCount, c.eventStatus FROM ITEM c WHERE c.eventStatus in ('INGESTED','DONE')
             and c.timestamp >= DateTimeToTimestamp(@datefrom)
             and c.timestamp <= DateTimeToTimestamp(@dateto)
-            and (IS_DEFINED(c.debtorPosition.entityUniqueIdentifierValue) or IS_DEFINED(c.payer.entityUniqueIdentifierValue))
-            and (LENGTH(c.debtorPosition.entityUniqueIdentifierValue)=16 or LENGTH(c.payer.entityUniqueIdentifierValue)=16)
+            and (IS_DEFINED(c.debtorPosition.entityUniqueIdentifierValue) or IS_DEFINED(c.payer.entityUniqueIdentifierValue) or IS_DEFINED(c.transactionDetails.user.fiscalCode))
+            and (LENGTH(c.debtorPosition.entityUniqueIdentifierValue)=16 or LENGTH(c.payer.entityUniqueIdentifierValue)=16 or LENGTH(c.transactionDetails.user.fiscalCode)=16)
             GROUP BY c.eventStatus`,
             parameters: [
                 { name: "@datefrom", value: data_from },
