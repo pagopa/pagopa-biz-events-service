@@ -1,0 +1,13 @@
+{
+  "discardResponseBodies": true,
+  "scenarios": {
+    "contacts": {
+      "executor": "constant-arrival-rate",
+      "duration": "10m",
+      "rate": 200,
+      "timeUnit": "2s",
+      "preAllocatedVUs": 100,
+      "maxVUs": 10000
+    }
+  }
+}
