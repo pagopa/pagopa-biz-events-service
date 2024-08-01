@@ -6,6 +6,8 @@ import {putBlob,deleteBlob} from "./modules/blobcontainer_client.js";
 import {getPDFReceipt} from "./modules/bizeventservice_client.js";
 import {makeidMix,getRandomItemFromArray} from './modules/helpers.js';
 
+export let options = JSON.parse(open(__ENV.TEST_TYPE));
+
 const varsArray = new SharedArray('vars', function() {
     return JSON.parse(open(`./${__ENV.VARS}`)).environment;
 });

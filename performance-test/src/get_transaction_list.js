@@ -6,6 +6,8 @@ import { createDocument, deleteDocument } from "./modules/cosmosdb_client.js";
 import { getTransactionList } from "./modules/bizeventservice_client.js";
 import { makeidMix, getRandomItemFromArray } from './modules/helpers.js';
 
+export let options = JSON.parse(open(__ENV.TEST_TYPE));
+
 const varsArray = new SharedArray('vars', function() {
 	return JSON.parse(open(`./${__ENV.VARS}`)).environment;
 });
