@@ -38,7 +38,7 @@ report = JSON.parse(reportT);
 const monthSelected = process.env.MONTH_SELECTED || "7";
 const months4Year = [monthSelected];
 
-console.log(`MONTH_SELECTED ${MONTH_SELECTED}`)
+console.log(`MONTH_SELECTED ${monthSelected}`)
 
 // [
 //   { eventStatusCount: 29, eventStatus: 'INGESTED' },
