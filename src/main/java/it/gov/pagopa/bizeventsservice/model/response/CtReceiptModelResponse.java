@@ -8,6 +8,7 @@ import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import it.gov.pagopa.bizeventsservice.model.MapEntry;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -66,9 +67,16 @@ public class CtReceiptModelResponse implements Serializable {
     private BigDecimal primaryCiIncurredFee;
     private String idBundle;
     private String idCiBundle;
+
+    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate  paymentDateTime;
+
+    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate  applicationDate;
+
+    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate  transferDate;
+
     private List<MapEntry> metadata;
 
 }
