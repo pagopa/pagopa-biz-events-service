@@ -16,7 +16,7 @@ function formatDate(date) {
   );
 }
 
-let reportT = '{"text":"📈 Ingestion BizView 2024 :\\n", "months":[\
+let reportT = '{"text":"📈 Ingestion BizView 2023 :\\n", "months":[\
   {"month":"January","INGESTED":0,"TODO":0},\
   {"month":"February","INGESTED":0,"TODO":0},\
   {"month":"March","INGESTED":0,"TODO":0},\
@@ -58,8 +58,8 @@ const start = async function (month_, a, b) {
 const endReport = async function() {
   await_list = [];
   for (let monthIdx of months4Year) {
-    const from = `2024-0${monthIdx}-01T00:00:00`;
-    const to = `2024-0${monthIdx}-30T23:59:59`;
+    const from = `2023-0${monthIdx}-01T00:00:00`;
+    const to = `2023-0${monthIdx}-30T23:59:59`;
     dateFrom = formatDate(new Date(from));
     dateTo = formatDate(new Date(to))
     await_list.push(start(monthIdx,dateFrom,dateTo));
