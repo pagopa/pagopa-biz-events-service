@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.bizeventsservice.model.response.enumeration.EntityUniqueIdentifierType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,5 +34,6 @@ public class Debtor implements Serializable{
     private String city;
     private String stateProvinceRegion;
     private String country;
+	@JsonProperty(value="eMail")
     private String eMail;
 }
