@@ -1,5 +1,20 @@
 package it.gov.pagopa.bizeventsservice.service.impl;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 
 import feign.FeignException;
@@ -11,37 +26,16 @@ import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDetailResponse;
-import it.gov.pagopa.bizeventsservice.model.PageInfo;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
-import it.gov.pagopa.bizeventsservice.repository.redis.RedisRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
-import it.gov.pagopa.bizeventsservice.util.Constants;
-import it.gov.pagopa.bizeventsservice.util.Util;
-
-import org.apache.commons.lang3.SerializationUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class TransactionService implements ITransactionService {
@@ -49,25 +43,18 @@ public class TransactionService implements ITransactionService {
     private final BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
     private final BizEventsViewCartRepository bizEventsViewCartRepository;
     private final BizEventsViewUserRepository bizEventsViewUserRepository;
-    private final RedisRepository redisRepository;
     private final IReceiptGetPDFClient receiptClient;
     private final IReceiptGeneratePDFClient generateReceiptClient;
-    
-    
-    @Value("${spring.redis.ttl}")
-    private long redisTTL;
 
     @Autowired
     public TransactionService(BizEventsViewGeneralRepository bizEventsViewGeneralRepository, 
     		BizEventsViewCartRepository bizEventsViewCartRepository, 
     		BizEventsViewUserRepository bizEventsViewUserRepository,
-    		RedisRepository redisRepository,
     		IReceiptGetPDFClient receiptClient, 
     		IReceiptGeneratePDFClient generateReceiptClient) {
         this.bizEventsViewGeneralRepository = bizEventsViewGeneralRepository;
         this.bizEventsViewCartRepository = bizEventsViewCartRepository;
         this.bizEventsViewUserRepository = bizEventsViewUserRepository;
-        this.redisRepository = redisRepository;
         this.receiptClient = receiptClient;
         this.generateReceiptClient = generateReceiptClient;  
     }
@@ -118,42 +105,6 @@ public class TransactionService implements ITransactionService {
                 .continuationToken(nextToken)
                 .build();
     }
-    
-    @Override
-	public TransactionListResponse getCachedTransactionList(String taxCode, Boolean isPayer, 
-			Boolean isDebtor, Integer page, Integer size, TransactionListOrder orderBy, Direction ordering) {
-    	
-    	List<TransactionListItem> listOfTransactionListItem = new ArrayList<>();
-        
-        List<List<BizEventsViewUser>> pagedListOfViewUser = this.retrievePaginatedList(taxCode, isPayer, isDebtor, 
-        		size, orderBy, ordering);
-        
-        List<BizEventsViewUser> requestedViewUserPage = !CollectionUtils.isEmpty(pagedListOfViewUser) ? pagedListOfViewUser.get(page) : new ArrayList<>();
-            
-        for (BizEventsViewUser viewUser : requestedViewUserPage) {
-            List<BizEventsViewCart> listOfViewCart;
-            if(Boolean.TRUE.equals(viewUser.getIsPayer())){
-                listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(viewUser.getTransactionId());
-            } else {
-                listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(viewUser.getTransactionId(), taxCode);
-            }
-
-            if (!listOfViewCart.isEmpty()) {
-                TransactionListItem transactionListItem = ConvertViewsToTransactionDetailResponse.convertTransactionListItem(viewUser, listOfViewCart);
-                listOfTransactionListItem.add(transactionListItem);
-            }
-        }
-
-        return TransactionListResponse.builder()
-                .transactionList(listOfTransactionListItem)
-                .pageInfo(PageInfo.builder()
-                		.limit(size)
-                		.page(page)
-                		.itemsFound(pagedListOfViewUser.stream().mapToInt(i -> i.size()).sum())
-                		.totalPages(pagedListOfViewUser.size())
-                		.build())
-                .build();
-	}
 
     @Override
     public TransactionDetailResponse getTransactionDetails(String taxCode, String eventReference) {
@@ -174,6 +125,28 @@ public class TransactionService implements ITransactionService {
 
         return ConvertViewsToTransactionDetailResponse.convertTransactionDetails(taxCode, bizEventsViewGeneral.get(0), listOfCartViews);
     }
+    
+    @Override
+	public NoticeDetailResponse getPaidNoticeDetail(String taxCode, String eventId) {
+    	List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(eventId);
+        if (bizEventsViewGeneral.isEmpty()) {
+            throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_TRANSACTION_ID, eventId);
+        }
+
+        List<BizEventsViewCart> listOfCartViews;
+        if(bizEventsViewGeneral.get(0).getPayer() != null && bizEventsViewGeneral.get(0).getPayer().getTaxCode().equals(taxCode)){
+            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(eventId);
+        } else {
+            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(eventId, taxCode);
+        }
+        if (listOfCartViews.isEmpty()) {
+            throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE, eventId);
+        }
+
+        return ConvertViewsToTransactionDetailResponse.convertPaidNoticeDetails(taxCode, bizEventsViewGeneral.get(0), listOfCartViews);
+	}
+    
+    
 
     @Override
     public void disableTransaction(String fiscalCode, String transactionId) {
@@ -190,27 +163,6 @@ public class TransactionService implements ITransactionService {
         bizEventsViewUserRepository.saveAll(listOfViewUser);
     }
     
-    private List<List<BizEventsViewUser>> retrievePaginatedList (String taxCode, Boolean isPayer, Boolean isDebtor, 
-    		Integer size, TransactionListOrder order, Direction direction) {
-    	List<List<BizEventsViewUser>> pagedListOfViewUser = null;
-    	byte [] data;
-    	// read from the REDIS cache for the list
-    	if ((data=redisRepository.get(Constants.REDIS_KEY_PREFIX+taxCode)) != null){
-    		List<BizEventsViewUser> mergedListOfViewUser = SerializationUtils.deserialize(data);
-    		pagedListOfViewUser = Util.getPaginatedList(mergedListOfViewUser, isPayer, isDebtor, size, order, direction);
-        } else {
-        	List<BizEventsViewUser> fullListOfViewUser = this.bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(taxCode);
-        	if(CollectionUtils.isEmpty(fullListOfViewUser)){
-               throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TAX_CODE, taxCode);
-            }
-        	List<BizEventsViewUser> mergedListOfViewUser = new ArrayList<>(Util.getMergedListByTID(fullListOfViewUser));
-            // write in the REDIS cache the paginated list
-        	redisRepository.save(Constants.REDIS_KEY_PREFIX+taxCode, SerializationUtils.serialize((Serializable)mergedListOfViewUser), redisTTL);
-        	pagedListOfViewUser = Util.getPaginatedList(mergedListOfViewUser, isPayer, isDebtor, size, order, direction);
-        }
-    	return pagedListOfViewUser;
-    }
-
 	@Override
 	public byte[] getPDFReceipt(String fiscalCode, String eventId) {
 		return this.acquirePDFReceipt(fiscalCode, eventId);
@@ -239,4 +191,6 @@ public class TransactionService implements ITransactionService {
     		return receiptClient.getReceipt(fiscalCode, eventId, url);
     	}
     }
+
+	
 }
