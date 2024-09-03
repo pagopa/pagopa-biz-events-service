@@ -47,17 +47,6 @@ public class TransactionController implements ITransactionController {
                 .body(TransactionListWrapResponse.builder().transactions(transactionListResponse.getTransactionList()).build());
     }
     
-    @Override
-	public ResponseEntity<TransactionListWrapResponse> getCachedTransactionList(String fiscalCode, Boolean isPayer, Boolean isDebtor,
-			Integer page, Integer size, TransactionListOrder orderBy, Direction ordering) {
-    	TransactionListResponse transactionListResponse = transactionService.getCachedTransactionList(fiscalCode, isPayer, isDebtor, 
-    			page, size, orderBy, ordering);
-		return ResponseEntity.ok()
-				.body(TransactionListWrapResponse.builder()
-						.transactions(transactionListResponse.getTransactionList())
-						.pageInfo(transactionListResponse.getPageInfo())
-						.build());
-	}
 
     @Override
     public ResponseEntity<TransactionDetailResponse> getTransactionDetails(String fiscalCode, String eventReference) {

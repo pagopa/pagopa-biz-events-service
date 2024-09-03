@@ -16,7 +16,6 @@ public interface ITransactionService {
      * @return transaction list
      */
     TransactionListResponse getTransactionList(String fiscalCode, Boolean isPayer, Boolean isDebtor, String continuationToken, Integer size, TransactionListOrder orderBy, Direction ordering);
-    TransactionListResponse getCachedTransactionList(String fiscalCode, Boolean isPayer, Boolean isDebtor, Integer page, Integer size, TransactionListOrder orderBy, Direction ordering);
     TransactionDetailResponse getTransactionDetails(String fiscalCode, String transactionId);
     byte[] getPDFReceipt (String fiscalCode, String eventId);
 
