@@ -54,7 +54,7 @@ public interface ITransactionController {
     @GetMapping
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained transaction list.",
-                    headers = @Header(name = X_CONTINUATION_TOKEN, description = "continuation token for paginated query", schema = @Schema(type="string")),
+                    headers = @Header(name = X_CONTINUATION_TOKEN, description = "continuation token for paginated query", schema = @Schema(type = "string")),
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "TransactionListWrapResponse", implementation = TransactionListWrapResponse.class))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "404", description = "Not found the transaction.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
@@ -71,17 +71,17 @@ public interface ITransactionController {
             @RequestParam(required = false, name = "orderby", defaultValue = "TRANSACTION_DATE") @Parameter(description = "Order by TRANSACTION_DATE") Order.TransactionListOrder orderBy,
             @RequestParam(required = false, name = "ordering", defaultValue = "DESC") @Parameter(description = "Direction of ordering") Sort.Direction ordering);
 
-    
+
     /**
      * recovers biz-event data for the transaction list
      *
-     * @param fiscalCode        tokenized user fiscal code
-     * @param isPayer           optional flag defining the filter to select only the notices where the user is the payer
-     * @param isDebtor          optional flag defining the filter to select only the notices where the user is the debtor
-     * @param page              optional parameter defining page number, default to 0 (first page)
-     * @param size              optional parameter defining page size, defaults to 10
-     * @param orderBy           optional parameter defining the sort field for the returned list, defaults to TRANSACTION_DATE
-     * @param ordering          optional parameter defining the sorting direction of the returned list, defaults to DESC
+     * @param fiscalCode tokenized user fiscal code
+     * @param isPayer    optional flag defining the filter to select only the notices where the user is the payer
+     * @param isDebtor   optional flag defining the filter to select only the notices where the user is the debtor
+     * @param page       optional parameter defining page number, default to 0 (first page)
+     * @param size       optional parameter defining page size, defaults to 10
+     * @param orderBy    optional parameter defining the sort field for the returned list, defaults to TRANSACTION_DATE
+     * @param ordering   optional parameter defining the sorting direction of the returned list, defaults to DESC
      * @return the transaction list
      */
     @GetMapping(value = "/cached", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -117,7 +117,13 @@ public interface ITransactionController {
             @RequestHeader("x-fiscal-code") @NotBlank String fiscalCode,
             @Parameter(description = "The id of the transaction.", required = true) @NotBlank @PathVariable("transaction-id") String transactionId);
 
-    @Operation(summary = "Disable the transaction details given its id.", security = {
+    /**
+     * @param fiscalCode
+     * @param transactionId
+     * @return
+     * @deprecated
+     */
+    @Operation(summary = "Disable the transaction details given its id.", description = "This service is deprecated. Use Paid Notice APIs instead", deprecated = true, security = {
             @SecurityRequirement(name = "ApiKey")}, operationId = "disableTransaction")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Disabled Transactions.",
@@ -127,14 +133,15 @@ public interface ITransactionController {
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
     @PostMapping(value = "/{transaction-id}/disable", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Deprecated(forRemoval = false)
     ResponseEntity<Void> disableTransaction(
             @RequestHeader("x-fiscal-code") @NotBlank String fiscalCode,
             @Parameter(description = "The id of the transaction.", required = true) @NotBlank @PathVariable("transaction-id") String transactionId);
-    
+
     @Operation(summary = "Retrieve the PDF receipt given event id.", security = {
             @SecurityRequirement(name = "ApiKey")}, operationId = "getPDFReceipt")
     @ApiResponses(value = {
-    		@ApiResponse(responseCode = "200", description = "Obtained the PDF receipt.", content = @Content(mediaType = MediaType.APPLICATION_PDF_VALUE, schema = @Schema( type = "string", format = "binary"))),
+            @ApiResponse(responseCode = "200", description = "Obtained the PDF receipt.", content = @Content(mediaType = MediaType.APPLICATION_PDF_VALUE, schema = @Schema(type = "string", format = "binary"))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "404", description = "Not found the receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "422", description = "Unprocessable receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
@@ -142,7 +149,7 @@ public interface ITransactionController {
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
     @GetMapping(value = "/{event-id}/pdf")
     ResponseEntity<byte[]> getPDFReceipt(
-    		@RequestHeader("x-fiscal-code") @NotBlank String fiscalCode,
+            @RequestHeader("x-fiscal-code") @NotBlank String fiscalCode,
             @Parameter(description = "The id of the event.", required = true) @NotBlank @PathVariable("event-id") String eventId);
 
 }
