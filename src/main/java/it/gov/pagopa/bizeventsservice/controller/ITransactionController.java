@@ -123,7 +123,7 @@ public interface ITransactionController {
      * @return
      * @deprecated
      */
-    @Operation(summary = "Disable the transaction details given its id.", description = "This service is deprecated. Use Paid Notice APIs instead", deprecated = true, security = {
+    @Operation(summary = "Disable the transaction details given its id.", description = "This operation is deprecated. Use Paid Notice APIs instead", deprecated = true, security = {
             @SecurityRequirement(name = "ApiKey")}, operationId = "disableTransaction")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Disabled Transactions.",

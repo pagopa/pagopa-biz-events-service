@@ -1329,7 +1329,7 @@
       "post" : {
         "tags" : [ "IO Transactions REST APIs" ],
         "summary" : "Disable the transaction details given its id.",
-        "description" : "This service is deprecated. Use Paid Notice APIs instead",
+        "description" : "This operation is deprecated. Use Paid Notice APIs instead",
         "operationId" : "disableTransaction",
         "parameters" : [ {
           "name" : "x-fiscal-code",
