@@ -1,5 +1,6 @@
 package it.gov.pagopa.bizeventsservice.exception;
 
+import feign.FeignException;
 import it.gov.pagopa.bizeventsservice.model.ProblemJson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
@@ -142,6 +143,16 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponse, ex.getHttpStatus());
     }
 
+    @ExceptionHandler({FeignException.class})
+    public ResponseEntity<ProblemJson> handleFeignException(final FeignException ex, final WebRequest request) {
+        log.error("FeignException raised:", ex);
+        var errorResponse = ProblemJson.builder()
+                .status(HttpStatus.BAD_GATEWAY.value())
+                .title("A dependency returned an error")
+                .detail(ex.getMessage())
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_GATEWAY);
+    }
 
     /**
      * Handle if a {@link Exception} is raised
