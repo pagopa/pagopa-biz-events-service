@@ -40,7 +40,7 @@ public class PaidNoticeControllerTest {
     public static final String VALID_FISCAL_CODE = "AAAAAA00A00A000A";
     public static final String FISCAL_CODE_HEADER_KEY = "x-fiscal-code";
     public static final String PAIDS_EVENT_ID_DISABLE_PATH = "/paids/1234321234/disable";
-    public static final String TRANSACTION_RECEIPT_PATH = "/transactions/event-id/pdf";
+    public static final String TRANSACTION_RECEIPT_PATH = "/paids/event-id/pdf";
 
     @Autowired
     private MockMvc mvc;
