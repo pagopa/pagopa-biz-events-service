@@ -16,6 +16,6 @@ class ErrorHandlerTest {
         FeignException feignException = Mockito.mock(FeignException.class);
         WebRequest request = Mockito.mock(WebRequest.class);
         var response = errorHandler.handleFeignException(feignException, request);
-        assertEquals(response.getStatusCode() , HttpStatus.BAD_GATEWAY);
+        assertEquals(HttpStatus.BAD_GATEWAY , response.getStatusCode());
     }
 }
