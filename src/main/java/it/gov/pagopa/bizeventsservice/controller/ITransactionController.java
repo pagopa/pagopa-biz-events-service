@@ -40,6 +40,7 @@ public interface ITransactionController {
     String PAGE_NUMBER = "page";
 
     /**
+     * @deprecated
      * recovers biz-event data for the transaction list
      *
      * @param fiscalCode        tokenized user fiscal code
@@ -60,8 +61,9 @@ public interface ITransactionController {
             @ApiResponse(responseCode = "404", description = "Not found the transaction.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
-    @Operation(summary = "Retrieve the paged transaction list from biz events.", security = {
+    @Operation(summary = "Retrieve the paged transaction list from biz events.", description = "This operation is deprecated. Use Paid Notice APIs instead", security = {
             @SecurityRequirement(name = "ApiKey")}, operationId = "getTransactionList")
+    @Deprecated(forRemoval = false)
     ResponseEntity<TransactionListWrapResponse> getTransactionList(
             @RequestHeader(name = X_FISCAL_CODE) String fiscalCode,
             @Valid @Parameter(description = "Filter by payer") @RequestParam(value = "is_payer", required = false) Boolean isPayer,
