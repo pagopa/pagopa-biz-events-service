@@ -40,7 +40,7 @@ public class PaidNoticeControllerTest {
     public static final String VALID_FISCAL_CODE = "AAAAAA00A00A000A";
     public static final String FISCAL_CODE_HEADER_KEY = "x-fiscal-code";
     public static final String PAIDS_EVENT_ID_DISABLE_PATH = "/paids/1234321234/disable";
-    public static final String TRANSACTION_RECEIPT_PATH = "/paids/event-id/pdf";
+    public static final String PAIDS_EVENT_ID_PDF_PATH = "/paids/event-id/pdf";
 
     @Autowired
     private MockMvc mvc;
@@ -67,7 +67,7 @@ public class PaidNoticeControllerTest {
     }
 
     @Test
-    void getTransactionDisableShouldReturnOK() throws Exception {
+    void getPaidNoticeDisableShouldReturnOK() throws Exception {
         mvc.perform(post(PAIDS_EVENT_ID_DISABLE_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -77,7 +77,7 @@ public class PaidNoticeControllerTest {
     }
 
     @Test
-    void getTransactionDisableWithMissingFiscalCodeShouldReturnError() throws Exception {
+    void getPaidNoticeDisableWithMissingFiscalCodeShouldReturnError() throws Exception {
         mvc.perform(post(PAIDS_EVENT_ID_DISABLE_PATH)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -85,7 +85,7 @@ public class PaidNoticeControllerTest {
     }
 
     @Test
-    void getTransactionDisableWithInvalidFiscalCodeShouldReturnError() throws Exception {
+    void getPaidNoticeDisableWithInvalidFiscalCodeShouldReturnError() throws Exception {
         doAnswer(x -> {
             throw new AppException(AppError.INVALID_FISCAL_CODE, INVALID_FISCAL_CODE);
         }).when(transactionService).disableTransaction(anyString(), anyString());
@@ -102,7 +102,7 @@ public class PaidNoticeControllerTest {
         BizEvent bizEvent = mock (BizEvent.class);
         when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
 
-        MvcResult result = mvc.perform(get(TRANSACTION_RECEIPT_PATH)
+        MvcResult result = mvc.perform(get(PAIDS_EVENT_ID_PDF_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -119,7 +119,7 @@ public class PaidNoticeControllerTest {
         AppException ex = new AppException(HttpStatus.NOT_FOUND, "mock", "mock");
         when (bizEventsService.getBizEvent(anyString())).thenThrow(ex);
 
-        mvc.perform(get(TRANSACTION_RECEIPT_PATH)
+        mvc.perform(get(PAIDS_EVENT_ID_PDF_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())

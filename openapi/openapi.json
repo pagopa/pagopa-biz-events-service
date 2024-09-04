@@ -757,6 +757,148 @@
         }
       } ]
     },
+    "/paids/{event-id}/pdf" : {
+      "get" : {
+        "tags" : [ "Paid Notice REST APIs" ],
+        "summary" : "Retrieve the PDF receipt given event id.",
+        "operationId" : "generatePDF",
+        "parameters" : [ {
+          "name" : "x-fiscal-code",
+          "in" : "header",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "event-id",
+          "in" : "path",
+          "description" : "The id of the paid event.",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Obtained the PDF receipt.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              },
+              "Content-Disposition" : {
+                "description" : "Content disposition with name of the file",
+                "style" : "simple",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "binary"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Wrong or missing function key.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : { }
+            }
+          },
+          "404" : {
+            "description" : "Not found the receipt.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "422" : {
+            "description" : "Unprocessable receipt.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "429" : {
+            "description" : "Too many requests.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Service unavailable.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ApiKey" : [ ]
+        } ]
+      },
+      "parameters" : [ {
+        "name" : "X-Request-Id",
+        "in" : "header",
+        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+        "required" : false,
+        "schema" : {
+          "type" : "string"
+        }
+      } ]
+    },
     "/transactions" : {
       "get" : {
         "tags" : [ "IO Transactions REST APIs" ],
@@ -1084,6 +1226,7 @@
       "get" : {
         "tags" : [ "IO Transactions REST APIs" ],
         "summary" : "Retrieve the PDF receipt given event id.",
+        "description" : "This operation is deprecated. Use Paid Notice APIs instead",
         "operationId" : "getPDFReceipt",
         "parameters" : [ {
           "name" : "x-fiscal-code",
@@ -1198,6 +1341,7 @@
             }
           }
         },
+        "deprecated" : true,
         "security" : [ {
           "ApiKey" : [ ]
         } ]
