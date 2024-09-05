@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class NoticeListItemControllerTest {
+public class PaidNoticeControllerTest {
 
     public static final String INVALID_FISCAL_CODE = "INVALID_TX_FISCAL_CODE";
     public static final String VALID_FISCAL_CODE = "AAAAAA00A00A000A";
