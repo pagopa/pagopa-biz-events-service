@@ -2,8 +2,8 @@ package it.gov.pagopa.bizeventsservice.controller.impl;
 
 import it.gov.pagopa.bizeventsservice.controller.IPaidNoticeController;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order;
-import it.gov.pagopa.bizeventsservice.model.response.paidnotice.PaidNotice;
-import it.gov.pagopa.bizeventsservice.model.response.paidnotice.PaidNoticesList;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListItem;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListWrapResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +30,19 @@ public class PaidNoticeController implements IPaidNoticeController {
 
 
     @Override
-    public ResponseEntity<PaidNoticesList> getPaidNotices(String fiscalCode, String continuationToken, Integer size, Boolean isPayer, Boolean isDebtor) {
+    public ResponseEntity<NoticeListWrapResponse> getPaidNotices(String fiscalCode,
+                                                                 String continuationToken,
+                                                                 Integer size,
+                                                                 Boolean isPayer,
+                                                                 Boolean isDebtor,
+                                                                 Order.TransactionListOrder orderBy,
+                                                                 Sort.Direction ordering) {
         TransactionListResponse transactionListResponse = transactionService.getTransactionList(fiscalCode, isPayer, isDebtor,
-                continuationToken, size, Order.TransactionListOrder.TRANSACTION_DATE, Sort.Direction.DESC);
+                continuationToken, size, orderBy, ordering);
 
 
-        List<PaidNotice> paidNoticeList = transactionListResponse.getTransactionList().stream()
-                .map(elem -> PaidNotice.builder()
+        List<NoticeListItem> noticeListItemList = transactionListResponse.getTransactionList().stream()
+                .map(elem -> NoticeListItem.builder()
                         .eventId(elem.getTransactionId())
                         .payeeName(elem.getPayeeName())
                         .payeeTaxCode(elem.getPayeeTaxCode())
@@ -50,7 +56,7 @@ public class PaidNoticeController implements IPaidNoticeController {
 
         return ResponseEntity.ok()
                 .header(X_CONTINUATION_TOKEN, transactionListResponse.getContinuationToken())
-                .body(PaidNoticesList.builder().paidNoticeList(paidNoticeList).build());
+                .body(NoticeListWrapResponse.builder().notices(noticeListItemList).build());
     }
 
     @Override

@@ -10,7 +10,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.gov.pagopa.bizeventsservice.model.ProblemJson;
-import it.gov.pagopa.bizeventsservice.model.response.paidnotice.PaidNoticesList;
+import it.gov.pagopa.bizeventsservice.model.filterandorder.Order;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListWrapResponse;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -29,7 +31,6 @@ public interface IPaidNoticeController {
     String PAGE_SIZE = "size";
 
     /**
-     * @deprecated
      * recovers biz-event data for the paid notices list
      *
      * @param fiscalCode        tokenized user fiscal code
@@ -41,21 +42,21 @@ public interface IPaidNoticeController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained paid notices list.",
                     headers = @Header(name = X_CONTINUATION_TOKEN, description = "continuation token for paginated query", schema = @Schema(type = "string")),
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = PaidNoticesList.class))),
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = NoticeListWrapResponse.class))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "404", description = "Not found the fiscal code.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
     @Operation(summary = "Retrieve the paged transaction list from biz events.", description = "This operation is deprecated. Use Paid Notice APIs instead", security = {
             @SecurityRequirement(name = "ApiKey")})
-    ResponseEntity<PaidNoticesList> getPaidNotices(
+    ResponseEntity<NoticeListWrapResponse> getPaidNotices(
             @RequestHeader(name = X_FISCAL_CODE) String fiscalCode,
             @RequestHeader(name = X_CONTINUATION_TOKEN, required = false) String continuationToken,
             @RequestParam(name = PAGE_SIZE, required = false, defaultValue = "10") Integer size,
             @Valid @Parameter(description = "Filter by payer") @RequestParam(value = "is_payer", required = false) Boolean isPayer,
-            @Valid @Parameter(description = "Filter by debtor") @RequestParam(value = "is_debtor", required = false) Boolean isDebtor
-            );
-    // TODO inserire l'ordering
+            @Valid @Parameter(description = "Filter by debtor") @RequestParam(value = "is_debtor", required = false) Boolean isDebtor,
+            @RequestParam(required = false, name = "orderby", defaultValue = "TRANSACTION_DATE") @Parameter(description = "Order by TRANSACTION_DATE") Order.TransactionListOrder orderBy,
+            @RequestParam(required = false, name = "ordering", defaultValue = "DESC") @Parameter(description = "Direction of ordering") Sort.Direction ordering);
 
 
 

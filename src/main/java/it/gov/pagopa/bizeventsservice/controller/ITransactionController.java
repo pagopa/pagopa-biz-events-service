@@ -62,7 +62,7 @@ public interface ITransactionController {
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
     @Operation(summary = "Retrieve the paged transaction list from biz events.", description = "This operation is deprecated. Use Paid Notice APIs instead", security = {
-            @SecurityRequirement(name = "ApiKey")}, operationId = "getTransactionList")
+            @SecurityRequirement(name = "ApiKey")}, deprecated = true, operationId = "getTransactionList")
     @Deprecated(forRemoval = false)
     ResponseEntity<TransactionListWrapResponse> getTransactionList(
             @RequestHeader(name = X_FISCAL_CODE) String fiscalCode,
