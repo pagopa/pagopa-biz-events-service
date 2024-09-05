@@ -683,7 +683,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/TransactionDetailResponse"
+                  "$ref" : "#/components/schemas/NoticeDetailResponse"
                 }
               }
             }
@@ -1170,6 +1170,7 @@
       "get" : {
         "tags" : [ "IO Transactions REST APIs" ],
         "summary" : "Retrieve the transaction details given its id.",
+        "description" : "This operation is deprecated. Use Paid Notice APIs instead",
         "operationId" : "getTransactionDetails",
         "parameters" : [ {
           "name" : "x-fiscal-code",
@@ -1265,6 +1266,7 @@
             }
           }
         },
+        "deprecated" : true,
         "security" : [ {
           "ApiKey" : [ ]
         } ]
@@ -1586,6 +1588,60 @@
           },
           "maskedEmail" : {
             "type" : "string"
+          }
+        }
+      },
+      "InfoNotice" : {
+        "type" : "object",
+        "properties" : {
+          "eventId" : {
+            "type" : "string"
+          },
+          "authCode" : {
+            "type" : "string"
+          },
+          "rrn" : {
+            "type" : "string"
+          },
+          "noticeDate" : {
+            "type" : "string"
+          },
+          "pspName" : {
+            "type" : "string"
+          },
+          "walletInfo" : {
+            "$ref" : "#/components/schemas/WalletInfo"
+          },
+          "paymentMethod" : {
+            "type" : "string",
+            "enum" : [ "BBT", "BP", "AD", "CP", "PO", "OBEP", "JIF", "MYBK", "PPAL", "UNKNOWN" ]
+          },
+          "payer" : {
+            "$ref" : "#/components/schemas/UserDetail"
+          },
+          "amount" : {
+            "type" : "string"
+          },
+          "fee" : {
+            "type" : "string"
+          },
+          "origin" : {
+            "type" : "string",
+            "enum" : [ "INTERNAL", "PM", "NDP001PROD", "NDP002PROD", "NDP003PROD", "UNKNOWN" ]
+          }
+        }
+      },
+      "NoticeDetailResponse" : {
+        "type" : "object",
+        "properties" : {
+          "infoNotice" : {
+            "$ref" : "#/components/schemas/InfoNotice"
+          },
+          "carts" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CartItem"
+            }
           }
         }
       },

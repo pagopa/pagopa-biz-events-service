@@ -78,7 +78,7 @@ public interface ITransactionController {
      * @return the transaction details
      * @deprecated
      */
-    @Operation(summary = "Retrieve the transaction details given its id.", security = {
+    @Operation(summary = "Retrieve the transaction details given its id.", description = "This operation is deprecated. Use Paid Notice APIs instead", deprecated = true, security = {
             @SecurityRequirement(name = "ApiKey")}, operationId = "getTransactionDetails")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained transaction details.",

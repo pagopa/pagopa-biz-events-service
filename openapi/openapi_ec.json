@@ -34,28 +34,6 @@
           }
         } ],
         "responses" : {
-          "429" : {
-            "description" : "Too many requests.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Wrong or missing function key.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
           "422" : {
             "description" : "Unable to process the request.",
             "headers" : {
@@ -124,6 +102,28 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "429" : {
+            "description" : "Too many requests.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Wrong or missing function key.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
@@ -174,28 +174,6 @@
           }
         } ],
         "responses" : {
-          "429" : {
-            "description" : "Too many requests.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Wrong or missing function key.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
           "422" : {
             "description" : "Unable to process the request.",
             "headers" : {
@@ -267,6 +245,28 @@
                 }
               }
             }
+          },
+          "429" : {
+            "description" : "Too many requests.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Wrong or missing function key.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
           }
         },
         "security" : [ {
@@ -290,37 +290,8 @@
         "description" : "Return OK if application is started",
         "operationId" : "healthCheck",
         "responses" : {
-          "400" : {
-            "description" : "Bad Request",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Forbidden",
+          "429" : {
+            "description" : "Too many requests",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -348,13 +319,20 @@
               }
             }
           },
-          "429" : {
-            "description" : "Too many requests",
+          "400" : {
+            "description" : "Bad Request",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -373,6 +351,28 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/AppInfo"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
