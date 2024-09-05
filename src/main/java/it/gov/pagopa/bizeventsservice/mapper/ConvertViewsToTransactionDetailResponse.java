@@ -6,6 +6,8 @@ import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.CartItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.InfoTransactionView;
 import it.gov.pagopa.bizeventsservice.util.DateValidator;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.InfoNotice;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -66,6 +68,48 @@ public class ConvertViewsToTransactionDetailResponse {
                                 .authCode(bizEventsViewGeneral.getAuthCode())
                                 .rrn(bizEventsViewGeneral.getRrn())
                                 .transactionDate(dateFormatZoned(bizEventsViewGeneral.getTransactionDate()))
+                                .pspName(bizEventsViewGeneral.getPspName())
+                                .walletInfo(isDebtor ? null:bizEventsViewGeneral.getWalletInfo())
+                                .payer(isDebtor ? null:bizEventsViewGeneral.getPayer())
+                                .amount(totalAmount.get().setScale(2, RoundingMode.UNNECESSARY).toString())
+                                .fee(StringUtils.isNotEmpty(bizEventsViewGeneral.getFee()) ? bizEventsViewGeneral.getFee().replace(',', '.') : bizEventsViewGeneral.getFee())
+                                .paymentMethod(isDebtor ? null:bizEventsViewGeneral.getPaymentMethod())
+                                .origin(bizEventsViewGeneral.getOrigin())
+                                .build()
+                )
+                .carts(listOfCartItems)
+                .build();
+    }
+    
+    public static NoticeDetailResponse convertPaidNoticeDetails(String taxCode, BizEventsViewGeneral bizEventsViewGeneral, List<BizEventsViewCart> listOfCartViews) {
+        List<it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem> listOfCartItems = new ArrayList<>();
+        AtomicReference<BigDecimal> totalAmount = new AtomicReference<>(BigDecimal.ZERO);
+        
+        for (BizEventsViewCart bizEventsViewCart : listOfCartViews) {
+
+            listOfCartItems.add(
+            		it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem.builder()
+                            .subject(bizEventsViewCart.getSubject())
+                            .amount(new BigDecimal(bizEventsViewCart.getAmount()).setScale(2, RoundingMode.UNNECESSARY).toString())
+                            .debtor(bizEventsViewCart.getDebtor())
+                            .payee(bizEventsViewCart.getPayee())
+                            .refNumberType(bizEventsViewCart.getRefNumberType())
+                            .refNumberValue(bizEventsViewCart.getRefNumberValue())
+                            .build()
+            );
+            BigDecimal amountExtracted = new BigDecimal(bizEventsViewCart.getAmount());
+            totalAmount.updateAndGet(v -> v.add(amountExtracted));
+        }
+        
+        // PAGOPA-1763: if the tax code refers to a debtor, do not show the sections relating to the payer
+        boolean isDebtor = bizEventsViewGeneral.getPayer() == null || !bizEventsViewGeneral.getPayer().getTaxCode().equals(taxCode);
+        return NoticeDetailResponse.builder()
+                .infoNotice(
+                        InfoNotice.builder()
+                                .eventId(bizEventsViewGeneral.getTransactionId())
+                                .authCode(bizEventsViewGeneral.getAuthCode())
+                                .rrn(bizEventsViewGeneral.getRrn())
+                                .noticeDate(dateFormatZoned(bizEventsViewGeneral.getTransactionDate()))
                                 .pspName(bizEventsViewGeneral.getPspName())
                                 .walletInfo(isDebtor ? null:bizEventsViewGeneral.getWalletInfo())
                                 .payer(isDebtor ? null:bizEventsViewGeneral.getPayer())
