@@ -1,12 +1,10 @@
 package it.gov.pagopa.bizeventsservice.exception;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import it.gov.pagopa.bizeventsservice.model.ProblemJson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,9 +32,6 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
 
     public static final String INTERNAL_SERVER_ERROR = "INTERNAL SERVER ERROR";
     public static final String BAD_REQUEST = "BAD REQUEST";
-
-    @Autowired
-    ObjectMapper objectMapper;
 
 
     /**
@@ -153,14 +148,14 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ProblemJson> handleFeignException(final FeignException ex, final WebRequest request) {
         log.error("FeignException raised:", ex);
         try {
-            ProblemJson body = objectMapper.readValue(ex.contentUTF8(), ProblemJson.class);
+            ProblemJson body = new ObjectMapper().readValue(ex.contentUTF8(), ProblemJson.class);
             var errorResponse = ProblemJson.builder()
                     .status(body.getStatus())
                     .title("A dependency returned an error: " + body.getTitle())
                     .detail(body.getDetail())
                     .build();
             return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(ex.status()));
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             var errorResponse = ProblemJson.builder()
                     .status(HttpStatus.BAD_GATEWAY.value())
                     .title("A dependency returned an error")
