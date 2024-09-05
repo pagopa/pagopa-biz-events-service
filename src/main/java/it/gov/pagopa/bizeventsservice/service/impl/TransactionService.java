@@ -28,9 +28,15 @@ import it.gov.pagopa.bizeventsservice.util.Util;
 import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -215,21 +221,38 @@ public class TransactionService implements ITransactionService {
 	public byte[] getPDFReceipt(String fiscalCode, String eventId) {
 		return this.acquirePDFReceipt(fiscalCode, eventId);
 	}
-	
-	private byte[] acquirePDFReceipt(String fiscalCode, String eventId) {
-		String url = "";
-    	try {
-    		// call the receipt-pdf-service to retrieve the PDF receipt details
-    		AttachmentsDetailsResponse response = receiptClient.getAttachments(fiscalCode, eventId);
-    		url = response.getAttachments().get(0).getUrl();
-    	} catch (FeignException.NotFound e) {
-    		generateReceiptClient.generateReceipt(eventId, "false", "{}");
-    		url = receiptClient.getAttachments(fiscalCode, eventId).getAttachments().get(0).getUrl();
-    	} 
-    	return this.getAttachment(fiscalCode, eventId, url);
+
+    @Override
+    public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, String eventId) {
+        var attachmentDetails = getAttachmentDetails(fiscalCode, eventId);
+        var name = attachmentDetails.getAttachments().get(0).getName();
+        var url = attachmentDetails.getAttachments().get(0).getUrl();
+        var receiptFile = getAttachmentFile(fiscalCode, eventId, url);
+
+        return ResponseEntity
+                .ok()
+                .contentLength(receiptFile.length)
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline().filename(name).build().toString())
+                .body(new ByteArrayResource(receiptFile));
     }
 
-    private byte[] getAttachment(String fiscalCode, String eventId, String url) {
+    private byte[] acquirePDFReceipt(String fiscalCode, String eventId) {
+		String url = getAttachmentDetails(fiscalCode, eventId).getAttachments().get(0).getUrl();
+        return this.getAttachmentFile(fiscalCode, eventId, url);
+    }
+
+    private AttachmentsDetailsResponse getAttachmentDetails(String fiscalCode, String eventId) {
+        try {
+            // call the receipt-pdf-service to retrieve the PDF receipt details
+            return receiptClient.getAttachments(fiscalCode, eventId);
+        } catch (FeignException.NotFound e) {
+            generateReceiptClient.generateReceipt(eventId, "false", "{}");
+            return receiptClient.getAttachments(fiscalCode, eventId);
+        }
+    }
+
+    private byte[] getAttachmentFile(String fiscalCode, String eventId, String url) {
     	try {
     		// call the receipt-pdf-service to retrieve the PDF receipt attachment
     		return receiptClient.getReceipt(fiscalCode, eventId, url);

@@ -16,15 +16,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -51,7 +52,7 @@ public class PaidNoticeControllerTest {
     @MockBean
     private ITransactionService transactionService;
 
-    
+
     private byte[] receipt = {69, 121, 101, 45, 62, 118, 101, 114, (byte) 196, (byte) 195, 61, 101, 98};
 
     @BeforeEach
@@ -99,10 +100,17 @@ public class PaidNoticeControllerTest {
     @Test
     void getPDFReceipt_ShouldReturnOK() throws Exception {
 
-        BizEvent bizEvent = mock (BizEvent.class);
-        when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
+        BizEvent bizEvent = mock(BizEvent.class);
+        ResponseEntity<Resource> response = mock(ResponseEntity.class);
+        when(response.getStatusCode()).thenReturn(HttpStatus.OK);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_TYPE, "application/pdf");
+        when(response.getHeaders()).thenReturn(headers);
+        when(response.getStatusCodeValue()).thenReturn(200);
+        when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
+        when(transactionService.getPDFReceiptResponse(anyString(), anyString())).thenReturn(response);
 
-        MvcResult result = mvc.perform(get(PAIDS_EVENT_ID_PDF_PATH)
+        mvc.perform(get(PAIDS_EVENT_ID_PDF_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -110,14 +118,13 @@ public class PaidNoticeControllerTest {
                 .andReturn();
 
         verify(bizEventsService).getBizEvent("event-id");
-        verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE,"event-id");
-        assertEquals(receipt.length, result.getResponse().getContentAsByteArray().length);
+        verify(transactionService).getPDFReceiptResponse(VALID_FISCAL_CODE, "event-id");
     }
 
     @Test
     void getPDFReceiptForOldPMEvent_ShouldReturnNOTFOUND() throws Exception {
         AppException ex = new AppException(HttpStatus.NOT_FOUND, "mock", "mock");
-        when (bizEventsService.getBizEvent(anyString())).thenThrow(ex);
+        when(bizEventsService.getBizEvent(anyString())).thenThrow(ex);
 
         mvc.perform(get(PAIDS_EVENT_ID_PDF_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)

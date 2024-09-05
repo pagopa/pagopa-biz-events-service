@@ -12,7 +12,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * <p>
  * see more information in this GitHub <a href="https://github.com/swagger-api/swagger-ui/issues/5649">issue</a>
  */
-// TODO should I remove this configuration?
 @Configuration
 public class ContentNegotiationConf implements WebMvcConfigurer {
 
