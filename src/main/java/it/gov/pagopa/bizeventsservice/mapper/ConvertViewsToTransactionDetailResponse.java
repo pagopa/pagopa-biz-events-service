@@ -3,6 +3,7 @@ package it.gov.pagopa.bizeventsservice.mapper;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.CartItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.InfoTransactionView;
 import it.gov.pagopa.bizeventsservice.util.DateValidator;
@@ -78,6 +79,22 @@ public class ConvertViewsToTransactionDetailResponse {
                 .carts(listOfCartItems)
                 .build();
     }
+
+    public static List<NoticeListItem> convertToNoticeList(TransactionListResponse transactionListResponse) {
+        return transactionListResponse.getTransactionList().stream()
+                .map(elem -> NoticeListItem.builder()
+                        .eventId(elem.getTransactionId())
+                        .payeeName(elem.getPayeeName())
+                        .payeeTaxCode(elem.getPayeeTaxCode())
+                        .amount(elem.getAmount())
+                        .noticeDate(elem.getTransactionDate())
+                        .isCart(elem.getIsCart())
+                        .isPayer(elem.getIsPayer())
+                        .isDebtor(elem.getIsDebtor())
+                        .build())
+                .toList();
+    }
+
 
     public static TransactionListItem convertTransactionListItem(BizEventsViewUser viewUser, List<BizEventsViewCart> listOfCartViews){
         AtomicReference<BigDecimal> totalAmount = new AtomicReference<>(BigDecimal.ZERO);

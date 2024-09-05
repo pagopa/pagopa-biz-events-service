@@ -2,7 +2,6 @@ package it.gov.pagopa.bizeventsservice.controller.impl;
 
 import it.gov.pagopa.bizeventsservice.controller.IPaidNoticeController;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order;
-import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListItem;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListWrapResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
@@ -12,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import static it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDetailResponse.convertToNoticeList;
 
 /**
  * Implementation of {@link IPaidNoticeController} that contains the Rest Controller
@@ -41,22 +40,9 @@ public class PaidNoticeController implements IPaidNoticeController {
                 continuationToken, size, orderBy, ordering);
 
 
-        List<NoticeListItem> noticeListItemList = transactionListResponse.getTransactionList().stream()
-                .map(elem -> NoticeListItem.builder()
-                        .eventId(elem.getTransactionId())
-                        .payeeName(elem.getPayeeName())
-                        .payeeTaxCode(elem.getPayeeTaxCode())
-                        .amount(elem.getAmount())
-                        .noticeDate(elem.getTransactionDate())
-                        .isCart(elem.getIsCart())
-                        .isPayer(elem.getIsPayer())
-                        .isDebtor(elem.getIsDebtor())
-                        .build())
-                .toList();
-
         return ResponseEntity.ok()
                 .header(X_CONTINUATION_TOKEN, transactionListResponse.getContinuationToken())
-                .body(NoticeListWrapResponse.builder().notices(noticeListItemList).build());
+                .body(NoticeListWrapResponse.builder().notices(convertToNoticeList(transactionListResponse)).build());
     }
 
     @Override
