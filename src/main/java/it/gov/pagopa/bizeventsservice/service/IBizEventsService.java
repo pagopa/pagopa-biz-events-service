@@ -6,12 +6,13 @@ import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
 public interface IBizEventsService {
 
     CtReceiptModelResponse getOrganizationReceipt(String organizationFiscalCode,
-            String iur, String iuv);
+                                                  String iur, String iuv);
 
     BizEvent getBizEvent(String id);
 
     BizEvent getBizEventByOrgFiscalCodeAndIuv(String organizationFiscalCode,
                                               String iuv);
+
     CtReceiptModelResponse getOrganizationReceipt(String organizationFiscalCode,
                                                   String iur);
 

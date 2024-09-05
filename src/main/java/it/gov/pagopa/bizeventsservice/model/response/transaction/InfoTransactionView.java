@@ -1,5 +1,7 @@
 package it.gov.pagopa.bizeventsservice.model.response.transaction;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import it.gov.pagopa.bizeventsservice.entity.view.UserDetail;
 import it.gov.pagopa.bizeventsservice.entity.view.WalletInfo;
 import it.gov.pagopa.bizeventsservice.entity.view.enumeration.OriginType;
@@ -11,9 +13,6 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
 /**
  * Response model for transaction detail API
  */
@@ -24,10 +23,10 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class InfoTransactionView implements Serializable {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = -3548526079754223084L;
-	private String transactionId;
+     *
+     */
+    private static final long serialVersionUID = -3548526079754223084L;
+    private String transactionId;
     private String authCode;
     private String rrn;
     private String transactionDate;

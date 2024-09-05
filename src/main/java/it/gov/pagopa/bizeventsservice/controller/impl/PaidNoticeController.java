@@ -31,12 +31,12 @@ public class PaidNoticeController implements IPaidNoticeController {
     }
 
     @Override
-	public ResponseEntity<NoticeDetailResponse> getPaidNoticeDetail(@NotBlank String fiscalCode,
-			@NotBlank String eventId) {
-    	return new ResponseEntity<>(
+    public ResponseEntity<NoticeDetailResponse> getPaidNoticeDetail(@NotBlank String fiscalCode,
+                                                                    @NotBlank String eventId) {
+        return new ResponseEntity<>(
                 transactionService.getPaidNoticeDetail(fiscalCode, eventId),
                 HttpStatus.OK);
-	}
+    }
 
     @Override
     public ResponseEntity<NoticeListWrapResponse> getPaidNotices(String fiscalCode,

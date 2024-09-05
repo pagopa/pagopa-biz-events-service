@@ -17,11 +17,11 @@ import java.util.List;
 @AllArgsConstructor
 public class NoticeDetailResponse implements Serializable {
 
-    
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8088447298997505166L;
-	private InfoNotice infoNotice;
+
+    /**
+     *
+     */
+    private static final long serialVersionUID = -8088447298997505166L;
+    private InfoNotice infoNotice;
     private List<CartItem> carts;
 }

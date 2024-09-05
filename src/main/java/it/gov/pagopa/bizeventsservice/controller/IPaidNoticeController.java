@@ -1,16 +1,5 @@
 package it.gov.pagopa.bizeventsservice.controller;
 
-import javax.validation.constraints.NotBlank;
-
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -21,8 +10,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.gov.pagopa.bizeventsservice.model.ProblemJson;
-import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListWrapResponse;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
@@ -39,6 +28,8 @@ import javax.validation.constraints.NotBlank;
 @Validated
 public interface IPaidNoticeController {
     String X_FISCAL_CODE = "x-fiscal-code";
+    String X_CONTINUATION_TOKEN = "x-continuation-token";
+    String PAGE_SIZE = "size";
 
     /**
      * @param fiscalCode
@@ -58,8 +49,6 @@ public interface IPaidNoticeController {
     ResponseEntity<NoticeDetailResponse> getPaidNoticeDetail(
             @RequestHeader("x-fiscal-code") @NotBlank String fiscalCode,
             @Parameter(description = "The id of the paid event.", required = true) @NotBlank @PathVariable("event-id") String eventId);
-    String X_CONTINUATION_TOKEN = "x-continuation-token";
-    String PAGE_SIZE = "size";
 
     /**
      * recovers biz-event data for the paid notices list
@@ -88,8 +77,6 @@ public interface IPaidNoticeController {
             @Valid @Parameter(description = "Filter by debtor") @RequestParam(value = "is_debtor", required = false) Boolean isDebtor,
             @RequestParam(required = false, name = "orderby", defaultValue = "TRANSACTION_DATE") @Parameter(description = "Order by TRANSACTION_DATE") Order.TransactionListOrder orderBy,
             @RequestParam(required = false, name = "ordering", defaultValue = "DESC") @Parameter(description = "Direction of ordering") Sort.Direction ordering);
-
-
 
 
     @Operation(summary = "Disable the paid notice details given its id.", security = {

@@ -3,7 +3,10 @@ package it.gov.pagopa.bizeventsservice.model.response.paidnotice;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -20,7 +23,7 @@ public class NoticeListItem implements Serializable {
 
     @Schema(required = true)
     @NotNull
-	private String eventId;
+    private String eventId;
 
     private String payeeName;
 

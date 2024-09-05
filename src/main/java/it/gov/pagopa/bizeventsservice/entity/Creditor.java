@@ -1,10 +1,6 @@
 package it.gov.pagopa.bizeventsservice.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
@@ -12,9 +8,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class Creditor {
-	private String idPA;
-	private String idBrokerPA;
-	private String idStation;
-	private String companyName;
-	private String officeName;
+    private String idPA;
+    private String idBrokerPA;
+    private String idStation;
+    private String companyName;
+    private String officeName;
 }

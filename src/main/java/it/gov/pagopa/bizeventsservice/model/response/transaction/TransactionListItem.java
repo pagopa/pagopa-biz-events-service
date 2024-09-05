@@ -1,14 +1,13 @@
 package it.gov.pagopa.bizeventsservice.model.response.transaction;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 /**
  * Response model for transaction list API
@@ -20,10 +19,10 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class TransactionListItem implements Serializable {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 8763325343304031081L;
-	private String transactionId;
+     *
+     */
+    private static final long serialVersionUID = 8763325343304031081L;
+    private String transactionId;
     private String payeeName;
     private String payeeTaxCode;
     private String amount;

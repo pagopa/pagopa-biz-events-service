@@ -13,17 +13,11 @@ import it.gov.pagopa.bizeventsservice.model.ProblemJson;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListWrapResponse;
-
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -40,9 +34,6 @@ public interface ITransactionController {
     String PAGE_NUMBER = "page";
 
     /**
-     * @deprecated
-     * recovers biz-event data for the transaction list
-     *
      * @param fiscalCode        tokenized user fiscal code
      * @param isPayer           optional flag defining the filter to select only the notices where the user is the payer
      * @param isDebtor          optional flag defining the filter to select only the notices where the user is the debtor
@@ -51,6 +42,7 @@ public interface ITransactionController {
      * @param orderBy           optional parameter defining the sort field for the returned list, defaults to TRANSACTION_DATE
      * @param ordering          optional parameter defining the sorting direction of the returned list, defaults to DESC
      * @return the transaction list
+     * @deprecated recovers biz-event data for the transaction list
      */
     @GetMapping
     @ApiResponses(value = {

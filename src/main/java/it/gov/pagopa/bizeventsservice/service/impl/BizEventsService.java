@@ -29,7 +29,7 @@ public class BizEventsService implements IBizEventsService {
 
     @Override
     public CtReceiptModelResponse getOrganizationReceipt(String organizationFiscalCode,
-            String iur, String iuv) {
+                                                         String iur, String iuv) {
         // get biz event
         List<BizEvent> bizEventEntityList = bizEventsRepository.getBizEventByOrgFiscCodeIuvAndIur(organizationFiscalCode,
                 iur, iuv);

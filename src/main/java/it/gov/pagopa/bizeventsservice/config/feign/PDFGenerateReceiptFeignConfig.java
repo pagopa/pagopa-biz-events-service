@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class PDFGenerateReceiptFeignConfig extends AuthFeignConfig {
 
-  private static final String RECEIPT_SUBKEY_PLACEHOLDER = "${pdf.generate.receipt.subscription-key}";
+    private static final String RECEIPT_SUBKEY_PLACEHOLDER = "${pdf.generate.receipt.subscription-key}";
 
-  @Autowired
-  public PDFGenerateReceiptFeignConfig(@Value(RECEIPT_SUBKEY_PLACEHOLDER) String subscriptionKey) {
-    this.subscriptionKey = subscriptionKey;
-  }
+    @Autowired
+    public PDFGenerateReceiptFeignConfig(@Value(RECEIPT_SUBKEY_PLACEHOLDER) String subscriptionKey) {
+        this.subscriptionKey = subscriptionKey;
+    }
 }
