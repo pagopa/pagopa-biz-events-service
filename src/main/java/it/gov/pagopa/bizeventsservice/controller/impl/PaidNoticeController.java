@@ -1,10 +1,14 @@
 package it.gov.pagopa.bizeventsservice.controller.impl;
 
 import it.gov.pagopa.bizeventsservice.controller.IPaidNoticeController;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListWrapResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
+
+import javax.validation.constraints.NotBlank;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -27,6 +31,13 @@ public class PaidNoticeController implements IPaidNoticeController {
         this.transactionService = transactionService;
     }
 
+    @Override
+	public ResponseEntity<NoticeDetailResponse> getPaidNoticeDetail(@NotBlank String fiscalCode,
+			@NotBlank String eventId) {
+    	return new ResponseEntity<>(
+                transactionService.getPaidNoticeDetail(fiscalCode, eventId),
+                HttpStatus.OK);
+	}
 
     @Override
     public ResponseEntity<NoticeListWrapResponse> getPaidNotices(String fiscalCode,
@@ -50,6 +61,4 @@ public class PaidNoticeController implements IPaidNoticeController {
         transactionService.disableTransaction(fiscalCode, transactionId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-
 }

@@ -1,6 +1,37 @@
 package it.gov.pagopa.bizeventsservice.controller;
 
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
@@ -14,30 +45,6 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.Utility;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -46,7 +53,6 @@ public class TransactionControllerTest {
     public static final String INVALID_FISCAL_CODE = "INVALID_TX_FISCAL_CODE";
     public static final String VALID_FISCAL_CODE = "AAAAAA00A00A000A";
     public static final String LIST_TRANSACTION_PATH = "/transactions";
-    public static final String LIST_CACHED_TRANSACTION_PATH = "/transactions/cached";
     public static final String FISCAL_CODE_HEADER_KEY = "x-fiscal-code";
     public static final String TRANSACTION_DETAILS_PATH = "/transactions/transaction-id";
     private static final String CONTINUATION_TOKEN_HEADER_KEY = "x-continuation-token";
@@ -82,7 +88,6 @@ public class TransactionControllerTest {
         TransactionListResponse transactionListResponse = TransactionListResponse.builder().transactionList(transactionListItems).build();
         TransactionDetailResponse transactionDetailResponse = Utility.readModelFromFile("biz-events/transactionDetails.json", TransactionDetailResponse.class);
         when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyString(), anyInt(), any(), any())).thenReturn(transactionListResponse);
-        when(transactionService.getCachedTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyInt(), anyInt(), any(), any())).thenReturn(transactionListResponse);
         when(transactionService.getTransactionDetails(anyString(), anyString())).thenReturn(transactionDetailResponse);
         when(transactionService.getPDFReceipt(anyString(), anyString())).thenReturn(receipt);
         Attachment attachmentDetail = mock (Attachment.class);
@@ -125,21 +130,6 @@ public class TransactionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
-    }
-    
-    @Test
-    void getCachedListTransactionShouldReturnData() throws Exception {
-        MvcResult result = mvc.perform(get(LIST_CACHED_TRANSACTION_PATH)
-                        .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
-                        .queryParam(SIZE_HEADER_KEY, SIZE)
-                        .queryParam(PAGE_HEADER_KEY, PAGE_NUM)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-        assertNotNull(result.getResponse().getContentAsString());
-        assertTrue(result.getResponse().getContentAsString().contains("b77d4987-a3e4-48d4-a2fd-af504f8b79e9"));
-        assertTrue(result.getResponse().getContentAsString().contains("100.0"));
     }
 
     @Test
