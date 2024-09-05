@@ -1,12 +1,7 @@
 package it.gov.pagopa.bizeventsservice.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
@@ -14,10 +9,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class AuthRequest {
-	private String authOutcome;
-	private String guid;
-	private String correlationId;
-	private String error;
-	@JsonProperty(value="auth_code")
-	private String authCode;
+    private String authOutcome;
+    private String guid;
+    private String correlationId;
+    private String error;
+    @JsonProperty(value = "auth_code")
+    private String authCode;
 }

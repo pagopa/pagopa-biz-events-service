@@ -1,14 +1,5 @@
 package it.gov.pagopa.bizeventsservice.controller;
 
-import javax.validation.constraints.NotBlank;
-
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,6 +10,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.gov.pagopa.bizeventsservice.model.ProblemJson;
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.validation.constraints.NotBlank;
 
 
 @Tag(name = "Payment Receipts REST APIs")
@@ -42,7 +41,7 @@ public interface IPaymentsController {
     @GetMapping(value = "/organizations/{organizationfiscalcode}/receipts/{iur}/paymentoptions/{iuv}",
             produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<CtReceiptModelResponse> getOrganizationReceipt(
-    		@Parameter(description = "The fiscal code of the Organization.", required = true)
+            @Parameter(description = "The fiscal code of the Organization.", required = true)
             @NotBlank @PathVariable("organizationfiscalcode") String organizationFiscalCode,
             @Parameter(description = "The unique reference of the operation assigned to the payment (Payment Token).", required = true)
             @NotBlank @PathVariable("iur") String iur,

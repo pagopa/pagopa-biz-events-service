@@ -648,6 +648,171 @@
         }
       } ]
     },
+    "/paids" : {
+      "get" : {
+        "tags" : [ "Paid Notice REST APIs" ],
+        "summary" : "Retrieve the paged transaction list from biz events.",
+        "description" : "This operation is deprecated. Use Paid Notice APIs instead",
+        "operationId" : "getPaidNotices",
+        "parameters" : [ {
+          "name" : "x-fiscal-code",
+          "in" : "header",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "x-continuation-token",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 10
+          }
+        }, {
+          "name" : "is_payer",
+          "in" : "query",
+          "description" : "Filter by payer",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "is_debtor",
+          "in" : "query",
+          "description" : "Filter by debtor",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "orderby",
+          "in" : "query",
+          "description" : "Order by TRANSACTION_DATE",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "TRANSACTION_DATE",
+            "enum" : [ "TRANSACTION_DATE" ]
+          }
+        }, {
+          "name" : "ordering",
+          "in" : "query",
+          "description" : "Direction of ordering",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "DESC",
+            "enum" : [ "ASC", "DESC" ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Obtained paid notices list.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              },
+              "x-continuation-token" : {
+                "description" : "continuation token for paginated query",
+                "style" : "simple",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NoticeListWrapResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Wrong or missing function key.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not found the fiscal code.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "429" : {
+            "description" : "Too many requests.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Service unavailable.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ApiKey" : [ ]
+        } ]
+      },
+      "parameters" : [ {
+        "name" : "X-Request-Id",
+        "in" : "header",
+        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+        "required" : false,
+        "schema" : {
+          "type" : "string"
+        }
+      } ]
+    },
     "/paids/{event-id}" : {
       "get" : {
         "tags" : [ "Paid Notice REST APIs" ],
@@ -870,152 +1035,11 @@
         }
       } ]
     },
-    "/paids/{event-id}/pdf" : {
-      "get" : {
-        "tags" : [ "Paid Notice REST APIs" ],
-        "summary" : "Retrieve the PDF receipt given event id.",
-        "operationId" : "generatePDF",
-        "parameters" : [ {
-          "name" : "x-fiscal-code",
-          "in" : "header",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "event-id",
-          "in" : "path",
-          "description" : "The id of the paid event.",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Obtained the PDF receipt.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              },
-              "Content-Disposition" : {
-                "description" : "Content disposition with name of the file",
-                "style" : "simple",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/pdf" : {
-                "schema" : {
-                  "type" : "string",
-                  "format" : "binary"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Wrong or missing function key.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/json" : { }
-            }
-          },
-          "404" : {
-            "description" : "Not found the receipt.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "422" : {
-            "description" : "Unprocessable receipt.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "429" : {
-            "description" : "Too many requests.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Service unavailable.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ApiKey" : [ ]
-        } ]
-      },
-      "parameters" : [ {
-        "name" : "X-Request-Id",
-        "in" : "header",
-        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-        "required" : false,
-        "schema" : {
-          "type" : "string"
-        }
-      } ]
-    },
     "/transactions" : {
       "get" : {
         "tags" : [ "IO Transactions REST APIs" ],
         "summary" : "Retrieve the paged transaction list from biz events.",
+        "description" : "This operation is deprecated. Use Paid Notice APIs instead",
         "operationId" : "getTransactionList",
         "parameters" : [ {
           "name" : "x-fiscal-code",
@@ -1162,6 +1186,7 @@
             }
           }
         },
+        "deprecated" : true,
         "security" : [ {
           "ApiKey" : [ ]
         } ]
@@ -1180,7 +1205,6 @@
       "get" : {
         "tags" : [ "IO Transactions REST APIs" ],
         "summary" : "Retrieve the PDF receipt given event id.",
-        "description" : "This operation is deprecated. Use Paid Notice APIs instead",
         "operationId" : "getPDFReceipt",
         "parameters" : [ {
           "name" : "x-fiscal-code",
@@ -1295,7 +1319,6 @@
             }
           }
         },
-        "deprecated" : true,
         "security" : [ {
           "ApiKey" : [ ]
         } ]
@@ -1734,6 +1757,48 @@
           },
           "maskedEmail" : {
             "type" : "string"
+          }
+        }
+      },
+      "NoticeListItem" : {
+        "required" : [ "amount", "eventId", "isCart", "isDebtor", "isPayer", "noticeDate", "payeeTaxCode" ],
+        "type" : "object",
+        "properties" : {
+          "eventId" : {
+            "type" : "string"
+          },
+          "payeeName" : {
+            "type" : "string"
+          },
+          "payeeTaxCode" : {
+            "type" : "string"
+          },
+          "amount" : {
+            "type" : "string"
+          },
+          "noticeDate" : {
+            "type" : "string"
+          },
+          "isCart" : {
+            "type" : "boolean"
+          },
+          "isPayer" : {
+            "type" : "boolean"
+          },
+          "isDebtor" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "NoticeListWrapResponse" : {
+        "required" : [ "notices" ],
+        "type" : "object",
+        "properties" : {
+          "notices" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/NoticeListItem"
+            }
           }
         }
       },

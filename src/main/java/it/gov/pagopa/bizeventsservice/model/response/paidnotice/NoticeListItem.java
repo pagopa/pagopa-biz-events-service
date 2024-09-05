@@ -3,7 +3,6 @@ package it.gov.pagopa.bizeventsservice.model.response.paidnotice;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
-import it.gov.pagopa.bizeventsservice.entity.view.UserDetail;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,28 +12,43 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
- * Response model for transaction detail API
+ * Response model for transaction list API
  */
-@Builder
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @JsonInclude(Include.NON_NULL)
-public class CartItem implements Serializable {
+public class NoticeListItem implements Serializable {
 
-    private static final long serialVersionUID = -6391592801925923358L;
     @Schema(required = true)
     @NotNull
-    private String subject;
+    private String eventId;
+
+    private String payeeName;
+
+    @Schema(required = true)
+    @NotNull
+    private String payeeTaxCode;
+
     @Schema(required = true)
     @NotNull
     private String amount;
-    private UserDetail payee;
-    private UserDetail debtor;
+
     @Schema(required = true)
     @NotNull
-    private String refNumberValue;
+    private String noticeDate;
+
     @Schema(required = true)
     @NotNull
-    private String refNumberType;
+    private Boolean isCart;
+
+    @Schema(required = true)
+    @NotNull
+    private Boolean isPayer;
+
+    @Schema(required = true)
+    @NotNull
+    @Builder.Default
+    private Boolean isDebtor = false;
 }

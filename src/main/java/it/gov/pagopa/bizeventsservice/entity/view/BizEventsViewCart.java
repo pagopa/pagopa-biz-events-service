@@ -8,7 +8,7 @@ import lombok.*;
 /**
  * Entity model for biz-events-view-cart
  */
-@Container(containerName = "${azure.cosmos.biz-events-view-cart-container-name}", autoCreateContainer = false, ru="1000")
+@Container(containerName = "${azure.cosmos.biz-events-view-cart-container-name}", autoCreateContainer = false, ru = "1000")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

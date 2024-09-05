@@ -13,17 +13,11 @@ import it.gov.pagopa.bizeventsservice.model.ProblemJson;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListWrapResponse;
-
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -40,8 +34,6 @@ public interface ITransactionController {
     String PAGE_NUMBER = "page";
 
     /**
-     * recovers biz-event data for the transaction list
-     *
      * @param fiscalCode        tokenized user fiscal code
      * @param isPayer           optional flag defining the filter to select only the notices where the user is the payer
      * @param isDebtor          optional flag defining the filter to select only the notices where the user is the debtor
@@ -50,6 +42,7 @@ public interface ITransactionController {
      * @param orderBy           optional parameter defining the sort field for the returned list, defaults to TRANSACTION_DATE
      * @param ordering          optional parameter defining the sorting direction of the returned list, defaults to DESC
      * @return the transaction list
+     * @deprecated recovers biz-event data for the transaction list
      */
     @GetMapping
     @ApiResponses(value = {
@@ -60,8 +53,9 @@ public interface ITransactionController {
             @ApiResponse(responseCode = "404", description = "Not found the transaction.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
-    @Operation(summary = "Retrieve the paged transaction list from biz events.", security = {
-            @SecurityRequirement(name = "ApiKey")}, operationId = "getTransactionList")
+    @Operation(summary = "Retrieve the paged transaction list from biz events.", description = "This operation is deprecated. Use Paid Notice APIs instead", security = {
+            @SecurityRequirement(name = "ApiKey")}, deprecated = true, operationId = "getTransactionList")
+    @Deprecated(forRemoval = false)
     ResponseEntity<TransactionListWrapResponse> getTransactionList(
             @RequestHeader(name = X_FISCAL_CODE) String fiscalCode,
             @Valid @Parameter(description = "Filter by payer") @RequestParam(value = "is_payer", required = false) Boolean isPayer,

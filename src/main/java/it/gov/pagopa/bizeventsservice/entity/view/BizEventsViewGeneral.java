@@ -13,7 +13,7 @@ import org.springframework.data.annotation.Id;
 /**
  * Entity model for biz-events-view-general
  */
-@Container(containerName = "${azure.cosmos.biz-events-view-general-container-name}", autoCreateContainer = false, ru="1000")
+@Container(containerName = "${azure.cosmos.biz-events-view-general-container-name}", autoCreateContainer = false, ru = "1000")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

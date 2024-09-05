@@ -34,8 +34,8 @@
           }
         } ],
         "responses" : {
-          "404" : {
-            "description" : "Not found the receipt.",
+          "429" : {
+            "description" : "Too many requests.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -43,11 +43,15 @@
                   "type" : "string"
                 }
               }
-            },
-            "content" : {
-              "application/json" : {
+            }
+          },
+          "401" : {
+            "description" : "Wrong or missing function key.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
                 "schema" : {
-                  "$ref" : "#/components/schemas/ProblemJson"
+                  "type" : "string"
                 }
               }
             }
@@ -70,6 +74,24 @@
               }
             }
           },
+          "200" : {
+            "description" : "Obtained receipt.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CtReceiptModelResponse"
+                }
+              }
+            }
+          },
           "422" : {
             "description" : "Unable to process the request.",
             "headers" : {
@@ -88,30 +110,8 @@
               }
             }
           },
-          "401" : {
-            "description" : "Wrong or missing function key.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
-          "429" : {
-            "description" : "Too many requests.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
-          "200" : {
-            "description" : "Obtained receipt.",
+          "404" : {
+            "description" : "Not found the receipt.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -123,7 +123,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/CtReceiptModelResponse"
+                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -174,8 +174,8 @@
           }
         } ],
         "responses" : {
-          "404" : {
-            "description" : "Not found the receipt.",
+          "429" : {
+            "description" : "Too many requests.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -183,11 +183,15 @@
                   "type" : "string"
                 }
               }
-            },
-            "content" : {
-              "application/json" : {
+            }
+          },
+          "401" : {
+            "description" : "Wrong or missing function key.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
                 "schema" : {
-                  "$ref" : "#/components/schemas/ProblemJson"
+                  "type" : "string"
                 }
               }
             }
@@ -210,6 +214,24 @@
               }
             }
           },
+          "200" : {
+            "description" : "Obtained receipt.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CtReceiptModelResponse"
+                }
+              }
+            }
+          },
           "422" : {
             "description" : "Unable to process the request.",
             "headers" : {
@@ -228,30 +250,8 @@
               }
             }
           },
-          "401" : {
-            "description" : "Wrong or missing function key.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
-          "429" : {
-            "description" : "Too many requests.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
-          "200" : {
-            "description" : "Obtained receipt.",
+          "404" : {
+            "description" : "Not found the receipt.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -263,7 +263,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/CtReceiptModelResponse"
+                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -290,19 +290,8 @@
         "description" : "Return OK if application is started",
         "operationId" : "healthCheck",
         "responses" : {
-          "429" : {
-            "description" : "Too many requests",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
-          "200" : {
-            "description" : "OK",
+          "500" : {
+            "description" : "Service unavailable",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -314,7 +303,18 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/AppInfo"
+                  "$ref" : "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
@@ -337,19 +337,8 @@
               }
             }
           },
-          "401" : {
-            "description" : "Unauthorized",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Service unavailable",
+          "200" : {
+            "description" : "OK",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -361,13 +350,24 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/ProblemJson"
+                  "$ref" : "#/components/schemas/AppInfo"
                 }
               }
             }
           },
-          "403" : {
-            "description" : "Forbidden",
+          "429" : {
+            "description" : "Too many requests",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
