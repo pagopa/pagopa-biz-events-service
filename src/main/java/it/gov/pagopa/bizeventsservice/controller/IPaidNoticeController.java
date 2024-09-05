@@ -13,7 +13,9 @@ import it.gov.pagopa.bizeventsservice.model.ProblemJson;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListWrapResponse;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -93,5 +95,20 @@ public interface IPaidNoticeController {
             @RequestHeader(X_FISCAL_CODE) @NotBlank String fiscalCode,
             @Parameter(description = "The id of the paid event.", required = true) @NotBlank @PathVariable("event-id") String eventId);
 
+    @Operation(summary = "Retrieve the PDF receipt given event id.", security = {
+            @SecurityRequirement(name = "ApiKey")}, operationId = "generatePDF")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Obtained the PDF receipt.",
+                    headers = {@Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "Content disposition with name of the file", schema = @Schema(type = "string"))},
+                    content = {@Content(mediaType = MediaType.APPLICATION_PDF_VALUE, schema = @Schema(implementation = Resource.class)),}),
+            @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "404", description = "Not found the receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
+            @ApiResponse(responseCode = "422", description = "Unprocessable receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
+            @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
+    @GetMapping(value = "/{event-id}/pdf", produces = {MediaType.APPLICATION_PDF_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    ResponseEntity<Resource> generatePDF(
+            @RequestHeader(X_FISCAL_CODE) @NotBlank String fiscalCode,
+            @Parameter(description = "The id of the paid event.", required = true) @NotBlank @PathVariable("event-id") String eventId);
 
 }

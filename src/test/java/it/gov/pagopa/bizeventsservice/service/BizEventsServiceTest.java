@@ -1,34 +1,29 @@
 package it.gov.pagopa.bizeventsservice.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import com.azure.cosmos.models.PartitionKey;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.mockito.Mock;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.service.impl.BizEventsService;
 import it.gov.pagopa.bizeventsservice.util.Utility;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.mockito.Mock;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 @TestMethodOrder(OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -108,7 +103,7 @@ class BizEventsServiceTest {
         when(bizEventsRepository.getBizEventByOrgFiscCodeAndIur(ORGANIZATION_FISCAL_CODE, IUR))
                 .thenReturn(List.of(bizEventEntity));
 
-        AppException e = assertThrows(AppException.class, () -> bizEventsService.getOrganizationReceipt(ORGANIZATION_FISCAL_CODE,"fake_iur"));
+        AppException e = assertThrows(AppException.class, () -> bizEventsService.getOrganizationReceipt(ORGANIZATION_FISCAL_CODE, "fake_iur"));
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
 
@@ -131,7 +126,7 @@ class BizEventsServiceTest {
         assertEquals(bizEvent, bizEventEntity);
     }
 
-	@Test
+    @Test
     void getBizEventFailNotFound() {
         when(bizEventsRepository.findById("fake id", new PartitionKey("fake id")))
                 .thenReturn(Optional.empty());
@@ -140,7 +135,7 @@ class BizEventsServiceTest {
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
 
-	@Test
+    @Test
     void getBizEventByOrgFiscalCodeAndIuvSuccess() {
         when(bizEventsRepository.getBizEventByOrgFiscalCodeAndIuv(ORGANIZATION_FISCAL_CODE, IUV))
                 .thenReturn(List.of(bizEventEntity));
@@ -151,7 +146,7 @@ class BizEventsServiceTest {
         assertEquals(bizEvent.getDebtorPosition().getIuv(), bizEventEntity.getDebtorPosition().getIuv());
     }
 
-	@Test
+    @Test
     void getBizEventByOrgFiscalCodeAndIuvFailNotFound() {
         when(bizEventsRepository.getBizEventByOrgFiscalCodeAndIuv(ORGANIZATION_FISCAL_CODE, IUV))
                 .thenReturn(Collections.emptyList());
@@ -160,7 +155,7 @@ class BizEventsServiceTest {
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
 
-	@Test
+    @Test
     void getBizEventByOrgFiscalCodeAndIuvFailNotUnique() {
         when(bizEventsRepository.getBizEventByOrgFiscalCodeAndIuv(ORGANIZATION_FISCAL_CODE, IUV))
                 .thenReturn(List.of(bizEventEntity, bizEventEntityDuplicated));

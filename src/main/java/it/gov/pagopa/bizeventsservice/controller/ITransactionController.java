@@ -108,7 +108,14 @@ public interface ITransactionController {
             @RequestHeader("x-fiscal-code") @NotBlank String fiscalCode,
             @Parameter(description = "The id of the transaction.", required = true) @NotBlank @PathVariable("transaction-id") String transactionId);
 
-    @Operation(summary = "Retrieve the PDF receipt given event id.", security = {
+    /**
+     * @deprecated
+     * @param fiscalCode
+     * @param eventId
+     * @return
+     */
+    @Operation(summary = "Retrieve the PDF receipt given event id.", deprecated = true,
+            description = "This operation is deprecated. Use Paid Notice APIs instead", security = {
             @SecurityRequirement(name = "ApiKey")}, operationId = "getPDFReceipt")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained the PDF receipt.", content = @Content(mediaType = MediaType.APPLICATION_PDF_VALUE, schema = @Schema(type = "string", format = "binary"))),
@@ -118,6 +125,7 @@ public interface ITransactionController {
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
     @GetMapping(value = "/{event-id}/pdf")
+    @Deprecated(forRemoval = false)
     ResponseEntity<byte[]> getPDFReceipt(
             @RequestHeader("x-fiscal-code") @NotBlank String fiscalCode,
             @Parameter(description = "The id of the event.", required = true) @NotBlank @PathVariable("event-id") String eventId);

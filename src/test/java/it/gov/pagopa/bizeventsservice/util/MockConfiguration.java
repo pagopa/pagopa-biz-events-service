@@ -23,16 +23,19 @@ public class MockConfiguration {
     BizEventsRepository bizEventsRepository() {
         return Mockito.mock(BizEventsRepository.class);
     }
+
     @Bean
     @Primary
     BizEventsViewUserRepository bizEventsViewUserRepository() {
         return Mockito.mock(BizEventsViewUserRepository.class);
     }
+
     @Bean
     @Primary
     BizEventsViewCartRepository bizEventsViewCartRepository() {
         return Mockito.mock(BizEventsViewCartRepository.class);
     }
+
     @Bean
     @Primary
     BizEventsViewGeneralRepository bizEventsViewGeneralRepository() {

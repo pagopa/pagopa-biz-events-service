@@ -1,15 +1,8 @@
 package it.gov.pagopa.bizeventsservice.controller;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.io.IOException;
-
+import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
+import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
+import it.gov.pagopa.bizeventsservice.util.Utility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -21,24 +14,30 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
-import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
-import it.gov.pagopa.bizeventsservice.util.Utility;
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 class PaymentsControllerTest {
-		
-	@Autowired
+
+    @Autowired
     private MockMvc mvc;
-	
-	@MockBean
+
+    @MockBean
     private IBizEventsService bizEventsService;
-	
-	@BeforeEach
+
+    @BeforeEach
     void setUp() throws IOException {
-		// precondition
-		CtReceiptModelResponse ctReceiptModel = Utility.readModelFromFile("receipts/getOrganizationReceipt.json", CtReceiptModelResponse.class);
+        // precondition
+        CtReceiptModelResponse ctReceiptModel = Utility.readModelFromFile("receipts/getOrganizationReceipt.json", CtReceiptModelResponse.class);
         when(bizEventsService.getOrganizationReceipt(anyString(), anyString(), anyString())).thenReturn(ctReceiptModel);
         when(bizEventsService.getOrganizationReceipt(anyString(), anyString())).thenReturn(ctReceiptModel);
     }

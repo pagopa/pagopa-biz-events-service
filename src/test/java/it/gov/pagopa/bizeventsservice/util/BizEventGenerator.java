@@ -1,9 +1,9 @@
 package it.gov.pagopa.bizeventsservice.util;
 
 import it.gov.pagopa.bizeventsservice.entity.*;
-import it.gov.pagopa.bizeventsservice.model.response.enumeration.StatusType;
 import it.gov.pagopa.bizeventsservice.entity.view.enumeration.OriginType;
 import it.gov.pagopa.bizeventsservice.entity.view.enumeration.PaymentMethodType;
+import it.gov.pagopa.bizeventsservice.model.response.enumeration.StatusType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,25 +76,25 @@ public class BizEventGenerator {
     public static final String TRANSFER_AMOUNT_MEDIUM = "20.00";
     public static final String TRANSFER_AMOUNT_LOWEST = "10.00";
 
-    public static BizEvent generateValidBizEvent(int index){
+    public static BizEvent generateValidBizEvent(int index) {
         return BizEvent.builder()
-                .id(BIZ_EVENT_ID+index)
+                .id(BIZ_EVENT_ID + index)
                 .idPaymentManager(BIZ_EVENT_ID)
                 .debtorPosition(DebtorPosition.builder()
-                        .iuv(IUV+index)
+                        .iuv(IUV + index)
                         .modelType(MODEL_TYPE_IUV_CODE)
                         .build())
                 .creditor(Creditor.builder()
-                        .companyName(COMPANY_NAME+index)
-                        .idPA(ID_PA+index)
+                        .companyName(COMPANY_NAME + index)
+                        .idPA(ID_PA + index)
                         .build())
                 .psp(Psp.builder()
                         .idPsp(ID_PSP)
                         .psp(PSP_NAME)
                         .build())
                 .debtor(Debtor.builder()
-                        .fullName(DEBTOR_FULL_NAME+index)
-                        .entityUniqueIdentifierValue(DEBTOR_VALID_CF+index)
+                        .fullName(DEBTOR_FULL_NAME + index)
+                        .entityUniqueIdentifierValue(DEBTOR_VALID_CF + index)
                         .build())
                 .payer(Payer.builder().fullName(PAYER_FULL_NAME).entityUniqueIdentifierValue(PAYER_VALID_CF).build())
                 .paymentInfo(PaymentInfo.builder()
@@ -147,7 +147,7 @@ public class BizEventGenerator {
                 .build();
     }
 
-    public static BizEvent generateValidBizEventModelTypeNotice(){
+    public static BizEvent generateValidBizEventModelTypeNotice() {
         return BizEvent.builder()
                 .id(BIZ_EVENT_ID)
                 .idPaymentManager(BIZ_EVENT_ID)
@@ -201,7 +201,7 @@ public class BizEventGenerator {
                 .build();
     }
 
-    public static BizEvent generateValidBizEventTimestampDSTSummer(){
+    public static BizEvent generateValidBizEventTimestampDSTSummer() {
         return BizEvent.builder()
                 .id(BIZ_EVENT_ID)
                 .idPaymentManager(BIZ_EVENT_ID)
@@ -254,7 +254,7 @@ public class BizEventGenerator {
                 .build();
     }
 
-    public static BizEvent generateValidBizEventTimestampMillisecondsDSTWinter(){
+    public static BizEvent generateValidBizEventTimestampMillisecondsDSTWinter() {
         return BizEvent.builder()
                 .id(BIZ_EVENT_ID)
                 .idPaymentManager(BIZ_EVENT_ID)
@@ -307,7 +307,7 @@ public class BizEventGenerator {
                 .build();
     }
 
-    public static BizEvent generateValidBizEventTimestampMillisecondsDSTSummer(){
+    public static BizEvent generateValidBizEventTimestampMillisecondsDSTSummer() {
         return BizEvent.builder()
                 .id(BIZ_EVENT_ID)
                 .idPaymentManager(BIZ_EVENT_ID)
@@ -360,9 +360,9 @@ public class BizEventGenerator {
                 .build();
     }
 
-    public static List<BizEvent> generateListOfValidBizEvents(int numberOfBizEvents){
+    public static List<BizEvent> generateListOfValidBizEvents(int numberOfBizEvents) {
         List<BizEvent> bizEventList = new ArrayList<>();
-        for(int i = 0; i < numberOfBizEvents; i++){
+        for (int i = 0; i < numberOfBizEvents; i++) {
             bizEventList.add(generateValidBizEvent(i));
         }
 

@@ -1,5 +1,8 @@
 package it.gov.pagopa.bizeventsservice.exception;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import it.gov.pagopa.bizeventsservice.model.ProblemJson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
@@ -142,6 +145,17 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponse, ex.getHttpStatus());
     }
 
+    @ExceptionHandler({FeignException.class})
+    public ResponseEntity<ProblemJson> handleFeignException(final FeignException ex, final WebRequest request) throws JsonProcessingException {
+        log.error("FeignException raised:", ex);
+        ProblemJson body = new ObjectMapper().readValue(ex.contentUTF8(), ProblemJson.class);
+        var errorResponse = ProblemJson.builder()
+                .status(body.getStatus())
+                .title("A dependency returned an error: " + body.getTitle())
+                .detail(body.getDetail())
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(ex.status()));
+    }
 
     /**
      * Handle if a {@link Exception} is raised

@@ -31,9 +31,9 @@ public class ViewGenerator {
     public static final String REF_NUMBER_TYPE = "refNumberType";
     public static final String REF_NUMBER_VALUE = "refNumberValue";
 
-    public static BizEventsViewUser generateBizEventsViewUser(){
+    public static BizEventsViewUser generateBizEventsViewUser() {
         return BizEventsViewUser.builder()
-        		.id(EVENT_ID)
+                .id(EVENT_ID)
                 .taxCode(USER_TAX_CODE_WITH_TX)
                 .transactionId(TRANSACTION_ID)
                 .transactionDate(TRANSACTION_DATE)
@@ -43,46 +43,46 @@ public class ViewGenerator {
                 .build();
     }
 
-    public static List<BizEventsViewUser> generateListOfFiveBizEventsViewUser(){
+    public static List<BizEventsViewUser> generateListOfFiveBizEventsViewUser() {
         List<BizEventsViewUser> listOfViewUser = new ArrayList<>();
-        for(int i = 0; i < 5; i++){
+        for (int i = 0; i < 5; i++) {
             BizEventsViewUser viewUser = generateBizEventsViewUser();
-            viewUser.setTransactionId(viewUser.getTransactionId()+i);
+            viewUser.setTransactionId(viewUser.getTransactionId() + i);
             listOfViewUser.add(viewUser);
         }
         return listOfViewUser;
     }
-    
-    public static List<BizEventsViewUser> generateListOf95MixedBizEventsViewUser(){
+
+    public static List<BizEventsViewUser> generateListOf95MixedBizEventsViewUser() {
         List<BizEventsViewUser> listOfViewUser = new ArrayList<>();
-        for(int i = 0; i < 85; i++){
+        for (int i = 0; i < 85; i++) {
             BizEventsViewUser viewUser = generateBizEventsViewUser();
-            viewUser.setTransactionId(viewUser.getTransactionId()+"_nocart_"+i);
+            viewUser.setTransactionId(viewUser.getTransactionId() + "_nocart_" + i);
             viewUser.setTransactionDate("2024-06-08T12:07:46Z");
             listOfViewUser.add(viewUser);
         }
-        for(int i = 0; i < 5; i++){
+        for (int i = 0; i < 5; i++) {
             BizEventsViewUser viewUser = generateBizEventsViewUser();
-            viewUser.setTransactionId(viewUser.getTransactionId()+"_cart_1");
+            viewUser.setTransactionId(viewUser.getTransactionId() + "_cart_1");
             viewUser.setTransactionDate("2024-06-12T11:07:46Z");
             listOfViewUser.add(viewUser);
         }
-        for(int i = 0; i < 3; i++){
+        for (int i = 0; i < 3; i++) {
             BizEventsViewUser viewUser = generateBizEventsViewUser();
-            viewUser.setTransactionId(viewUser.getTransactionId()+"_cart_2");
+            viewUser.setTransactionId(viewUser.getTransactionId() + "_cart_2");
             viewUser.setTransactionDate("2024-06-10T11:07:46Z");
             listOfViewUser.add(viewUser);
         }
-        for(int i = 0; i < 2; i++){
+        for (int i = 0; i < 2; i++) {
             BizEventsViewUser viewUser = generateBizEventsViewUser();
-            viewUser.setTransactionId(viewUser.getTransactionId()+"_cart_3");
+            viewUser.setTransactionId(viewUser.getTransactionId() + "_cart_3");
             viewUser.setTransactionDate("2024-06-07T11:07:46Z");
             listOfViewUser.add(viewUser);
         }
         return listOfViewUser;
     }
 
-    public static BizEventsViewGeneral generateBizEventsViewGeneral(){
+    public static BizEventsViewGeneral generateBizEventsViewGeneral() {
         return BizEventsViewGeneral.builder()
                 .transactionId(TRANSACTION_ID)
                 .authCode(AUTH_CODE)
@@ -105,7 +105,7 @@ public class ViewGenerator {
                 .build();
     }
 
-    public static BizEventsViewCart generateBizEventsViewCart(){
+    public static BizEventsViewCart generateBizEventsViewCart() {
         return BizEventsViewCart.builder()
                 .transactionId(TRANSACTION_ID)
                 .eventId(EVENT_ID)
