@@ -177,7 +177,7 @@ public class TransactionService implements ITransactionService {
                 .ok()
                 .contentLength(receiptFile.length)
                 .contentType(MediaType.APPLICATION_PDF)
-                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline().filename(name).build().toString())
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline().filename(Optional.ofNullable(name).orElse("Receipt.pdf")).build().toString())
                 .body(new ByteArrayResource(receiptFile));
     }
 
