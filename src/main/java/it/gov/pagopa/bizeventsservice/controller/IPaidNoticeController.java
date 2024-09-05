@@ -13,7 +13,9 @@ import it.gov.pagopa.bizeventsservice.model.ProblemJson;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListWrapResponse;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -28,8 +30,9 @@ import javax.validation.constraints.NotBlank;
 @Validated
 public interface IPaidNoticeController {
     String X_FISCAL_CODE = "x-fiscal-code";
-String X_CONTINUATION_TOKEN = "x-continuation-token";
+    String X_CONTINUATION_TOKEN = "x-continuation-token";
     String PAGE_SIZE = "size";
+
     /**
      * @param fiscalCode
      * @param eventId

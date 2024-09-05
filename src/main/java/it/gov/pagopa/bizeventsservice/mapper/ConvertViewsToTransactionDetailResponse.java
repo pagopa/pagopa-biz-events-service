@@ -29,6 +29,7 @@ public class ConvertViewsToTransactionDetailResponse {
     private static final List<String> LIST_RECEIPT_DATE_FORMAT_IN = List.of("yyyy-MM-dd'T'HH:mm:ss");
     private static final String RECEIPT_DATE_FORMAT_OUT = "yyyy-MM-dd'T'HH:mm:ssX";
     private static String payeeCartName;
+
     private ConvertViewsToTransactionDetailResponse() {
     }
 

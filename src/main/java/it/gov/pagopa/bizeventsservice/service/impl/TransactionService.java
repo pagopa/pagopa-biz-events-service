@@ -21,20 +21,6 @@ import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import it.gov.pagopa.bizeventsservice.util.Constants;
-import it.gov.pagopa.bizeventsservice.util.Util;
-
-import org.apache.commons.lang3.SerializationUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -47,13 +33,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -181,10 +161,10 @@ public class TransactionService implements ITransactionService {
         bizEventsViewUserRepository.saveAll(listOfViewUser);
     }
 
-	@Override
-	public byte[] getPDFReceipt(String fiscalCode, String eventId) {
-		return this.acquirePDFReceipt(fiscalCode, eventId);
-	}
+    @Override
+    public byte[] getPDFReceipt(String fiscalCode, String eventId) {
+        return this.acquirePDFReceipt(fiscalCode, eventId);
+    }
 
     @Override
     public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, String eventId) {
@@ -202,7 +182,7 @@ public class TransactionService implements ITransactionService {
     }
 
     private byte[] acquirePDFReceipt(String fiscalCode, String eventId) {
-		String url = getAttachmentDetails(fiscalCode, eventId).getAttachments().get(0).getUrl();
+        String url = getAttachmentDetails(fiscalCode, eventId).getAttachments().get(0).getUrl();
         return this.getAttachmentFile(fiscalCode, eventId, url);
     }
 
@@ -217,14 +197,14 @@ public class TransactionService implements ITransactionService {
     }
 
     private byte[] getAttachmentFile(String fiscalCode, String eventId, String url) {
-    	try {
-    		// call the receipt-pdf-service to retrieve the PDF receipt attachment
-    		return receiptClient.getReceipt(fiscalCode, eventId, url);
-    	} catch (FeignException.NotFound e) {
-    		// re-generate the PDF receipt and return the generated file by getReceipt call
-    		generateReceiptClient.generateReceipt(eventId, "false", "{}");
-    		return receiptClient.getReceipt(fiscalCode, eventId, url);
-    	}
+        try {
+            // call the receipt-pdf-service to retrieve the PDF receipt attachment
+            return receiptClient.getReceipt(fiscalCode, eventId, url);
+        } catch (FeignException.NotFound e) {
+            // re-generate the PDF receipt and return the generated file by getReceipt call
+            generateReceiptClient.generateReceipt(eventId, "false", "{}");
+            return receiptClient.getReceipt(fiscalCode, eventId, url);
+        }
     }
 
 

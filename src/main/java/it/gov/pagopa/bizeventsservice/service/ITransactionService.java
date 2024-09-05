@@ -1,12 +1,10 @@
 package it.gov.pagopa.bizeventsservice.service;
 
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Sort.Direction;
-
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 
@@ -29,8 +27,6 @@ public interface ITransactionService {
     byte[] getPDFReceipt(String fiscalCode, String eventId);
 
     ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, String eventId);
-
-    byte[] getPDFReceipt(String fiscalCode, String eventId);
 
     void disableTransaction(String fiscalCode, String transactionId);
 }
