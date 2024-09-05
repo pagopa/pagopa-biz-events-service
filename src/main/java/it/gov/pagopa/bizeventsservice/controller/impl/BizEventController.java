@@ -1,15 +1,14 @@
 package it.gov.pagopa.bizeventsservice.controller.impl;
 
-import javax.validation.constraints.NotBlank;
-
+import it.gov.pagopa.bizeventsservice.controller.IBizEventController;
+import it.gov.pagopa.bizeventsservice.entity.BizEvent;
+import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import it.gov.pagopa.bizeventsservice.controller.IBizEventController;
-import it.gov.pagopa.bizeventsservice.entity.BizEvent;
-import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
+import javax.validation.constraints.NotBlank;
 
 @RestController
 public class BizEventController implements IBizEventController {

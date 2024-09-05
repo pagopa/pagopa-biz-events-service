@@ -27,8 +27,8 @@ public class OpenApiConfig {
 
     @Bean
     OpenAPI customOpenAPI(@Value("${info.application.name}") String appTitle,
-                                 @Value("${info.application.description}") String appDescription,
-                                 @Value("${info.application.version}") String appVersion) {
+                          @Value("${info.application.description}") String appDescription,
+                          @Value("${info.application.version}") String appVersion) {
         return new OpenAPI()
                 .components(new Components()
                         .addSecuritySchemes("ApiKey", new SecurityScheme()
@@ -68,7 +68,7 @@ public class OpenApiConfig {
         return openApi -> openApi.getPaths().forEach((key, value) -> {
 
             // add Request-ID as request header        	
-        	var header = Optional.ofNullable(value.getParameters())
+            var header = Optional.ofNullable(value.getParameters())
                     .orElse(Collections.emptyList())
                     .parallelStream()
                     .filter(Objects::nonNull)

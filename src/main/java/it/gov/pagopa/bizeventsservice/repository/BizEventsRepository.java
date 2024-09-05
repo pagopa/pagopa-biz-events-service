@@ -1,15 +1,13 @@
 package it.gov.pagopa.bizeventsservice.repository;
 
-import java.util.List;
-import java.util.Map;
-
+import com.azure.spring.data.cosmos.repository.CosmosRepository;
+import com.azure.spring.data.cosmos.repository.Query;
+import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.azure.spring.data.cosmos.repository.CosmosRepository;
-import com.azure.spring.data.cosmos.repository.Query;
-
-import it.gov.pagopa.bizeventsservice.entity.BizEvent;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface BizEventsRepository extends CosmosRepository<BizEvent, String> {
@@ -25,13 +23,13 @@ public interface BizEventsRepository extends CosmosRepository<BizEvent, String> 
 
     @Query("select distinct value c from c JOIN t IN c.transferList where t.fiscalCodePA = @organizationFiscalCode and (c.paymentInfo.paymentToken = @iur or c.debtorPosition.iur = @iur) and StringToNumber(c.debtorPosition.modelType) > 1")
     List<BizEvent> getBizEventByOrgFiscCodeAndIur(@Param("organizationFiscalCode") String organizationFiscalCode,
-                                                     @Param("iur") String iur);
+                                                  @Param("iur") String iur);
 
     @Query("select * from c where c.id = @bizEventId and (c.debtor.entityUniqueIdentifierValue = @fiscalCode or c.payer.entityUniqueIdentifierValue = @fiscalCode or c.transactionDetails.user.fiscalCode = @fiscalCode)")
     List<BizEvent> getBizEventByFiscalCodeAndId(@Param("fiscalCode") String fiscalCode, @Param("bizEventId") String bizEvent);
 
     @Query("select * from c where c.transactionDetails.transaction.transactionId = @transactionId and (c.debtor.entityUniqueIdentifierValue = @fiscalCode or c.payer.entityUniqueIdentifierValue = @fiscalCode or c.transactionDetails.user.fiscalCode = @fiscalCode)")
-    List<BizEvent> getBizEventByFiscalCodeAndTransactionId( @Param("fiscalCode") String fiscalCode, @Param("transactionId") String transactionId);
+    List<BizEvent> getBizEventByFiscalCodeAndTransactionId(@Param("fiscalCode") String fiscalCode, @Param("transactionId") String transactionId);
 
     @Query("select distinct" +
             " c.paymentInfo.totalNotice != \"1\" ? " +
@@ -56,9 +54,9 @@ public interface BizEventsRepository extends CosmosRepository<BizEvent, String> 
             @Param("size") Integer size);
 
     @Query(" select c.transactionDetails.transaction.grandTotal as grandTotal," +
-           " c.paymentInfo.amount as amount" +
-           " from c" +
-           " where c.transactionDetails.transaction.transactionId = @transactionToRecover")
+            " c.paymentInfo.amount as amount" +
+            " from c" +
+            " where c.transactionDetails.transaction.transactionId = @transactionToRecover")
     List<Map<String, Object>> getCartData(
             @Param("transactionToRecover") String transactionToRecover
     );

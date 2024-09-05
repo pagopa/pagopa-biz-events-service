@@ -29,24 +29,24 @@ public class TransactionController implements ITransactionController {
     private final IBizEventsService bizEventsService;
 
     @Autowired
-    public TransactionController(ITransactionService transactionService, IBizEventsService bizEventsService, 
-    		IReceiptGetPDFClient receiptClient, IReceiptGeneratePDFClient generateReceiptClient) {
+    public TransactionController(ITransactionService transactionService, IBizEventsService bizEventsService,
+                                 IReceiptGetPDFClient receiptClient, IReceiptGeneratePDFClient generateReceiptClient) {
         this.transactionService = transactionService;
         this.bizEventsService = bizEventsService;
     }
 
-   
+
     @Override
-    public ResponseEntity<TransactionListWrapResponse> getTransactionList(String fiscalCode, Boolean isPayer, Boolean isDebtor, 
-    		String continuationToken, Integer size, TransactionListOrder orderBy, Direction ordering) {
-        TransactionListResponse transactionListResponse = transactionService.getTransactionList(fiscalCode, isPayer, isDebtor, 
-        		continuationToken, size, orderBy, ordering);
+    public ResponseEntity<TransactionListWrapResponse> getTransactionList(String fiscalCode, Boolean isPayer, Boolean isDebtor,
+                                                                          String continuationToken, Integer size, TransactionListOrder orderBy, Direction ordering) {
+        TransactionListResponse transactionListResponse = transactionService.getTransactionList(fiscalCode, isPayer, isDebtor,
+                continuationToken, size, orderBy, ordering);
 
         return ResponseEntity.ok()
                 .header(X_CONTINUATION_TOKEN, transactionListResponse.getContinuationToken())
                 .body(TransactionListWrapResponse.builder().transactions(transactionListResponse.getTransactionList()).build());
     }
-    
+
 
     @Override
     public ResponseEntity<TransactionDetailResponse> getTransactionDetails(String fiscalCode, String eventReference) {
@@ -63,16 +63,16 @@ public class TransactionController implements ITransactionController {
 
     @Override
     public ResponseEntity<byte[]> getPDFReceipt(@NotBlank String fiscalCode, @NotBlank String eventId) {
-    	// to check if is an OLD event present only on the PM --> the receipt is not available for events present exclusively on the PM
-    	bizEventsService.getBizEvent(eventId);
-    	byte[] receiptFile = transactionService.getPDFReceipt(fiscalCode, eventId);
-    	return ResponseEntity
-				.ok()
-				.contentLength(receiptFile.length)
-				.contentType(MediaType.APPLICATION_PDF)
-				.header("content-disposition", "filename=receipt")
-				.body(receiptFile);
+        // to check if is an OLD event present only on the PM --> the receipt is not available for events present exclusively on the PM
+        bizEventsService.getBizEvent(eventId);
+        byte[] receiptFile = transactionService.getPDFReceipt(fiscalCode, eventId);
+        return ResponseEntity
+                .ok()
+                .contentLength(receiptFile.length)
+                .contentType(MediaType.APPLICATION_PDF)
+                .header("content-disposition", "filename=receipt")
+                .body(receiptFile);
     }
 
-	
+
 }
