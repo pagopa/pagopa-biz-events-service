@@ -1,5 +1,16 @@
 package it.gov.pagopa.bizeventsservice.controller;
 
+import javax.validation.constraints.NotBlank;
+
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -10,6 +21,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.gov.pagopa.bizeventsservice.model.ProblemJson;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +37,25 @@ import javax.validation.constraints.NotBlank;
 @Validated
 public interface IPaidNoticeController {
     String X_FISCAL_CODE = "x-fiscal-code";
+
+    /**
+     * @param fiscalCode
+     * @param eventId
+     * @return the paid notice detail
+     */
+    @Operation(summary = "Retrieve the paid notice details given its id.", security = {
+            @SecurityRequirement(name = "ApiKey")}, operationId = "getPaidNoticeDetail")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Obtained paid notice detail.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "NoticeDetailResponse", implementation = NoticeDetailResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "404", description = "Not found the transaction.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
+            @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
+    @GetMapping(value = "/{event-id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<NoticeDetailResponse> getPaidNoticeDetail(
+            @RequestHeader("x-fiscal-code") @NotBlank String fiscalCode,
+            @Parameter(description = "The id of the paid event.", required = true) @NotBlank @PathVariable("event-id") String eventId);
 
     @Operation(summary = "Disable the paid notice details given its id.", security = {
             @SecurityRequirement(name = "ApiKey")}, operationId = "disablePaidNotice")

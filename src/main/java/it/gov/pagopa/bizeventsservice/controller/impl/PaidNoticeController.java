@@ -1,8 +1,12 @@
 package it.gov.pagopa.bizeventsservice.controller.impl;
 
 import it.gov.pagopa.bizeventsservice.controller.IPaidNoticeController;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
+
+import javax.validation.constraints.NotBlank;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -27,6 +31,13 @@ public class PaidNoticeController implements IPaidNoticeController {
         this.bizEventsService = bizEventsService;
     }
 
+    @Override
+	public ResponseEntity<NoticeDetailResponse> getPaidNoticeDetail(@NotBlank String fiscalCode,
+			@NotBlank String eventId) {
+    	return new ResponseEntity<>(
+                transactionService.getPaidNoticeDetail(fiscalCode, eventId),
+                HttpStatus.OK);
+	}
 
     @Override
     public ResponseEntity<Void> disablePaidNotice(String fiscalCode, String transactionId) {
