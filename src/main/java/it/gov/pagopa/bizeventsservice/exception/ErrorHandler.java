@@ -1,5 +1,6 @@
 package it.gov.pagopa.bizeventsservice.exception;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import it.gov.pagopa.bizeventsservice.model.ProblemJson;
@@ -145,24 +146,15 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({FeignException.class})
-    public ResponseEntity<ProblemJson> handleFeignException(final FeignException ex, final WebRequest request) {
+    public ResponseEntity<ProblemJson> handleFeignException(final FeignException ex, final WebRequest request) throws JsonProcessingException {
         log.error("FeignException raised:", ex);
-        try {
-            ProblemJson body = new ObjectMapper().readValue(ex.contentUTF8(), ProblemJson.class);
-            var errorResponse = ProblemJson.builder()
-                    .status(body.getStatus())
-                    .title("A dependency returned an error: " + body.getTitle())
-                    .detail(body.getDetail())
-                    .build();
-            return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(ex.status()));
-        } catch (Exception e) {
-            var errorResponse = ProblemJson.builder()
-                    .status(HttpStatus.BAD_GATEWAY.value())
-                    .title("A dependency returned an error")
-                    .detail(ex.getMessage())
-                    .build();
-            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_GATEWAY);
-        }
+        ProblemJson body = new ObjectMapper().readValue(ex.contentUTF8(), ProblemJson.class);
+        var errorResponse = ProblemJson.builder()
+                .status(body.getStatus())
+                .title("A dependency returned an error: " + body.getTitle())
+                .detail(body.getDetail())
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(ex.status()));
     }
 
     /**
