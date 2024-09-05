@@ -1487,6 +1487,7 @@
         }
       },
       "CartItem" : {
+        "required" : [ "amount", "refNumberType", "refNumberValue", "subject" ],
         "type" : "object",
         "properties" : {
           "subject" : {
@@ -1564,6 +1565,7 @@
         }
       },
       "UserDetail" : {
+        "required" : [ "taxCode" ],
         "type" : "object",
         "properties" : {
           "name" : {
@@ -1592,6 +1594,7 @@
         }
       },
       "InfoNotice" : {
+        "required" : [ "amount", "eventId", "noticeDate", "origin", "pspName", "rrn" ],
         "type" : "object",
         "properties" : {
           "eventId" : {

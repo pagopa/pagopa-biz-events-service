@@ -11,8 +11,12 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Response model for transaction detail API
@@ -28,15 +32,27 @@ public class InfoNotice implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -5306955320137743890L;
+	@Schema(required = true)
+    @NotNull
 	private String eventId;
     private String authCode;
+    @Schema(required = true)
+    @NotNull
     private String rrn;
+    @Schema(required = true)
+    @NotNull
     private String noticeDate;
+    @Schema(required = true)
+    @NotNull
     private String pspName;
     private WalletInfo walletInfo;
     private PaymentMethodType paymentMethod;
     private UserDetail payer;
+    @Schema(required = true)
+    @NotNull
     private String amount;
     private String fee;
+    @Schema(required = true)
+    @NotNull
     private OriginType origin;
 }

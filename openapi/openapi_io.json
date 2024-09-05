@@ -235,17 +235,6 @@
               }
             }
           },
-          "429" : {
-            "description" : "Too many requests.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
           "200" : {
             "description" : "Obtained transaction list.",
             "headers" : {
@@ -267,6 +256,17 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/TransactionListWrapResponse"
+                }
+              }
+            }
+          },
+          "429" : {
+            "description" : "Too many requests.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
@@ -814,6 +814,7 @@
         }
       },
       "UserDetail" : {
+        "required" : [ "taxCode" ],
         "type" : "object",
         "properties" : {
           "name" : {
