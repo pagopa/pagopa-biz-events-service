@@ -108,6 +108,12 @@ public interface ITransactionController {
             @RequestHeader("x-fiscal-code") @NotBlank String fiscalCode,
             @Parameter(description = "The id of the transaction.", required = true) @NotBlank @PathVariable("transaction-id") String transactionId);
 
+    /**
+     * @deprecated
+     * @param fiscalCode
+     * @param eventId
+     * @return
+     */
     @Operation(summary = "Retrieve the PDF receipt given event id.", deprecated = true,
             description = "This operation is deprecated. Use Paid Notice APIs instead", security = {
             @SecurityRequirement(name = "ApiKey")}, operationId = "getPDFReceipt")

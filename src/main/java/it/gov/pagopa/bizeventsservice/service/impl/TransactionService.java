@@ -34,7 +34,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class TransactionService implements ITransactionService {
@@ -74,7 +73,7 @@ public class TransactionService implements ITransactionService {
         List<BizEventsViewUser> listOfViewUser = page.getContent().stream()
                 .sorted(Comparator.comparing(BizEventsViewUser::getIsDebtor, Comparator.reverseOrder()))
                 .filter(p -> set.add(p.getTransactionId()))
-                .collect(Collectors.toList())
+                .toList()
                 .stream()
                 .sorted(Comparator.comparing(BizEventsViewUser::getTransactionDate, Comparator.reverseOrder()))
                 .toList();
