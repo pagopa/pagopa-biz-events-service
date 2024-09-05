@@ -73,36 +73,11 @@ public interface ITransactionController {
 
 
     /**
-     * recovers biz-event data for the transaction list
-     *
-     * @param fiscalCode tokenized user fiscal code
-     * @param isPayer    optional flag defining the filter to select only the notices where the user is the payer
-     * @param isDebtor   optional flag defining the filter to select only the notices where the user is the debtor
-     * @param page       optional parameter defining page number, default to 0 (first page)
-     * @param size       optional parameter defining page size, defaults to 10
-     * @param orderBy    optional parameter defining the sort field for the returned list, defaults to TRANSACTION_DATE
-     * @param ordering   optional parameter defining the sorting direction of the returned list, defaults to DESC
-     * @return the transaction list
+     * @param fiscalCode
+     * @param transactionId
+     * @return the transaction details
+     * @deprecated
      */
-    @GetMapping(value = "/cached", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Obtained transaction list.",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "TransactionListWrapResponse", implementation = TransactionListWrapResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
-            @ApiResponse(responseCode = "404", description = "Not found the transaction.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
-            @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
-            @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
-    @Operation(summary = "Retrieve the paged transaction list from biz events.", security = {
-            @SecurityRequirement(name = "ApiKey")}, operationId = "getTransactionList")
-    ResponseEntity<TransactionListWrapResponse> getCachedTransactionList(
-            @RequestHeader(name = X_FISCAL_CODE) String fiscalCode,
-            @Valid @Parameter(description = "Filter by payer") @RequestParam(value = "is_payer", required = false) Boolean isPayer,
-            @Valid @Parameter(description = "Filter by debtor") @RequestParam(value = "is_debtor", required = false) Boolean isDebtor,
-            @RequestParam(name = PAGE_NUMBER, required = false, defaultValue = "0") Integer page,
-            @RequestParam(name = PAGE_SIZE, required = false, defaultValue = "10") Integer size,
-            @RequestParam(required = false, name = "orderby", defaultValue = "TRANSACTION_DATE") @Parameter(description = "Order by TRANSACTION_DATE") Order.TransactionListOrder orderBy,
-            @RequestParam(required = false, name = "ordering", defaultValue = "DESC") @Parameter(description = "Direction of ordering") Sort.Direction ordering);
-
     @Operation(summary = "Retrieve the transaction details given its id.", security = {
             @SecurityRequirement(name = "ApiKey")}, operationId = "getTransactionDetails")
     @ApiResponses(value = {
@@ -113,6 +88,7 @@ public interface ITransactionController {
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
     @GetMapping(value = "/{transaction-id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Deprecated(forRemoval = false)
     ResponseEntity<TransactionDetailResponse> getTransactionDetails(
             @RequestHeader("x-fiscal-code") @NotBlank String fiscalCode,
             @Parameter(description = "The id of the transaction.", required = true) @NotBlank @PathVariable("transaction-id") String transactionId);

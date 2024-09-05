@@ -1,5 +1,39 @@
 package it.gov.pagopa.bizeventsservice.service;
 
+import static it.gov.pagopa.bizeventsservice.util.ViewGenerator.generateBizEventsViewUser;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ContextConfiguration;
+
 import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 
 import feign.FeignException;
@@ -13,36 +47,16 @@ import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 import it.gov.pagopa.bizeventsservice.model.response.Attachment;
 import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.CartItem;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.InfoTransactionView;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
+import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
-import it.gov.pagopa.bizeventsservice.repository.redis.RedisRepository;
 import it.gov.pagopa.bizeventsservice.service.impl.TransactionService;
-import it.gov.pagopa.bizeventsservice.util.Util;
 import it.gov.pagopa.bizeventsservice.util.ViewGenerator;
-
-import org.apache.commons.lang3.SerializationUtils;
-import org.junit.jupiter.api.*;
-import org.mockito.ArgumentCaptor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.http.HttpStatus;
-import org.springframework.test.context.ContextConfiguration;
-
-import java.io.Serializable;
-import java.util.*;
-
-import static it.gov.pagopa.bizeventsservice.util.ViewGenerator.generateBizEventsViewUser;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -66,8 +80,6 @@ public class TransactionServiceTest {
     @MockBean
     private BizEventsViewCartRepository bizEventsViewCartRepository;
     @MockBean
-    private RedisRepository redisRepository;
-    @MockBean
     private IReceiptGetPDFClient receiptClient;
     @MockBean
     private IReceiptGeneratePDFClient generateReceiptClient;
@@ -83,7 +95,7 @@ public class TransactionServiceTest {
     @BeforeEach
     void setUp() {
         transactionService = spy(new TransactionService(bizEventsViewGeneralRepository, bizEventsViewCartRepository, bizEventsViewUserRepository, 
-        		redisRepository, receiptClient, generateReceiptClient));
+        		receiptClient, generateReceiptClient));
         Attachment attachmentDetail = mock (Attachment.class);
         AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();   
         when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
@@ -321,174 +333,6 @@ public class TransactionServiceTest {
                         transactionService.getTransactionDetails(
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
         Assertions.assertEquals(HttpStatus.NOT_FOUND, appException.getHttpStatus());
-    }
-    
-    @Test
-    void notCachedTaxCodeWithEventsShouldReturnTransactionListDESC() {
-        List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOf95MixedBizEventsViewUser();
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(ViewGenerator.USER_TAX_CODE_WITH_TX)).thenReturn(listOfViewUser);
-        List<BizEventsViewCart> listOfSingleViewCart = Collections.singletonList(ViewGenerator.generateBizEventsViewCart());
-        List<BizEventsViewCart> listOfMultiViewCart = ViewGenerator.generateListOfFiveViewCart();
-        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(contains("_cart_"), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
-                .thenReturn(listOfMultiViewCart);
-        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(contains("_nocart"), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
-        .thenReturn(listOfSingleViewCart);
-        // taxcode is not in cache
-        when(redisRepository.get(anyString())).thenReturn(null);
-        
-        
-        // invoke service to get first page - DESC ORDER
-        TransactionListResponse transactionListResponse =
-                Assertions.assertDoesNotThrow(() ->
-                transactionService.getCachedTransactionList(
-                        ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, PAGE_NUMBER, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
-        Assertions.assertEquals(PAGE_NUMBER, transactionListResponse.getPageInfo().getPage());
-        Assertions.assertEquals(18, transactionListResponse.getPageInfo().getTotalPages());
-        Assertions.assertEquals(PAGE_SIZE, transactionListResponse.getPageInfo().getLimit());
-        Assertions.assertEquals(88, transactionListResponse.getPageInfo().getItemsFound());
-        List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
-        Assertions.assertNotNull(transactionListItems);
-        Assertions.assertEquals(5, transactionListItems.size());
-        Assertions.assertEquals("2024-06-12T11:07:46Z", transactionListItems.get(0).getTransactionDate());
-        
-        // invoke service to get last page - DESC ORDER
-        transactionListResponse =
-                Assertions.assertDoesNotThrow(() ->
-                transactionService.getCachedTransactionList(
-                        ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, 17, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
-        Assertions.assertEquals(17, transactionListResponse.getPageInfo().getPage());
-        Assertions.assertEquals(18, transactionListResponse.getPageInfo().getTotalPages());
-        Assertions.assertEquals(PAGE_SIZE, transactionListResponse.getPageInfo().getLimit());
-        Assertions.assertEquals(88, transactionListResponse.getPageInfo().getItemsFound());
-        transactionListItems = transactionListResponse.getTransactionList();
-        Assertions.assertNotNull(transactionListItems);
-        Assertions.assertEquals(3, transactionListItems.size());
-        Assertions.assertEquals("2024-06-07T11:07:46Z", transactionListItems.get(2).getTransactionDate());
-        
-        verify(bizEventsViewUserRepository, times(2)).getBizEventsViewUserByTaxCode(ViewGenerator.USER_TAX_CODE_WITH_TX);
-        verifyNoMoreInteractions(bizEventsViewUserRepository);
-        
-    }
-    
-    @Test
-    void notCachedTaxCodeWithEventsShouldReturnTransactionListASC() {
-    	List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOf95MixedBizEventsViewUser();
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(ViewGenerator.USER_TAX_CODE_WITH_TX)).thenReturn(listOfViewUser);
-        List<BizEventsViewCart> listOfSingleViewCart = Collections.singletonList(ViewGenerator.generateBizEventsViewCart());
-        List<BizEventsViewCart> listOfMultiViewCart = ViewGenerator.generateListOfFiveViewCart();
-        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(contains("_cart_"), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
-                .thenReturn(listOfMultiViewCart);
-        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(contains("_nocart"), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
-        .thenReturn(listOfSingleViewCart);
-        // taxcode is not in cache
-        when(redisRepository.get(anyString())).thenReturn(null);
-        
-        // invoke service to get first page - ASC ORDER
-        TransactionListResponse transactionListResponse =
-                Assertions.assertDoesNotThrow(() ->
-                transactionService.getCachedTransactionList(
-                        ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, PAGE_NUMBER, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.ASC));
-        Assertions.assertEquals(PAGE_NUMBER, transactionListResponse.getPageInfo().getPage());
-        Assertions.assertEquals(18, transactionListResponse.getPageInfo().getTotalPages());
-        Assertions.assertEquals(PAGE_SIZE, transactionListResponse.getPageInfo().getLimit());
-        Assertions.assertEquals(88, transactionListResponse.getPageInfo().getItemsFound());
-        List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
-        Assertions.assertNotNull(transactionListItems);
-        Assertions.assertEquals(5, transactionListItems.size());
-        Assertions.assertEquals("2024-06-07T11:07:46Z", transactionListItems.get(0).getTransactionDate());
-        
-        // invoke service to get last page - ASC ORDER 
-        transactionListResponse =
-                Assertions.assertDoesNotThrow(() ->
-                transactionService.getCachedTransactionList(
-                        ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, 17, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.ASC));
-        Assertions.assertEquals(17, transactionListResponse.getPageInfo().getPage());
-        Assertions.assertEquals(18, transactionListResponse.getPageInfo().getTotalPages());
-        Assertions.assertEquals(PAGE_SIZE, transactionListResponse.getPageInfo().getLimit());
-        Assertions.assertEquals(88, transactionListResponse.getPageInfo().getItemsFound());
-        transactionListItems = transactionListResponse.getTransactionList();
-        Assertions.assertNotNull(transactionListItems);
-        Assertions.assertEquals(3, transactionListItems.size());
-        Assertions.assertEquals("2024-06-12T11:07:46Z", transactionListItems.get(2).getTransactionDate());
-    	
-    }
-    
-    @Test
-    void notCachedTaxCodeAndFilterWithEventsShouldReturnTransactionList() {
-        List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOf95MixedBizEventsViewUser();
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(ViewGenerator.USER_TAX_CODE_WITH_TX)).thenReturn(listOfViewUser);
-        List<BizEventsViewCart> listOfSingleViewCart = Collections.singletonList(ViewGenerator.generateBizEventsViewCart());
-        List<BizEventsViewCart> listOfMultiViewCart = ViewGenerator.generateListOfFiveViewCart();
-        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(contains("_cart_"), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
-                .thenReturn(listOfMultiViewCart);
-        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(contains("_nocart"), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
-        .thenReturn(listOfSingleViewCart);
-        // taxcode is not in cache
-        when(redisRepository.get(anyString())).thenReturn(null);
-        
-        
-        // invoke service to get all notices with isPayer = true
-        TransactionListResponse transactionListResponse =
-                Assertions.assertDoesNotThrow(() ->
-                transactionService.getCachedTransactionList(
-                        ViewGenerator.USER_TAX_CODE_WITH_TX, Boolean.TRUE, null, PAGE_NUMBER, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
-        Assertions.assertEquals(PAGE_NUMBER, transactionListResponse.getPageInfo().getPage());
-        Assertions.assertEquals(0, transactionListResponse.getPageInfo().getTotalPages());
-        Assertions.assertEquals(PAGE_SIZE, transactionListResponse.getPageInfo().getLimit());
-        Assertions.assertEquals(0, transactionListResponse.getPageInfo().getItemsFound());
-        List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
-        Assertions.assertNotNull(transactionListItems);
-        Assertions.assertEquals(0, transactionListItems.size());
-           
-        verify(bizEventsViewUserRepository, times(1)).getBizEventsViewUserByTaxCode(ViewGenerator.USER_TAX_CODE_WITH_TX);
-        verifyNoMoreInteractions(bizEventsViewUserRepository);
-    }
-    
-    @Test
-    void cachedTaxCodeWithEventsShouldReturnTransactionList() {
-        List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOf95MixedBizEventsViewUser();
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(ViewGenerator.USER_TAX_CODE_WITH_TX)).thenReturn(listOfViewUser);
-        List<BizEventsViewCart> listOfSingleViewCart = Collections.singletonList(ViewGenerator.generateBizEventsViewCart());
-        List<BizEventsViewCart> listOfMultiViewCart = ViewGenerator.generateListOfFiveViewCart();
-        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(contains("_cart_"), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
-                .thenReturn(listOfMultiViewCart);
-        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(contains("_nocart"), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
-        .thenReturn(listOfSingleViewCart);
-        // taxcode is in cache
-        List<BizEventsViewUser> mergedListOfViewUser = new ArrayList<>(Util.getMergedListByTID(listOfViewUser));
-        byte[] data = SerializationUtils.serialize((Serializable)mergedListOfViewUser);
-        when(redisRepository.get(anyString())).thenReturn(data);
-        
-        
-        // invoke service to get first page
-        TransactionListResponse transactionListResponse =
-                Assertions.assertDoesNotThrow(() ->
-                transactionService.getCachedTransactionList(
-                        ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, PAGE_NUMBER, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
-        Assertions.assertEquals(PAGE_NUMBER, transactionListResponse.getPageInfo().getPage());
-        Assertions.assertEquals(18, transactionListResponse.getPageInfo().getTotalPages());
-        Assertions.assertEquals(PAGE_SIZE, transactionListResponse.getPageInfo().getLimit());
-        Assertions.assertEquals(88, transactionListResponse.getPageInfo().getItemsFound());
-        List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
-        Assertions.assertNotNull(transactionListItems);
-        Assertions.assertEquals(5, transactionListItems.size());
-        Assertions.assertEquals("2024-06-12T11:07:46Z", transactionListItems.get(0).getTransactionDate());
-        
-        // invoke service to get last page
-        transactionListResponse =
-                Assertions.assertDoesNotThrow(() ->
-                transactionService.getCachedTransactionList(
-                        ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, 17, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
-        Assertions.assertEquals(17, transactionListResponse.getPageInfo().getPage());
-        Assertions.assertEquals(18, transactionListResponse.getPageInfo().getTotalPages());
-        Assertions.assertEquals(PAGE_SIZE, transactionListResponse.getPageInfo().getLimit());
-        Assertions.assertEquals(88, transactionListResponse.getPageInfo().getItemsFound());
-        transactionListItems = transactionListResponse.getTransactionList();
-        Assertions.assertNotNull(transactionListItems);
-        Assertions.assertEquals(3, transactionListItems.size());
-        Assertions.assertEquals("2024-06-07T11:07:46Z", transactionListItems.get(2).getTransactionDate());
-           
-        verify(bizEventsViewUserRepository, times(0)).getBizEventsViewUserByTaxCode(ViewGenerator.USER_TAX_CODE_WITH_TX);
     }
     
     @Test
