@@ -47,6 +47,8 @@ import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 import it.gov.pagopa.bizeventsservice.model.response.Attachment;
 import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.InfoNotice;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.CartItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.InfoTransactionView;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
@@ -176,6 +178,55 @@ public class TransactionServiceTest {
     }
 
     @Test
+    void idAndTaxCodeWithOneEventShouldReturnNoticeDetails() {
+        List<BizEventsViewGeneral> generalViewList = Collections.singletonList(ViewGenerator.generateBizEventsViewGeneral());
+        when(bizEventsViewGeneralRepository.findByTransactionId(ViewGenerator.TRANSACTION_ID))
+                .thenReturn(generalViewList);
+        List<BizEventsViewCart> listOfCartView = Collections.singletonList(ViewGenerator.generateBizEventsViewCart());
+        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID))
+                .thenReturn(listOfCartView);
+        NoticeDetailResponse noticeDetailResponse =
+                Assertions.assertDoesNotThrow(() ->
+                        transactionService.getPaidNoticeDetail(
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+        Assertions.assertNotNull(noticeDetailResponse);
+        verify(bizEventsViewGeneralRepository).findByTransactionId(ViewGenerator.TRANSACTION_ID);
+        verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID);
+        verifyNoMoreInteractions(bizEventsViewGeneralRepository);
+        verifyNoMoreInteractions(bizEventsViewCartRepository);
+
+        BizEventsViewGeneral viewGeneral = generalViewList.get(0);
+        Assertions.assertNotNull(noticeDetailResponse);
+        InfoNotice infoNotice = noticeDetailResponse.getInfoNotice();
+        Assertions.assertEquals(viewGeneral.getTransactionId(), infoNotice.getEventId());
+        Assertions.assertEquals(viewGeneral.getAuthCode(), infoNotice.getAuthCode());
+        Assertions.assertEquals(viewGeneral.getRrn(), infoNotice.getRrn());
+        Assertions.assertEquals(viewGeneral.getTransactionDate(), infoNotice.getNoticeDate());
+        Assertions.assertEquals(viewGeneral.getPspName(), infoNotice.getPspName());
+        Assertions.assertEquals(viewGeneral.getWalletInfo().getAccountHolder(), infoNotice.getWalletInfo().getAccountHolder());
+        Assertions.assertEquals(viewGeneral.getWalletInfo().getBrand(), infoNotice.getWalletInfo().getBrand());
+        Assertions.assertEquals(viewGeneral.getWalletInfo().getBlurredNumber(), infoNotice.getWalletInfo().getBlurredNumber());
+        Assertions.assertEquals(viewGeneral.getWalletInfo().getMaskedEmail(), infoNotice.getWalletInfo().getMaskedEmail());
+        Assertions.assertEquals(viewGeneral.getPayer().getName(), infoNotice.getPayer().getName());
+        Assertions.assertEquals(viewGeneral.getPayer().getTaxCode(), infoNotice.getPayer().getTaxCode());
+        Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, infoNotice.getAmount());
+        Assertions.assertEquals(viewGeneral.getFee(), infoNotice.getFee());
+        Assertions.assertEquals(viewGeneral.getPaymentMethod(), infoNotice.getPaymentMethod());
+        Assertions.assertEquals(viewGeneral.getOrigin(), infoNotice.getOrigin());
+
+        BizEventsViewCart viewCart = listOfCartView.get(0);
+        it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem cartItem = noticeDetailResponse.getCarts().get(0);
+        Assertions.assertEquals(viewCart.getSubject(), cartItem.getSubject());
+        Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
+        Assertions.assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
+        Assertions.assertEquals(viewCart.getDebtor().getTaxCode(), cartItem.getDebtor().getTaxCode());
+        Assertions.assertEquals(viewCart.getPayee().getName(), cartItem.getPayee().getName());
+        Assertions.assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
+        Assertions.assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
+        Assertions.assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
+    }
+    
+    @Test
     void idAndTaxCodeWithOneEventShouldReturnTransactionDetails() {
         List<BizEventsViewGeneral> generalViewList = Collections.singletonList(ViewGenerator.generateBizEventsViewGeneral());
         when(bizEventsViewGeneralRepository.findByTransactionId(ViewGenerator.TRANSACTION_ID))
@@ -223,6 +274,8 @@ public class TransactionServiceTest {
         Assertions.assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
         Assertions.assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
     }
+    
+    
     @Test
     void idAndTaxCodeWithCartEventShouldReturnTransactionDetails() {
         List<BizEventsViewGeneral> generalViewList = Collections.singletonList(ViewGenerator.generateBizEventsViewGeneral());
@@ -255,6 +308,40 @@ public class TransactionServiceTest {
             Assertions.assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
         }
     }
+    
+    @Test
+    void idAndTaxCodeWithCartEventShouldReturnNoticeDetails() {
+        List<BizEventsViewGeneral> generalViewList = Collections.singletonList(ViewGenerator.generateBizEventsViewGeneral());
+        when(bizEventsViewGeneralRepository.findByTransactionId(ViewGenerator.TRANSACTION_ID))
+                .thenReturn(generalViewList);
+        List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
+        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID))
+                .thenReturn(listOfCartView);
+        NoticeDetailResponse noticeDetailResponse =
+                Assertions.assertDoesNotThrow(() ->
+                        transactionService.getPaidNoticeDetail(
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+        Assertions.assertNotNull(noticeDetailResponse);
+        verify(bizEventsViewGeneralRepository).findByTransactionId(ViewGenerator.TRANSACTION_ID);
+        verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID);
+        verifyNoMoreInteractions(bizEventsViewGeneralRepository);
+        verifyNoMoreInteractions(bizEventsViewCartRepository);
+
+        Assertions.assertEquals(ViewGenerator.FORMATTED_GRAND_TOTAL, noticeDetailResponse.getInfoNotice().getAmount());
+        for(int i = 0; i < noticeDetailResponse.getCarts().size(); i++){
+            BizEventsViewCart viewCart = listOfCartView.get(i);
+            it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem cartItem = noticeDetailResponse.getCarts().get(i);
+            Assertions.assertEquals(viewCart.getSubject(), cartItem.getSubject());
+            Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
+            Assertions.assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
+            Assertions.assertEquals(viewCart.getDebtor().getTaxCode(), cartItem.getDebtor().getTaxCode());
+            Assertions.assertEquals(viewCart.getPayee().getName(), cartItem.getPayee().getName());
+            Assertions.assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
+            Assertions.assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
+            Assertions.assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
+        }
+    }
+    
     @Test
     void transactionViewGeneralNotFoundThrowError() {
         List<BizEventsViewGeneral> generalViewList = new ArrayList<>();
