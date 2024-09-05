@@ -1,37 +1,6 @@
 package it.gov.pagopa.bizeventsservice.controller;
 
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
@@ -45,6 +14,28 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.Utility;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -55,7 +46,6 @@ public class TransactionControllerTest {
     public static final String LIST_TRANSACTION_PATH = "/transactions";
     public static final String FISCAL_CODE_HEADER_KEY = "x-fiscal-code";
     public static final String TRANSACTION_DETAILS_PATH = "/transactions/transaction-id";
-    private static final String CONTINUATION_TOKEN_HEADER_KEY = "x-continuation-token";
     public static final String CONTINUATION_TOKEN = "continuationToken";
     public static final String SIZE_HEADER_KEY = "size";
     public static final String SIZE = "10";
@@ -63,22 +53,22 @@ public class TransactionControllerTest {
     public static final String PAGE_NUM = "0";
     public static final String TRANSACTION_DISABLE_PATH = "/transactions/transaction-id/disable";
     public static final String TRANSACTION_RECEIPT_PATH = "/transactions/event-id/pdf";
-
+    private static final String CONTINUATION_TOKEN_HEADER_KEY = "x-continuation-token";
     @Autowired
     private MockMvc mvc;
 
     @MockBean
     private ITransactionService transactionService;
-    
+
     @MockBean
     private IBizEventsService bizEventsService;
-    
+
     @MockBean
     private IReceiptGetPDFClient receiptClient;
-    
+
     @MockBean
     private IReceiptGeneratePDFClient generateReceiptClient;
-    
+
     private byte[] receipt = {69, 121, 101, 45, 62, 118, 101, 114, (byte) 196, (byte) 195, 61, 101, 98};
 
     @BeforeEach
@@ -90,8 +80,8 @@ public class TransactionControllerTest {
         when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyString(), anyInt(), any(), any())).thenReturn(transactionListResponse);
         when(transactionService.getTransactionDetails(anyString(), anyString())).thenReturn(transactionDetailResponse);
         when(transactionService.getPDFReceipt(anyString(), anyString())).thenReturn(receipt);
-        Attachment attachmentDetail = mock (Attachment.class);
-        AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();   
+        Attachment attachmentDetail = mock(Attachment.class);
+        AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();
         when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
         when(receiptClient.getReceipt(anyString(), anyString(), any())).thenReturn(receipt);
         when(generateReceiptClient.generateReceipt(anyString(), anyString(), any())).thenReturn("OK");
@@ -193,37 +183,37 @@ public class TransactionControllerTest {
                 .andExpect(status().isBadRequest())
                 .andReturn();
     }
-    
+
     @Test
     void getPDFReceipt_ShouldReturnOK() throws Exception {
-    	
-    	BizEvent bizEvent = mock (BizEvent.class);
-    	when (bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
-        
-    	MvcResult result = mvc.perform(get(TRANSACTION_RECEIPT_PATH)
-                .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_PDF))
-        .andReturn();
-    	
-    	verify(bizEventsService).getBizEvent("event-id");
-    	verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE,"event-id");
-    	assertEquals(receipt.length, result.getResponse().getContentAsByteArray().length);
+
+        BizEvent bizEvent = mock(BizEvent.class);
+        when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
+
+        MvcResult result = mvc.perform(get(TRANSACTION_RECEIPT_PATH)
+                        .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+                .andReturn();
+
+        verify(bizEventsService).getBizEvent("event-id");
+        verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, "event-id");
+        assertEquals(receipt.length, result.getResponse().getContentAsByteArray().length);
     }
-    
+
     @Test
     void getPDFReceiptForOldPMEvent_ShouldReturnNOTFOUND() throws Exception {
-    	AppException ex = new AppException(HttpStatus.NOT_FOUND, "mock", "mock");
-    	when (bizEventsService.getBizEvent(anyString())).thenThrow(ex);
-        
-    	mvc.perform(get(TRANSACTION_RECEIPT_PATH)
-                .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
-                .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isNotFound())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andReturn();
-    	
-    	verify(bizEventsService).getBizEvent("event-id");
+        AppException ex = new AppException(HttpStatus.NOT_FOUND, "mock", "mock");
+        when(bizEventsService.getBizEvent(anyString())).thenThrow(ex);
+
+        mvc.perform(get(TRANSACTION_RECEIPT_PATH)
+                        .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        verify(bizEventsService).getBizEvent("event-id");
     }
 }

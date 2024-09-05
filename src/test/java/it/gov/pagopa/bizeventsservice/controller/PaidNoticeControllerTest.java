@@ -1,39 +1,15 @@
 package it.gov.pagopa.bizeventsservice.controller;
 
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.io.IOException;
-import java.util.List;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
+import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.Attachment;
 import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
-import it.gov.pagopa.bizeventsservice.service.ITransactionService;
-import it.gov.pagopa.bizeventsservice.util.Utility;
-import it.gov.pagopa.bizeventsservice.entity.BizEvent;
-import it.gov.pagopa.bizeventsservice.exception.AppError;
-import it.gov.pagopa.bizeventsservice.exception.AppException;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
@@ -53,28 +29,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import it.gov.pagopa.bizeventsservice.exception.AppError;
-import it.gov.pagopa.bizeventsservice.exception.AppException;
-import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
-import it.gov.pagopa.bizeventsservice.service.ITransactionService;
-import it.gov.pagopa.bizeventsservice.util.Utility;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import java.io.IOException;
-import java.util.List;
-
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -94,11 +54,9 @@ public class PaidNoticeControllerTest {
     public static final String PAIDS_PATH = "/paids";
     public static final String SIZE = "10";
     public static final String SIZE_HEADER_KEY = "size";
-    private static final String CONTINUATION_TOKEN_HEADER_KEY = "x-continuation-token";
     public static final String CONTINUATION_TOKEN = "continuationToken";
-
     public static final String PAIDS_EVENT_ID_PDF_PATH = "/paids/event-id/pdf";
-
+    private static final String CONTINUATION_TOKEN_HEADER_KEY = "x-continuation-token";
     @Autowired
     private MockMvc mvc;
 
@@ -120,13 +78,14 @@ public class PaidNoticeControllerTest {
     @BeforeEach
     void setUp() throws IOException {
         // precondition
-        List<TransactionListItem> transactionListItems = Utility.readModelFromFile("biz-events/getTransactionList.json", new TypeReference<List<TransactionListItem>>(){});
+        List<TransactionListItem> transactionListItems = Utility.readModelFromFile("biz-events/getTransactionList.json", new TypeReference<List<TransactionListItem>>() {
+        });
         TransactionListResponse transactionListResponse = TransactionListResponse.builder().transactionList(transactionListItems).build();
         NoticeDetailResponse noticeDetailResponse = Utility.readModelFromFile("biz-events/paidNoticeDetails.json", NoticeDetailResponse.class);
         when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyString(), anyInt(), any(), any())).thenReturn(transactionListResponse);
         when(transactionService.getPaidNoticeDetail(anyString(), anyString())).thenReturn(noticeDetailResponse);
         when(transactionService.getPDFReceipt(anyString(), anyString())).thenReturn(receipt);
-        Attachment attachmentDetail = mock (Attachment.class);
+        Attachment attachmentDetail = mock(Attachment.class);
         AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();
         when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
         when(receiptClient.getReceipt(anyString(), anyString(), any())).thenReturn(receipt);

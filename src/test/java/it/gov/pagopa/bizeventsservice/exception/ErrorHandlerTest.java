@@ -7,7 +7,7 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.context.request.WebRequest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 class ErrorHandlerTest {
@@ -20,6 +20,6 @@ class ErrorHandlerTest {
         when(feignException.status()).thenReturn(400);
         WebRequest request = Mockito.mock(WebRequest.class);
         var response = errorHandler.handleFeignException(feignException, request);
-        assertEquals(HttpStatus.BAD_REQUEST , response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 }
