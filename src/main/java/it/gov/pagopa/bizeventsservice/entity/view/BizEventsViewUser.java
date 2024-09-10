@@ -1,13 +1,16 @@
 package it.gov.pagopa.bizeventsservice.entity.view;
 
+import java.io.Serializable;
+
 import com.azure.spring.data.cosmos.core.mapping.Container;
 import com.azure.spring.data.cosmos.core.mapping.GeneratedValue;
 import com.azure.spring.data.cosmos.core.mapping.PartitionKey;
-import lombok.*;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Entity model for biz-events-view-user
@@ -33,9 +36,4 @@ public class BizEventsViewUser implements Serializable {
     private Boolean hidden;
     private Boolean isPayer;
     private Boolean isDebtor;
-
-    public LocalDateTime getTransactionDateAsLocalDateTime() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("[yyyy-MM-dd'T'HH:mm:ss'Z'][yyyy-MM-dd'T'HH:mm:ss.SSSSSS]");
-        return LocalDateTime.parse(this.getTransactionDate(), formatter);
-    }
 }
