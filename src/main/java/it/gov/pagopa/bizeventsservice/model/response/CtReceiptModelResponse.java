@@ -56,7 +56,7 @@ public class CtReceiptModelResponse implements Serializable {
     private String pspCompanyName;
     @NotBlank(message = "idChannel is required")
     private String idChannel;
-    @NotBlank(message = "channelDescription is required")
+
     private String channelDescription;
 
     private Payer payer;
