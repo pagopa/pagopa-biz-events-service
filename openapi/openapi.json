@@ -2002,7 +2002,7 @@
         }
       },
       "CtReceiptModelResponse" : {
-        "required" : [ "channelDescription", "companyName", "creditorReferenceId", "debtor", "description", "fiscalCode", "idChannel", "idPSP", "noticeNumber", "outcome", "paymentAmount", "pspCompanyName", "receiptId", "transferList" ],
+        "required" : [ "companyName", "creditorReferenceId", "debtor", "description", "fiscalCode", "idChannel", "idPSP", "noticeNumber", "outcome", "paymentAmount", "pspCompanyName", "receiptId", "transferList" ],
         "type" : "object",
         "properties" : {
           "receiptId" : {
