@@ -1,22 +1,17 @@
 package it.gov.pagopa.bizeventsservice.util;
 
-import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
-import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
-import org.springframework.data.domain.Sort.Direction;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import java.util.*;
+import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 
 public class Util {
 
-    private Util() {
-    }
-
-    public static List<List<BizEventsViewUser>> getPaginatedList(List<BizEventsViewUser> mergedListByTIDOfViewUser, Boolean isPayer, Boolean isDebtor,
-                                                                 int pageSize, TransactionListOrder order, Direction direction) {
-        List<BizEventsViewUser> filteredListOfViewUser = new ArrayList<>(Util.getFilteredList(mergedListByTIDOfViewUser, isPayer, isDebtor));
-        Util.getSortedList(filteredListOfViewUser, order, direction);
-        return Util.getPages(filteredListOfViewUser, pageSize);
-    }
+    private Util() {}
 
 
     public static List<BizEventsViewUser> getMergedListByTID(List<BizEventsViewUser> fullListOfViewUser) {
@@ -43,28 +38,6 @@ public class Util {
             pages.add(new ArrayList<>(list.subList(pageNum * pageSize, Math.min(++toIndex * pageSize, list.size()))));
         }
         return pages;
-    }
-
-    public static void getSortedList(List<BizEventsViewUser> listToSort, TransactionListOrder order,
-                                     Direction direction) {
-        if (TransactionListOrder.TRANSACTION_DATE.equals(order)) {
-            switch (direction) {
-                case ASC:
-                    Collections.sort(listToSort, Comparator.comparing(BizEventsViewUser::getTransactionDateAsLocalDateTime,
-                            Comparator.nullsLast(Comparator.naturalOrder())));
-                    break;
-                case DESC:
-                default:
-                    Collections.sort(listToSort, Comparator.comparing(BizEventsViewUser::getTransactionDateAsLocalDateTime,
-                            Comparator.nullsLast(Comparator.naturalOrder())).reversed());
-                    break;
-            }
-        } else {
-            // the default sorting is by transaction date and DESC direction
-            Collections.sort(listToSort, Comparator
-                    .comparing(BizEventsViewUser::getTransactionDateAsLocalDateTime, Comparator.nullsLast(Comparator.naturalOrder()))
-                    .reversed());
-        }
     }
 
     public static List<BizEventsViewUser> getFilteredList(List<BizEventsViewUser> listToFilter, Boolean isPayer, Boolean isDebtor) {
