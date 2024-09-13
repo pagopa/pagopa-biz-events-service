@@ -22,7 +22,6 @@ function post(url, body, headers) {
             return res;
         })
         .catch(error => {
-	console.log(error)
             return error.response;
         });
 }
