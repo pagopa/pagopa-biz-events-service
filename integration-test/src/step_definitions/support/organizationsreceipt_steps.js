@@ -40,7 +40,7 @@ After(async function () {
 			await deleteDocumentFromViewCartDatastore(viewCart.id, viewCart.transactionId);
 		}
 	}
-
+	
 	responseToCheck = null;
 	receipt = null;
 	bizEvent = null;
@@ -178,13 +178,13 @@ Then('the user gets the status code {int}', (status) => {
 })
 
 Then('the user gets {int} transactions', (totalTransactions) => {
-	assert.strictEqual(responseToCheck.data.length, totalTransactions);
+	assert.strictEqual(responseToCheck.data.notices.length, totalTransactions);
 })
 
 Then('the transactions with cart items {string} for taxCode {string} have the correct amount and subject', (isCart, taxCode) => {
-	for (let transaction of responseToCheck.data) {
+	for (let transaction of responseToCheck.data.notices) {
 		let totalAmount = 0;
-		for(let viewCart of viewCartList.filter(el => el.transactionId == transaction.transactionId && (transaction?.payer?.taxCode === taxCode || el?.debtor?.taxCode === taxCode))){
+		for(let viewCart of viewCartList.filter(el => el.transactionId == transaction.eventId)){
 			totalAmount += viewCart.amount;
 			if(isCart == "true"){
 				assert.notStrictEqual(transaction.payeeName, viewCart.payee.name);
@@ -192,7 +192,7 @@ Then('the transactions with cart items {string} for taxCode {string} have the co
 				assert.strictEqual(transaction.payeeName, viewCart.payee.name);
 			}
 		}
-		assert.strictEqual(transaction.amount, `${totalAmount},00`);
+		assert.strictEqual(transaction.amount, `${totalAmount}.00`);
 		
 	}
 })
@@ -211,12 +211,13 @@ When('the user with taxCode {string} disables the transaction with id {string}',
 })
 
 Then('the user with tax code {string} gets the transaction detail with id {string} and it has the correct amount', (taxCode, id) => {
-	let infoTransaction = responseToCheck.data.infoTransaction;
-	assert.strictEqual(infoTransaction.transactionId, id);
+	let infoNotice = responseToCheck.data.infoNotice;
+	assert.strictEqual(infoNotice.eventId, id);
 
 	let totalAmount = 0;
-	for(let viewCart of viewCartList.filter(el => el.transactionId == infoTransaction.transactionId && (infoTransaction?.payer?.taxCode === taxCode || el?.debtor?.taxCode === taxCode))){
+	for(let viewCart of viewCartList.filter(el => el.transactionId == infoNotice.eventId && (infoNotice?.payer?.taxCode === taxCode || el?.debtor?.taxCode === taxCode))){
 		totalAmount += viewCart.amount;
 	}
-	assert.strictEqual(infoTransaction.amount, `${totalAmount},00`);
+	
+	assert.strictEqual(infoNotice.amount, `${totalAmount}.00`);
 })
