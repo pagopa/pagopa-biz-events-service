@@ -27,7 +27,7 @@ function getBizEventByOrgFiscalCodeAndIuv(organizationfiscalcode, iuv) {
 
 // >>> BIZ_EVENTS_TRXSRV_HOST
 function getTransactionListForUserWithFiscalCode(fiscalcode) {
-    return get(bizevents_trxsrv_host + `transactions?start=0&size=10`, {
+    return get(bizevents_trxsrv_host + `paids?size=10`, {
         "x-fiscal-code": fiscalcode
     })
 }
@@ -39,7 +39,7 @@ function getTransactionWithIdForUserWithFiscalCode(id, fiscalcode) {
 }
 
 function disableTransactionWithIdForUserWithFiscalCode(id, fiscalcode) {
-    return post(bizevents_trxsrv_host + `transactions/${id}/disable`,"", {
+    return post(bizevents_trxsrv_host + `paids/${id}/disable`,"", {
         "x-fiscal-code": fiscalcode
     })
 }

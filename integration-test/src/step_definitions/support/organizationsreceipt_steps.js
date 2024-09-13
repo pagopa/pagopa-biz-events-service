@@ -40,7 +40,7 @@ After(async function () {
 			await deleteDocumentFromViewCartDatastore(viewCart.id, viewCart.transactionId);
 		}
 	}
-
+	
 	responseToCheck = null;
 	receipt = null;
 	bizEvent = null;
@@ -178,7 +178,7 @@ Then('the user gets the status code {int}', (status) => {
 })
 
 Then('the user gets {int} transactions', (totalTransactions) => {
-	assert.strictEqual(responseToCheck.data.length, totalTransactions);
+	assert.strictEqual(responseToCheck.data.notices.length, totalTransactions);
 })
 
 Then('the transactions with cart items {string} for taxCode {string} have the correct amount and subject', (isCart, taxCode) => {
