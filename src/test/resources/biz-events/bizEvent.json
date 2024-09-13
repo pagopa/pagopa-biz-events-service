@@ -40,7 +40,7 @@
         "city": "city",
         "stateProvinceRegion": "stateProvinceRegion",
         "country": "IT",
-        "eMail": "mail@mail.it"
+        "email": "mail@mail.it"
     },
     "payer": {
         "fullName": "fullName",
@@ -52,7 +52,7 @@
         "city": "city",
         "stateProvinceRegion": "stateProvinceRegion",
         "country": "IT",
-        "eMail": "mail@mail.it"
+        "email": "mail@mail.it"
     },
     "paymentInfo": {
         "paymentDateTime": "2022-12-06T17:54:08.017744",

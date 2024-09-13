@@ -18,6 +18,6 @@ public class Payer {
     private String city;
     private String stateProvinceRegion;
     private String country;
-    @JsonProperty(value = "eMail")
+    @JsonProperty(value = "email")
     private String eMail;
 }
