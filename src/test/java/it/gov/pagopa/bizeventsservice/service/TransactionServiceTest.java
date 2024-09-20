@@ -22,7 +22,6 @@ import it.gov.pagopa.bizeventsservice.service.impl.TransactionService;
 import it.gov.pagopa.bizeventsservice.util.ViewGenerator;
 import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
@@ -71,8 +70,8 @@ public class TransactionServiceTest {
     private IBizEventsService bizEventsService;
 
     private TransactionService transactionService;
-    @Value("${transaction.payee.cartName:Pagamento Multiplo}")
-    private String payeeCartName;
+    //@Value("${transaction.payee.cartName:Pagamento Multiplo}")
+    //private String payeeCartName;
 
     private byte[] receipt = {69, 121, 101, 45, 62, 118, 101, 114, (byte) 196, (byte) 195, 61, 101, 98};
 
@@ -142,10 +141,18 @@ public class TransactionServiceTest {
         when(pageable.next()).thenReturn(pageRequest);
         when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any()))
                 .thenReturn(pageOfViewUser);
+        /*
         List<BizEventsViewCart> listOfViewCart = ViewGenerator.generateListOfFiveViewCart();
         when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(
                 anyString(), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
-                .thenReturn(listOfViewCart);
+                .thenReturn(listOfViewCart);*/
+        
+        BizEventsViewCart bizEventsViewCart = ViewGenerator.generateBizEventsViewCart();
+        when(bizEventsViewCartRepository.findById(anyString())).thenReturn(Optional.of(bizEventsViewCart));
+        
+        BizEventsViewGeneral bizEventsViewGeneral = ViewGenerator.generateBizEventsViewGeneral();
+        when(bizEventsViewGeneralRepository.findById(anyString())).thenReturn(Optional.of(bizEventsViewGeneral));
+        
         TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionList(
@@ -157,10 +164,11 @@ public class TransactionServiceTest {
 
         for (TransactionListItem listItem : transactionListItems) {
             // PAGOPA-1763: the amount value must be returned only if it is not a cart type transaction
-            Assertions.assertTrue(listItem.getIsCart() && Boolean.TRUE.equals(listItem.getIsDebtor()) ?
-                    listItem.getAmount() == null : listItem.getAmount().equals(ViewGenerator.FORMATTED_GRAND_TOTAL));
-            Assertions.assertEquals(payeeCartName, listItem.getPayeeName());
-            Assertions.assertEquals("", listItem.getPayeeTaxCode());
+            //Assertions.assertTrue(listItem.getIsCart() && Boolean.TRUE.equals(listItem.getIsDebtor()) ?
+            //        listItem.getAmount() == null : listItem.getAmount().equals(ViewGenerator.FORMATTED_GRAND_TOTAL));
+            Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, listItem.getAmount());
+            Assertions.assertEquals(ViewGenerator.PAYEE_NAME, listItem.getPayeeName());
+            Assertions.assertEquals(ViewGenerator.PAYEE_TAX_CODE, listItem.getPayeeTaxCode());
         }
 
         verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any());
