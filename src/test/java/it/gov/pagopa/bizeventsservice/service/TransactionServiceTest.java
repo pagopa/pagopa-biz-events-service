@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static it.gov.pagopa.bizeventsservice.util.ViewGenerator.generateBizEventsViewUser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -99,10 +100,17 @@ public class TransactionServiceTest {
         when(pageable.next()).thenReturn(pageRequest);
         when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any()))
                 .thenReturn(pageOfViewUser);
+        /*
         List<BizEventsViewCart> listOfViewCart = Collections.singletonList(ViewGenerator.generateBizEventsViewCart());
         when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(
                 anyString(), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
-                .thenReturn(listOfViewCart);
+                .thenReturn(listOfViewCart);*/
+        BizEventsViewCart bizEventsViewCart = ViewGenerator.generateBizEventsViewCart();
+        when(bizEventsViewCartRepository.findById(anyString())).thenReturn(Optional.of(bizEventsViewCart));
+        
+        BizEventsViewGeneral bizEventsViewGeneral = ViewGenerator.generateBizEventsViewGeneral();
+        when(bizEventsViewGeneralRepository.findById(anyString())).thenReturn(Optional.of(bizEventsViewGeneral));
+        
         TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionList(
@@ -114,8 +122,8 @@ public class TransactionServiceTest {
 
         for (TransactionListItem listItem : transactionListItems) {
             Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, listItem.getAmount());
-            Assertions.assertEquals(listOfViewCart.get(0).getPayee().getName(), listItem.getPayeeName());
-            Assertions.assertEquals(listOfViewCart.get(0).getPayee().getTaxCode(), listItem.getPayeeTaxCode());
+            Assertions.assertEquals(bizEventsViewCart.getPayee().getName(), listItem.getPayeeName());
+            Assertions.assertEquals(bizEventsViewCart.getPayee().getTaxCode(), listItem.getPayeeTaxCode());
         }
 
         verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any());

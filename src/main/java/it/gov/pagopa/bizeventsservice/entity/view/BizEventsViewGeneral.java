@@ -30,7 +30,7 @@ public class BizEventsViewGeneral {
     private String transactionDate;
     private WalletInfo walletInfo;
     private UserDetail payer;
-    private boolean isCart;
+    private Boolean isCart;
     private String fee;
     private OriginType origin;
     private int totalNotice;

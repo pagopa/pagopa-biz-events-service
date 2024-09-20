@@ -75,14 +75,21 @@ public class TransactionService implements ITransactionService {
         }
         for (BizEventsViewUser viewUser : listOfViewUser) {
             List<BizEventsViewCart> listOfViewCart;
+            
+            String eventId = viewUser.getId().replace("-p", "").replace("-d", "");
+            
+            Optional<BizEventsViewCart> bizEventsViewCart = this.bizEventsViewCartRepository.findById(eventId);
+            Optional<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findById(eventId);
+            
+            /*
             if (Boolean.TRUE.equals(viewUser.getIsPayer())) {
-                listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(viewUser.getTransactionId());
+                listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(viewUser.getTransactionId()); // viewUser.getId() rimuovendo -p o -d
             } else {
                 listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(viewUser.getTransactionId(), taxCode);
-            }
+            }*/
 
-            if (!listOfViewCart.isEmpty()) {
-                TransactionListItem transactionListItem = ConvertViewsToTransactionDetailResponse.convertTransactionListItem(viewUser, listOfViewCart);
+            if (bizEventsViewCart.isPresent() && bizEventsViewGeneral.isPresent()) {
+                TransactionListItem transactionListItem = ConvertViewsToTransactionDetailResponse.convertTransactionListItem(viewUser, bizEventsViewCart.get(), bizEventsViewGeneral.get());
                 listOfTransactionListItem.add(transactionListItem);
             }
         }
