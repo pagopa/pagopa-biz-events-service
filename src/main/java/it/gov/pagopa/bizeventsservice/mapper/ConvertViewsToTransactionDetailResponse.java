@@ -10,7 +10,6 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
 import it.gov.pagopa.bizeventsservice.util.DateValidator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -28,7 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ConvertViewsToTransactionDetailResponse {
     private static final List<String> LIST_RECEIPT_DATE_FORMAT_IN = List.of("yyyy-MM-dd'T'HH:mm:ss");
     private static final String RECEIPT_DATE_FORMAT_OUT = "yyyy-MM-dd'T'HH:mm:ssX";
-    private static String payeeCartName;
+    //private static String payeeCartName;
 
     private ConvertViewsToTransactionDetailResponse() {
     }
@@ -132,21 +131,24 @@ public class ConvertViewsToTransactionDetailResponse {
                 .toList();
     }
 
-    public static TransactionListItem convertTransactionListItem(BizEventsViewUser viewUser, List<BizEventsViewCart> listOfCartViews) {
+    public static TransactionListItem convertTransactionListItem(BizEventsViewUser viewUser, BizEventsViewCart bizEventsViewCart, BizEventsViewGeneral bizEventsViewGeneral) {
         AtomicReference<BigDecimal> totalAmount = new AtomicReference<>(BigDecimal.ZERO);
+        BigDecimal amountExtracted = new BigDecimal(bizEventsViewCart.getAmount());
+        totalAmount.updateAndGet(v -> v.add(amountExtracted));
+        
+        /*
         for (BizEventsViewCart bizEventsViewCart : listOfCartViews) {
             BigDecimal amountExtracted = new BigDecimal(bizEventsViewCart.getAmount());
             totalAmount.updateAndGet(v -> v.add(amountExtracted));
-        }
+        }*/
 
         return TransactionListItem.builder()
-                .transactionId(viewUser.getTransactionId())
-                .payeeName(listOfCartViews.size() > 1 ? payeeCartName : listOfCartViews.get(0).getPayee().getName())
-                .payeeTaxCode(listOfCartViews.size() > 1 ? "" : listOfCartViews.get(0).getPayee().getTaxCode())
-                // PAGOPA-1763: the amount value must be returned only if it is not a cart type transaction
-                .amount(listOfCartViews.size() > 1 && BooleanUtils.isTrue(viewUser.getIsDebtor()) ? null : totalAmount.get().setScale(2, RoundingMode.UNNECESSARY).toString())
+                .transactionId(viewUser.getId().replace("-p", "").replace("-d", "")) // eventId stripped of the -d or -p suffix
+                .payeeName(bizEventsViewCart.getPayee().getName())
+                .payeeTaxCode(bizEventsViewCart.getPayee().getTaxCode())
+                .amount(totalAmount.get().setScale(2, RoundingMode.UNNECESSARY).toString()) 
                 .transactionDate(dateFormatZoned(viewUser.getTransactionDate()))
-                .isCart(listOfCartViews.size() > 1)
+                .isCart(bizEventsViewGeneral.isCart())
                 .isPayer(BooleanUtils.isTrue(viewUser.getIsPayer()))
                 .isDebtor(BooleanUtils.isTrue(viewUser.getIsDebtor()))
                 .build();
@@ -171,8 +173,9 @@ public class ConvertViewsToTransactionDetailResponse {
         throw new DateTimeException("The date [" + date + "] is not in one of the expected formats " + LIST_RECEIPT_DATE_FORMAT_IN + " and cannot be parsed");
     }
 
+    /*
     @Value("${transaction.payee.cartName:Pagamento Multiplo}")
     public void setPayeeCartName(String payeeCartNameValue) {
         payeeCartName = payeeCartNameValue;
-    }
+    }*/
 }
