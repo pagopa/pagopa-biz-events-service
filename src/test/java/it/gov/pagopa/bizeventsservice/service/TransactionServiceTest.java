@@ -70,8 +70,6 @@ public class TransactionServiceTest {
     private IBizEventsService bizEventsService;
 
     private TransactionService transactionService;
-    //@Value("${transaction.payee.cartName:Pagamento Multiplo}")
-    //private String payeeCartName;
 
     private byte[] receipt = {69, 121, 101, 45, 62, 118, 101, 114, (byte) 196, (byte) 195, 61, 101, 98};
 
