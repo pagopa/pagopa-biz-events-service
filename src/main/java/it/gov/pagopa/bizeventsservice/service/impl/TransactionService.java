@@ -74,19 +74,11 @@ public class TransactionService implements ITransactionService {
             throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TAX_CODE_AND_FILTER, taxCode, isPayer, isDebtor);
         }
         for (BizEventsViewUser viewUser : listOfViewUser) {
-            List<BizEventsViewCart> listOfViewCart;
             
-            String eventId = viewUser.getId().replace("-p", "").replace("-d", "");
+            String eventId = viewUser.getId().substring(0, viewUser.getId().length() - 2);
             
             Optional<BizEventsViewCart> bizEventsViewCart = this.bizEventsViewCartRepository.findById(eventId);
             Optional<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findById(eventId);
-            
-            /*
-            if (Boolean.TRUE.equals(viewUser.getIsPayer())) {
-                listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(viewUser.getTransactionId()); // viewUser.getId() rimuovendo -p o -d
-            } else {
-                listOfViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(viewUser.getTransactionId(), taxCode);
-            }*/
 
             if (bizEventsViewCart.isPresent() && bizEventsViewGeneral.isPresent()) {
                 TransactionListItem transactionListItem = ConvertViewsToTransactionDetailResponse.convertTransactionListItem(viewUser, bizEventsViewCart.get(), bizEventsViewGeneral.get());

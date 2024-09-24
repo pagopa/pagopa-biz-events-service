@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ConvertViewsToTransactionDetailResponse {
     private static final List<String> LIST_RECEIPT_DATE_FORMAT_IN = List.of("yyyy-MM-dd'T'HH:mm:ss");
     private static final String RECEIPT_DATE_FORMAT_OUT = "yyyy-MM-dd'T'HH:mm:ssX";
-    //private static String payeeCartName;
 
     private ConvertViewsToTransactionDetailResponse() {
     }
@@ -135,15 +134,9 @@ public class ConvertViewsToTransactionDetailResponse {
         AtomicReference<BigDecimal> totalAmount = new AtomicReference<>(BigDecimal.ZERO);
         BigDecimal amountExtracted = new BigDecimal(bizEventsViewCart.getAmount());
         totalAmount.updateAndGet(v -> v.add(amountExtracted));
-        
-        /*
-        for (BizEventsViewCart bizEventsViewCart : listOfCartViews) {
-            BigDecimal amountExtracted = new BigDecimal(bizEventsViewCart.getAmount());
-            totalAmount.updateAndGet(v -> v.add(amountExtracted));
-        }*/
 
         return TransactionListItem.builder()
-                .transactionId(viewUser.getId().replace("-p", "").replace("-d", "")) // eventId stripped of the -d or -p suffix
+                .transactionId(viewUser.getId().substring(0, viewUser.getId().length() - 2)) // eventId stripped of the -d or -p suffix
                 .payeeName(bizEventsViewCart.getPayee().getName())
                 .payeeTaxCode(bizEventsViewCart.getPayee().getTaxCode())
                 .amount(totalAmount.get().setScale(2, RoundingMode.UNNECESSARY).toString()) 
@@ -172,10 +165,4 @@ public class ConvertViewsToTransactionDetailResponse {
         }
         throw new DateTimeException("The date [" + date + "] is not in one of the expected formats " + LIST_RECEIPT_DATE_FORMAT_IN + " and cannot be parsed");
     }
-
-    /*
-    @Value("${transaction.payee.cartName:Pagamento Multiplo}")
-    public void setPayeeCartName(String payeeCartNameValue) {
-        payeeCartName = payeeCartNameValue;
-    }*/
 }

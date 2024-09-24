@@ -99,11 +99,7 @@ public class TransactionServiceTest {
         when(pageable.next()).thenReturn(pageRequest);
         when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any()))
                 .thenReturn(pageOfViewUser);
-        /*
-        List<BizEventsViewCart> listOfViewCart = Collections.singletonList(ViewGenerator.generateBizEventsViewCart());
-        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(
-                anyString(), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
-                .thenReturn(listOfViewCart);*/
+        
         BizEventsViewCart bizEventsViewCart = ViewGenerator.generateBizEventsViewCart();
         when(bizEventsViewCartRepository.findById(anyString())).thenReturn(Optional.of(bizEventsViewCart));
         
@@ -141,11 +137,6 @@ public class TransactionServiceTest {
         when(pageable.next()).thenReturn(pageRequest);
         when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any()))
                 .thenReturn(pageOfViewUser);
-        /*
-        List<BizEventsViewCart> listOfViewCart = ViewGenerator.generateListOfFiveViewCart();
-        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(
-                anyString(), eq(ViewGenerator.USER_TAX_CODE_WITH_TX)))
-                .thenReturn(listOfViewCart);*/
         
         BizEventsViewCart bizEventsViewCart = ViewGenerator.generateBizEventsViewCart();
         when(bizEventsViewCartRepository.findById(anyString())).thenReturn(Optional.of(bizEventsViewCart));
@@ -163,9 +154,6 @@ public class TransactionServiceTest {
         Assertions.assertEquals(listOfViewUser.size(), transactionListItems.size());
 
         for (TransactionListItem listItem : transactionListItems) {
-            // PAGOPA-1763: the amount value must be returned only if it is not a cart type transaction
-            //Assertions.assertTrue(listItem.getIsCart() && Boolean.TRUE.equals(listItem.getIsDebtor()) ?
-            //        listItem.getAmount() == null : listItem.getAmount().equals(ViewGenerator.FORMATTED_GRAND_TOTAL));
             Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, listItem.getAmount());
             Assertions.assertEquals(ViewGenerator.PAYEE_NAME, listItem.getPayeeName());
             Assertions.assertEquals(ViewGenerator.PAYEE_TAX_CODE, listItem.getPayeeTaxCode());
