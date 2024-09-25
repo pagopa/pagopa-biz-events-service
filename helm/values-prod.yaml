@@ -88,8 +88,8 @@ microservice-chart:
     CONNECTION_TIMEOUT: "10000"
     REDIS_PORT: "6380"
     REDIS_TTL: "20" # 20 minutes
-    OTEL_SERVICE_NAME: "pagopabizeventsservice"
-    OTEL_RESOURCE_ATTRIBUTES: "service.name=pagopareceiptspdfserviceotl,deployment.environment=prod"
+    OTEL_SERVICE_NAME: "pagopa-bizevents-service"
+    OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=prod"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
