@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-biz-events-service
-    tag: "0.1.58"
+    tag: "0.1.59"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -88,8 +88,8 @@ microservice-chart:
     CONNECTION_TIMEOUT: "10000"
     REDIS_PORT: "6380"
     REDIS_TTL: "5" # 5 minutes
-    OTEL_SERVICE_NAME: "pagopabizeventsservice"
-    OTEL_RESOURCE_ATTRIBUTES: "service.name=pagopareceiptspdfserviceotl,deployment.environment=dev"
+    OTEL_SERVICE_NAME: "pagopa-bizevents-service"
+    OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=dev"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
