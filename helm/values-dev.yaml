@@ -70,6 +70,7 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
+    ENV: 'dev'
     WEBSITE_SITE_NAME: 'pagopabizeventsservice' # required to show cloud role name in application insights
     COSMOS_DB_URI: 'https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/'
     COSMOS_DB_NAME: 'db'
