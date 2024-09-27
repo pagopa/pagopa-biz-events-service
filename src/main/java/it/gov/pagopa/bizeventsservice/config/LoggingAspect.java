@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.model.ProblemJson;
-import lombok.extern.slf4j.Slf4j;;
+import lombok.extern.slf4j.Slf4j;
 
 @Aspect
 @Component
