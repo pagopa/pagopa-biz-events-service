@@ -11,7 +11,7 @@
 
     <groupId>it.gov.pagopa</groupId>
     <artifactId>bizeventsservice</artifactId>
-    <version>0.1.59</version>
+    <version>0.1.59-1-PAGOPA-2168-log-optimization</version>
     <name>Biz-Events Service</name>
     <description>Microservice for exposing REST APIs about payment receipts.</description>
 
@@ -20,7 +20,7 @@
         <springdoc-version>1.6.12</springdoc-version>
 		<modelmapper-version>3.1.0</modelmapper-version>
 		<cosmos-data-version>3.29.1</cosmos-data-version>
-        <elasticsearch.version>1.5.0</elasticsearch.version>
+        <elasticsearch.version>1.6.0</elasticsearch.version>
         <spring-cloud.version>2021.0.9</spring-cloud.version>
     </properties>
 

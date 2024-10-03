@@ -25,7 +25,9 @@ public enum AppError {
     VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE(HttpStatus.NOT_FOUND, VIEW_CART_NOT_FOUND, "Not found a biz-events-view-cart with id %s for the given tax code"),
 
     ERROR_MAPPING_BIZ_EVENT_TO_TRANSACTION_DETAIL(HttpStatus.INTERNAL_SERVER_ERROR, INVALID_DATA, "Error mapping bizEvent data to transaction details, missing property %s for bizEvent with id %s"),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "Something was wrong");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "Something was wrong"),
+	
+	UNKNOWN(null, null, null);
 
     public final HttpStatus httpStatus;
     public final String title;
