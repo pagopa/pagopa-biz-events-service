@@ -16,8 +16,6 @@ RUN java -Djarmode=layertools -jar application.jar extract
 
 FROM ghcr.io/pagopa/docker-base-springboot-openjdk17:v2.1.1@sha256:a2864e6ba9c6b7ebf9804f57a23d416d6f217d2f5b3ec2a48b5c95bf488ec20c
 
-COPY --chown=spring:spring docker/applicationinsights.json ./applicationinsights.json
-
 COPY --chown=spring:spring  --from=builder dependencies/ ./
 COPY --chown=spring:spring  --from=builder snapshot-dependencies/ ./
 
