@@ -14,7 +14,7 @@ COPY --from=buildtime /build/target/*.jar application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 
-FROM ghcr.io/pagopa/docker-base-springboot-openjdk17:v2.1.2
+FROM ghcr.io/pagopa/docker-base-springboot-openjdk17:v2.1.2@sha256:824a241756a32ac9eeef4585a3a266fb019d2c599337269b0c8b419de4c2df3e
 
 COPY --chown=spring:spring  --from=builder dependencies/ ./
 COPY --chown=spring:spring  --from=builder snapshot-dependencies/ ./
