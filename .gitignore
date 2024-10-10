@@ -39,3 +39,5 @@ yarn.lock
 **/.terraform/
 **/*.prod
 **/report.json
+
+**/.env
