@@ -15,6 +15,8 @@ RUN java -Djarmode=layertools -jar application.jar extract
 
 
 FROM ghcr.io/pagopa/docker-base-springboot-openjdk17:v2.1.0
+ADD --chown=spring:spring https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.19/applicationinsights-agent-3.4.19.jar /applicationinsights-agent.jar
+COPY --chown=spring:spring docker/applicationinsights.json ./applicationinsights.json
 
 COPY --chown=spring:spring  --from=builder dependencies/ ./
 COPY --chown=spring:spring  --from=builder snapshot-dependencies/ ./
