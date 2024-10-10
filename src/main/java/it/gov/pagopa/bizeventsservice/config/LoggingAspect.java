@@ -1,15 +1,8 @@
 package it.gov.pagopa.bizeventsservice.config;
 
-import static it.gov.pagopa.bizeventsservice.util.CommonUtil.deNull;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import it.gov.pagopa.bizeventsservice.exception.AppError;
+import it.gov.pagopa.bizeventsservice.model.ProblemJson;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -22,9 +15,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import it.gov.pagopa.bizeventsservice.exception.AppError;
-import it.gov.pagopa.bizeventsservice.model.ProblemJson;
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import static it.gov.pagopa.bizeventsservice.util.CommonUtil.deNull;
 
 @Aspect
 @Component
@@ -125,7 +123,7 @@ public class LoggingAspect {
 	    Map<String, String> params = getParams(joinPoint);
 	    MDC.put(ARGS, params.toString());
 
-	    log.info("Invoking API operation {} - args: {}", joinPoint.getSignature().getName(), params);
+	    log.debug("Invoking API operation {} - args: {}", joinPoint.getSignature().getName(), params);
 
 	    Object result = joinPoint.proceed();
 
