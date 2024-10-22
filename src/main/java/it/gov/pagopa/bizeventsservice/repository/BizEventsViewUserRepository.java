@@ -24,4 +24,7 @@ public interface BizEventsViewUserRepository extends CosmosRepository<BizEventsV
 
     @Query("select * from c where c.transactionId=@transactionId and c.taxCode = @fiscalCode and c.hidden = false")
     List<BizEventsViewUser> getBizEventsViewUserByTaxCodeAndTransactionId(String fiscalCode, String transactionId);
+    
+    @Query("select * from c where c.taxCode = @fiscalCode and c.hidden = false and STARTSWITH(c.id, @eventId)")
+    List<BizEventsViewUser> getBizEventsViewUserByTaxCodeAndId(String fiscalCode, String eventId);
 }

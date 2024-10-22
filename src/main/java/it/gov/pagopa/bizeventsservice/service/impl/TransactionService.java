@@ -99,7 +99,7 @@ public class TransactionService implements ITransactionService {
     public TransactionDetailResponse getTransactionDetails(String taxCode, String eventReference) {
         List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(eventReference);
         if (bizEventsViewGeneral.isEmpty()) {
-            throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_TRANSACTION_ID, eventReference);
+            throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_ID, eventReference);
         }
 
         List<BizEventsViewCart> listOfCartViews;
@@ -117,22 +117,22 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public NoticeDetailResponse getPaidNoticeDetail(String taxCode, String eventId) {
-        List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(eventId);
+    	Optional<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findById(eventId);
         if (bizEventsViewGeneral.isEmpty()) {
-            throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_TRANSACTION_ID, eventId);
+            throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_ID, eventId);
         }
 
         List<BizEventsViewCart> listOfCartViews;
-        if (bizEventsViewGeneral.get(0).getPayer() != null && bizEventsViewGeneral.get(0).getPayer().getTaxCode().equals(taxCode)) {
-            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(eventId);
+        if (bizEventsViewGeneral.get().getPayer() != null && bizEventsViewGeneral.get().getPayer().getTaxCode().equals(taxCode)) {
+            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(bizEventsViewGeneral.get().getTransactionId());
         } else {
-            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(eventId, taxCode);
+            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(bizEventsViewGeneral.get().getTransactionId(), taxCode);
         }
         if (listOfCartViews.isEmpty()) {
-            throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE, eventId);
+            throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE, bizEventsViewGeneral.get().getTransactionId());
         }
 
-        return ConvertViewsToTransactionDetailResponse.convertPaidNoticeDetails(taxCode, bizEventsViewGeneral.get(0), listOfCartViews);
+        return ConvertViewsToTransactionDetailResponse.convertPaidNoticeDetails(taxCode, bizEventsViewGeneral.get(), listOfCartViews);
     }
 
 
@@ -143,10 +143,25 @@ public class TransactionService implements ITransactionService {
                 .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
 
         if (CollectionUtils.isEmpty(listOfViewUser)) {
-            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TRANSACTION_ID, fiscalCode, transactionId);
+            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_ID, fiscalCode, transactionId);
         }
 
         // PAGOPA-1831: set hidden to true for all transactions with the same transactionId for the given fiscalCode
+        listOfViewUser.forEach(u -> u.setHidden(true));
+        bizEventsViewUserRepository.saveAll(listOfViewUser);
+    }
+    
+    @Override
+    public void disablePaidNotice(String fiscalCode, String eventId) {
+
+        List<BizEventsViewUser> listOfViewUser = this.bizEventsViewUserRepository
+                .getBizEventsViewUserByTaxCodeAndId(fiscalCode, eventId);
+
+        if (CollectionUtils.isEmpty(listOfViewUser)) {
+            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_ID, fiscalCode, eventId);
+        }
+
+        // set hidden to true for all paid notices with the same eventId for the given fiscalCode
         listOfViewUser.forEach(u -> u.setHidden(true));
         bizEventsViewUserRepository.saveAll(listOfViewUser);
     }

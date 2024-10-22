@@ -134,7 +134,7 @@ public class PaidNoticeControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
-        verify(transactionService).disableTransaction(any(), any());
+        verify(transactionService).disablePaidNotice(any(), any());
     }
 
     @Test
@@ -149,7 +149,7 @@ public class PaidNoticeControllerTest {
     void getPaidNoticeDisableWithInvalidFiscalCodeShouldReturnError() throws Exception {
         doAnswer(x -> {
             throw new AppException(AppError.INVALID_FISCAL_CODE, INVALID_FISCAL_CODE);
-        }).when(transactionService).disableTransaction(anyString(), anyString());
+        }).when(transactionService).disablePaidNotice(anyString(), anyString());
         mvc.perform(post(PAIDS_EVENT_ID_DISABLE_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, INVALID_FISCAL_CODE)
                         .contentType(MediaType.APPLICATION_JSON))
