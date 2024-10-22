@@ -117,22 +117,22 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public NoticeDetailResponse getPaidNoticeDetail(String taxCode, String eventId) {
-        List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(eventId);
+    	Optional<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findById(eventId);
         if (bizEventsViewGeneral.isEmpty()) {
             throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_TRANSACTION_ID, eventId);
         }
 
         List<BizEventsViewCart> listOfCartViews;
-        if (bizEventsViewGeneral.get(0).getPayer() != null && bizEventsViewGeneral.get(0).getPayer().getTaxCode().equals(taxCode)) {
-            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(eventId);
+        if (bizEventsViewGeneral.get().getPayer() != null && bizEventsViewGeneral.get().getPayer().getTaxCode().equals(taxCode)) {
+            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(bizEventsViewGeneral.get().getTransactionId());
         } else {
-            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(eventId, taxCode);
+            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(bizEventsViewGeneral.get().getTransactionId(), taxCode);
         }
         if (listOfCartViews.isEmpty()) {
-            throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE, eventId);
+            throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE, bizEventsViewGeneral.get().getTransactionId());
         }
 
-        return ConvertViewsToTransactionDetailResponse.convertPaidNoticeDetails(taxCode, bizEventsViewGeneral.get(0), listOfCartViews);
+        return ConvertViewsToTransactionDetailResponse.convertPaidNoticeDetails(taxCode, bizEventsViewGeneral.get(), listOfCartViews);
     }
 
 
