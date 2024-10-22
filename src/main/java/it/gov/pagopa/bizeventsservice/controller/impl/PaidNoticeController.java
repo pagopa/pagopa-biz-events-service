@@ -60,8 +60,8 @@ public class PaidNoticeController implements IPaidNoticeController {
     }
 
     @Override
-    public ResponseEntity<Void> disablePaidNotice(String fiscalCode, String transactionId) {
-        transactionService.disableTransaction(fiscalCode, transactionId);
+    public ResponseEntity<Void> disablePaidNotice(String fiscalCode, String eventId) {
+        transactionService.disablePaidNotice(fiscalCode, eventId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

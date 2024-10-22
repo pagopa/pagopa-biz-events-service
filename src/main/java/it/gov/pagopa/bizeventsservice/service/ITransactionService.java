@@ -29,4 +29,6 @@ public interface ITransactionService {
     ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, String eventId);
 
     void disableTransaction(String fiscalCode, String transactionId);
+    
+    void disablePaidNotice(String fiscalCode, String eventId);
 }
