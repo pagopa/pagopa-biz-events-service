@@ -208,6 +208,32 @@ public class TransactionServiceTest {
         Assertions.assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
         Assertions.assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
     }
+    
+    @Test
+    void idAndTaxCodeWithNoEventShouldReturnException() {
+    	when(bizEventsViewGeneralRepository.findById(ViewGenerator.EVENT_ID))
+    	.thenReturn(Optional.ofNullable(null));
+    	
+    	Assertions.assertThrows(AppException.class, () ->
+    	transactionService.getPaidNoticeDetail(
+    			ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.EVENT_ID));
+
+    	verify(bizEventsViewGeneralRepository).findById(ViewGenerator.EVENT_ID);
+
+    	BizEventsViewGeneral viewGeneral = ViewGenerator.generateBizEventsViewGeneral();
+    	when(bizEventsViewGeneralRepository.findById(ViewGenerator.EVENT_ID))
+    	.thenReturn(Optional.ofNullable(viewGeneral));
+    	List<BizEventsViewCart> listOfCartView = new ArrayList<>();
+    	when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID))
+    	.thenReturn(listOfCartView);
+
+    	Assertions.assertThrows(AppException.class, () ->
+    	transactionService.getPaidNoticeDetail(
+    			ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.EVENT_ID));
+    	
+    	verify(bizEventsViewGeneralRepository, times(2)).findById(ViewGenerator.EVENT_ID);
+        verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID);
+    }
 
     @Test
     void idAndTaxCodeWithOneEventShouldReturnTransactionDetails() {
@@ -373,7 +399,18 @@ public class TransactionServiceTest {
         verify(bizEventsViewUserRepository).saveAll(argument.capture());
         assertEquals(Boolean.TRUE, argument.getValue().get(0).getHidden());
     }
+    
+    @Test
+    void transactionViewUserDisabledEmptyList() {
+        List<BizEventsViewUser> viewUserList = new ArrayList<>();
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndId(anyString(), anyString()))
+                .thenReturn(viewUserList);
+        Assertions.assertThrows(AppException.class, () -> transactionService.disablePaidNotice(
+                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.EVENT_ID));
 
+        verify(bizEventsViewUserRepository, times(0)).saveAll(viewUserList);
+    }
+    
     @Test
     void transactionViewUserCartDisabled() {
 
