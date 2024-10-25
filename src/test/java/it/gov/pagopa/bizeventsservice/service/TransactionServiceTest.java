@@ -163,23 +163,22 @@ public class TransactionServiceTest {
 
     @Test
     void idAndTaxCodeWithOneEventShouldReturnNoticeDetails() {
-        List<BizEventsViewGeneral> generalViewList = Collections.singletonList(ViewGenerator.generateBizEventsViewGeneral());
-        when(bizEventsViewGeneralRepository.findByTransactionId(ViewGenerator.TRANSACTION_ID))
-                .thenReturn(generalViewList);
+    	BizEventsViewGeneral viewGeneral = ViewGenerator.generateBizEventsViewGeneral();
+        when(bizEventsViewGeneralRepository.findById(ViewGenerator.EVENT_ID))
+        .thenReturn(Optional.ofNullable(viewGeneral));
         List<BizEventsViewCart> listOfCartView = Collections.singletonList(ViewGenerator.generateBizEventsViewCart());
         when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID))
                 .thenReturn(listOfCartView);
         NoticeDetailResponse noticeDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getPaidNoticeDetail(
-                                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.EVENT_ID));
         Assertions.assertNotNull(noticeDetailResponse);
-        verify(bizEventsViewGeneralRepository).findByTransactionId(ViewGenerator.TRANSACTION_ID);
+        verify(bizEventsViewGeneralRepository).findById(ViewGenerator.EVENT_ID);
         verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID);
         verifyNoMoreInteractions(bizEventsViewGeneralRepository);
         verifyNoMoreInteractions(bizEventsViewCartRepository);
 
-        BizEventsViewGeneral viewGeneral = generalViewList.get(0);
         Assertions.assertNotNull(noticeDetailResponse);
         InfoNotice infoNotice = noticeDetailResponse.getInfoNotice();
         Assertions.assertEquals(viewGeneral.getTransactionId(), infoNotice.getEventId());
@@ -208,6 +207,32 @@ public class TransactionServiceTest {
         Assertions.assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
         Assertions.assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
         Assertions.assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
+    }
+    
+    @Test
+    void idAndTaxCodeWithNoEventShouldReturnException() {
+    	when(bizEventsViewGeneralRepository.findById(ViewGenerator.EVENT_ID))
+    	.thenReturn(Optional.ofNullable(null));
+    	
+    	Assertions.assertThrows(AppException.class, () ->
+    	transactionService.getPaidNoticeDetail(
+    			ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.EVENT_ID));
+
+    	verify(bizEventsViewGeneralRepository).findById(ViewGenerator.EVENT_ID);
+
+    	BizEventsViewGeneral viewGeneral = ViewGenerator.generateBizEventsViewGeneral();
+    	when(bizEventsViewGeneralRepository.findById(ViewGenerator.EVENT_ID))
+    	.thenReturn(Optional.ofNullable(viewGeneral));
+    	List<BizEventsViewCart> listOfCartView = new ArrayList<>();
+    	when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID))
+    	.thenReturn(listOfCartView);
+
+    	Assertions.assertThrows(AppException.class, () ->
+    	transactionService.getPaidNoticeDetail(
+    			ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.EVENT_ID));
+    	
+    	verify(bizEventsViewGeneralRepository, times(2)).findById(ViewGenerator.EVENT_ID);
+        verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID);
     }
 
     @Test
@@ -295,18 +320,18 @@ public class TransactionServiceTest {
 
     @Test
     void idAndTaxCodeWithCartEventShouldReturnNoticeDetails() {
-        List<BizEventsViewGeneral> generalViewList = Collections.singletonList(ViewGenerator.generateBizEventsViewGeneral());
-        when(bizEventsViewGeneralRepository.findByTransactionId(ViewGenerator.TRANSACTION_ID))
-                .thenReturn(generalViewList);
+    	BizEventsViewGeneral viewGeneral = ViewGenerator.generateBizEventsViewGeneral();
+        when(bizEventsViewGeneralRepository.findById(ViewGenerator.EVENT_ID))
+        .thenReturn(Optional.ofNullable(viewGeneral));
         List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
         when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID))
                 .thenReturn(listOfCartView);
         NoticeDetailResponse noticeDetailResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getPaidNoticeDetail(
-                                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.EVENT_ID));
         Assertions.assertNotNull(noticeDetailResponse);
-        verify(bizEventsViewGeneralRepository).findByTransactionId(ViewGenerator.TRANSACTION_ID);
+        verify(bizEventsViewGeneralRepository).findById(ViewGenerator.EVENT_ID);
         verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID);
         verifyNoMoreInteractions(bizEventsViewGeneralRepository);
         verifyNoMoreInteractions(bizEventsViewCartRepository);
@@ -365,16 +390,27 @@ public class TransactionServiceTest {
     @Test
     void transactionViewUserDisabled() {
         List<BizEventsViewUser> viewUserList = Collections.singletonList(generateBizEventsViewUser());
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndTransactionId(anyString(), anyString()))
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndId(anyString(), anyString()))
                 .thenReturn(viewUserList);
-        Assertions.assertDoesNotThrow(() -> transactionService.disableTransaction(
-                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+        Assertions.assertDoesNotThrow(() -> transactionService.disablePaidNotice(
+                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.EVENT_ID));
 
         ArgumentCaptor<List<BizEventsViewUser>> argument = ArgumentCaptor.forClass(List.class);
         verify(bizEventsViewUserRepository).saveAll(argument.capture());
         assertEquals(Boolean.TRUE, argument.getValue().get(0).getHidden());
     }
+    
+    @Test
+    void transactionViewUserDisabledEmptyList() {
+        List<BizEventsViewUser> viewUserList = new ArrayList<>();
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndId(anyString(), anyString()))
+                .thenReturn(viewUserList);
+        Assertions.assertThrows(AppException.class, () -> transactionService.disablePaidNotice(
+                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.EVENT_ID));
 
+        verify(bizEventsViewUserRepository, times(0)).saveAll(viewUserList);
+    }
+    
     @Test
     void transactionViewUserCartDisabled() {
 
@@ -386,11 +422,11 @@ public class TransactionServiceTest {
             viewUserList.add(u);
         }
 
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndTransactionId(anyString(), anyString()))
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndId(anyString(), anyString()))
                 .thenReturn(viewUserList);
 
-        Assertions.assertDoesNotThrow(() -> transactionService.disableTransaction(
-                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+        Assertions.assertDoesNotThrow(() -> transactionService.disablePaidNotice(
+                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.EVENT_ID));
 
         ArgumentCaptor<List<BizEventsViewUser>> argument = ArgumentCaptor.forClass(List.class);
         verify(bizEventsViewUserRepository).saveAll(argument.capture());
