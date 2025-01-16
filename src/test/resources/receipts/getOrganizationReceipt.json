@@ -47,7 +47,7 @@
   "payer": null,
   "paymentMethod": "BBT",
   "fee": 0,
-  "paymentDateTime": "2022-10-24",
+  "paymentDateTime": "2022-10-24T17:54:08",
   "applicationDate": "2012-03-02",
   "transferDate": "2012-03-03",
   "metadata": []
