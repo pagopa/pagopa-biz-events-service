@@ -12,6 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -69,6 +70,9 @@ public class CtReceiptModelResponse implements Serializable {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate paymentDateTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime paymentDateTimeFormatted;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate applicationDate;

@@ -14,6 +14,7 @@ import org.modelmapper.spi.MappingContext;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,6 +108,7 @@ public class ConvertBizEventEntityToCtReceiptModelResponse implements Converter<
                 .idBundle(be.getPaymentInfo().getIdBundle())
                 .idCiBundle(be.getPaymentInfo().getIdCiBundle())
                 .paymentDateTime(LocalDate.parse(StringUtils.substringBeforeLast(be.getPaymentInfo().getPaymentDateTime(), "."), dfDateTime))
+                .paymentDateTimeFormatted(LocalDateTime.parse(StringUtils.substringBeforeLast(be.getPaymentInfo().getPaymentDateTime(), "."), dfDateTime))
                 .applicationDate(null != be.getPaymentInfo().getApplicationDate() ? LocalDate.parse(be.getPaymentInfo().getApplicationDate(), dfDate) : null)
                 .transferDate(null != be.getPaymentInfo().getTransferDate() ? LocalDate.parse(be.getPaymentInfo().getTransferDate(), dfDate) : null)
                 .metadata(be.getPaymentInfo().getMetadata())
