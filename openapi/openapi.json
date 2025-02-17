@@ -2534,6 +2534,10 @@
           "eventRetryEnrichmentCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "_ts": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
