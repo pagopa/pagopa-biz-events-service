@@ -68,8 +68,11 @@ public class CtReceiptModelResponse implements Serializable {
     private String idBundle;
     private String idCiBundle;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate paymentDateTime;
+
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime paymentDateTime;
+    private LocalDateTime paymentDateTimeFormatted;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate applicationDate;
