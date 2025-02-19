@@ -1,4 +1,4 @@
-oa3_spec: ./openapi/openapi_io.json
+oa3_spec: ./openapi/openapi_lap.json
 name: opex_pagopa-bizevents-service
 location: West Europe
 timespan: 5m

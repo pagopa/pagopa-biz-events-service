@@ -24,12 +24,13 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
+import static it.gov.pagopa.bizeventsservice.util.Constants.X_FISCAL_CODE;
+
 
 @Tag(name = "Paid Notice REST APIs")
 @RequestMapping("/paids")
 @Validated
 public interface IPaidNoticeController {
-    String X_FISCAL_CODE = "x-fiscal-code";
     String X_CONTINUATION_TOKEN = "x-continuation-token";
     String PAGE_SIZE = "size";
 

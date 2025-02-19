@@ -5,6 +5,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class Constants {
     public static final String HEADER_REQUEST_ID = "X-Request-Id";
+    public static final String X_FISCAL_CODE = "x-fiscal-code";
     public static final String BIZ_NOT_FOUND_HEADER = "Biz Event not found";
     public static final String BIZ_NOT_UNIQUE_HEADER = "Biz Event is not unique";
     public static final String VIEW_USER_NOT_FOUND = "Biz-events-view-user not found";

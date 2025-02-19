@@ -32,14 +32,17 @@ class OpenApiGenerationTest {
         saveOpenAPI("/v3/api-docs", "openapi.json");
         saveOpenAPI("/v3/api-docs/helpdesk", "openapi_helpdesk.json");
         saveOpenAPI("/v3/api-docs/ec", "openapi_ec.json");
-        saveOpenAPI("/v3/api-docs/io", "openapi_io.json");
+        saveOpenAPI("/v3/api-docs/lap", "openapi_lap.json");
+        saveOpenAPI("/v3/api-docs/lap_jwt", "openapi_lap_jwt.json");
+        saveOpenAPI("/v3/api-docs/transaction", "openapi_transaction.json");
+        saveOpenAPI("/v3/api-docs/transaction_jwt", "openapi_transaction_jwt.json");
     }
 
     private void saveOpenAPI(String fromUri, String toFile) throws Exception {
         mvc.perform(MockMvcRequestBuilders.get(fromUri).accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andDo(
-                        (result) -> {
+                        result -> {
                             assertNotNull(result);
                             assertNotNull(result.getResponse());
                             final String content = result.getResponse().getContentAsString();
