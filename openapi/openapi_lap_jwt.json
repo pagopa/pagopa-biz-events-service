@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Biz-Events Service - Payment Receipts REST APIs",
+    "title": "Biz-Events Service - Paid Notice REST APIs (aka LAP) JWT",
     "description": "Microservice for exposing REST APIs about payment receipts.",
     "termsOfService": "https://www.pagopa.gov.it/",
     "version": "0.1.68"
@@ -11,31 +11,22 @@
       "url": "http://localhost:8080"
     },
     {
-      "url": "https://api.platform.pagopa.it/bizevents/service/v1"
+      "url": "https://api.platform.pagopa.it/bizevents/notices-service-jwt/v1"
     }
   ],
   "paths": {
-    "/organizations/{organizationfiscalcode}/receipts/{iur}": {
-      "get": {
+    "/paids/{event-id}/disable": {
+      "post": {
         "tags": [
-          "Payment Receipts REST APIs"
+          "Paid Notice REST APIs"
         ],
-        "summary": "The organization get the receipt for the creditor institution using IUR.",
-        "operationId": "getOrganizationReceiptIur",
+        "summary": "Disable the paid notice details given its id.",
+        "operationId": "disablePaidNotice",
         "parameters": [
           {
-            "name": "organizationfiscalcode",
+            "name": "event-id",
             "in": "path",
-            "description": "The fiscal code of the Organization.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "iur",
-            "in": "path",
-            "description": "The unique reference of the operation assigned to the payment (Payment Token).",
+            "description": "The id of the paid event.",
             "required": true,
             "schema": {
               "type": "string"
@@ -43,8 +34,8 @@
           }
         ],
         "responses": {
-          "422": {
-            "description": "Unable to process the request.",
+          "404": {
+            "description": "Not found the paid event.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -57,24 +48,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "Obtained receipt.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CtReceiptModelResponse"
                 }
               }
             }
@@ -108,24 +81,6 @@
               }
             }
           },
-          "404": {
-            "description": "Not found the receipt.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
           "429": {
             "description": "Too many requests.",
             "headers": {
@@ -136,11 +91,25 @@
                 }
               }
             }
+          },
+          "200": {
+            "description": "Event Disabled.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
           }
         },
         "security": [
           {
-            "ApiKey": []
+            "JWT": []
           }
         ]
       },
@@ -156,66 +125,92 @@
         }
       ]
     },
-    "/organizations/{organizationfiscalcode}/receipts/{iur}/paymentoptions/{iuv}": {
+    "/paids": {
       "get": {
         "tags": [
-          "Payment Receipts REST APIs"
+          "Paid Notice REST APIs"
         ],
-        "summary": "The organization get the receipt for the creditor institution using IUV and IUR.",
-        "operationId": "getOrganizationReceiptIuvIur",
+        "summary": "Retrieve the paged transaction list from biz events.",
+        "description": "This operation is deprecated. Use Paid Notice APIs instead",
+        "operationId": "getPaidNotices",
         "parameters": [
           {
-            "name": "organizationfiscalcode",
-            "in": "path",
-            "description": "The fiscal code of the Organization.",
-            "required": true,
+            "name": "x-continuation-token",
+            "in": "header",
+            "required": false,
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "iur",
-            "in": "path",
-            "description": "The unique reference of the operation assigned to the payment (Payment Token).",
-            "required": true,
+            "name": "size",
+            "in": "query",
+            "required": false,
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format": "int32",
+              "default": 10
             }
           },
           {
-            "name": "iuv",
-            "in": "path",
-            "description": "The unique payment identification. Alphanumeric code that uniquely associates and identifies three key elements of a payment: reason, payer, amount",
-            "required": true,
+            "name": "is_payer",
+            "in": "query",
+            "description": "Filter by payer",
+            "required": false,
             "schema": {
-              "type": "string"
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "is_debtor",
+            "in": "query",
+            "description": "Filter by debtor",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "description": "Order by TRANSACTION_DATE",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "TRANSACTION_DATE",
+              "enum": [
+                "TRANSACTION_DATE"
+              ]
+            }
+          },
+          {
+            "name": "ordering",
+            "in": "query",
+            "description": "Direction of ordering",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "DESC",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
             }
           }
         ],
         "responses": {
-          "422": {
-            "description": "Unable to process the request.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
           "200": {
-            "description": "Obtained receipt.",
+            "description": "Obtained paid notices list.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-continuation-token": {
+                "description": "continuation token for paginated query",
+                "style": "simple",
                 "schema": {
                   "type": "string"
                 }
@@ -224,7 +219,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CtReceiptModelResponse"
+                  "$ref": "#/components/schemas/NoticeListWrapResponse"
                 }
               }
             }
@@ -258,8 +253,233 @@
               }
             }
           },
+          "429": {
+            "description": "Too many requests.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found the fiscal code.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/paids/{event-id}": {
+      "get": {
+        "tags": [
+          "Paid Notice REST APIs"
+        ],
+        "summary": "Retrieve the paid notice details given its id.",
+        "operationId": "getPaidNoticeDetail",
+        "parameters": [
+          {
+            "name": "event-id",
+            "in": "path",
+            "description": "The id of the paid event.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Obtained paid notice detail.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoticeDetailResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found the transaction.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Service unavailable.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Wrong or missing function key.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/paids/{event-id}/pdf": {
+      "get": {
+        "tags": [
+          "Paid Notice REST APIs"
+        ],
+        "summary": "Retrieve the PDF receipt given event id.",
+        "operationId": "generatePDF",
+        "parameters": [
+          {
+            "name": "event-id",
+            "in": "path",
+            "description": "The id of the paid event.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
           "404": {
             "description": "Not found the receipt.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Obtained the PDF receipt.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Disposition": {
+                "description": "Content disposition with name of the file",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Service unavailable.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -286,11 +506,43 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Unprocessable receipt.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Wrong or missing function key.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {}
+            }
           }
         },
         "security": [
           {
-            "ApiKey": []
+            "JWT": []
           }
         ]
       },
@@ -405,7 +657,7 @@
         },
         "security": [
           {
-            "ApiKey": []
+            "JWT": []
           }
         ]
       },
@@ -446,255 +698,195 @@
           }
         }
       },
-      "CtReceiptModelResponse": {
+      "NoticeListItem": {
         "required": [
-          "companyName",
-          "creditorReferenceId",
-          "debtor",
-          "description",
-          "fiscalCode",
-          "idChannel",
-          "idPSP",
-          "noticeNumber",
-          "outcome",
-          "paymentAmount",
-          "pspCompanyName",
-          "receiptId",
-          "transferList"
+          "amount",
+          "eventId",
+          "isCart",
+          "isDebtor",
+          "isPayer",
+          "noticeDate",
+          "payeeTaxCode"
         ],
         "type": "object",
         "properties": {
-          "receiptId": {
+          "eventId": {
             "type": "string"
           },
-          "noticeNumber": {
+          "payeeName": {
             "type": "string"
           },
-          "fiscalCode": {
+          "payeeTaxCode": {
             "type": "string"
           },
-          "outcome": {
+          "amount": {
             "type": "string"
           },
-          "creditorReferenceId": {
+          "noticeDate": {
             "type": "string"
           },
-          "paymentAmount": {
-            "type": "number"
+          "isCart": {
+            "type": "boolean"
           },
-          "description": {
-            "type": "string"
+          "isPayer": {
+            "type": "boolean"
           },
-          "companyName": {
-            "type": "string"
-          },
-          "officeName": {
-            "type": "string"
-          },
-          "debtor": {
-            "$ref": "#/components/schemas/Debtor"
-          },
-          "transferList": {
+          "isDebtor": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NoticeListWrapResponse": {
+        "required": [
+          "notices"
+        ],
+        "type": "object",
+        "properties": {
+          "notices": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/TransferPA"
+              "$ref": "#/components/schemas/NoticeListItem"
             }
-          },
-          "idPSP": {
+          }
+        }
+      },
+      "CartItem": {
+        "required": [
+          "amount",
+          "refNumberType",
+          "refNumberValue",
+          "subject"
+        ],
+        "type": "object",
+        "properties": {
+          "subject": {
             "type": "string"
           },
-          "pspFiscalCode": {
+          "amount": {
             "type": "string"
           },
-          "pspPartitaIVA": {
+          "payee": {
+            "$ref": "#/components/schemas/UserDetail"
+          },
+          "debtor": {
+            "$ref": "#/components/schemas/UserDetail"
+          },
+          "refNumberValue": {
             "type": "string"
           },
-          "pspCompanyName": {
+          "refNumberType": {
+            "type": "string"
+          }
+        }
+      },
+      "InfoNotice": {
+        "required": [
+          "amount",
+          "eventId",
+          "noticeDate",
+          "origin",
+          "pspName",
+          "rrn"
+        ],
+        "type": "object",
+        "properties": {
+          "eventId": {
             "type": "string"
           },
-          "idChannel": {
+          "authCode": {
             "type": "string"
           },
-          "channelDescription": {
+          "rrn": {
             "type": "string"
           },
-          "payer": {
-            "$ref": "#/components/schemas/Payer"
+          "noticeDate": {
+            "type": "string"
+          },
+          "pspName": {
+            "type": "string"
+          },
+          "walletInfo": {
+            "$ref": "#/components/schemas/WalletInfo"
           },
           "paymentMethod": {
+            "type": "string",
+            "enum": [
+              "BBT",
+              "BP",
+              "AD",
+              "CP",
+              "PO",
+              "OBEP",
+              "JIF",
+              "MYBK",
+              "PPAL",
+              "UNKNOWN"
+            ]
+          },
+          "payer": {
+            "$ref": "#/components/schemas/UserDetail"
+          },
+          "amount": {
             "type": "string"
           },
           "fee": {
-            "type": "number"
-          },
-          "primaryCiIncurredFee": {
-            "type": "number"
-          },
-          "idBundle": {
             "type": "string"
           },
-          "idCiBundle": {
-            "type": "string"
-          },
-          "paymentDateTime": {
+          "origin": {
             "type": "string",
-            "format": "date-time"
+            "enum": [
+              "INTERNAL",
+              "PM",
+              "NDP001PROD",
+              "NDP002PROD",
+              "NDP003PROD",
+              "UNKNOWN"
+            ]
+          }
+        }
+      },
+      "NoticeDetailResponse": {
+        "type": "object",
+        "properties": {
+          "infoNotice": {
+            "$ref": "#/components/schemas/InfoNotice"
           },
-          "applicationDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "transferDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "metadata": {
+          "carts": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/MapEntry"
+              "$ref": "#/components/schemas/CartItem"
             }
           }
         }
       },
-      "Debtor": {
+      "UserDetail": {
         "required": [
-          "entityUniqueIdentifierType",
-          "entityUniqueIdentifierValue",
-          "fullName"
+          "taxCode"
         ],
         "type": "object",
         "properties": {
-          "entityUniqueIdentifierType": {
-            "type": "string",
-            "enum": [
-              "F",
-              "G"
-            ]
-          },
-          "entityUniqueIdentifierValue": {
+          "name": {
             "type": "string"
           },
-          "fullName": {
-            "type": "string"
-          },
-          "streetName": {
-            "type": "string"
-          },
-          "civicNumber": {
-            "type": "string"
-          },
-          "postalCode": {
-            "type": "string"
-          },
-          "city": {
-            "type": "string"
-          },
-          "stateProvinceRegion": {
-            "type": "string"
-          },
-          "country": {
-            "type": "string"
-          },
-          "email": {
+          "taxCode": {
             "type": "string"
           }
         }
       },
-      "MapEntry": {
+      "WalletInfo": {
         "type": "object",
         "properties": {
-          "key": {
+          "accountHolder": {
             "type": "string"
           },
-          "value": {
-            "type": "string"
-          }
-        }
-      },
-      "Payer": {
-        "required": [
-          "entityUniqueIdentifierType",
-          "entityUniqueIdentifierValue",
-          "fullName"
-        ],
-        "type": "object",
-        "properties": {
-          "entityUniqueIdentifierType": {
-            "type": "string",
-            "enum": [
-              "F",
-              "G"
-            ]
-          },
-          "entityUniqueIdentifierValue": {
+          "brand": {
             "type": "string"
           },
-          "fullName": {
+          "blurredNumber": {
             "type": "string"
           },
-          "streetName": {
+          "maskedEmail": {
             "type": "string"
-          },
-          "civicNumber": {
-            "type": "string"
-          },
-          "postalCode": {
-            "type": "string"
-          },
-          "city": {
-            "type": "string"
-          },
-          "stateProvinceRegion": {
-            "type": "string"
-          },
-          "country": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          }
-        }
-      },
-      "TransferPA": {
-        "required": [
-          "fiscalCodePA",
-          "iban",
-          "mbdAttachment",
-          "remittanceInformation",
-          "transferAmount",
-          "transferCategory"
-        ],
-        "type": "object",
-        "properties": {
-          "idTransfer": {
-            "maximum": 5,
-            "minimum": 1,
-            "type": "integer",
-            "format": "int32"
-          },
-          "transferAmount": {
-            "type": "number"
-          },
-          "fiscalCodePA": {
-            "type": "string"
-          },
-          "iban": {
-            "type": "string"
-          },
-          "mbdAttachment": {
-            "type": "string"
-          },
-          "remittanceInformation": {
-            "type": "string"
-          },
-          "transferCategory": {
-            "type": "string"
-          },
-          "metadata": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MapEntry"
-            }
           }
         }
       },
@@ -714,11 +906,10 @@
       }
     },
     "securitySchemes": {
-      "ApiKey": {
-        "type": "apiKey",
-        "description": "The Azure Subscription Key to access this API.",
-        "name": "Ocp-Apim-Subscription-Key",
-        "in": "header"
+      "JWT": {
+        "type": "http",
+        "description": "JWT token associated to the user",
+        "scheme": "bearer"
       }
     }
   }
