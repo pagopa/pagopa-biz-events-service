@@ -174,6 +174,7 @@ When('the user with fiscal code {string} asks for its transactions', async (fisc
 })
 
 Then('the user gets the status code {int}', (status) => {
+	console.log("transactions response: ", responseToCheck);
 	assert.strictEqual(responseToCheck.status, status);
 })
 
