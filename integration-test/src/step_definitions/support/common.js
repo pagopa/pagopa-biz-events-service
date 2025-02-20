@@ -268,7 +268,8 @@ function createEvent(id, transactionId, totalNotice, debtorFiscalCode, payerFisc
 
 function createViewUser(taxCode, transactionId, hidden, isPayer){
 	return {
-		"id": "id-user"+transactionId,
+		// "id": "id-user"+transactionId,
+		"id": transactionId,
 		taxCode: taxCode,
 		transactionId: transactionId,
 		transactionDate: "2024-01-24T10:43:36.322Z",
@@ -304,7 +305,8 @@ function createViewGeneral(transactionId, payerTaxCode, isCart){
 
 function createViewCart(index,transactionId, taxCode){
 	return {
-		"id": "id-cart"+transactionId+taxCode+(index ?? ""),
+		// "id": "id-cart"+transactionId+taxCode+(index ?? ""),
+		"id": transactionId,
 		"transactionId": transactionId,
 		"eventId": "string",
 		"amount": 100,
