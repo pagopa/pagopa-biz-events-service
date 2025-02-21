@@ -91,9 +91,9 @@ async function createDocumentInViewGeneralDatastore(viewGeneral) {
     }
 }
 
-async function deleteDocumentFromViewGeneralDatastore(transactionId) {
+async function deleteDocumentFromViewGeneralDatastore(id, transactionId) {
     try {
-        return await containerViewGeneral.item(transactionId, transactionId).delete();
+        return await containerViewGeneral.item(id, transactionId).delete();
     } catch (error) {
         if (error.code !== 404) {
             console.log(error)
