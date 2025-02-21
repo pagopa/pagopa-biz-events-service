@@ -266,10 +266,9 @@ function createEvent(id, transactionId, totalNotice, debtorFiscalCode, payerFisc
 	};
 }
 
-function createViewUser(taxCode, transactionId, hidden, isPayer){
+function createViewUser(taxCode, id, transactionId, hidden, isPayer){
 	return {
-		// "id": "id-user"+transactionId,
-		"id": transactionId,
+		"id": id + (isPayer ? "-p" : "-d"),
 		taxCode: taxCode,
 		transactionId: transactionId,
 		transactionDate: "2024-01-24T10:43:36.322Z",
@@ -278,9 +277,9 @@ function createViewUser(taxCode, transactionId, hidden, isPayer){
 	};
 }
 
-function createViewGeneral(transactionId, payerTaxCode, isCart){
+function createViewGeneral(id, transactionId, payerTaxCode, isCart){
 	return {
-		"id": transactionId,
+		"id": id,
 		"transactionId": transactionId,
 		"authCode": "string",
 		"paymentMethod": "BBT",
@@ -303,10 +302,9 @@ function createViewGeneral(transactionId, payerTaxCode, isCart){
 	};
 }
 
-function createViewCart(index,transactionId, taxCode){
+function createViewCart(id, transactionId, taxCode){
 	return {
-		// "id": "id-cart"+transactionId+taxCode+(index ?? ""),
-		"id": transactionId,
+		"id": id,
 		"transactionId": transactionId,
 		"eventId": "string",
 		"amount": 100,

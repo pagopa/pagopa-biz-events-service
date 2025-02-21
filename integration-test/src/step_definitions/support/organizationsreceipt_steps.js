@@ -32,7 +32,7 @@ After(async function () {
 	}
 	if (viewGeneralList.length > 0) {
 		for (let viewGeneral of viewGeneralList) {
-			await deleteDocumentFromViewGeneralDatastore(viewGeneral.transactionId);
+			await deleteDocumentFromViewGeneralDatastore(viewGeneral.id, viewGeneral.transactionId);
 		}
 	}
 	if (viewCartList.length > 0) {
@@ -114,24 +114,25 @@ Given('Save all on Cosmos DB', async () => {
 })
 
 //TRANSACTIONS
-Given('{int} view user with taxCode {string} and transactionId prefix {string} and isPayer {string} on cosmos', function (numberOfView, taxCode, transactionId, isPayer) {
+Given('{int} view user with taxCode {string}, id prefix {string} and isCart {string} and isPayer {string} on cosmos', function (numberOfView, taxCode, id, isCart, isPayer) {
+	let isCartBool = isCart === 'true';
 	for(let i = 0; i < numberOfView; i++){
-		let viewUser = createViewUser(taxCode, transactionId+i, false, isPayer === "true");
+		let viewUser = createViewUser(taxCode, id+i, isCartBool ? id : id+i, false, isPayer === "true");
 		viewUserList.push(viewUser);
 	}
 });
-Given('{int} view general with payer tax code {string} and transactionId prefix {string} on cosmos', function (numberOfView, payerTaxCode, transactionId) {
+Given('{int} view general with payer tax code {string}, id prefix {string} and isCart {string} on cosmos', function (numberOfView, payerTaxCode, id, isCart) {
+	let isCartBool = isCart === 'true';
 	for(let i = 0; i < numberOfView; i++){
-		let viewGeneral = createViewGeneral(transactionId+i, payerTaxCode);
+		let viewGeneral = createViewGeneral(id+i, isCartBool ? id : id+i, payerTaxCode, isCartBool);
 		viewGeneralList.push(viewGeneral);
 	}
 });
-Given('{int} view cart for every view general with debtor taxCode {string} on cosmos', function (numberOfView, debtorTaxCode) {
-	for(let viewGeneral of viewGeneralList){
-		for(let i = 0; i < numberOfView; i++){
-			let viewCart = createViewCart(i, viewGeneral.transactionId, debtorTaxCode);
-			viewCartList.push(viewCart);
-		}
+Given('{int} view cart with debtor taxCode {string}, id prefix {string} and isCart {string} on cosmos', function (numberOfView, debtorTaxCode, id, isCart) {
+	let isCartBool = isCart === 'true';
+	for(let i = 0; i < numberOfView; i++){
+		let viewCart = createViewCart(isCartBool ? id+i+debtorTaxCode : id+i, isCartBool ? id : id+i, debtorTaxCode);
+		viewCartList.push(viewCart);
 	}
 });
 Given('Save all views on CosmosDB', async () => {
@@ -174,7 +175,6 @@ When('the user with fiscal code {string} asks for its transactions', async (fisc
 })
 
 Then('the user gets the status code {int}', (status) => {
-	console.log("transactions response: ", JSON.stringify(responseToCheck.data));
 	assert.strictEqual(responseToCheck.status, status);
 })
 
@@ -185,7 +185,7 @@ Then('the user gets {int} transactions', (totalTransactions) => {
 Then('the transactions with cart items {string} for taxCode {string} have the correct amount and subject', (isCart, taxCode) => {
 	for (let transaction of responseToCheck.data.notices) {
 		let totalAmount = 0;
-		for(let viewCart of viewCartList.filter(el => el.transactionId == transaction.eventId)){
+		for(let viewCart of viewCartList.filter(el => el.id == transaction.eventId)){
 			totalAmount += viewCart.amount;
 			if(isCart == "true"){
 				assert.notStrictEqual(transaction.payeeName, viewCart.payee.name);
