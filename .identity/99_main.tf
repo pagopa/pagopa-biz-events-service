@@ -8,7 +8,7 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.33.0"
+      version = "<= 3.110.0"
     }
     github = {
       source  = "integrations/github"
@@ -24,6 +24,7 @@ terraform {
 }
 
 provider "azurerm" {
+  skip_provider_registration = true
   features {}
 }
 

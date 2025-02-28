@@ -6,7 +6,7 @@ const cosmos_db_uri = process.env.COSMOS_DB_URI; // the cosmos account URI
 // Primary Key
 const databaseId             = process.env.COSMOS_DB_NAME;  // es. db
 const containerId            = process.env.COSMOS_DB_CONTAINER_NAME; // es. biz-events
-const authorizationSignature = process.env.COSMOS_DB_PRIMARY_KEY;  // the cosmos accont Connection Primary Key
+const authorizationSignature = process.env.COSMOS_DB_PRIMARY_KEY;  // the cosmos account Connection Primary Key
 const authorizationType      = "master"
 const authorizationVersion   = "1.0";
 const cosmosDBApiVersion     = "2018-12-31";
