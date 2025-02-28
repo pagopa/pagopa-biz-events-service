@@ -55,7 +55,6 @@ After(async function () {
 Given('Biz-Event to test with id {string} and save it on Cosmos DB', async function (id) {
 	//precondition - delete any typos
 	responseToCheck = await deleteDocument(id);
-	console.log("Cosmos response: ", responseToCheck);
 	assert.ok(responseToCheck.status == 204 || responseToCheck.status == 404);
 	
 	responseToCheck = await createDocument(id);
