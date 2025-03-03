@@ -7,7 +7,7 @@ const bizevents_trxsrv_host = process.env.BIZ_EVENTS_LAPSRV_HOST;
 
 // is the same 4all
 function healthCheckInfo() {
-    return get(bizevents_service_host + `info`, {})
+    return get(bizevents_helpdesk_host + `info`, {})
 }
 
 // >>> BIZ_EVENTS_SERVICE_HOST
