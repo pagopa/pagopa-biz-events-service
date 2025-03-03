@@ -8,8 +8,29 @@
   },
   "servers": [
     {
-      "url": "http://localhost",
-      "description": "Generated server url"
+      "url": "http://localhost:8080"
+    },
+    {
+      "url": "{host}{basePath}",
+      "variables": {
+        "host": {
+          "default": "https://api.platform.pagopa.it",
+          "enum": [
+            "https://api.dev.platform.pagopa.it",
+            "https://api.uat.platform.pagopa.it",
+            "https://api.platform.pagopa.it"
+          ]
+        },
+        "basePath": {
+          "default": "/bizevents/service/v1",
+          "enum": [
+            "/bizevents/notices-service/v1",
+            "/bizevents/service/v1",
+            "/bizevents/helpdesk/v1",
+            "/bizevents/tx-service/v1"
+          ]
+        }
+      }
     }
   ],
   "paths": {
@@ -2538,6 +2559,10 @@
           "eventRetryEnrichmentCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "_ts": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -2970,7 +2995,7 @@
     "securitySchemes": {
       "ApiKey": {
         "type": "apiKey",
-        "description": "The API key to access this function app.",
+        "description": "The Azure Subscription Key to access this API.",
         "name": "Ocp-Apim-Subscription-Key",
         "in": "header"
       }
