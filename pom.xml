@@ -19,7 +19,7 @@
         <java.version>17</java.version>
         <springdoc-version>1.6.12</springdoc-version>
 		<modelmapper-version>3.1.0</modelmapper-version>
-		<cosmos-data-version>3.29.1</cosmos-data-version>
+		<cosmos-data-version>3.30.0</cosmos-data-version>
         <elasticsearch.version>1.6.0</elasticsearch.version>
         <spring-cloud.version>2021.0.9</spring-cloud.version>
     </properties>
