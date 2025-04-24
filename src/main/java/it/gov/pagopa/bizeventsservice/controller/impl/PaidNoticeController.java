@@ -53,14 +53,8 @@ public class PaidNoticeController implements IPaidNoticeController {
         TransactionListResponse transactionListResponse = transactionService.getTransactionList(fiscalCode, isPayer, isDebtor,
                 continuationToken, size, orderBy, ordering);
 
-        // START TEST todo remove it
-        // Create a 5KB (5120 bytes) string
-        int sizeInBytes = 5 * 1024;
-        String fiveKbString = "A".repeat(sizeInBytes);
-        // END TEST todo remove  it
-
         return ResponseEntity.ok()
-                .header(X_CONTINUATION_TOKEN, transactionListResponse.getContinuationToken() + fiveKbString)
+                .header(X_CONTINUATION_TOKEN, transactionListResponse.getContinuationToken())
                 .body(NoticeListWrapResponse.builder().notices(convertToNoticeList(transactionListResponse)).build());
     }
 
