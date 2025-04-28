@@ -56,7 +56,7 @@ public class PaidNoticeController implements IPaidNoticeController {
         // START TEST todo remove it
         String continuationHeaderValue = transactionListResponse.getContinuationToken();
         // Create a 5KB (5120 bytes) string
-        int sizeInBytes = 7 * 1024;
+        int sizeInBytes = 5 * 1024;
         String fiveKbString = "A".repeat(sizeInBytes);
         // John Doe fiscal code test
         if (fiscalCode.equals("JHNDOE00A01F205N")) {
