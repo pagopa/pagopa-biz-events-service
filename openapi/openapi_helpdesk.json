@@ -4,7 +4,7 @@
     "title": "Biz-Events Service - Biz-Events Helpdesk",
     "description": "Microservice for exposing REST APIs for bizevent Helpdesk.",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.1.75-2-PDIM-474"
+    "version": "0.1.75-3-PDIM-474"
   },
   "servers": [
     {
