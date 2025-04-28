@@ -40,7 +40,7 @@ microservice-chart:
     host: "weuprod.bizevents.internal.platform.pagopa.it"
     path: /pagopa-biz-events-service/(.*)
     servicePort: 8080
-    annotations: {nginx.ingress.kubernetes.io/proxy-buffer-size: "6k"}
+    annotations: {nginx.ingress.kubernetes.io/proxy-buffer-size: "8k"}
   serviceAccount:
     create: false
     annotations: {}
