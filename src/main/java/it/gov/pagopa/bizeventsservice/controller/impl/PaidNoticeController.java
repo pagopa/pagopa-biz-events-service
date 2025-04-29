@@ -53,7 +53,6 @@ public class PaidNoticeController implements IPaidNoticeController {
         TransactionListResponse transactionListResponse = transactionService.getTransactionList(fiscalCode, isPayer, isDebtor,
                 continuationToken, size, orderBy, ordering);
 
-
         return ResponseEntity.ok()
                 .header(X_CONTINUATION_TOKEN, transactionListResponse.getContinuationToken())
                 .body(NoticeListWrapResponse.builder().notices(convertToNoticeList(transactionListResponse)).build());
