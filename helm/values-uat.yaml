@@ -43,9 +43,9 @@ microservice-chart:
     servicePort: 8080
     annotations: {nginx.ingress.kubernetes.io/proxy-buffer-size: "8k"}
   serviceAccount:
-    create: false
-    annotations: {}
-    name: ""
+    name: "bizevents-workload-identity"
+  azure:
+    workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
   podAnnotations: {}
   podSecurityContext:
     seccompProfile:
