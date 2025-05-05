@@ -74,6 +74,7 @@ microservice-chart:
   envConfig:
     ENV: 'prod'
     WEBSITE_SITE_NAME: 'pagopabizeventsservice' # required to show cloud role name in application insights
+    ASPNETCORE_URLS: "http://*:8080"
     SERVICE_NAME: "pagopa-bizevents-service"
     COSMOS_DB_URI: 'https://pagopa-p-weu-bizevents-ds-cosmos-account.documents.azure.com:443/'
     COSMOS_DB_NAME: 'db'
