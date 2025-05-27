@@ -27,8 +27,7 @@ locals {
     "COSMOS_DB_PRIMARY_KEY" : data.azurerm_cosmosdb_account.bizevents_cosmos.primary_key,
     "BIZ_COSMOS_KEY" : data.azurerm_cosmosdb_account.bizevents_cosmos.primary_readonly_key,
     "COSMOS_DB_CONN_STRING" : "AccountEndpoint=https://pagopa-${var.env_short}-${local.location_short}-bizevents-ds-cosmos-account.documents.azure.com:443/;AccountKey=${data.azurerm_cosmosdb_account.bizevents_cosmos.primary_key};",
-    "SUBKEY" : data.azurerm_key_vault_secret.key_vault_integration_test_subkey.value,
-    "WORKLOAD_IDENTITY_ID": data.azurerm_user_assigned_identity.workload_identity_clientid.client_id
+    "SUBKEY" : data.azurerm_key_vault_secret.key_vault_integration_test_subkey.value
   }
   env_variables = {
     "CONTAINER_APP_ENVIRONMENT_NAME" : local.container_app_environment.name,
@@ -37,6 +36,7 @@ locals {
     "CLUSTER_RESOURCE_GROUP" : local.aks_cluster.resource_group_name,
     "DOMAIN" : local.domain,
     "NAMESPACE" : local.domain,
+    "WORKLOAD_IDENTITY_ID": data.azurerm_user_assigned_identity.workload_identity_clientid.client_id
   }
 }
 

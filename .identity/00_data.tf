@@ -78,7 +78,7 @@ data "azurerm_key_vault_secret" "key_vault_integration_test_subkey" {
 
 data "azurerm_user_assigned_identity" "workload_identity_clientid" {
   name                = "bizevents-workload-identity"
-  resource_group_name = "pagopa-${var.env_short}-${local.location_short}-${var.env}-aks-rg"
+  resource_group_name = "pagopa-${var.env_short}-weu-${var.env}-aks-rg"
 }
 
 data "azurerm_user_assigned_identity" "identity_cd_01" {
