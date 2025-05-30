@@ -14,23 +14,41 @@ overrides:
   hosts:
     - api.platform.pagopa.it
   endpoints:
-    /paids/{event-id}/disable:
-      response_time_threshold: 3 # Default: 1
-      response_time_evaluation_frequency: 10 # Default: 10
-      response_time_evaluation_time_window: 30 # Default: 20
-      response_time_event_occurrences: 30 # Default: 1
     /paids:
+      response_time_threshold: 9 # Default: 1
+      availability_threshold: 0.80 # Default: 99%
+    /paids/{event-id}:
+      response_time_threshold: 9 # Default: 1
+      availability_threshold: 0.80 # Default: 99%
+    /paids/{event-id}/disable:
+      response_time_threshold: 9 # Default: 1
+      availability_threshold: 0.80 # Default: 99%
+    /paids/{event-id}/pdf:
+      response_time_threshold: 9 # Default: 1
+      availability_threshold: 0.80 # Default: 99%
+    /transactions/{transaction-id}/disable:
       response_time_threshold: 3 # Default: 1
       response_time_evaluation_frequency: 10 # Default: 10
       response_time_evaluation_time_window: 30 # Default: 20
       response_time_event_occurrences: 30 # Default: 1
-    /paids/{event-id}:
+    /transactions:
+      response_time_threshold: 3 # Default: 1
+      response_time_evaluation_frequency: 10 # Default: 10
+      response_time_evaluation_time_window: 30 # Default: 20
+      response_time_event_occurrences: 30 # Default: 1
+    /transactions/{transaction-id}:
       response_time_threshold: 3 # Default: 1
       response_time_evaluation_frequency: 10 # Default: 10
       response_time_evaluation_time_window: 30 # Default: 20
       response_time_event_occurrences: 30 # Default: 1    
-    /paids/{event-id}/pdf:
+    /transactions/{event-id}/pdf:
       response_time_threshold: 3 # Default: 1
       response_time_evaluation_frequency: 10 # Default: 10
       response_time_evaluation_time_window: 30 # Default: 20
       response_time_event_occurrences: 30 # Default: 1
+    /transactions/cached:
+      response_time_threshold: 3 # Default: 1
+      response_time_evaluation_frequency: 10 # Default: 10
+      response_time_evaluation_time_window: 30 # Default: 20
+      response_time_event_occurrences: 30 # Default: 1
+      
