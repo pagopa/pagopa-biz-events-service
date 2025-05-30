@@ -1,5 +1,5 @@
 oa3_spec: ./openapi/openapi_lap_jwt.json
-name: opex_pagopa-bizevents-service
+name: opex_pagopa-bizevents-lap-jwt
 location: West Europe
 timespan: 5m
 data_source: /subscriptions/b9fc9419-6097-45fe-9f74-ba0641c91912/resourceGroups/pagopa-p-vnet-rg/providers/Microsoft.Network/applicationGateways/pagopa-p-app-gw

@@ -27,7 +27,6 @@ jobs:
       matrix:
         environment: [prod]
         product:
-          - biz-service
           - biz-service-ec
           - biz-service-helpdesk
           - biz-service-lap
