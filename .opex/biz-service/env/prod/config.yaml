@@ -1,4 +1,4 @@
-oa3_spec: ./openapi/openapi.json
+oa3_spec: ./openapi/openapi.yaml
 name: opex_pagopa-bizevents-service
 location: West Europe
 timespan: 5m
@@ -14,41 +14,22 @@ overrides:
   hosts:
     - api.platform.pagopa.it
   endpoints:
-    /paids:
+    GET /paids:
+      availability_threshold: 0.95
+      availability_evaluation_frequency: 9 # Default: 1
+    GET /paids/{event-id}:
+      availability_threshold: 0.80 # Default: 99%
+    POST /paids/{event-id}/disable:
       response_time_threshold: 9 # Default: 1
       availability_threshold: 0.80 # Default: 99%
-    /paids/{event-id}:
+    GET /paids/{event-id}/pdf:
       response_time_threshold: 9 # Default: 1
       availability_threshold: 0.80 # Default: 99%
-    /paids/{event-id}/disable:
+    GET /transactions:
       response_time_threshold: 9 # Default: 1
-      availability_threshold: 0.80 # Default: 99%
-    /paids/{event-id}/pdf:
+    GET /transactions/{event-id}/pdf:
       response_time_threshold: 9 # Default: 1
-      availability_threshold: 0.80 # Default: 99%
-    /transactions/{transaction-id}/disable:
-      response_time_threshold: 3 # Default: 1
-      response_time_evaluation_frequency: 10 # Default: 10
-      response_time_evaluation_time_window: 30 # Default: 20
-      response_time_event_occurrences: 30 # Default: 1
-    /transactions:
-      response_time_threshold: 3 # Default: 1
-      response_time_evaluation_frequency: 10 # Default: 10
-      response_time_evaluation_time_window: 30 # Default: 20
-      response_time_event_occurrences: 30 # Default: 1
-    /transactions/{transaction-id}:
-      response_time_threshold: 3 # Default: 1
-      response_time_evaluation_frequency: 10 # Default: 10
-      response_time_evaluation_time_window: 30 # Default: 20
-      response_time_event_occurrences: 30 # Default: 1    
-    /transactions/{event-id}/pdf:
-      response_time_threshold: 3 # Default: 1
-      response_time_evaluation_frequency: 10 # Default: 10
-      response_time_evaluation_time_window: 30 # Default: 20
-      response_time_event_occurrences: 30 # Default: 1
-    /transactions/cached:
-      response_time_threshold: 3 # Default: 1
-      response_time_evaluation_frequency: 10 # Default: 10
-      response_time_evaluation_time_window: 30 # Default: 20
-      response_time_event_occurrences: 30 # Default: 1
-      
+    GET /transactions/{transaction-id}:
+      response_time_threshold: 9 # Default: 1
+    POST /transactions/{transaction-id}/disable:
+      response_time_threshold: 9 # Default: 1
