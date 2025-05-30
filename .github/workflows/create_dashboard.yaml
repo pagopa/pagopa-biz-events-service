@@ -28,12 +28,6 @@ jobs:
         environment: [prod]
         product:
           - biz-service
-          - biz-service-ec
-          - biz-service-helpdesk
-          - biz-service-lap
-          - biz-service-lap-jwt
-          - biz-service-transaction
-          - biz-service-transaction-jwt
       max-parallel: 1
     environment:
       name: ${{ matrix.environment }}
