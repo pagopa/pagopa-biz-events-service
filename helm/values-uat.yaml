@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-biz-events-service
-    tag: "0.1.65"
+    tag: "0.1.80"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -22,6 +22,7 @@ microservice-chart:
     periodSeconds: 10
   deployment:
     create: true
+    replicas: 1 # equals to HPA min
   serviceMonitor:
     create: true
     endpoints:
@@ -40,10 +41,11 @@ microservice-chart:
     host: "weuuat.bizevents.internal.uat.platform.pagopa.it"
     path: /pagopa-biz-events-service/(.*)
     servicePort: 8080
+    annotations: {nginx.ingress.kubernetes.io/proxy-buffer-size: "8k"}
   serviceAccount:
-    create: false
-    annotations: {}
-    name: ""
+    name: "bizevents-workload-identity"
+  azure:
+    workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
   podAnnotations: {}
   podSecurityContext:
     seccompProfile:
@@ -72,6 +74,7 @@ microservice-chart:
   envConfig:
     ENV: 'uat'
     WEBSITE_SITE_NAME: 'pagopabizeventsservice' # required to show cloud role name in application insights
+    ASPNETCORE_URLS: "http://*:8080"
     SERVICE_NAME: "pagopa-bizevents-service"
     COSMOS_DB_URI: 'https://pagopa-u-weu-bizevents-ds-cosmos-account.documents.azure.com:443/'
     COSMOS_DB_NAME: 'db'

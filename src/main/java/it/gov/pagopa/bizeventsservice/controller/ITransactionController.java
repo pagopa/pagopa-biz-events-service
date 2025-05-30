@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
+import static it.gov.pagopa.bizeventsservice.util.Constants.X_FISCAL_CODE;
+
 
 @Tag(name = "IO Transactions REST APIs")
 @RequestMapping("/transactions")
@@ -29,7 +31,6 @@ import javax.validation.constraints.NotBlank;
 public interface ITransactionController {
 
     String X_CONTINUATION_TOKEN = "x-continuation-token";
-    String X_FISCAL_CODE = "x-fiscal-code";
     String PAGE_SIZE = "size";
     String PAGE_NUMBER = "page";
 
