@@ -4,7 +4,7 @@
     "title": "Biz-Events Service - Paid Notice REST APIs (aka LAP)",
     "description": "Microservice for exposing REST APIs about payment receipts.",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.1.80"
+    "version": "0.1.81"
   },
   "servers": [
     {
