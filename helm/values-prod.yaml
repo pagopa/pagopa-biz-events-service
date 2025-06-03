@@ -22,7 +22,7 @@ microservice-chart:
     periodSeconds: 10
   deployment:
     create: true
-    replicas: 2 # equals to HPA min
+    replicas: 3 # equals to HPA min
   serviceMonitor:
     create: true
     endpoints:
@@ -61,7 +61,7 @@ microservice-chart:
       cpu: "800m"
   autoscaling:
     enable: true
-    minReplica: 2
+    minReplica: 3
     maxReplica: 6
     pollingInterval: 10 # seconds
     cooldownPeriod: 50 # seconds
