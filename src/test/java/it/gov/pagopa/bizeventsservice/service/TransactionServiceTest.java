@@ -8,6 +8,7 @@ import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
+import it.gov.pagopa.bizeventsservice.entity.view.enumeration.OriginType;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 import it.gov.pagopa.bizeventsservice.model.response.Attachment;
@@ -282,6 +283,30 @@ public class TransactionServiceTest {
         Assertions.assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
         Assertions.assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
         Assertions.assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
+    }
+    
+    @Test
+    void idAndTaxCodeWithOneEventShouldReturnNDP004OriginType() {
+        List<BizEventsViewGeneral> generalViewList = Collections.singletonList(ViewGenerator.generateBizEventsViewGeneral(OriginType.NDP004PROD));
+        when(bizEventsViewGeneralRepository.findByTransactionId(ViewGenerator.TRANSACTION_ID))
+                .thenReturn(generalViewList);
+        List<BizEventsViewCart> listOfCartView = Collections.singletonList(ViewGenerator.generateBizEventsViewCart());
+        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID))
+                .thenReturn(listOfCartView);
+        TransactionDetailResponse transactionDetailResponse =
+                Assertions.assertDoesNotThrow(() ->
+                        transactionService.getTransactionDetails(
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+        Assertions.assertNotNull(transactionDetailResponse);
+        verify(bizEventsViewGeneralRepository).findByTransactionId(ViewGenerator.TRANSACTION_ID);
+        verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID);
+        verifyNoMoreInteractions(bizEventsViewGeneralRepository);
+        verifyNoMoreInteractions(bizEventsViewCartRepository);
+
+        BizEventsViewGeneral viewGeneral = generalViewList.get(0);
+        Assertions.assertNotNull(transactionDetailResponse);
+        InfoTransactionView infoTransaction = transactionDetailResponse.getInfoTransaction();
+        Assertions.assertEquals(viewGeneral.getOrigin(), infoTransaction.getOrigin());
     }
 
 
