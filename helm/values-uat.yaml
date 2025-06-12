@@ -118,13 +118,7 @@ microservice-chart:
                 values:
                   - "user"
   canaryDelivery:
-    create: true
-    ingress:
-      type: header
-      headerName: X-Canary
-      headerValue: canary
-      weightPercent: 0
-    image:
-      repository: ghcr.io/pagopa/pagopa-biz-events-service
-      tag: "0.1.82-PIDM-610-fix-header-too-large.82"
-      pullPolicy: Always
+    deployment:
+      image:
+        tag: 0.0.10
+    create: false
