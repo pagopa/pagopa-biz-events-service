@@ -42,6 +42,8 @@ public class BizEvent {
     private Integer eventRetryEnrichmentCount;
 
     @JsonProperty("_ts")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    @JsonFormat(shape = JsonFormat.Shape.STRING,
+    pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+    timezone = "UTC")
     private OffsetDateTime ts;
 }

@@ -198,6 +198,14 @@ public class TransactionService implements ITransactionService {
         } catch (FeignException.NotFound e) {
             generateReceiptClient.generateReceipt(eventId, "false", "{}");
             return receiptClient.getAttachments(fiscalCode, eventId);
+        } catch (FeignException.InternalServerError e) {
+        	String responseBody = e.contentUTF8();
+            if (responseBody != null && responseBody.contains("PDFS_700")) {
+                generateReceiptClient.generateReceipt(eventId, "false", "{}");
+                return receiptClient.getAttachments(fiscalCode, eventId);
+            } else {
+                throw e; // rethrow the exception if this is not the expected case
+            }
         }
     }
 
