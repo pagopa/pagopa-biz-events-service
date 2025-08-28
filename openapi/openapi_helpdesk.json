@@ -1,10 +1,10 @@
 {
-  "openapi" : "3.0.1",
-  "info" : {
-    "title" : "Biz-Events Service - Biz-Events Helpdesk",
-    "description" : "Microservice for exposing REST APIs for bizevent Helpdesk.",
-    "termsOfService" : "https://www.pagopa.gov.it/",
-    "version" : "0.1.84"
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Biz-Events Service - Biz-Events Helpdesk",
+    "description": "Microservice for exposing REST APIs for bizevent Helpdesk.",
+    "termsOfService": "https://www.pagopa.gov.it/",
+    "version": "0.1.86"
   },
   "servers" : [ {
     "url" : "http://localhost:8080"
