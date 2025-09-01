@@ -118,21 +118,10 @@
         },
         "security": [
           {
-            "JWT": []
+            "Authorization": []
           }
         ]
-      },
-      "parameters": [
-        {
-          "name": "X-Request-Id",
-          "in": "header",
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "required": false,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/paids": {
       "get": {
@@ -303,21 +292,10 @@
         },
         "security": [
           {
-            "JWT": []
+            "Authorization": []
           }
         ]
-      },
-      "parameters": [
-        {
-          "name": "X-Request-Id",
-          "in": "header",
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "required": false,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/paids/{event-id}": {
       "get": {
@@ -426,21 +404,10 @@
         },
         "security": [
           {
-            "JWT": []
+            "Authorization": []
           }
         ]
-      },
-      "parameters": [
-        {
-          "name": "X-Request-Id",
-          "in": "header",
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "required": false,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/paids/{event-id}/pdf": {
       "get": {
@@ -578,21 +545,10 @@
         },
         "security": [
           {
-            "JWT": []
+            "Authorization": []
           }
         ]
-      },
-      "parameters": [
-        {
-          "name": "X-Request-Id",
-          "in": "header",
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "required": false,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     },
     "/info": {
       "get": {
@@ -693,21 +649,10 @@
         },
         "security": [
           {
-            "JWT": []
+            "Authorization": []
           }
         ]
-      },
-      "parameters": [
-        {
-          "name": "X-Request-Id",
-          "in": "header",
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "required": false,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ]
+      }
     }
   },
   "components": {
@@ -943,7 +888,7 @@
       }
     },
     "securitySchemes": {
-      "JWT": {
+      "Authorization": {
         "type": "http",
         "description": "JWT token associated to the user",
         "scheme": "bearer"
