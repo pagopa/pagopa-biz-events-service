@@ -107,9 +107,22 @@ resource "github_actions_environment_secret" "secret_integration_test_cosmos_key
 }
 
 #tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
-resource "github_actions_secret" "secret_slack_webhook" {
-  # count        = var.env_short != "p" ? 1 : 0
+resource "github_actions_secret" "secret_slack_webhook_deploy" {
   repository      = local.github.repository
   secret_name     = "SLACK_WEBHOOK_URL_DEPLOY"
-  plaintext_value = data.azurerm_key_vault_secret.key_vault_integration_test_webhook_slack.value
+  plaintext_value = data.azurerm_key_vault_secret.key_vault_deploy_slack_webhook.value
+}
+
+#tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
+resource "github_actions_secret" "secret_slack_webhook_integration_test" {
+  repository      = local.github.repository
+  secret_name     = "SLACK_WEBHOOK_URL_INTEGRATION_TEST"
+  plaintext_value = data.azurerm_key_vault_secret.key_vault_integration_test_slack_webhook.value
+}
+
+#tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
+resource "github_actions_secret" "secret_slack_webhook_report" {
+  repository      = local.github.repository
+  secret_name     = "SLACK_WEBHOOK_URL_REPORT"
+  plaintext_value = data.azurerm_key_vault_secret.key_vault_report_slack_webhook.value
 }
