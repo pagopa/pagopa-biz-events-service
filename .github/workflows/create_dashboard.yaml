@@ -71,7 +71,7 @@ jobs:
         # from https://github.com/Azure/login/commits/master
         uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
         with:
-          client-id: ${{ secrets.CLIENT_ID }}
+          client-id: ${{ secrets.CD_CLIENT_ID }}
           tenant-id: ${{ secrets.TENANT_ID }}
           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
 
@@ -81,7 +81,7 @@ jobs:
         run: |
           cd ./dashboard/azure-dashboard
           
-          export ARM_CLIENT_ID="${{ secrets.CLIENT_ID }}"
+          export ARM_CLIENT_ID="${{ secrets.CD_CLIENT_ID }}"
           export ARM_TENANT_ID="${{ secrets.TENANT_ID }}"
           export ARM_SUBSCRIPTION_ID="${{ secrets.SUBSCRIPTION_ID }}"
           export ARM_USE_OIDC=true
@@ -94,7 +94,7 @@ jobs:
 #          environment: ${{ matrix.environment }}
 #          api-name: ${{ matrix.product }}
 #          config: .opex/${{ matrix.product }}/env/${{ matrix.environment }}/config.yaml
-#          client-id: ${{ secrets.CLIENT_ID }}
+#          client-id: ${{ secrets.CD_CLIENT_ID }}
 #          tenant-id: ${{ secrets.TENANT_ID }}
 #          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
 #          # from https://github.com/pagopa/opex-dashboard-azure-action/pkgs/container/opex-dashboard-azure-action
