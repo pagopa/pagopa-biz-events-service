@@ -21,7 +21,7 @@ resource "github_repository_environment" "github_repository_environment" {
 
 locals {
   env_secrets = {
-    "CLIENT_ID" : data.azurerm_user_assigned_identity.identity_cd_01.client_id,
+    "CD_CLIENT_ID" : data.azurerm_user_assigned_identity.identity_cd.client_id,
     "TENANT_ID" : data.azurerm_client_config.current.tenant_id,
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
     "COSMOS_DB_PRIMARY_KEY" : data.azurerm_cosmosdb_account.bizevents_cosmos.primary_key,
@@ -76,7 +76,7 @@ resource "github_actions_secret" "secret_sonar_token" {
 
   repository       = local.github.repository
   secret_name      = "SONAR_TOKEN"
-  plaintext_value  = data.azurerm_key_vault_secret.key_vault_sonar[0].value
+  plaintext_value  = data.azurerm_key_vault_secret.key_vault_sonar.value
 }
 
 #tfsec:ignore:github-actions-no-plain-text-action-secrets 
@@ -85,7 +85,7 @@ resource "github_actions_secret" "secret_bot_token" {
 
   repository       = local.github.repository
   secret_name      = "BOT_TOKEN_GITHUB"
-  plaintext_value  = data.azurerm_key_vault_secret.key_vault_bot_token[0].value
+  plaintext_value  = data.azurerm_key_vault_secret.key_vault_bot_token.value
 }
 
 ##tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
@@ -110,6 +110,6 @@ resource "github_actions_environment_secret" "secret_integration_test_cosmos_key
 resource "github_actions_secret" "secret_slack_webhook" {
   # count        = var.env_short != "p" ? 1 : 0
   repository      = local.github.repository
-  secret_name     = "SLACK_WEBHOOK_URL"
+  secret_name     = "SLACK_WEBHOOK_URL_DEPLOY"
   plaintext_value = data.azurerm_key_vault_secret.key_vault_integration_test_webhook_slack.value
 }
