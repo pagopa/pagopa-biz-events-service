@@ -4,7 +4,7 @@
     "title": "Biz-Events Service - Transaction Service",
     "description": "Microservice for exposing REST APIs about payment receipts.",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.1.88"
+    "version": "0.1.88-1-PIDM-1033-improve-performance"
   },
   "servers": [
     {
