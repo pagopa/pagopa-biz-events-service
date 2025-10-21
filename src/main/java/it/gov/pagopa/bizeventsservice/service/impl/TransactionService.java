@@ -77,11 +77,11 @@ public class TransactionService implements ITransactionService {
             
             String eventId = viewUser.getId().substring(0, viewUser.getId().length() - 2);
             
-            Optional<BizEventsViewCart> bizEventsViewCart = this.bizEventsViewCartRepository.findById(eventId);
-            Optional<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findById(eventId);
+            List<BizEventsViewCart> bizEventsViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(eventId);
+            List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(eventId);
 
-            if (bizEventsViewCart.isPresent() && bizEventsViewGeneral.isPresent()) {
-                TransactionListItem transactionListItem = ConvertViewsToTransactionDetailResponse.convertTransactionListItem(viewUser, bizEventsViewCart.get(), bizEventsViewGeneral.get());
+            if (!bizEventsViewCart.isEmpty() && !bizEventsViewGeneral.isEmpty()) {
+                TransactionListItem transactionListItem = ConvertViewsToTransactionDetailResponse.convertTransactionListItem(viewUser, bizEventsViewCart.get(0), bizEventsViewGeneral.get(0));
                 listOfTransactionListItem.add(transactionListItem);
             }
         }
