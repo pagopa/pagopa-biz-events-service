@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService implements ITransactionService {
@@ -75,21 +76,27 @@ public class TransactionService implements ITransactionService {
         if (listOfViewUser.isEmpty()) {
             throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TAX_CODE_AND_FILTER, taxCode, isPayer, isDebtor);
         }
-        for (BizEventsViewUser viewUser : listOfViewUser) {
-            
-            String eventId = viewUser.getId().substring(0, viewUser.getId().length() - 2);
-            
-            List<BizEventsViewCart> bizEventsViewCart = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(eventId);
 
-            if (!bizEventsViewCart.isEmpty()) {
-                TransactionListItem transactionListItem =
-                        ConvertViewsToTransactionDetailResponse
-                                .convertTransactionListItem(
-                                        viewUser,
-                                        bizEventsViewCart.get(0),
-                                        bizEventsViewCart.size() > 1
-                                );
-                listOfTransactionListItem.add(transactionListItem);
+        List<String> transactionIdList = listOfViewUser.stream().map(BizEventsViewUser::getTransactionId).toList();
+        List<BizEventsViewCart> bizEventsViewCart = this.bizEventsViewCartRepository.findByTransactionIdIn(transactionIdList);
+
+        Map<String, List<BizEventsViewCart>> viewCartGrouped;
+        if (!bizEventsViewCart.isEmpty()) {
+            viewCartGrouped = bizEventsViewCart.stream().collect(Collectors.groupingBy(BizEventsViewCart::getTransactionId));
+
+            for (BizEventsViewUser viewUser : listOfViewUser) {
+                List<BizEventsViewCart> viewCarts = viewCartGrouped.get(viewUser.getTransactionId());
+
+                if (viewCarts != null && !viewCarts.isEmpty()) {
+                    TransactionListItem transactionListItem =
+                            ConvertViewsToTransactionDetailResponse
+                                    .convertTransactionListItem(
+                                            viewUser,
+                                            viewCarts.get(0),
+                                            viewCarts.size() > 1
+                                    );
+                    listOfTransactionListItem.add(transactionListItem);
+                }
             }
         }
 
