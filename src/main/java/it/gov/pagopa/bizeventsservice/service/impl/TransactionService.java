@@ -167,16 +167,16 @@ public class TransactionService implements ITransactionService {
     }
     
     @Override
-    public void disablePaidNotice(String fiscalCode, String eventId) {
+    public void disablePaidNotice(String fiscalCode, String transactionId) {
 
         List<BizEventsViewUser> listOfViewUser = this.bizEventsViewUserRepository
-                .getBizEventsViewUserByTaxCodeAndId(fiscalCode, eventId);
+                .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
 
         if (CollectionUtils.isEmpty(listOfViewUser)) {
-            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_ID, fiscalCode, eventId);
+            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_ID, fiscalCode, transactionId);
         }
 
-        // set hidden to true for all paid notices with the same eventId for the given fiscalCode
+        // set hidden to true for all paid notices with the same transactionId for the given fiscalCode
         listOfViewUser.forEach(u -> u.setHidden(true));
         bizEventsViewUserRepository.saveAll(listOfViewUser);
     }
