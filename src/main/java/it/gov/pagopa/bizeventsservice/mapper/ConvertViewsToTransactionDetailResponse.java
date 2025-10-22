@@ -131,7 +131,7 @@ public class ConvertViewsToTransactionDetailResponse {
                 .toList();
     }
 
-    public static TransactionListItem convertTransactionListItem(BizEventsViewUser viewUser, BizEventsViewCart bizEventsViewCart, BizEventsViewGeneral bizEventsViewGeneral) {
+    public static TransactionListItem convertTransactionListItem(BizEventsViewUser viewUser, BizEventsViewCart bizEventsViewCart, Boolean isCart) {
         AtomicReference<BigDecimal> totalAmount = new AtomicReference<>(BigDecimal.ZERO);
         BigDecimal amountExtracted = new BigDecimal(bizEventsViewCart.getAmount());
         totalAmount.updateAndGet(v -> v.add(amountExtracted));
@@ -142,7 +142,7 @@ public class ConvertViewsToTransactionDetailResponse {
                 .payeeTaxCode(bizEventsViewCart.getPayee().getTaxCode())
                 .amount(totalAmount.get().setScale(2, RoundingMode.UNNECESSARY).toString()) 
                 .transactionDate(dateFormatZoned(viewUser.getTransactionDate()))
-                .isCart(bizEventsViewGeneral.getIsCart())
+                .isCart(isCart)
                 .isPayer(BooleanUtils.isTrue(viewUser.getIsPayer()))
                 .isDebtor(BooleanUtils.isTrue(viewUser.getIsDebtor()))
                 .build();

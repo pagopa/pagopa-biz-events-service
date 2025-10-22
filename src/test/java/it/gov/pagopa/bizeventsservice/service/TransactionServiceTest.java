@@ -100,10 +100,7 @@ public class TransactionServiceTest {
                 .thenReturn(pageOfViewUser);
         
         BizEventsViewCart bizEventsViewCart = ViewGenerator.generateBizEventsViewCart();
-        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(anyString())).thenReturn(List.of(bizEventsViewCart));
-        
-        BizEventsViewGeneral bizEventsViewGeneral = ViewGenerator.generateBizEventsViewGeneral();
-        when(bizEventsViewGeneralRepository.findByTransactionId(anyString())).thenReturn(List.of(bizEventsViewGeneral));
+        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(anyString())).thenReturn(List.of(bizEventsViewCart, bizEventsViewCart));
         
         TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
@@ -138,10 +135,7 @@ public class TransactionServiceTest {
                 .thenReturn(pageOfViewUser);
         
         BizEventsViewCart bizEventsViewCart = ViewGenerator.generateBizEventsViewCart();
-        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(anyString())).thenReturn(List.of(bizEventsViewCart));
-        
-        BizEventsViewGeneral bizEventsViewGeneral = ViewGenerator.generateBizEventsViewGeneral();
-        when(bizEventsViewGeneralRepository.findByTransactionId(anyString())).thenReturn(List.of(bizEventsViewGeneral));
+        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(anyString())).thenReturn(List.of(bizEventsViewCart, bizEventsViewCart));
         
         TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
