@@ -21,6 +21,7 @@ import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -57,6 +58,7 @@ public class TransactionService implements ITransactionService {
         this.generateReceiptClient = generateReceiptClient;
     }
 
+    @Cacheable("transactionList")
     @Override
     public TransactionListResponse getTransactionList(String taxCode, Boolean isPayer,
                                                       Boolean isDebtor, String continuationToken, Integer size, TransactionListOrder orderBy, Direction ordering) {
@@ -100,6 +102,7 @@ public class TransactionService implements ITransactionService {
                 .build();
     }
 
+    @Cacheable("transactionDetails")
     @Override
     public TransactionDetailResponse getTransactionDetails(String taxCode, String eventReference) {
         List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(eventReference);
