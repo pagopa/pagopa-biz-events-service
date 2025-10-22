@@ -58,7 +58,7 @@ public class TransactionService implements ITransactionService {
         this.generateReceiptClient = generateReceiptClient;
     }
 
-    @Cacheable("transactionList")
+    @Cacheable("noticeList")
     @Override
     public TransactionListResponse getTransactionList(String taxCode, Boolean isPayer,
                                                       Boolean isDebtor, String continuationToken, Integer size, TransactionListOrder orderBy, Direction ordering) {
@@ -102,7 +102,6 @@ public class TransactionService implements ITransactionService {
                 .build();
     }
 
-    @Cacheable("transactionDetails")
     @Override
     public TransactionDetailResponse getTransactionDetails(String taxCode, String eventReference) {
         List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(eventReference);
@@ -123,24 +122,25 @@ public class TransactionService implements ITransactionService {
         return ConvertViewsToTransactionDetailResponse.convertTransactionDetails(taxCode, bizEventsViewGeneral.get(0), listOfCartViews);
     }
 
+    @Cacheable("noticeDetails")
     @Override
-    public NoticeDetailResponse getPaidNoticeDetail(String taxCode, String eventId) {
-    	Optional<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findById(eventId);
+    public NoticeDetailResponse getPaidNoticeDetail(String taxCode, String transactionId) {
+        List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(transactionId);
         if (bizEventsViewGeneral.isEmpty()) {
-            throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_ID, eventId);
+            throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_ID, transactionId);
         }
 
         List<BizEventsViewCart> listOfCartViews;
-        if (bizEventsViewGeneral.get().getPayer() != null && bizEventsViewGeneral.get().getPayer().getTaxCode().equals(taxCode)) {
-            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(bizEventsViewGeneral.get().getTransactionId());
+        if (bizEventsViewGeneral.get(0).getPayer() != null && bizEventsViewGeneral.get(0).getPayer().getTaxCode().equals(taxCode)) {
+            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(transactionId);
         } else {
-            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(bizEventsViewGeneral.get().getTransactionId(), taxCode);
+            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(transactionId, taxCode);
         }
         if (listOfCartViews.isEmpty()) {
-            throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE, bizEventsViewGeneral.get().getTransactionId());
+            throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE, transactionId);
         }
 
-        return ConvertViewsToTransactionDetailResponse.convertPaidNoticeDetails(taxCode, bizEventsViewGeneral.get(), listOfCartViews);
+        return ConvertViewsToTransactionDetailResponse.convertPaidNoticeDetails(taxCode, bizEventsViewGeneral.get(0), listOfCartViews);
     }
 
 
