@@ -16,9 +16,9 @@ import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResp
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
-import it.gov.pagopa.bizeventsservice.repository.BizEventsViewCartRepository;
-import it.gov.pagopa.bizeventsservice.repository.BizEventsViewGeneralRepository;
-import it.gov.pagopa.bizeventsservice.repository.BizEventsViewUserRepository;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartRepository;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;

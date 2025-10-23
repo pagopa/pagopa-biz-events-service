@@ -83,6 +83,7 @@ microservice-chart:
     COSMOS_DB_VIEW_GENERAL_CONTAINER_NAME: 'biz-events-view-general'
     COSMOS_DB_VIEW_CART_CONTAINER_NAME: 'biz-events-view-cart'
     COSMOS_QUERY_METRICS: 'false'
+    COSMOS_READ_REGION: 'North Europe'
     PDF_RECEIPT_HOST: 'https://api.platform.pagopa.it/receipts/service/v1'
     PDF_GENERATE_RECEIPT_HOST: 'https://api.platform.pagopa.it/receipts/helpdesk/v1'
     PDF_GENERATE_RECEIPT_PATH: '/receipts/{event-id}/regenerate-receipt-pdf'
