@@ -6,9 +6,7 @@ import com.azure.spring.data.cosmos.CosmosFactory;
 import com.azure.spring.data.cosmos.config.CosmosConfig;
 import com.azure.spring.data.cosmos.core.CosmosTemplate;
 import com.azure.spring.data.cosmos.core.convert.MappingCosmosConverter;
-import com.azure.spring.data.cosmos.core.mapping.EnableCosmosAuditing;
 import com.azure.spring.data.cosmos.repository.config.EnableCosmosRepositories;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -19,9 +17,7 @@ import java.util.List;
 
 @Configuration
 @EnableCosmosRepositories("it.gov.pagopa.bizeventsservice.repository.replica")
-@EnableCosmosAuditing
 @ConditionalOnExpression("'${info.properties.environment}'!='test'")
-@Slf4j
 public class ReplicaCosmosDBConfiguration {
 
     @Value("${azure.cosmos.uri}")
@@ -60,20 +56,13 @@ public class ReplicaCosmosDBConfiguration {
     /**
      * Create a CosmosTemplate using the existing MappingCosmosConverter and CosmosConfig beans.
      * Reuse the same MappingCosmosConverter and CosmosConfig as the primary template.
-     * Optionally inject auditing handler if present.
      */
-
     @Bean("replicaCosmosTemplate")
     public CosmosTemplate replicaCosmosTemplate(
             @Qualifier("replicaCosmosFactory") CosmosFactory replicaFactory,
             CosmosConfig cosmosConfig,
             MappingCosmosConverter mappingCosmosConverter
     ) {
-
-        // The CosmosTemplate constructor in your library:
-        // public CosmosTemplate(CosmosFactory cosmosFactory, CosmosConfig cosmosConfig,
-        //                       MappingCosmosConverter mappingCosmosConverter,
-        //                       IsNewAwareAuditingHandler auditingHandler)
         return new CosmosTemplate(replicaFactory, cosmosConfig, mappingCosmosConverter);
     }
 
