@@ -2,8 +2,8 @@ apiVersion: v2
 name: pagopa-biz-events-service
 description: Microservice for exposing REST APIs about payment receipts.
 type: application
-version: 0.130.0
-appVersion: 0.1.88-4-PIDM-1033-improve-performance
+version: 0.131.0
+appVersion: 0.1.88-5-PIDM-1033-improve-performance
 dependencies:
   - name: microservice-chart
     version: 7.5.0
