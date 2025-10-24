@@ -10,14 +10,14 @@ microservice-chart:
     httpGet:
       path: /info
       port: 8080
-    initialDelaySeconds: 90
+    initialDelaySeconds: 30
     failureThreshold: 6
     periodSeconds: 10
   readinessProbe:
     httpGet:
       path: /info
       port: 8080
-    initialDelaySeconds: 90
+    initialDelaySeconds: 30
     failureThreshold: 6
     periodSeconds: 10
   deployment:
@@ -54,7 +54,7 @@ microservice-chart:
     allowPrivilegeEscalation: false
   resources:
     requests:
-      memory: "540Mi"
+      memory: "640Mi"
       cpu: "500m"
     limits:
       memory: "1256Mi"
