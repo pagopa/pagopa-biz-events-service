@@ -82,7 +82,7 @@ public class ViewGenerator {
         return listOfViewUser;
     }
 
-    public static BizEventsViewGeneral generateBizEventsViewGeneral() {
+    public static BizEventsViewGeneral generateBizEventsViewGeneral(OriginType...originTypes) {
         return BizEventsViewGeneral.builder()
                 .transactionId(TRANSACTION_ID)
                 .authCode(AUTH_CODE)
@@ -101,7 +101,7 @@ public class ViewGenerator {
                         .taxCode(USER_TAX_CODE_WITH_TX)
                         .build())
                 .isCart(true)
-                .origin(OriginType.PM)
+                .origin(originTypes.length >=1 ? originTypes[0] : OriginType.PM)
                 .build();
     }
 

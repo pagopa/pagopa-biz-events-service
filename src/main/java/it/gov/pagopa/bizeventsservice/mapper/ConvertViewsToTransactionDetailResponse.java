@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -146,23 +147,34 @@ public class ConvertViewsToTransactionDetailResponse {
                 .isDebtor(BooleanUtils.isTrue(viewUser.getIsDebtor()))
                 .build();
     }
-
+    
     private static String dateFormatZoned(String date) {
-        String dateSub = StringUtils.substringBeforeLast(date, ".");
-        if (!DateValidator.isValid(dateSub, RECEIPT_DATE_FORMAT_OUT)) {
-            return dateFormat(dateSub);
+        boolean isUtc = date.endsWith("Z");
+        int dotIndex = date.lastIndexOf('.');
+
+        // milliseconds removed if present
+        String dateSub = (dotIndex != -1) ? date.substring(0, dotIndex) : date;
+        // if UTC I add a trailing 'Z' which may have been removed with the millisecond trim
+        if (isUtc && !dateSub.endsWith("Z")) {
+            dateSub += "Z";
         }
-        return dateSub;
+
+        // If it was already a date in the expected UTC format I return it as it is otherwise it is formatted
+        return DateValidator.isValid(dateSub, RECEIPT_DATE_FORMAT_OUT)
+                ? dateSub
+                : dateFormat(dateSub);
     }
 
     private static String dateFormat(String date) {
         for (String format : LIST_RECEIPT_DATE_FORMAT_IN) {
             if (DateValidator.isValid(date, format)) {
                 LocalDateTime ldt = LocalDateTime.parse(date, DateTimeFormatter.ofPattern(format));
-                ZonedDateTime zdt = ZonedDateTime.of(ldt, ZoneOffset.UTC);
+                // Convert from local to UTC
+                ZonedDateTime zdt = ldt.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneOffset.UTC);
                 return DateTimeFormatter.ofPattern(RECEIPT_DATE_FORMAT_OUT).format(zdt);
             }
         }
-        throw new DateTimeException("The date [" + date + "] is not in one of the expected formats " + LIST_RECEIPT_DATE_FORMAT_IN + " and cannot be parsed");
+        throw new DateTimeException("The date [" + date + "] is not in one of the expected formats "
+            + LIST_RECEIPT_DATE_FORMAT_IN + " and cannot be parsed");
     }
 }

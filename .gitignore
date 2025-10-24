@@ -41,3 +41,5 @@ yarn.lock
 **/report.json
 
 **/.env
+
+/openapi/tmp_*

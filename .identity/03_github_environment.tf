@@ -27,7 +27,7 @@ locals {
     "COSMOS_DB_PRIMARY_KEY" : data.azurerm_cosmosdb_account.bizevents_cosmos.primary_key,
     "BIZ_COSMOS_KEY" : data.azurerm_cosmosdb_account.bizevents_cosmos.primary_readonly_key,
     "COSMOS_DB_CONN_STRING" : "AccountEndpoint=https://pagopa-${var.env_short}-${local.location_short}-bizevents-ds-cosmos-account.documents.azure.com:443/;AccountKey=${data.azurerm_cosmosdb_account.bizevents_cosmos.primary_key};",
-    "SUBKEY" : data.azurerm_key_vault_secret.key_vault_integration_test_subkey.value,
+    "SUBKEY" : data.azurerm_key_vault_secret.key_vault_integration_test_subkey.value
   }
   env_variables = {
     "CONTAINER_APP_ENVIRONMENT_NAME" : local.container_app_environment.name,
@@ -36,6 +36,7 @@ locals {
     "CLUSTER_RESOURCE_GROUP" : local.aks_cluster.resource_group_name,
     "DOMAIN" : local.domain,
     "NAMESPACE" : local.domain,
+    "WORKLOAD_IDENTITY_ID": data.azurerm_user_assigned_identity.workload_identity_clientid.client_id
   }
 }
 
@@ -75,7 +76,7 @@ resource "github_actions_secret" "secret_sonar_token" {
 
   repository       = local.github.repository
   secret_name      = "SONAR_TOKEN"
-  plaintext_value  = data.azurerm_key_vault_secret.key_vault_sonar[0].value
+  plaintext_value  = data.azurerm_key_vault_secret.key_vault_sonar.value
 }
 
 #tfsec:ignore:github-actions-no-plain-text-action-secrets 
@@ -84,7 +85,7 @@ resource "github_actions_secret" "secret_bot_token" {
 
   repository       = local.github.repository
   secret_name      = "BOT_TOKEN_GITHUB"
-  plaintext_value  = data.azurerm_key_vault_secret.key_vault_bot_token[0].value
+  plaintext_value  = data.azurerm_key_vault_secret.key_vault_bot_token.value
 }
 
 ##tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
@@ -106,9 +107,22 @@ resource "github_actions_environment_secret" "secret_integration_test_cosmos_key
 }
 
 #tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
-resource "github_actions_secret" "secret_slack_webhook" {
-  # count        = var.env_short != "p" ? 1 : 0
+resource "github_actions_secret" "secret_slack_webhook_deploy" {
   repository      = local.github.repository
-  secret_name     = "SLACK_WEBHOOK_URL"
-  plaintext_value = data.azurerm_key_vault_secret.key_vault_integration_test_webhook_slack.value
+  secret_name     = "SLACK_WEBHOOK_URL_DEPLOY"
+  plaintext_value = data.azurerm_key_vault_secret.key_vault_deploy_slack_webhook.value
+}
+
+#tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
+resource "github_actions_secret" "secret_slack_webhook_integration_test" {
+  repository      = local.github.repository
+  secret_name     = "SLACK_WEBHOOK_URL_INTEGRATION_TEST"
+  plaintext_value = data.azurerm_key_vault_secret.key_vault_integration_test_slack_webhook.value
+}
+
+#tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
+resource "github_actions_secret" "secret_slack_webhook_report" {
+  repository      = local.github.repository
+  secret_name     = "SLACK_WEBHOOK_URL_REPORT"
+  plaintext_value = data.azurerm_key_vault_secret.key_vault_report_slack_webhook.value
 }
