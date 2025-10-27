@@ -4,20 +4,20 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-biz-events-service
-    tag: "0.1.88"
+    tag: "0.1.88-6-PIDM-1033-improve-performance"
     pullPolicy: Always
   livenessProbe:
     httpGet:
       path: /info
       port: 8080
-    initialDelaySeconds: 90
+    initialDelaySeconds: 30
     failureThreshold: 6
     periodSeconds: 10
   readinessProbe:
     httpGet:
       path: /info
       port: 8080
-    initialDelaySeconds: 90
+    initialDelaySeconds: 30
     failureThreshold: 6
     periodSeconds: 10
   deployment:
@@ -59,11 +59,11 @@ microservice-chart:
     allowPrivilegeEscalation: false
   resources:
     requests:
-      memory: "384Mi"
-      cpu: "300m"
+      memory: "640Mi"
+      cpu: "500m"
     limits:
-      memory: "512Mi"
-      cpu: "400m"
+      memory: "1256Mi"
+      cpu: "800m"
   autoscaling:
     enable: true
     minReplica: 1
@@ -88,6 +88,7 @@ microservice-chart:
     COSMOS_DB_VIEW_GENERAL_CONTAINER_NAME: 'biz-events-view-general'
     COSMOS_DB_VIEW_CART_CONTAINER_NAME: 'biz-events-view-cart'
     COSMOS_QUERY_METRICS: 'false'
+    COSMOS_READ_REGION: 'West Europe'
     PDF_RECEIPT_HOST: 'https://api.uat.platform.pagopa.it/receipts/service/v1'
     PDF_GENERATE_RECEIPT_HOST: 'https://api.uat.platform.pagopa.it/receipts/helpdesk/v1'
     PDF_GENERATE_RECEIPT_PATH: '/receipts/{event-id}/regenerate-receipt-pdf'
@@ -96,8 +97,11 @@ microservice-chart:
     GENERATE_PDF_RETRY_MAX_DELAY: "10000"
     GENERATE_PDF_RETRY_MAX_ATTEMPTS: "1"
     CONNECTION_TIMEOUT: "10000"
-    REDIS_PORT: "6380"
-    REDIS_TTL: "20" # 20 minutes
+    CACHE_ENABLED: "true"
+    CACHE_DEFAULT_EVICT_SECONDS: "10"
+    CACHE_DEFAULT_SIZE: "50000"
+    CACHE_NOTICE_LIST_EVICT_SECONDS: "30"
+    CACHE_NOTICE_DETAILS_EVICT_SECONDS: "90"
   envFieldRef:
     APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
     APP_VERSION: "metadata.labels['app.kubernetes.io/version']"

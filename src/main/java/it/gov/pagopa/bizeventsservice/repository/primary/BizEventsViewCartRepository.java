@@ -1,4 +1,4 @@
-package it.gov.pagopa.bizeventsservice.repository;
+package it.gov.pagopa.bizeventsservice.repository.primary;
 
 import com.azure.spring.data.cosmos.repository.CosmosRepository;
 import com.azure.spring.data.cosmos.repository.Query;
@@ -21,4 +21,6 @@ public interface BizEventsViewCartRepository extends CosmosRepository<BizEventsV
     List<BizEventsViewCart> getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(
             @Param("transactionId") String transactionId,
             @Param("taxCode") String taxCode);
+
+    List<BizEventsViewCart> findByTransactionIdIn(List<String> transactionIdList);
 }

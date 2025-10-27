@@ -4,7 +4,7 @@ import com.azure.cosmos.models.PartitionKey;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
-import it.gov.pagopa.bizeventsservice.repository.BizEventsRepository;
+import it.gov.pagopa.bizeventsservice.repository.replica.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.service.impl.BizEventsService;
 import it.gov.pagopa.bizeventsservice.util.Utility;
 import org.junit.jupiter.api.*;

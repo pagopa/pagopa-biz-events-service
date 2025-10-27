@@ -1,4 +1,4 @@
-package it.gov.pagopa.bizeventsservice.repository;
+package it.gov.pagopa.bizeventsservice.repository.primary;
 
 import com.azure.spring.data.cosmos.repository.CosmosRepository;
 import com.azure.spring.data.cosmos.repository.Query;
