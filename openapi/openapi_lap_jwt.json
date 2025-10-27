@@ -4,7 +4,7 @@
     "title": "Biz-Events Service - Paid Notice REST APIs (aka LAP) JWT",
     "description": "Microservice for exposing REST APIs about payment receipts.",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.1.88-6-PIDM-1033-improve-performance"
+    "version": "0.1.89"
   },
   "servers": [
     {
