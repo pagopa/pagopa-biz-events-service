@@ -38,6 +38,9 @@ import java.util.List;
 
 import static it.gov.pagopa.bizeventsservice.util.ViewGenerator.generateBizEventsViewUser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -99,21 +102,21 @@ public class TransactionServiceTest {
                 .thenReturn(pageOfViewUser);
 
         List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
-        when(bizEventsViewCartRepository.findByTransactionIdIn(anyList())).thenReturn(listOfCartView);
+        when(bizEventsViewCartRepository.findByTransactionIdIn(anySet())).thenReturn(listOfCartView);
         
         TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionList(
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, CONTINUATION_TOKEN, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
-        Assertions.assertEquals(CONTINUATION_TOKEN, transactionListResponse.getContinuationToken());
+        assertEquals(CONTINUATION_TOKEN, transactionListResponse.getContinuationToken());
         List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
-        Assertions.assertNotNull(transactionListItems);
-        Assertions.assertEquals(listOfViewUser.size(), transactionListItems.size());
+        assertNotNull(transactionListItems);
+        assertEquals(listOfViewUser.size(), transactionListItems.size());
 
         for (TransactionListItem listItem : transactionListItems) {
-            Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, listItem.getAmount());
-            Assertions.assertEquals(ViewGenerator.PAYEE_NAME, listItem.getPayeeName());
-            Assertions.assertEquals(ViewGenerator.PAYEE_TAX_CODE, listItem.getPayeeTaxCode());
+            assertEquals(ViewGenerator.FORMATTED_AMOUNT, listItem.getAmount());
+            assertEquals(ViewGenerator.PAYEE_NAME, listItem.getPayeeName());
+            assertEquals(ViewGenerator.PAYEE_TAX_CODE, listItem.getPayeeTaxCode());
         }
 
         verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any());
@@ -121,35 +124,48 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void taxCodeWithEventsAndMultipleCartItemsShouldReturnTransactionList() {
-        List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOfFiveBizEventsViewUser();
+    void taxCodeWithoutEventsShouldReturnEmptyTransactionList() {
         Page<BizEventsViewUser> pageOfViewUser = mock(Page.class);
-        when(pageOfViewUser.getContent()).thenReturn(listOfViewUser);
-        CosmosPageRequest pageRequest = mock(CosmosPageRequest.class);
-        when(pageRequest.getRequestContinuation()).thenReturn(CONTINUATION_TOKEN);
+        when(pageOfViewUser.getContent()).thenReturn(Collections.emptyList());
         Pageable pageable = mock(Pageable.class);
         when(pageOfViewUser.getPageable()).thenReturn(pageable);
-        when(pageable.next()).thenReturn(pageRequest);
         when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any()))
                 .thenReturn(pageOfViewUser);
 
-        List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
-        when(bizEventsViewCartRepository.findByTransactionIdIn(anyList())).thenReturn(listOfCartView);
-        
         TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionList(
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, CONTINUATION_TOKEN, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
-        Assertions.assertEquals(CONTINUATION_TOKEN, transactionListResponse.getContinuationToken());
+        assertNull(transactionListResponse.getContinuationToken());
         List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
-        Assertions.assertNotNull(transactionListItems);
-        Assertions.assertEquals(listOfViewUser.size(), transactionListItems.size());
+        assertNotNull(transactionListItems);
+        assertTrue(transactionListItems.isEmpty());
 
-        for (TransactionListItem listItem : transactionListItems) {
-            Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, listItem.getAmount());
-            Assertions.assertEquals(ViewGenerator.PAYEE_NAME, listItem.getPayeeName());
-            Assertions.assertEquals(ViewGenerator.PAYEE_TAX_CODE, listItem.getPayeeTaxCode());
-        }
+        verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any());
+        verifyNoMoreInteractions(bizEventsViewUserRepository);
+        verify(bizEventsViewCartRepository, never()).findByTransactionIdIn(anySet());
+    }
+
+    @Test
+    void taxCodeWithEventsButWithoutCartShouldReturnEmptyTransactionList() {
+        List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOfFiveBizEventsViewUser();
+        Page<BizEventsViewUser> pageOfViewUser = mock(Page.class);
+        when(pageOfViewUser.getContent()).thenReturn(listOfViewUser);
+        Pageable pageable = mock(Pageable.class);
+        when(pageOfViewUser.getPageable()).thenReturn(pageable);
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any()))
+                .thenReturn(pageOfViewUser);
+
+        when(bizEventsViewCartRepository.findByTransactionIdIn(anySet())).thenReturn(Collections.emptyList());
+
+        TransactionListResponse transactionListResponse =
+                Assertions.assertDoesNotThrow(() ->
+                        transactionService.getTransactionList(
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, CONTINUATION_TOKEN, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
+        assertNull(transactionListResponse.getContinuationToken());
+        List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
+        assertNotNull(transactionListItems);
+        assertTrue(transactionListItems.isEmpty());
 
         verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any());
         verifyNoMoreInteractions(bizEventsViewUserRepository);
@@ -167,40 +183,40 @@ public class TransactionServiceTest {
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getPaidNoticeDetail(
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
-        Assertions.assertNotNull(noticeDetailResponse);
+        assertNotNull(noticeDetailResponse);
         verify(bizEventsViewGeneralRepository).findByTransactionId(ViewGenerator.TRANSACTION_ID);
         verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID);
         verifyNoMoreInteractions(bizEventsViewGeneralRepository);
         verifyNoMoreInteractions(bizEventsViewCartRepository);
 
-        Assertions.assertNotNull(noticeDetailResponse);
+        assertNotNull(noticeDetailResponse);
         InfoNotice infoNotice = noticeDetailResponse.getInfoNotice();
-        Assertions.assertEquals(viewGeneral.getTransactionId(), infoNotice.getEventId());
-        Assertions.assertEquals(viewGeneral.getAuthCode(), infoNotice.getAuthCode());
-        Assertions.assertEquals(viewGeneral.getRrn(), infoNotice.getRrn());
-        Assertions.assertEquals(viewGeneral.getTransactionDate(), infoNotice.getNoticeDate());
-        Assertions.assertEquals(viewGeneral.getPspName(), infoNotice.getPspName());
-        Assertions.assertEquals(viewGeneral.getWalletInfo().getAccountHolder(), infoNotice.getWalletInfo().getAccountHolder());
-        Assertions.assertEquals(viewGeneral.getWalletInfo().getBrand(), infoNotice.getWalletInfo().getBrand());
-        Assertions.assertEquals(viewGeneral.getWalletInfo().getBlurredNumber(), infoNotice.getWalletInfo().getBlurredNumber());
-        Assertions.assertEquals(viewGeneral.getWalletInfo().getMaskedEmail(), infoNotice.getWalletInfo().getMaskedEmail());
-        Assertions.assertEquals(viewGeneral.getPayer().getName(), infoNotice.getPayer().getName());
-        Assertions.assertEquals(viewGeneral.getPayer().getTaxCode(), infoNotice.getPayer().getTaxCode());
-        Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, infoNotice.getAmount());
-        Assertions.assertEquals(viewGeneral.getFee(), infoNotice.getFee());
-        Assertions.assertEquals(viewGeneral.getPaymentMethod(), infoNotice.getPaymentMethod());
-        Assertions.assertEquals(viewGeneral.getOrigin(), infoNotice.getOrigin());
+        assertEquals(viewGeneral.getTransactionId(), infoNotice.getEventId());
+        assertEquals(viewGeneral.getAuthCode(), infoNotice.getAuthCode());
+        assertEquals(viewGeneral.getRrn(), infoNotice.getRrn());
+        assertEquals(viewGeneral.getTransactionDate(), infoNotice.getNoticeDate());
+        assertEquals(viewGeneral.getPspName(), infoNotice.getPspName());
+        assertEquals(viewGeneral.getWalletInfo().getAccountHolder(), infoNotice.getWalletInfo().getAccountHolder());
+        assertEquals(viewGeneral.getWalletInfo().getBrand(), infoNotice.getWalletInfo().getBrand());
+        assertEquals(viewGeneral.getWalletInfo().getBlurredNumber(), infoNotice.getWalletInfo().getBlurredNumber());
+        assertEquals(viewGeneral.getWalletInfo().getMaskedEmail(), infoNotice.getWalletInfo().getMaskedEmail());
+        assertEquals(viewGeneral.getPayer().getName(), infoNotice.getPayer().getName());
+        assertEquals(viewGeneral.getPayer().getTaxCode(), infoNotice.getPayer().getTaxCode());
+        assertEquals(ViewGenerator.FORMATTED_AMOUNT, infoNotice.getAmount());
+        assertEquals(viewGeneral.getFee(), infoNotice.getFee());
+        assertEquals(viewGeneral.getPaymentMethod(), infoNotice.getPaymentMethod());
+        assertEquals(viewGeneral.getOrigin(), infoNotice.getOrigin());
 
         BizEventsViewCart viewCart = listOfCartView.get(0);
         it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem cartItem = noticeDetailResponse.getCarts().get(0);
-        Assertions.assertEquals(viewCart.getSubject(), cartItem.getSubject());
-        Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
-        Assertions.assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
-        Assertions.assertEquals(viewCart.getDebtor().getTaxCode(), cartItem.getDebtor().getTaxCode());
-        Assertions.assertEquals(viewCart.getPayee().getName(), cartItem.getPayee().getName());
-        Assertions.assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
-        Assertions.assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
-        Assertions.assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
+        assertEquals(viewCart.getSubject(), cartItem.getSubject());
+        assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
+        assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
+        assertEquals(viewCart.getDebtor().getTaxCode(), cartItem.getDebtor().getTaxCode());
+        assertEquals(viewCart.getPayee().getName(), cartItem.getPayee().getName());
+        assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
+        assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
+        assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
     }
     
     @Test
@@ -241,41 +257,41 @@ public class TransactionServiceTest {
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
-        Assertions.assertNotNull(transactionDetailResponse);
+        assertNotNull(transactionDetailResponse);
         verify(bizEventsViewGeneralRepository).findByTransactionId(ViewGenerator.TRANSACTION_ID);
         verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID);
         verifyNoMoreInteractions(bizEventsViewGeneralRepository);
         verifyNoMoreInteractions(bizEventsViewCartRepository);
 
         BizEventsViewGeneral viewGeneral = generalViewList.get(0);
-        Assertions.assertNotNull(transactionDetailResponse);
+        assertNotNull(transactionDetailResponse);
         InfoTransactionView infoTransaction = transactionDetailResponse.getInfoTransaction();
-        Assertions.assertEquals(viewGeneral.getTransactionId(), infoTransaction.getTransactionId());
-        Assertions.assertEquals(viewGeneral.getAuthCode(), infoTransaction.getAuthCode());
-        Assertions.assertEquals(viewGeneral.getRrn(), infoTransaction.getRrn());
-        Assertions.assertEquals(viewGeneral.getTransactionDate(), infoTransaction.getTransactionDate());
-        Assertions.assertEquals(viewGeneral.getPspName(), infoTransaction.getPspName());
-        Assertions.assertEquals(viewGeneral.getWalletInfo().getAccountHolder(), infoTransaction.getWalletInfo().getAccountHolder());
-        Assertions.assertEquals(viewGeneral.getWalletInfo().getBrand(), infoTransaction.getWalletInfo().getBrand());
-        Assertions.assertEquals(viewGeneral.getWalletInfo().getBlurredNumber(), infoTransaction.getWalletInfo().getBlurredNumber());
-        Assertions.assertEquals(viewGeneral.getWalletInfo().getMaskedEmail(), infoTransaction.getWalletInfo().getMaskedEmail());
-        Assertions.assertEquals(viewGeneral.getPayer().getName(), infoTransaction.getPayer().getName());
-        Assertions.assertEquals(viewGeneral.getPayer().getTaxCode(), infoTransaction.getPayer().getTaxCode());
-        Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, infoTransaction.getAmount());
-        Assertions.assertEquals(viewGeneral.getFee(), infoTransaction.getFee());
-        Assertions.assertEquals(viewGeneral.getPaymentMethod(), infoTransaction.getPaymentMethod());
-        Assertions.assertEquals(viewGeneral.getOrigin(), infoTransaction.getOrigin());
+        assertEquals(viewGeneral.getTransactionId(), infoTransaction.getTransactionId());
+        assertEquals(viewGeneral.getAuthCode(), infoTransaction.getAuthCode());
+        assertEquals(viewGeneral.getRrn(), infoTransaction.getRrn());
+        assertEquals(viewGeneral.getTransactionDate(), infoTransaction.getTransactionDate());
+        assertEquals(viewGeneral.getPspName(), infoTransaction.getPspName());
+        assertEquals(viewGeneral.getWalletInfo().getAccountHolder(), infoTransaction.getWalletInfo().getAccountHolder());
+        assertEquals(viewGeneral.getWalletInfo().getBrand(), infoTransaction.getWalletInfo().getBrand());
+        assertEquals(viewGeneral.getWalletInfo().getBlurredNumber(), infoTransaction.getWalletInfo().getBlurredNumber());
+        assertEquals(viewGeneral.getWalletInfo().getMaskedEmail(), infoTransaction.getWalletInfo().getMaskedEmail());
+        assertEquals(viewGeneral.getPayer().getName(), infoTransaction.getPayer().getName());
+        assertEquals(viewGeneral.getPayer().getTaxCode(), infoTransaction.getPayer().getTaxCode());
+        assertEquals(ViewGenerator.FORMATTED_AMOUNT, infoTransaction.getAmount());
+        assertEquals(viewGeneral.getFee(), infoTransaction.getFee());
+        assertEquals(viewGeneral.getPaymentMethod(), infoTransaction.getPaymentMethod());
+        assertEquals(viewGeneral.getOrigin(), infoTransaction.getOrigin());
 
         BizEventsViewCart viewCart = listOfCartView.get(0);
         CartItem cartItem = transactionDetailResponse.getCarts().get(0);
-        Assertions.assertEquals(viewCart.getSubject(), cartItem.getSubject());
-        Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
-        Assertions.assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
-        Assertions.assertEquals(viewCart.getDebtor().getTaxCode(), cartItem.getDebtor().getTaxCode());
-        Assertions.assertEquals(viewCart.getPayee().getName(), cartItem.getPayee().getName());
-        Assertions.assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
-        Assertions.assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
-        Assertions.assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
+        assertEquals(viewCart.getSubject(), cartItem.getSubject());
+        assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
+        assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
+        assertEquals(viewCart.getDebtor().getTaxCode(), cartItem.getDebtor().getTaxCode());
+        assertEquals(viewCart.getPayee().getName(), cartItem.getPayee().getName());
+        assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
+        assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
+        assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
     }
     
     @Test
@@ -290,16 +306,16 @@ public class TransactionServiceTest {
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
-        Assertions.assertNotNull(transactionDetailResponse);
+        assertNotNull(transactionDetailResponse);
         verify(bizEventsViewGeneralRepository).findByTransactionId(ViewGenerator.TRANSACTION_ID);
         verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID);
         verifyNoMoreInteractions(bizEventsViewGeneralRepository);
         verifyNoMoreInteractions(bizEventsViewCartRepository);
 
         BizEventsViewGeneral viewGeneral = generalViewList.get(0);
-        Assertions.assertNotNull(transactionDetailResponse);
+        assertNotNull(transactionDetailResponse);
         InfoTransactionView infoTransaction = transactionDetailResponse.getInfoTransaction();
-        Assertions.assertEquals(viewGeneral.getOrigin(), infoTransaction.getOrigin());
+        assertEquals(viewGeneral.getOrigin(), infoTransaction.getOrigin());
     }
 
 
@@ -315,24 +331,24 @@ public class TransactionServiceTest {
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionDetails(
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
-        Assertions.assertNotNull(transactionDetailResponse);
+        assertNotNull(transactionDetailResponse);
         verify(bizEventsViewGeneralRepository).findByTransactionId(ViewGenerator.TRANSACTION_ID);
         verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID);
         verifyNoMoreInteractions(bizEventsViewGeneralRepository);
         verifyNoMoreInteractions(bizEventsViewCartRepository);
 
-        Assertions.assertEquals(ViewGenerator.FORMATTED_GRAND_TOTAL, transactionDetailResponse.getInfoTransaction().getAmount());
+        assertEquals(ViewGenerator.FORMATTED_GRAND_TOTAL, transactionDetailResponse.getInfoTransaction().getAmount());
         for (int i = 0; i < transactionDetailResponse.getCarts().size(); i++) {
             BizEventsViewCart viewCart = listOfCartView.get(i);
             CartItem cartItem = transactionDetailResponse.getCarts().get(i);
-            Assertions.assertEquals(viewCart.getSubject(), cartItem.getSubject());
-            Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
-            Assertions.assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
-            Assertions.assertEquals(viewCart.getDebtor().getTaxCode(), cartItem.getDebtor().getTaxCode());
-            Assertions.assertEquals(viewCart.getPayee().getName(), cartItem.getPayee().getName());
-            Assertions.assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
-            Assertions.assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
-            Assertions.assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
+            assertEquals(viewCart.getSubject(), cartItem.getSubject());
+            assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
+            assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
+            assertEquals(viewCart.getDebtor().getTaxCode(), cartItem.getDebtor().getTaxCode());
+            assertEquals(viewCart.getPayee().getName(), cartItem.getPayee().getName());
+            assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
+            assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
+            assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
         }
     }
 
@@ -348,24 +364,24 @@ public class TransactionServiceTest {
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getPaidNoticeDetail(
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
-        Assertions.assertNotNull(noticeDetailResponse);
+        assertNotNull(noticeDetailResponse);
         verify(bizEventsViewGeneralRepository).findByTransactionId(ViewGenerator.TRANSACTION_ID);
         verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID);
         verifyNoMoreInteractions(bizEventsViewGeneralRepository);
         verifyNoMoreInteractions(bizEventsViewCartRepository);
 
-        Assertions.assertEquals(ViewGenerator.FORMATTED_GRAND_TOTAL, noticeDetailResponse.getInfoNotice().getAmount());
+        assertEquals(ViewGenerator.FORMATTED_GRAND_TOTAL, noticeDetailResponse.getInfoNotice().getAmount());
         for (int i = 0; i < noticeDetailResponse.getCarts().size(); i++) {
             BizEventsViewCart viewCart = listOfCartView.get(i);
             it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem cartItem = noticeDetailResponse.getCarts().get(i);
-            Assertions.assertEquals(viewCart.getSubject(), cartItem.getSubject());
-            Assertions.assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
-            Assertions.assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
-            Assertions.assertEquals(viewCart.getDebtor().getTaxCode(), cartItem.getDebtor().getTaxCode());
-            Assertions.assertEquals(viewCart.getPayee().getName(), cartItem.getPayee().getName());
-            Assertions.assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
-            Assertions.assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
-            Assertions.assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
+            assertEquals(viewCart.getSubject(), cartItem.getSubject());
+            assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
+            assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
+            assertEquals(viewCart.getDebtor().getTaxCode(), cartItem.getDebtor().getTaxCode());
+            assertEquals(viewCart.getPayee().getName(), cartItem.getPayee().getName());
+            assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
+            assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
+            assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
         }
     }
 
@@ -382,7 +398,7 @@ public class TransactionServiceTest {
         verifyNoMoreInteractions(bizEventsViewGeneralRepository);
         verifyNoInteractions(bizEventsViewCartRepository);
 
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, appException.getHttpStatus());
+        assertEquals(HttpStatus.NOT_FOUND, appException.getHttpStatus());
     }
 
     @Test
@@ -402,7 +418,7 @@ public class TransactionServiceTest {
         verifyNoMoreInteractions(bizEventsViewGeneralRepository);
         verifyNoMoreInteractions(bizEventsViewCartRepository);
 
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, appException.getHttpStatus());
+        assertEquals(HttpStatus.NOT_FOUND, appException.getHttpStatus());
     }
 
     @Test
@@ -459,7 +475,7 @@ public class TransactionServiceTest {
                 Assertions.assertThrows(AppException.class, () ->
                         transactionService.getTransactionDetails(
                                 ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, appException.getHttpStatus());
+        assertEquals(HttpStatus.NOT_FOUND, appException.getHttpStatus());
     }
 
     @Test

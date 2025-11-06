@@ -4,7 +4,7 @@
     "title": "Biz-Events Service - Transaction Service JWT",
     "description": "Microservice for exposing REST APIs about payment receipts.",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.1.89"
+    "version": "0.1.89-1-PIDM-1175-fix-lap-list-api-for-cart"
   },
   "servers": [
     {

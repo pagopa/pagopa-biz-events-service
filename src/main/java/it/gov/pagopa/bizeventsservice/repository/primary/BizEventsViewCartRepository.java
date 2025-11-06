@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Repository interface for biz-events-view-cart collection
@@ -22,5 +23,5 @@ public interface BizEventsViewCartRepository extends CosmosRepository<BizEventsV
             @Param("transactionId") String transactionId,
             @Param("taxCode") String taxCode);
 
-    List<BizEventsViewCart> findByTransactionIdIn(List<String> transactionIdList);
+    List<BizEventsViewCart> findByTransactionIdIn(Set<String> transactionIdList);
 }
