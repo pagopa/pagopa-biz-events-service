@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,11 +48,13 @@ public class TransactionService implements ITransactionService {
     private final IReceiptGeneratePDFClient generateReceiptClient;
 
     @Autowired
-    public TransactionService(BizEventsViewGeneralRepository bizEventsViewGeneralRepository,
-                              BizEventsViewCartRepository bizEventsViewCartRepository,
-                              BizEventsViewUserRepository bizEventsViewUserRepository,
-                              IReceiptGetPDFClient receiptClient,
-                              IReceiptGeneratePDFClient generateReceiptClient) {
+    public TransactionService(
+            BizEventsViewGeneralRepository bizEventsViewGeneralRepository,
+            BizEventsViewCartRepository bizEventsViewCartRepository,
+            BizEventsViewUserRepository bizEventsViewUserRepository,
+            IReceiptGetPDFClient receiptClient,
+            IReceiptGeneratePDFClient generateReceiptClient
+    ) {
         this.bizEventsViewGeneralRepository = bizEventsViewGeneralRepository;
         this.bizEventsViewCartRepository = bizEventsViewCartRepository;
         this.bizEventsViewUserRepository = bizEventsViewUserRepository;
@@ -61,39 +64,61 @@ public class TransactionService implements ITransactionService {
 
     @Cacheable("noticeList")
     @Override
-    public TransactionListResponse getTransactionList(String taxCode, Boolean isPayer,
-                                                      Boolean isDebtor, String continuationToken, Integer size, TransactionListOrder orderBy, Direction ordering) {
+    public TransactionListResponse getTransactionList(
+            String taxCode,
+            Boolean isPayer,
+            Boolean isDebtor,
+            String continuationToken,
+            Integer size,
+            TransactionListOrder orderBy,
+            Direction ordering
+    ) {
         List<TransactionListItem> listOfTransactionListItem = new ArrayList<>();
 
-        String columnName = Optional.ofNullable(orderBy).map(o -> o.getColumnName()).orElse("transactionDate");
-        String direction = Optional.ofNullable(ordering).map(Enum::name).orElse(Sort.Direction.DESC.name());
-
-        final Sort sort = Sort.by(Sort.Direction.fromString(direction), columnName);
-        final CosmosPageRequest pageRequest = new CosmosPageRequest(0, size, continuationToken, sort);
-        final Page<BizEventsViewUser> page = this.bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(taxCode, isPayer, isDebtor, pageRequest);
+        final CosmosPageRequest pageRequest = getCosmosPageRequest(continuationToken, size, orderBy, ordering);
+        final Page<BizEventsViewUser> page = this.bizEventsViewUserRepository
+                .getBizEventsViewUserByTaxCode(taxCode, isPayer, isDebtor, pageRequest);
         List<BizEventsViewUser> listOfViewUser = page.getContent();
 
         if (listOfViewUser.isEmpty()) {
-            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_TAX_CODE_AND_FILTER, taxCode, isPayer, isDebtor);
+            return TransactionListResponse.builder()
+                    .transactionList(listOfTransactionListItem)
+                    .continuationToken(null)
+                    .build();
         }
 
-        List<String> transactionIdList = listOfViewUser.stream().map(BizEventsViewUser::getTransactionId).toList();
-        List<BizEventsViewCart> bizEventsViewCart = this.bizEventsViewCartRepository.findByTransactionIdIn(transactionIdList);
+        Map<String, BizEventsViewUser> viewUserGrouped = listOfViewUser.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(
+                        BizEventsViewUser::getTransactionId,
+                        Function.identity(),
+                        (u1, u2) -> u1,
+                        LinkedHashMap::new
+                ));
+        List<BizEventsViewCart> bizEventsViewCart = this.bizEventsViewCartRepository.findByTransactionIdIn(viewUserGrouped.keySet());
 
-        Map<String, List<BizEventsViewCart>> viewCartGrouped;
-        if (!bizEventsViewCart.isEmpty()) {
-            viewCartGrouped = bizEventsViewCart.stream().collect(Collectors.groupingBy(BizEventsViewCart::getTransactionId));
+        if (bizEventsViewCart.isEmpty()) {
+            return TransactionListResponse.builder()
+                    .transactionList(listOfTransactionListItem)
+                    .continuationToken(null)
+                    .build();
+        }
 
-            for (BizEventsViewUser viewUser : listOfViewUser) {
-                List<BizEventsViewCart> viewCarts = viewCartGrouped.get(viewUser.getTransactionId());
+        Map<String, List<BizEventsViewCart>> viewCartGrouped = bizEventsViewCart.stream()
+                .collect(Collectors.groupingBy(BizEventsViewCart::getTransactionId));
 
-                if (viewCarts != null && !viewCarts.isEmpty()) {
+        for (BizEventsViewUser viewUser : viewUserGrouped.values()) {
+            List<BizEventsViewCart> viewCarts = viewCartGrouped.get(viewUser.getTransactionId());
+
+            if (viewCarts != null && !viewCarts.isEmpty()) {
+                boolean isCart = viewCarts.size() > 1;
+                for (BizEventsViewCart viewCart : viewCarts) {
                     TransactionListItem transactionListItem =
                             ConvertViewsToTransactionDetailResponse
                                     .convertTransactionListItem(
                                             viewUser,
-                                            viewCarts.get(0),
-                                            viewCarts.size() > 1
+                                            viewCart,
+                                            isCart
                                     );
                     listOfTransactionListItem.add(transactionListItem);
                 }
@@ -165,7 +190,7 @@ public class TransactionService implements ITransactionService {
         listOfViewUser.forEach(u -> u.setHidden(true));
         bizEventsViewUserRepository.saveAll(listOfViewUser);
     }
-    
+
     @Override
     public void disablePaidNotice(String fiscalCode, String transactionId) {
 
@@ -214,7 +239,7 @@ public class TransactionService implements ITransactionService {
             generateReceiptClient.generateReceipt(eventId, "false", "{}");
             return receiptClient.getAttachments(fiscalCode, eventId);
         } catch (FeignException.InternalServerError e) {
-        	String responseBody = e.contentUTF8();
+            String responseBody = e.contentUTF8();
             if (responseBody != null && responseBody.contains("PDFS_700")) {
                 generateReceiptClient.generateReceipt(eventId, "false", "{}");
                 return receiptClient.getAttachments(fiscalCode, eventId);
@@ -235,5 +260,16 @@ public class TransactionService implements ITransactionService {
         }
     }
 
+    private CosmosPageRequest getCosmosPageRequest(
+            String continuationToken,
+            Integer size,
+            TransactionListOrder orderBy,
+            Direction ordering
+    ) {
+        String columnName = Optional.ofNullable(orderBy).map(o -> o.getColumnName()).orElse("transactionDate");
+        String direction = Optional.ofNullable(ordering).map(Enum::name).orElse(Direction.DESC.name());
 
+        final Sort sort = Sort.by(Direction.fromString(direction), columnName);
+        return new CosmosPageRequest(0, size, continuationToken, sort);
+    }
 }
