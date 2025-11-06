@@ -40,7 +40,7 @@ After(async function () {
 			await deleteDocumentFromViewCartDatastore(viewCart.id, viewCart.transactionId);
 		}
 	}
-	
+
 	responseToCheck = null;
 	receipt = null;
 	bizEvent = null;
@@ -144,7 +144,7 @@ Given('Save all views on CosmosDB', async () => {
 	}
 	if (viewGeneralList.length > 0) {
 		for (let viewGeneral of viewGeneralList) {
-			await deleteDocumentFromViewGeneralDatastore(viewGeneral.transactionId);
+			await deleteDocumentFromViewGeneralDatastore(viewGeneral.id, viewGeneral.transactionId);
 		}
 	}
 	if (viewCartList.length > 0) {
