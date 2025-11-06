@@ -111,13 +111,14 @@ public class TransactionService implements ITransactionService {
             List<BizEventsViewCart> viewCarts = viewCartGrouped.get(viewUser.getTransactionId());
 
             if (viewCarts != null && !viewCarts.isEmpty()) {
+                boolean isCart = viewCarts.size() > 1;
                 for (BizEventsViewCart viewCart : viewCarts) {
                     TransactionListItem transactionListItem =
                             ConvertViewsToTransactionDetailResponse
                                     .convertTransactionListItem(
                                             viewUser,
                                             viewCart,
-                                            viewCarts.size() > 1
+                                            isCart
                                     );
                     listOfTransactionListItem.add(transactionListItem);
                 }
