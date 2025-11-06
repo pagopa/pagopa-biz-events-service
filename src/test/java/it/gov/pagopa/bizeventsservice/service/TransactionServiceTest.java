@@ -99,7 +99,7 @@ public class TransactionServiceTest {
                 .thenReturn(pageOfViewUser);
 
         List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
-        when(bizEventsViewCartRepository.findByTransactionIdIn(anyList())).thenReturn(listOfCartView);
+        when(bizEventsViewCartRepository.findByTransactionIdIn(anySet())).thenReturn(listOfCartView);
         
         TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
@@ -134,7 +134,7 @@ public class TransactionServiceTest {
                 .thenReturn(pageOfViewUser);
 
         List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
-        when(bizEventsViewCartRepository.findByTransactionIdIn(anyList())).thenReturn(listOfCartView);
+        when(bizEventsViewCartRepository.findByTransactionIdIn(anySet())).thenReturn(listOfCartView);
         
         TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
