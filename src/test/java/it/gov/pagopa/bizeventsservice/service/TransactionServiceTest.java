@@ -446,7 +446,7 @@ public class TransactionServiceTest {
     }
     
     @Test
-    void transactionViewUserCartDisabled() {
+    void transactionViewUserCartDisabledPayer() {
 
         List<BizEventsViewUser> viewUserList = new ArrayList<>();
 
@@ -460,7 +460,30 @@ public class TransactionServiceTest {
                 .thenReturn(viewUserList);
 
         Assertions.assertDoesNotThrow(() -> transactionService.disablePaidNotice(
-                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID+"_CART_"));
+
+        ArgumentCaptor<List<BizEventsViewUser>> argument = ArgumentCaptor.forClass(List.class);
+        verify(bizEventsViewUserRepository).saveAll(argument.capture());
+        argument.getValue().forEach(u -> assertEquals(Boolean.TRUE, u.getHidden()));
+    }
+
+
+    @Test
+    void transactionViewUserCartDisabledDebtor() {
+
+        List<BizEventsViewUser> viewUserList = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            BizEventsViewUser u = generateBizEventsViewUser();
+            u.setId(u.getId() + "_" + i);
+            viewUserList.add(u);
+        }
+
+        when(bizEventsViewUserRepository.findByFiscalCodeAndTransactionIdAndEventId(anyString(), anyString(), anyString()))
+                .thenReturn(viewUserList);
+
+        Assertions.assertDoesNotThrow(() -> transactionService.disablePaidNotice(
+                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID+"_CART_"+ViewGenerator.EVENT_ID));
 
         ArgumentCaptor<List<BizEventsViewUser>> argument = ArgumentCaptor.forClass(List.class);
         verify(bizEventsViewUserRepository).saveAll(argument.capture());

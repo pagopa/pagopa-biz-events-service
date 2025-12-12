@@ -216,6 +216,13 @@ public class TransactionService implements ITransactionService {
         setHiddenAndSave(fiscalCode, transactionId, listOfViewUser);
     }
 
+    /**
+     * This method sets the 'hidden' attribute to true for all BizEventsViewUser entities in the provided list
+     *
+     * @param fiscalCode the user fiscal code
+     * @param transactionId the transaction id
+     * @param listOfViewUser the list of BizEventsViewUser Entities to be updated
+     */
     private void setHiddenAndSave(String fiscalCode, String transactionId, List<BizEventsViewUser> listOfViewUser) {
         if (CollectionUtils.isEmpty(listOfViewUser)) {
             throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_ID, fiscalCode, transactionId);
