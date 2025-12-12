@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 @Service
 public class TransactionService implements ITransactionService {
 
+    public static final String CART = "_CART_";
     private final BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
     private final BizEventsViewCartRepository bizEventsViewCartRepository;
     private final BizEventsViewUserRepository bizEventsViewUserRepository;
@@ -182,21 +183,40 @@ public class TransactionService implements ITransactionService {
         List<BizEventsViewUser> listOfViewUser = this.bizEventsViewUserRepository
                 .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
 
-        if (CollectionUtils.isEmpty(listOfViewUser)) {
-            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_ID, fiscalCode, transactionId);
-        }
-
-        // PAGOPA-1831: set hidden to true for all transactions with the same transactionId for the given fiscalCode
-        listOfViewUser.forEach(u -> u.setHidden(true));
-        bizEventsViewUserRepository.saveAll(listOfViewUser);
+        setHiddenAndSave(fiscalCode, transactionId, listOfViewUser);
     }
 
     @Override
     public void disablePaidNotice(String fiscalCode, String transactionId) {
+        List<BizEventsViewUser> listOfViewUser;
 
-        List<BizEventsViewUser> listOfViewUser = this.bizEventsViewUserRepository
+        if(transactionId.contains(CART)){
+            // if the transactionId contains _CART_ it means that it's a cart transaction
+            String transaction = transactionId.split(CART)[0];
+            boolean isDebtor = transactionId.split(CART).length > 1;
+            if(isDebtor){
+                // if there is something after _CART_ it means that we have to filter also by eventId for debtor
+                String eventId = transactionId.split(CART)[1];
+                 listOfViewUser = this.bizEventsViewUserRepository
+                        .findByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, eventId);
+            }
+            else {
+                // if there is nothing after _CART_ it means that we have to filter only by transactionId for payer
+                listOfViewUser = this.bizEventsViewUserRepository
+                        .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
+            }
+        }
+        else {
+        // single paid notice transaction
+         listOfViewUser = this.bizEventsViewUserRepository
                 .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
+        }
 
+        // set hidden to true and save
+        setHiddenAndSave(fiscalCode, transactionId, listOfViewUser);
+    }
+
+    private void setHiddenAndSave(String fiscalCode, String transactionId, List<BizEventsViewUser> listOfViewUser) {
         if (CollectionUtils.isEmpty(listOfViewUser)) {
             throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_ID, fiscalCode, transactionId);
         }
