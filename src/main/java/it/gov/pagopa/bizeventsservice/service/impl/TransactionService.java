@@ -88,15 +88,10 @@ public class TransactionService implements ITransactionService {
                     .build();
         }
 
-        Map<String, BizEventsViewUser> viewUserGrouped = listOfViewUser.stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.toMap(
-                        BizEventsViewUser::getTransactionId,
-                        Function.identity(),
-                        (u1, u2) -> u1,
-                        LinkedHashMap::new
-                ));
-        List<BizEventsViewCart> bizEventsViewCart = this.bizEventsViewCartRepository.findByTransactionIdIn(viewUserGrouped.keySet());
+        Set<String> uniqueTransactionIds = listOfViewUser.stream()
+                .map(BizEventsViewUser::getTransactionId)
+                .collect(Collectors.toSet());
+        List<BizEventsViewCart> bizEventsViewCart = this.bizEventsViewCartRepository.findByTransactionIdIn(uniqueTransactionIds);
 
         if (bizEventsViewCart.isEmpty()) {
             return TransactionListResponse.builder()
@@ -105,16 +100,24 @@ public class TransactionService implements ITransactionService {
                     .build();
         }
 
-        Map<String, List<BizEventsViewCart>> viewCartGrouped = bizEventsViewCart.stream()
+        Map<String, List<BizEventsViewCart>> viewCartsGroupedByTrxId = bizEventsViewCart.stream()
                 .collect(Collectors.groupingBy(BizEventsViewCart::getTransactionId));
 
-        for (BizEventsViewUser viewUser : viewUserGrouped.values()) {
-            List<BizEventsViewCart> viewCarts = viewCartGrouped.get(viewUser.getTransactionId());
+        for (BizEventsViewUser viewUser : listOfViewUser) {
 
-            if (viewCarts != null && !viewCarts.isEmpty()) {
-                boolean isCart = viewCarts.size() > 1;
-                for (BizEventsViewCart viewCart : viewCarts) {
-                    TransactionListItem transactionListItem =
+            // Removing "-d" or "-p" suffix
+            final String viewUserIdPrefix = viewUser.getId().substring(0, viewUser.getId().length() - 2);
+
+            Optional<BizEventsViewCart> viewCartAssociatedToViewUser = bizEventsViewCart.stream()
+                    .filter(cart -> viewUserIdPrefix.equals(cart.getEventId()))
+                    .findFirst();
+            if (viewCartAssociatedToViewUser.isPresent()) {
+
+                List<BizEventsViewCart> viewCartsOnSameTrx = viewCartsGroupedByTrxId.getOrDefault(viewUser.getTransactionId(), List.of());
+                boolean isCart = viewCartsOnSameTrx.size() > 1;
+
+                BizEventsViewCart viewCart = viewCartAssociatedToViewUser.get();
+                TransactionListItem transactionListItem =
                             ConvertViewsToTransactionDetailResponse
                                     .convertTransactionListItem(
                                             viewUser,
@@ -122,9 +125,9 @@ public class TransactionService implements ITransactionService {
                                             isCart
                                     );
                     listOfTransactionListItem.add(transactionListItem);
-                }
             }
         }
+
 
         CosmosPageRequest pageResponse = (CosmosPageRequest) page.getPageable().next();
         String nextToken = pageResponse.getRequestContinuation();

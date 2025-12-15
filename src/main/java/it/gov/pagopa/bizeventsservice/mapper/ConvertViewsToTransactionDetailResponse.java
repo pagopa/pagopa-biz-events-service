@@ -7,6 +7,7 @@ import it.gov.pagopa.bizeventsservice.model.response.paidnotice.InfoNotice;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
+import it.gov.pagopa.bizeventsservice.service.impl.TransactionService;
 import it.gov.pagopa.bizeventsservice.util.DateValidator;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -136,8 +137,14 @@ public class ConvertViewsToTransactionDetailResponse {
         BigDecimal amountExtracted = new BigDecimal(bizEventsViewCart.getAmount());
         totalAmount.updateAndGet(v -> v.add(amountExtracted));
 
+        // define item ID as: <viewUser.transactionId>_CART_<viewCart.id>
+        String itemId = viewUser.getTransactionId() + TransactionService.CART;
+        if (viewUser.getIsDebtor()) {
+            itemId += bizEventsViewCart.getId();
+        }
+
         return TransactionListItem.builder()
-                .transactionId(viewUser.getTransactionId())
+                .transactionId(itemId)
                 .payeeName(bizEventsViewCart.getPayee().getName())
                 .payeeTaxCode(bizEventsViewCart.getPayee().getTaxCode())
                 .amount(totalAmount.get().setScale(2, RoundingMode.UNNECESSARY).toString()) 
