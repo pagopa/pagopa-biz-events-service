@@ -109,7 +109,7 @@ public class TransactionService implements ITransactionService {
             final String viewUserIdPrefix = viewUser.getId().substring(0, viewUser.getId().length() - 2);
 
             Optional<BizEventsViewCart> viewCartAssociatedToViewUser = bizEventsViewCart.stream()
-                    .filter(cart -> viewUserIdPrefix.equals(cart.getEventId()))
+                    .filter(cart -> viewUserIdPrefix.equals(cart.getId()))
                     .findFirst();
             if (viewCartAssociatedToViewUser.isPresent()) {
 
