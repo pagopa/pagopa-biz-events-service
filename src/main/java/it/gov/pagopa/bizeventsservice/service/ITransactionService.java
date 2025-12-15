@@ -1,5 +1,6 @@
 package it.gov.pagopa.bizeventsservice.service;
 
+import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
@@ -24,9 +25,9 @@ public interface ITransactionService {
 
     NoticeDetailResponse getPaidNoticeDetail(String fiscalCode, String eventId);
 
-    byte[] getPDFReceipt(String fiscalCode, String eventId);
+    byte[] getPDFReceipt(String fiscalCode, BizEvent event);
 
-    ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, String eventId);
+    ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, BizEvent event);
 
     void disableTransaction(String fiscalCode, String transactionId);
 

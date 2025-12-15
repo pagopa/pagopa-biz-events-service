@@ -17,6 +17,7 @@ import java.util.Optional;
 @Service
 public class BizEventsService implements IBizEventsService {
 
+    public static final String CART = "_CART_";
     private final BizEventsRepository bizEventsRepository;
 
     private final ModelMapper modelMapper;
@@ -48,8 +49,27 @@ public class BizEventsService implements IBizEventsService {
 
     @Override
     public BizEvent getBizEvent(String id) {
-        // get biz event
-        Optional<BizEvent> optionalBizEvent = bizEventsRepository.findById(id, new PartitionKey(id));
+        Optional<BizEvent> optionalBizEvent;
+
+        if (id.contains(CART)) {
+            // is a cart biz event
+            String[] parts = id.split(CART);
+            boolean isDebtor = parts.length > 1;
+            var cartId = parts[0];
+
+            if (isDebtor) {
+                // is a debtor cart biz event, so get by biz event id
+                var bizId = parts[1];
+                optionalBizEvent = bizEventsRepository.findById(bizId, new PartitionKey(bizId));
+
+            } else {
+                // is a payer cart biz event, so get by cart id because biz event id is not available
+                optionalBizEvent = bizEventsRepository.findByCartId(cartId);
+            }
+        } else {
+            // is a single payment, so get biz event by id
+            optionalBizEvent = bizEventsRepository.findById(id, new PartitionKey(id));
+        }
 
         if (optionalBizEvent.isEmpty()) {
             throw new AppException(AppError.BIZ_EVENT_NOT_FOUND_WITH_ID, id);

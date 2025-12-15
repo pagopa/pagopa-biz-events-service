@@ -84,7 +84,7 @@ public class PaidNoticeControllerTest {
         NoticeDetailResponse noticeDetailResponse = Utility.readModelFromFile("biz-events/paidNoticeDetails.json", NoticeDetailResponse.class);
         when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyString(), anyInt(), any(), any())).thenReturn(transactionListResponse);
         when(transactionService.getPaidNoticeDetail(anyString(), anyString())).thenReturn(noticeDetailResponse);
-        when(transactionService.getPDFReceipt(anyString(), anyString())).thenReturn(receipt);
+        when(transactionService.getPDFReceipt(anyString(), any())).thenReturn(receipt);
         Attachment attachmentDetail = mock(Attachment.class);
         AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();
         when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
@@ -200,7 +200,7 @@ public class PaidNoticeControllerTest {
         when(response.getHeaders()).thenReturn(headers);
         when(response.getStatusCodeValue()).thenReturn(200);
         when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
-        when(transactionService.getPDFReceiptResponse(anyString(), anyString())).thenReturn(response);
+        when(transactionService.getPDFReceiptResponse(anyString(), any())).thenReturn(response);
 
         mvc.perform(get(PAIDS_EVENT_ID_PDF_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
@@ -210,7 +210,7 @@ public class PaidNoticeControllerTest {
                 .andReturn();
 
         verify(bizEventsService).getBizEvent("event-id");
-        verify(transactionService).getPDFReceiptResponse(VALID_FISCAL_CODE, "event-id");
+        verify(transactionService).getPDFReceiptResponse(VALID_FISCAL_CODE, bizEvent);
     }
 
     @Test

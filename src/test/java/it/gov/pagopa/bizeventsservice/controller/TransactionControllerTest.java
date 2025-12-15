@@ -79,7 +79,7 @@ public class TransactionControllerTest {
         TransactionDetailResponse transactionDetailResponse = Utility.readModelFromFile("biz-events/transactionDetails.json", TransactionDetailResponse.class);
         when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyString(), anyInt(), any(), any())).thenReturn(transactionListResponse);
         when(transactionService.getTransactionDetails(anyString(), anyString())).thenReturn(transactionDetailResponse);
-        when(transactionService.getPDFReceipt(anyString(), anyString())).thenReturn(receipt);
+        when(transactionService.getPDFReceipt(anyString(), any())).thenReturn(receipt);
         Attachment attachmentDetail = mock(Attachment.class);
         AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();
         when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
@@ -198,7 +198,7 @@ public class TransactionControllerTest {
                 .andReturn();
 
         verify(bizEventsService).getBizEvent("event-id");
-        verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, "event-id");
+        verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, bizEvent);
         assertEquals(receipt.length, result.getResponse().getContentAsByteArray().length);
     }
 

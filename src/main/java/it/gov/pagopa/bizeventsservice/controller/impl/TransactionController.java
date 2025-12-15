@@ -64,8 +64,8 @@ public class TransactionController implements ITransactionController {
     @Override
     public ResponseEntity<byte[]> getPDFReceipt(@NotBlank String fiscalCode, @NotBlank String eventId) {
         // to check if is an OLD event present only on the PM --> the receipt is not available for events present exclusively on the PM
-        bizEventsService.getBizEvent(eventId);
-        byte[] receiptFile = transactionService.getPDFReceipt(fiscalCode, eventId);
+        var bizEvent = bizEventsService.getBizEvent(eventId);
+        byte[] receiptFile = transactionService.getPDFReceipt(fiscalCode, bizEvent);
         return ResponseEntity
                 .ok()
                 .contentLength(receiptFile.length)

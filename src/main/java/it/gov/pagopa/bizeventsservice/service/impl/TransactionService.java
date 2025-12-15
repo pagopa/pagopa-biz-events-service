@@ -4,6 +4,7 @@ import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 import feign.FeignException;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
+import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
@@ -34,6 +35,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -190,26 +192,24 @@ public class TransactionService implements ITransactionService {
     public void disablePaidNotice(String fiscalCode, String transactionId) {
         List<BizEventsViewUser> listOfViewUser;
 
-        if(transactionId.contains(CART)){
+        if (transactionId.contains(CART)) {
             // if the transactionId contains _CART_ it means that it's a cart transaction
             String transaction = transactionId.split(CART)[0];
             boolean isDebtor = transactionId.split(CART).length > 1;
-            if(isDebtor){
+            if (isDebtor) {
                 // if there is something after _CART_ it means that we have to filter also by eventId for debtor
                 String eventId = transactionId.split(CART)[1];
-                 listOfViewUser = this.bizEventsViewUserRepository
+                listOfViewUser = this.bizEventsViewUserRepository
                         .findByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, eventId);
-            }
-            else {
+            } else {
                 // if there is nothing after _CART_ it means that we have to filter only by transactionId for payer
                 listOfViewUser = this.bizEventsViewUserRepository
                         .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
             }
-        }
-        else {
-        // single paid notice transaction
-         listOfViewUser = this.bizEventsViewUserRepository
-                .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
+        } else {
+            // single paid notice transaction
+            listOfViewUser = this.bizEventsViewUserRepository
+                    .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
         }
 
         // set hidden to true and save
@@ -219,8 +219,8 @@ public class TransactionService implements ITransactionService {
     /**
      * This method sets the 'hidden' attribute to true for all BizEventsViewUser entities in the provided list
      *
-     * @param fiscalCode the user fiscal code
-     * @param transactionId the transaction id
+     * @param fiscalCode     the user fiscal code
+     * @param transactionId  the transaction id
      * @param listOfViewUser the list of BizEventsViewUser Entities to be updated
      */
     private void setHiddenAndSave(String fiscalCode, String transactionId, List<BizEventsViewUser> listOfViewUser) {
@@ -234,16 +234,17 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public byte[] getPDFReceipt(String fiscalCode, String eventId) {
-        return this.acquirePDFReceipt(fiscalCode, eventId);
+    public byte[] getPDFReceipt(String fiscalCode, BizEvent event) {
+        return this.acquirePDFReceipt(fiscalCode, event);
     }
 
     @Override
-    public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, String eventId) {
-        var attachmentDetails = getAttachmentDetails(fiscalCode, eventId);
+    public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, BizEvent event) {
+
+        var attachmentDetails = getAttachmentDetails(fiscalCode, event);
         var name = attachmentDetails.getAttachments().get(0).getName();
         var url = attachmentDetails.getAttachments().get(0).getUrl();
-        var receiptFile = getAttachmentFile(fiscalCode, eventId, url);
+        var receiptFile = getAttachmentFile(fiscalCode, event.getId(), url);
 
         return ResponseEntity
                 .ok()
@@ -253,23 +254,27 @@ public class TransactionService implements ITransactionService {
                 .body(new ByteArrayResource(receiptFile));
     }
 
-    private byte[] acquirePDFReceipt(String fiscalCode, String eventId) {
-        String url = getAttachmentDetails(fiscalCode, eventId).getAttachments().get(0).getUrl();
-        return this.getAttachmentFile(fiscalCode, eventId, url);
+    private byte[] acquirePDFReceipt(String fiscalCode, BizEvent event) {
+        String url = getAttachmentDetails(fiscalCode, event).getAttachments().get(0).getUrl();
+        return this.getAttachmentFile(fiscalCode, event.getId(), url);
     }
 
-    private AttachmentsDetailsResponse getAttachmentDetails(String fiscalCode, String eventId) {
+    private AttachmentsDetailsResponse getAttachmentDetails(String fiscalCode, BizEvent event) {
         try {
             // call the receipt-pdf-service to retrieve the PDF receipt details
-            return receiptClient.getAttachments(fiscalCode, eventId);
+            return receiptClient.getAttachments(fiscalCode, event.getId());
         } catch (FeignException.NotFound e) {
-            generateReceiptClient.generateReceipt(eventId, "false", "{}");
-            return receiptClient.getAttachments(fiscalCode, eventId);
+            if(event.getTs().isAfter(OffsetDateTime.now().minusMinutes(30))) {
+                throw new AppException(AppError.ATTACHMENT_NOT_FOUND, fiscalCode, event.getId());
+            }
+
+            generateReceiptClient.generateReceipt(event.getId(), "false", "{}");
+            return receiptClient.getAttachments(fiscalCode, event.getId());
         } catch (FeignException.InternalServerError e) {
             String responseBody = e.contentUTF8();
             if (responseBody != null && responseBody.contains("PDFS_700")) {
-                generateReceiptClient.generateReceipt(eventId, "false", "{}");
-                return receiptClient.getAttachments(fiscalCode, eventId);
+                generateReceiptClient.generateReceipt(event.getId(), "false", "{}");
+                return receiptClient.getAttachments(fiscalCode, event.getId());
             } else {
                 throw e; // rethrow the exception if this is not the expected case
             }
