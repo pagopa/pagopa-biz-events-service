@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
 public class TransactionService implements ITransactionService {
 
     public static final String CART = "_CART_";
+    public static final String FALSE = "false";
     private final BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
     private final BizEventsViewCartRepository bizEventsViewCartRepository;
     private final BizEventsViewUserRepository bizEventsViewUserRepository;
@@ -264,16 +265,16 @@ public class TransactionService implements ITransactionService {
             // call the receipt-pdf-service to retrieve the PDF receipt details
             return receiptClient.getAttachments(fiscalCode, event.getId());
         } catch (FeignException.NotFound e) {
-            if(event.getTs().isAfter(OffsetDateTime.now().minusMinutes(30))) {
+            if (event.getTs().isAfter(OffsetDateTime.now().minusMinutes(30))) {
                 throw new AppException(AppError.ATTACHMENT_NOT_FOUND, fiscalCode, event.getId());
             }
 
-            generateReceiptClient.generateReceipt(event.getId(), "false", "{}");
+            generateReceiptClient.generateReceipt(event.getId(), FALSE, "{}");
             return receiptClient.getAttachments(fiscalCode, event.getId());
         } catch (FeignException.InternalServerError e) {
             String responseBody = e.contentUTF8();
             if (responseBody != null && responseBody.contains("PDFS_700")) {
-                generateReceiptClient.generateReceipt(event.getId(), "false", "{}");
+                generateReceiptClient.generateReceipt(event.getId(), FALSE, "{}");
                 return receiptClient.getAttachments(fiscalCode, event.getId());
             } else {
                 throw e; // rethrow the exception if this is not the expected case
@@ -287,7 +288,7 @@ public class TransactionService implements ITransactionService {
             return receiptClient.getReceipt(fiscalCode, eventId, url);
         } catch (FeignException.NotFound e) {
             // re-generate the PDF receipt and return the generated file by getReceipt call
-            generateReceiptClient.generateReceipt(eventId, "false", "{}");
+            generateReceiptClient.generateReceipt(eventId, FALSE, "{}");
             return receiptClient.getReceipt(fiscalCode, eventId, url);
         }
     }
