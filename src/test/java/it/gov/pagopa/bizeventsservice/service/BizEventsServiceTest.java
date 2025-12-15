@@ -135,6 +135,26 @@ class BizEventsServiceTest {
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
 
+
+    @Test
+    void getBizEventFailNotFoundCartPayer() {
+        when(bizEventsRepository.findById("fake id", new PartitionKey("fake id")))
+                .thenReturn(Optional.empty());
+
+        AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEvent("id_CART_"));
+        assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
+    }
+
+
+    @Test
+    void getBizEventFailNotFoundCartDebtor() {
+        when(bizEventsRepository.findById("bizeventid", new PartitionKey("bizeventid")))
+                .thenReturn(Optional.empty());
+
+        AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEvent("cartid_CART_bizeventid"));
+        assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
+    }
+
     @Test
     void getBizEventByOrgFiscalCodeAndIuvSuccess() {
         when(bizEventsRepository.getBizEventByOrgFiscalCodeAndIuv(ORGANIZATION_FISCAL_CODE, IUV))

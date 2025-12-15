@@ -64,7 +64,7 @@ public class BizEventsService implements IBizEventsService {
 
             } else {
                 // is a payer cart biz event, so get by cart id because biz event id is not available
-                optionalBizEvent = bizEventsRepository.findByCartId(cartId);
+                optionalBizEvent = bizEventsRepository.findByCartId(cartId).stream().findFirst();
             }
         } else {
             // is a single payment, so get biz event by id
