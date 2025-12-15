@@ -139,7 +139,7 @@ public class ConvertViewsToTransactionDetailResponse {
 
         // define item ID as: <viewUser.transactionId>_CART_<viewCart.id>
         String itemId = viewUser.getTransactionId() + TransactionService.CART;
-        if (viewUser.getIsDebtor()) {
+        if (!viewUser.getIsPayer()) {
             itemId += bizEventsViewCart.getId();
         }
 
