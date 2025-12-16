@@ -124,6 +124,43 @@ public class TransactionServiceTest {
     }
 
     @Test
+    void taxCodeWithCartEventsShouldReturnTransactionList() {
+        List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOfFiveBizEventsViewUser();
+        Page<BizEventsViewUser> pageOfViewUser = mock(Page.class);
+        when(pageOfViewUser.getContent()).thenReturn(listOfViewUser);
+        CosmosPageRequest pageRequest = mock(CosmosPageRequest.class);
+        when(pageRequest.getRequestContinuation()).thenReturn(CONTINUATION_TOKEN);
+        Pageable pageable = mock(Pageable.class);
+        when(pageOfViewUser.getPageable()).thenReturn(pageable);
+        when(pageable.next()).thenReturn(pageRequest);
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any()))
+                .thenReturn(pageOfViewUser);
+
+        List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
+        String cartTransactionId = listOfCartView.get(0).getTransactionId();
+        listOfCartView.forEach(cartView -> cartView.setTransactionId(cartTransactionId));
+        when(bizEventsViewCartRepository.findByTransactionIdIn(anySet())).thenReturn(listOfCartView);
+
+        TransactionListResponse transactionListResponse =
+                Assertions.assertDoesNotThrow(() ->
+                        transactionService.getTransactionList(
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, CONTINUATION_TOKEN, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
+        assertEquals(CONTINUATION_TOKEN, transactionListResponse.getContinuationToken());
+        List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
+        assertNotNull(transactionListItems);
+        assertEquals(listOfViewUser.size(), transactionListItems.size());
+
+        for (TransactionListItem listItem : transactionListItems) {
+            assertEquals(ViewGenerator.FORMATTED_AMOUNT, listItem.getAmount());
+            assertEquals(ViewGenerator.PAYEE_NAME, listItem.getPayeeName());
+            assertEquals(ViewGenerator.PAYEE_TAX_CODE, listItem.getPayeeTaxCode());
+        }
+
+        verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any());
+        verifyNoMoreInteractions(bizEventsViewUserRepository);
+    }
+
+    @Test
     void taxCodeWithoutEventsShouldReturnEmptyTransactionList() {
         Page<BizEventsViewUser> pageOfViewUser = mock(Page.class);
         when(pageOfViewUser.getContent()).thenReturn(Collections.emptyList());
