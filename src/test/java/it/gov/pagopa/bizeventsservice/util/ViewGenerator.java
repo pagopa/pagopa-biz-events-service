@@ -10,6 +10,7 @@ import java.util.List;
 public class ViewGenerator {
     public static final String USER_TAX_CODE_WITH_TX = "AAAAAA00A00A000A";
     public static final String TRANSACTION_ID = "transactionId";
+    public static final String CART_ID = "cartId";
     public static final String AUTH_CODE = "authCode";
     public static final String RRN = "rrn";
     public static final String PSP_NAME = "pspName";
@@ -100,6 +101,25 @@ public class ViewGenerator {
                 .payer(UserDetail.builder()
                         .name(PAYER_NAME)
                         .taxCode(USER_TAX_CODE_WITH_TX)
+                        .build())
+                .isCart(true)
+                .origin(originTypes.length >=1 ? originTypes[0] : OriginType.PM)
+                .build();
+    }
+
+    public static BizEventsViewGeneral generateBizEventsViewGeneralForDebtor(OriginType...originTypes) {
+        return BizEventsViewGeneral.builder()
+                .transactionId(TRANSACTION_ID)
+                .authCode(AUTH_CODE)
+                .paymentMethod(PaymentMethodType.AD)
+                .rrn(RRN)
+                .pspName(PSP_NAME)
+                .transactionDate(TRANSACTION_DATE_ZULU)
+                .walletInfo(WalletInfo.builder()
+                        .brand(BRAND)
+                        .accountHolder(ACCOUNT_HOLDER)
+                        .blurredNumber(BLURRED_NUMBER)
+                        .maskedEmail(MASKED_EMAIL)
                         .build())
                 .isCart(true)
                 .origin(originTypes.length >=1 ? originTypes[0] : OriginType.PM)
