@@ -186,7 +186,7 @@ Then('the transactions with cart items {string} for taxCode {string} have the co
 	for (let transaction of responseToCheck.data.notices) {
 		let totalAmount = 0;
     	// splitting <viewCart.id> from transaction.eventId (built as <viewUser.transactionId>_CART_<viewCart.id>)
-		const viewCartIdFromTransaction = transaction.eventId.split('_CART_')[1];
+		const viewCartIdFromTransaction = transaction.eventId.split('_CART_')[0];
 		for(let viewCart of viewCartList.filter(cart => cart.id == viewCartIdFromTransaction)){
 			totalAmount += viewCart.amount;
 			if(isCart == "true"){
