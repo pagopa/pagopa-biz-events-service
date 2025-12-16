@@ -138,9 +138,12 @@ public class ConvertViewsToTransactionDetailResponse {
         totalAmount.updateAndGet(v -> v.add(amountExtracted));
 
         // define item ID as: <viewUser.transactionId>_CART_<viewCart.id>
-        String itemId = viewUser.getTransactionId() + TransactionService.CART;
-        if (!viewUser.getIsPayer()) {
-            itemId += bizEventsViewCart.getId();
+        String itemId = viewUser.getTransactionId();
+        if (isCart) {
+            itemId += TransactionService.CART;
+            if (!viewUser.getIsPayer()) {
+                itemId += bizEventsViewCart.getId();
+            }
         }
 
         return TransactionListItem.builder()
