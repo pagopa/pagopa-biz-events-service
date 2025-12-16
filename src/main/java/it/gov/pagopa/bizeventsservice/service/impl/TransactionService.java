@@ -35,7 +35,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -140,6 +139,7 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public TransactionDetailResponse getTransactionDetails(String taxCode, String eventReference) {
+
         List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(eventReference);
         if (bizEventsViewGeneral.isEmpty()) {
             throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_ID, eventReference);
@@ -161,16 +161,30 @@ public class TransactionService implements ITransactionService {
     @Cacheable("noticeDetails")
     @Override
     public NoticeDetailResponse getPaidNoticeDetail(String taxCode, String transactionId) {
-        List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(transactionId);
+
+        // Split passed transaction ID made as <viewUser.transactionId>_CART_<viewCart.id
+        String[] transactionIdSections = transactionId.split(CART);
+        String extractedTransactionId = transactionIdSections[0];
+        String extractedCartId = transactionIdSections.length > 1 ? transactionIdSections[1] : null;
+
+        boolean cartForPayer = transactionId.contains(CART) && extractedCartId == null;
+
+        List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(extractedTransactionId);
         if (bizEventsViewGeneral.isEmpty()) {
             throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_ID, transactionId);
         }
 
         List<BizEventsViewCart> listOfCartViews;
-        if (bizEventsViewGeneral.get(0).getPayer() != null && bizEventsViewGeneral.get(0).getPayer().getTaxCode().equals(taxCode)) {
-            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(transactionId);
+
+        boolean isPayer = bizEventsViewGeneral.get(0).getPayer() != null && taxCode.equals(bizEventsViewGeneral.get(0).getPayer().getTaxCode());
+        if (cartForPayer || isPayer) {
+            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(extractedTransactionId);
         } else {
-            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(transactionId, taxCode);
+            if (extractedCartId != null) {
+                listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByIdAndFilteredByTaxCode(extractedCartId, taxCode);
+            } else {
+                listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(extractedTransactionId, taxCode);
+            }
         }
         if (listOfCartViews.isEmpty()) {
             throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE, transactionId);
