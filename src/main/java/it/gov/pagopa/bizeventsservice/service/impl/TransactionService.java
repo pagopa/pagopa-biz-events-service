@@ -21,6 +21,8 @@ import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartReposi
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
@@ -37,10 +39,12 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class TransactionService implements ITransactionService {
 
     public static final String CART = "_CART_";
@@ -269,13 +273,26 @@ public class TransactionService implements ITransactionService {
                 throw new AppException(AppError.ATTACHMENT_NOT_FOUND, fiscalCode, event.getId());
             }
 
-            generateReceiptClient.generateReceipt(event.getId(), FALSE, "{}");
-            return receiptClient.getAttachments(fiscalCode, event.getId());
+            CompletableFuture.runAsync(() -> {
+                try {
+                    generateReceiptClient.generateReceipt(event.getId(), FALSE, "{}");
+                } catch (Exception ex) {
+                    log.error("Error during the generation of the receipt", ex);
+                }
+            });
+            throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, event.getId());
+
         } catch (FeignException.InternalServerError e) {
             String responseBody = e.contentUTF8();
             if (responseBody != null && responseBody.contains("PDFS_700")) {
-                generateReceiptClient.generateReceipt(event.getId(), FALSE, "{}");
-                return receiptClient.getAttachments(fiscalCode, event.getId());
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        generateReceiptClient.generateReceipt(event.getId(), FALSE, "{}");
+                    } catch (Exception ex) {
+                        log.error("Error during the generation of the receipt", ex);
+                    }
+                });
+                throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, event.getId());
             } else {
                 throw e; // rethrow the exception if this is not the expected case
             }

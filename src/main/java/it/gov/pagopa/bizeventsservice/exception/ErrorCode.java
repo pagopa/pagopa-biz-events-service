@@ -45,6 +45,7 @@ public enum ErrorCode {
 
     // attachment
     AT_404_001,
+    AT_404_002,
 
     // unknown
     UN_500_000,

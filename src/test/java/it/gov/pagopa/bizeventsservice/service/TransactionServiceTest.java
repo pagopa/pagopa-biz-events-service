@@ -537,16 +537,13 @@ public class TransactionServiceTest {
         AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();
         when(receiptClient.getAttachments(anyString(), eq("missing-id"))).thenThrow(FeignException.NotFound.class).thenReturn(attachments);
 
-        byte[] res =
-                Assertions.assertDoesNotThrow(() ->
-                        transactionService.getPDFReceipt(
-                                VALID_FISCAL_CODE, bizEvent));
+        Assertions.assertThrows(AppException.class, () ->
+                transactionService.getPDFReceipt(
+                        VALID_FISCAL_CODE, bizEvent));
+
 
         verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, bizEvent);
-        verify(receiptClient, times(2)).getAttachments(VALID_FISCAL_CODE, "missing-id");
         verify(generateReceiptClient).generateReceipt("missing-id", "false", "{}");
-        verify(receiptClient).getReceipt(eq(VALID_FISCAL_CODE), eq("missing-id"), any());
-        assertEquals(receipt.length, res.length);
     }
 
     @Test
