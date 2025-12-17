@@ -1,6 +1,7 @@
 package it.gov.pagopa.bizeventsservice.config;
 
 import it.gov.pagopa.bizeventsservice.exception.AppException;
+import it.gov.pagopa.bizeventsservice.exception.ErrorCode;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -46,7 +47,7 @@ public class ResponseValidator {
                     sb.append(error.getPropertyPath()).append(" ").append(error.getMessage()).append(". ");
                 }
                 var msg = StringUtils.chop(sb.toString());
-                throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "Invalid response", msg);
+                throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.GN_500_004, "Invalid response", msg);
             }
         }
     }

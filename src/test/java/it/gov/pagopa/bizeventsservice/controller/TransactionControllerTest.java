@@ -6,6 +6,7 @@ import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
+import it.gov.pagopa.bizeventsservice.exception.ErrorCode;
 import it.gov.pagopa.bizeventsservice.model.response.Attachment;
 import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
@@ -204,7 +205,7 @@ public class TransactionControllerTest {
 
     @Test
     void getPDFReceiptForOldPMEvent_ShouldReturnNOTFOUND() throws Exception {
-        AppException ex = new AppException(HttpStatus.NOT_FOUND, "mock", "mock");
+        AppException ex = new AppException(HttpStatus.NOT_FOUND, ErrorCode.TS_000_000, "mock", "mock");
         when(bizEventsService.getBizEvent(anyString())).thenThrow(ex);
 
         mvc.perform(get(TRANSACTION_RECEIPT_PATH)
