@@ -20,6 +20,7 @@ import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartReposi
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
+import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
@@ -36,11 +37,12 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class TransactionService implements ITransactionService {
 
-    public static final String CART = "_CART_";
+
     private final BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
     private final BizEventsViewCartRepository bizEventsViewCartRepository;
     private final BizEventsViewUserRepository bizEventsViewUserRepository;
@@ -99,8 +101,12 @@ public class TransactionService implements ITransactionService {
                     .build();
         }
 
-        Map<String, List<BizEventsViewCart>> viewCartsGroupedByTrxId = bizEventsViewCart.stream()
-                .collect(Collectors.groupingBy(BizEventsViewCart::getTransactionId));
+        Map<String, Boolean> viewCartsGroupedByTrxId = bizEventsViewCart.stream()
+                .collect(Collectors.toMap(
+                        BizEventsViewCart::getTransactionId,
+                        firstOccurrence -> false,
+                        (existingOccurrence, newOccurrence) -> true
+                ));
 
         for (BizEventsViewUser viewUser : listOfViewUser) {
 
@@ -112,8 +118,7 @@ public class TransactionService implements ITransactionService {
                     .findFirst();
             if (viewCartAssociatedToViewUser.isPresent()) {
 
-                List<BizEventsViewCart> viewCartsOnSameTrx = viewCartsGroupedByTrxId.getOrDefault(viewUser.getTransactionId(), List.of());
-                boolean isCart = viewCartsOnSameTrx.size() > 1;
+                boolean isCart = viewCartsGroupedByTrxId.getOrDefault(viewUser.getTransactionId(), false);
 
                 BizEventsViewCart viewCart = viewCartAssociatedToViewUser.get();
                 TransactionListItem transactionListItem =
@@ -163,11 +168,9 @@ public class TransactionService implements ITransactionService {
     public NoticeDetailResponse getPaidNoticeDetail(String taxCode, String transactionId) {
 
         // Split passed transaction ID made as <viewUser.transactionId>_CART_<viewCart.id
-        String[] transactionIdSections = transactionId.split(CART);
-        String extractedTransactionId = transactionIdSections[0];
-        String extractedCartId = transactionIdSections.length > 1 ? transactionIdSections[1] : null;
-
-        boolean cartForPayer = transactionId.contains(CART) && extractedCartId == null;
+        TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(transactionId);
+        String extractedTransactionId = viewTransactionId.transactionId();
+        String extractedViewCartId = viewTransactionId.eventId();
 
         List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(extractedTransactionId);
         if (bizEventsViewGeneral.isEmpty()) {
@@ -177,14 +180,11 @@ public class TransactionService implements ITransactionService {
         List<BizEventsViewCart> listOfCartViews;
 
         boolean isPayer = bizEventsViewGeneral.get(0).getPayer() != null && taxCode.equals(bizEventsViewGeneral.get(0).getPayer().getTaxCode());
-        if (cartForPayer || isPayer) {
-            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(extractedTransactionId);
+        boolean isCart = TransactionIdFactory.isCart(transactionId);
+        if (isCart && !isPayer) {
+            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndIdAndFilteredByTaxCode(extractedTransactionId, extractedViewCartId, taxCode);
         } else {
-            if (extractedCartId != null) {
-                listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByIdAndFilteredByTaxCode(extractedCartId, taxCode);
-            } else {
-                listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(extractedTransactionId, taxCode);
-            }
+            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(extractedTransactionId);
         }
         if (listOfCartViews.isEmpty()) {
             throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE, transactionId);
@@ -207,13 +207,16 @@ public class TransactionService implements ITransactionService {
     public void disablePaidNotice(String fiscalCode, String transactionId) {
         List<BizEventsViewUser> listOfViewUser;
 
-        if(transactionId.contains(CART)){
-            // if the transactionId contains _CART_ it means that it's a cart transaction
-            String transaction = transactionId.split(CART)[0];
-            boolean isDebtor = transactionId.split(CART).length > 1;
-            if(isDebtor){
+        // if the transactionId contains _CART_ it means that it's a cart transaction
+        if(TransactionIdFactory.isCart(transactionId)){
+
+            TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(transactionId);
+            String transaction = viewTransactionId.transactionId();
+
+            boolean isDebtor = viewTransactionId.eventId() != null;
+            if (isDebtor){
                 // if there is something after _CART_ it means that we have to filter also by eventId for debtor
-                String eventId = transactionId.split(CART)[1];
+                String eventId = viewTransactionId.eventId();
                  listOfViewUser = this.bizEventsViewUserRepository
                         .findByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, eventId);
             }

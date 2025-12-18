@@ -10,7 +10,8 @@ import java.util.List;
 public class ViewGenerator {
     public static final String USER_TAX_CODE_WITH_TX = "AAAAAA00A00A000A";
     public static final String TRANSACTION_ID = "transactionId";
-    public static final String CART_ID = "cartId";
+    public static final String TRANSACTION_ID_ON_CART_FOR_PAYER = ViewGenerator.TRANSACTION_ID + TransactionIdFactory.CART_SUBSTRING;
+    public static final String TRANSACTION_ID_ON_CART_FOR_DEBTOR = ViewGenerator.TRANSACTION_ID + TransactionIdFactory.CART_SUBSTRING + ViewGenerator.EVENT_ID;
     public static final String AUTH_CODE = "authCode";
     public static final String RRN = "rrn";
     public static final String PSP_NAME = "pspName";
@@ -84,7 +85,7 @@ public class ViewGenerator {
         return listOfViewUser;
     }
 
-    public static BizEventsViewGeneral generateBizEventsViewGeneral(OriginType...originTypes) {
+    public static BizEventsViewGeneral generateBizEventsViewGeneral(boolean isCart, OriginType...originTypes) {
         return BizEventsViewGeneral.builder()
                 .transactionId(TRANSACTION_ID)
                 .authCode(AUTH_CODE)
@@ -102,12 +103,12 @@ public class ViewGenerator {
                         .name(PAYER_NAME)
                         .taxCode(USER_TAX_CODE_WITH_TX)
                         .build())
-                .isCart(true)
+                .isCart(isCart)
                 .origin(originTypes.length >=1 ? originTypes[0] : OriginType.PM)
                 .build();
     }
 
-    public static BizEventsViewGeneral generateBizEventsViewGeneralForDebtor(OriginType...originTypes) {
+    public static BizEventsViewGeneral generateBizEventsViewGeneralForDebtor(boolean isCart, OriginType...originTypes) {
         return BizEventsViewGeneral.builder()
                 .transactionId(TRANSACTION_ID)
                 .authCode(AUTH_CODE)
@@ -115,19 +116,33 @@ public class ViewGenerator {
                 .rrn(RRN)
                 .pspName(PSP_NAME)
                 .transactionDate(TRANSACTION_DATE_ZULU)
-                .walletInfo(WalletInfo.builder()
-                        .brand(BRAND)
-                        .accountHolder(ACCOUNT_HOLDER)
-                        .blurredNumber(BLURRED_NUMBER)
-                        .maskedEmail(MASKED_EMAIL)
-                        .build())
-                .isCart(true)
+                .isCart(isCart)
                 .origin(originTypes.length >=1 ? originTypes[0] : OriginType.PM)
                 .build();
     }
 
+    public static List<BizEventsViewGeneral> generateNBizEventsViewGeneralForDebtor(int number, boolean isCart, OriginType...originTypes) {
+        List<BizEventsViewGeneral> viewGenerals = new ArrayList<>(number);
+        for (int i = 0; i < number; i++) {
+            BizEventsViewGeneral viewGeneral = BizEventsViewGeneral.builder()
+                    .id(EVENT_ID + "-" + i)
+                    .transactionId(TRANSACTION_ID)
+                    .authCode(AUTH_CODE)
+                    .paymentMethod(PaymentMethodType.AD)
+                    .rrn(RRN)
+                    .pspName(PSP_NAME)
+                    .transactionDate(TRANSACTION_DATE_ZULU)
+                    .isCart(isCart)
+                    .origin(originTypes.length >=1 ? originTypes[0] : OriginType.PM)
+                    .build();
+            viewGenerals.add(viewGeneral);
+        }
+        return viewGenerals;
+    }
+
     public static BizEventsViewCart generateBizEventsViewCart() {
         return BizEventsViewCart.builder()
+                .id(EVENT_ID)
                 .transactionId(TRANSACTION_ID)
                 .eventId(EVENT_ID)
                 .subject(SUBJECT)

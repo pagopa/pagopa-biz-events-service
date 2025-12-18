@@ -23,8 +23,9 @@ public interface BizEventsViewCartRepository extends CosmosRepository<BizEventsV
             @Param("transactionId") String transactionId,
             @Param("taxCode") String taxCode);
 
-    @Query("select * from c where c.id = @id and c.debtor.taxCode = @taxCode")
-    List<BizEventsViewCart> getBizEventsViewCartByIdAndFilteredByTaxCode(
+    @Query("select * from c where c.transactionId = @transactionId and c.id = @id and c.debtor.taxCode = @taxCode")
+    List<BizEventsViewCart> getBizEventsViewCartByTransactionIdAndIdAndFilteredByTaxCode(
+            @Param("transactionId") String transactionId,
             @Param("id") String id,
             @Param("taxCode") String taxCode);
 
