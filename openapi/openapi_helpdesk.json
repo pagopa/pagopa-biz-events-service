@@ -4,7 +4,7 @@
     "title": "Biz-Events Service - Biz-Events Helpdesk",
     "description": "Microservice for exposing REST APIs for bizevent Helpdesk.",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.1.90-1-PAGOPA-3442"
+    "version": "0.1.90-2-PAGOPA-3444-ipg-147-adeguamenti-per-carrello-api-disable-lap"
   },
   "servers": [
     {
@@ -24,28 +24,6 @@
         "description": "Return OK if application is started",
         "operationId": "healthCheck",
         "responses": {
-          "401": {
-            "description": "Unauthorized",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "200": {
             "description": "OK",
             "headers": {
@@ -64,8 +42,8 @@
               }
             }
           },
-          "400": {
-            "description": "Bad Request",
+          "429": {
+            "description": "Too many requests",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -73,11 +51,15 @@
                   "type": "string"
                 }
               }
-            },
-            "content": {
-              "application/json": {
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
+                  "type": "string"
                 }
               }
             }
@@ -100,8 +82,26 @@
               }
             }
           },
-          "429": {
-            "description": "Too many requests",
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -149,8 +149,8 @@
           }
         ],
         "responses": {
-          "429": {
-            "description": "Too many requests.",
+          "401": {
+            "description": "Wrong or missing function key.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -160,20 +160,13 @@
               }
             }
           },
-          "404": {
-            "description": "Not found the biz-event.",
+          "429": {
+            "description": "Too many requests.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
                 "schema": {
                   "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -196,19 +189,8 @@
               }
             }
           },
-          "401": {
-            "description": "Wrong or missing function key.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "Obtained biz-event.",
+          "404": {
+            "description": "Not found the biz-event.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -220,7 +202,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BizEvent"
+                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -239,6 +221,24 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Obtained biz-event.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BizEvent"
                 }
               }
             }
@@ -290,8 +290,8 @@
           }
         ],
         "responses": {
-          "429": {
-            "description": "Too many requests.",
+          "401": {
+            "description": "Wrong or missing function key.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -301,20 +301,13 @@
               }
             }
           },
-          "404": {
-            "description": "Not found the biz-event.",
+          "429": {
+            "description": "Too many requests.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
                 "schema": {
                   "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -337,19 +330,8 @@
               }
             }
           },
-          "401": {
-            "description": "Wrong or missing function key.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "Obtained biz-event.",
+          "404": {
+            "description": "Not found the biz-event.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -361,7 +343,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BizEvent"
+                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -380,6 +362,24 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Obtained biz-event.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BizEvent"
                 }
               }
             }

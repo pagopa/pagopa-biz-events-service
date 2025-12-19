@@ -121,6 +121,15 @@ Given('{int} view user with taxCode {string}, id prefix {string} and isCart {str
 		viewUserList.push(viewUser);
 	}
 });
+
+Given('{int} view user with taxCode {string}, transactionId {string} on cosmos', function (numberOfView, taxCode, transactionId) {
+	for(let i = 0; i < numberOfView; i++){
+		let viewUser = createViewUser(taxCode, "doc-"+transactionId+"-"+i, transactionId, false, true);
+		viewUserList.push(viewUser);
+	}
+});
+
+
 Given('{int} view general with payer tax code {string}, id prefix {string} and isCart {string} on cosmos', function (numberOfView, payerTaxCode, id, isCart) {
 	let isCartBool = isCart === 'true';
 	for(let i = 0; i < numberOfView; i++){
@@ -128,6 +137,13 @@ Given('{int} view general with payer tax code {string}, id prefix {string} and i
 		viewGeneralList.push(viewGeneral);
 	}
 });
+Given('{int} view general with payer tax code {string}, transactionId {string} on cosmos', function (numberOfView, payerTaxCode, transactionId) {
+	for(let i = 0; i < numberOfView; i++){
+		let viewGeneral = createViewGeneral("doc-"+transactionId+"-"+i, transactionId, payerTaxCode, true);
+		viewGeneralList.push(viewGeneral);
+	}
+});
+
 Given('{int} view cart with debtor taxCode {string}, id prefix {string} and isCart {string} on cosmos', function (numberOfView, debtorTaxCode, id, isCart) {
 	let isCartBool = isCart === 'true';
 	for(let i = 0; i < numberOfView; i++){
@@ -135,6 +151,14 @@ Given('{int} view cart with debtor taxCode {string}, id prefix {string} and isCa
 		viewCartList.push(viewCart);
 	}
 });
+Given('{int} view cart with debtor taxCode {string}, transactionId {string} on cosmos', function (numberOfView, debtorTaxCode, transactionId) {
+	let isCartBool = isCart === 'true';
+	for(let i = 0; i < numberOfView; i++){
+		let viewCart = createViewCart("doc-"+transactionId+"-"+i, transactionId, debtorTaxCode);
+		viewCartList.push(viewCart);
+	}
+});
+
 Given('Save all views on CosmosDB', async () => {
 	//CLEAN DIRTY CASES
 	if (viewUserList.length > 0) {
