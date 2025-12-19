@@ -200,7 +200,7 @@ public class TransactionService implements ITransactionService {
         } else {
             // single paid notice transaction or payer transaction in cart
             listOfViewUser = this.bizEventsViewUserRepository
-                    .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
+                    .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transaction);
         }
 
         // set hidden to true and save

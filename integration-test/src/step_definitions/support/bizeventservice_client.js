@@ -39,7 +39,7 @@ function getTransactionWithIdForUserWithFiscalCode(id, fiscalcode) {
 }
 
 function disableTransactionWithIdForUserWithFiscalCode(id, fiscalcode) {
-    return post(bizevents_trxsrv_host + `paids/${id}/disable`,"", {
+    return post(bizevents_service_host + `paids/${id}/disable`,JSON.stringify({}), {
         "x-fiscal-code": fiscalcode
     })
 }
