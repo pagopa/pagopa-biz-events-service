@@ -1,4 +1,4 @@
-const { get, post } = require("./common");
+const {get, post} = require("./common");
 
 const bizevents_service_host = process.env.BIZ_EVENTS_SERVICE_HOST;
 const bizevents_helpdesk_host = process.env.BIZ_EVENTS_HELPDESK_HOST;
@@ -39,7 +39,7 @@ function getTransactionWithIdForUserWithFiscalCode(id, fiscalcode) {
 }
 
 function disableTransactionWithIdForUserWithFiscalCode(id, fiscalcode) {
-    return post(bizevents_service_host + `paids/${id}/disable`,JSON.stringify({}), {
+    return post(bizevents_service_host + `paids/${id}/disable`, JSON.stringify({}), {
         "x-fiscal-code": fiscalcode
     })
 }
