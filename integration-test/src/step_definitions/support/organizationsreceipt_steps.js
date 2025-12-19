@@ -218,7 +218,17 @@ Then('the user with tax code {string} gets the transaction detail with id {strin
 	assert.strictEqual(infoNotice.eventId, id);
 
 	let totalAmount = 0;
-	for(let viewCart of viewCartList.filter(el => el.transactionId == infoNotice.eventId && (infoNotice?.payer?.taxCode === taxCode || el?.debtor?.taxCode === taxCode))){
+
+    // splitting sections from infoNotice.eventId (built as <viewUser.transactionId>_CART_<viewCart.id>)
+	const transactionIdSections = infoNotice.eventId.split('_CART_');
+	const trxId = transactionIdSections[0];
+	const viewCartId = transactionIdSections[1];
+
+    // defining functions for transaction checks
+	const isUserPayer = (infoNotice, taxCode) => infoNotice?.payer?.taxCode === taxCode;
+	const isTrxEligible = (viewCart, taxCode, viewCartId) => viewCart?.debtor?.taxCode === taxCode && viewCart?.id === viewCartId;
+
+	for(let viewCart of viewCartList.filter(viewCart =>viewCart.transactionId == trxId && (isUserPayer(infoNotice, taxCode) || isTrxEligible(viewCart, taxCode, viewCartId)))){
 		totalAmount += viewCart.amount;
 	}
 	
