@@ -2,8 +2,8 @@ apiVersion: v2
 name: pagopa-biz-events-service
 description: Microservice for exposing REST APIs about payment receipts.
 type: application
-version: 0.136.0
-appVersion: 0.1.90-1-PAGOPA-3444-ipg-147-adeguamenti-per-carrello-api-disable-lap
+version: 0.137.0
+appVersion: 0.1.90-2-PAGOPA-3444-ipg-147-adeguamenti-per-carrello-api-disable-lap
 dependencies:
   - name: microservice-chart
     version: 8.0.2
