@@ -47,8 +47,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TransactionService implements ITransactionService {
 
-    public static final String CART = "_CART_";
-    public static final String FALSE = "false";
+    private static final String CART = "_CART_";
+    private static final String FALSE = "false";
     private final BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
     private final BizEventsViewCartRepository bizEventsViewCartRepository;
     private final BizEventsViewUserRepository bizEventsViewUserRepository;
@@ -197,24 +197,17 @@ public class TransactionService implements ITransactionService {
     public void disablePaidNotice(String fiscalCode, String transactionId) {
         List<BizEventsViewUser> listOfViewUser;
 
-        if (transactionId.contains(CART)) {
-            // if the transactionId contains _CART_ it means that it's a cart transaction
-            String transaction = transactionId.split(CART)[0];
-            boolean isDebtor = transactionId.split(CART).length > 1;
-            if (isDebtor) {
-                // if there is something after _CART_ it means that we have to filter also by eventId for debtor
-                String eventId = transactionId.split(CART)[1];
-                listOfViewUser = this.bizEventsViewUserRepository
-                        .findByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, eventId);
-            } else {
-                // if there is nothing after _CART_ it means that we have to filter only by transactionId for payer
-                listOfViewUser = this.bizEventsViewUserRepository
-                        .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
-            }
-        } else {
-            // single paid notice transaction
+        String transaction = transactionId.split(CART)[0];
+        boolean isDebtor = transactionId.split(CART).length > 1;
+        if (transactionId.contains(CART) && isDebtor) {
+            // if there is something after _CART_ it means that we have to filter also by eventId for debtor
+            String eventId = transactionId.split(CART)[1];
             listOfViewUser = this.bizEventsViewUserRepository
-                    .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
+                    .findByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, eventId);
+        } else {
+            // single paid notice transaction or payer transaction in cart
+            listOfViewUser = this.bizEventsViewUserRepository
+                    .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transaction);
         }
 
         // set hidden to true and save
