@@ -4,7 +4,7 @@
     "title": "Biz-Events Service - Paid Notice REST APIs (aka LAP) JWT",
     "description": "Microservice for exposing REST APIs about payment receipts.",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.1.90"
+    "version": "0.1.90-2-PAGOPA-3444-ipg-147-adeguamenti-per-carrello-api-disable-lap"
   },
   "servers": [
     {
@@ -28,15 +28,6 @@
             "in": "path",
             "description": "The id of the paid event.",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "X-Request-Id",
-            "in": "header",
-            "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-            "required": false,
             "schema": {
               "type": "string"
             }
@@ -64,24 +55,6 @@
                 "description": "This header identifies the call",
                 "schema": {
                   "type": "string"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found the paid event.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -114,14 +87,43 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not found the paid event.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
           }
         },
         "security": [
           {
-            "Authorization": []
+            "JWT": []
           }
         ]
-      }
+      },
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
     },
     "/paids": {
       "get": {
@@ -132,15 +134,6 @@
         "description": "This operation is deprecated. Use Paid Notice APIs instead",
         "operationId": "getPaidNotices",
         "parameters": [
-          {
-            "name": "X-Request-Id",
-            "in": "header",
-            "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "x-continuation-token",
             "in": "header",
@@ -206,27 +199,20 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Obtained paid notices list.",
+          "404": {
+            "description": "Not found the fiscal code.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
                 "schema": {
                   "type": "string"
                 }
-              },
-              "x-continuation-token": {
-                "description": "continuation token for paginated query",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
               }
             },
             "content": {
-              "application/json": {
+              "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/NoticeListWrapResponse"
+                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -253,8 +239,8 @@
               }
             }
           },
-          "404": {
-            "description": "Not found the fiscal code.",
+          "500": {
+            "description": "Service unavailable.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -264,9 +250,94 @@
               }
             },
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Obtained paid notices list.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-continuation-token": {
+                "description": "continuation token for paginated query",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoticeListWrapResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/paids/{event-id}": {
+      "get": {
+        "tags": [
+          "Paid Notice REST APIs"
+        ],
+        "summary": "Retrieve the paid notice details given its id.",
+        "operationId": "getPaidNoticeDetail",
+        "parameters": [
+          {
+            "name": "event-id",
+            "in": "path",
+            "description": "The id of the paid event.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Wrong or missing function key.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -285,53 +356,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "Authorization": []
-          }
-        ]
-      }
-    },
-    "/paids/{event-id}": {
-      "get": {
-        "tags": [
-          "Paid Notice REST APIs"
-        ],
-        "summary": "Retrieve the paid notice details given its id.",
-        "operationId": "getPaidNoticeDetail",
-        "parameters": [
-          {
-            "name": "event-id",
-            "in": "path",
-            "description": "The id of the paid event.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "X-Request-Id",
-            "in": "header",
-            "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Wrong or missing function key.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
                 }
               }
             }
@@ -371,43 +395,25 @@
                 }
               }
             }
-          },
-          "429": {
-            "description": "Too many requests.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Service unavailable.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
           }
         },
         "security": [
           {
-            "Authorization": []
+            "JWT": []
           }
         ]
-      }
+      },
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
     },
     "/paids/{event-id}/pdf": {
       "get": {
@@ -417,15 +423,6 @@
         "summary": "Retrieve the PDF receipt given event id.",
         "operationId": "generatePDF",
         "parameters": [
-          {
-            "name": "X-Request-Id",
-            "in": "header",
-            "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "event-id",
             "in": "path",
@@ -449,24 +446,6 @@
             },
             "content": {
               "application/json": {}
-            }
-          },
-          "422": {
-            "description": "Unprocessable receipt.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
             }
           },
           "404": {
@@ -498,6 +477,24 @@
               }
             }
           },
+          "500": {
+            "description": "Service unavailable.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
           "200": {
             "description": "Obtained the PDF receipt.",
             "headers": {
@@ -524,8 +521,8 @@
               }
             }
           },
-          "500": {
-            "description": "Service unavailable.",
+          "422": {
+            "description": "Unprocessable receipt.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -545,10 +542,21 @@
         },
         "security": [
           {
-            "Authorization": []
+            "JWT": []
           }
         ]
-      }
+      },
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
     },
     "/info": {
       "get": {
@@ -573,35 +581,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AppInfo"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -645,14 +624,54 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         },
         "security": [
           {
-            "Authorization": []
+            "JWT": []
           }
         ]
-      }
+      },
+      "parameters": [
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
     }
   },
   "components": {
@@ -888,7 +907,7 @@
       }
     },
     "securitySchemes": {
-      "Authorization": {
+      "JWT": {
         "type": "http",
         "description": "JWT token associated to the user",
         "scheme": "bearer"
