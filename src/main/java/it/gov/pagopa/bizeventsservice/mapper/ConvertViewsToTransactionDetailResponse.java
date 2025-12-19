@@ -154,9 +154,7 @@ public class ConvertViewsToTransactionDetailResponse {
                 .isDebtor(BooleanUtils.isTrue(viewUser.getIsDebtor()))
                 .build();
     }
-
-
-
+    
     private static String dateFormatZoned(String date) {
         boolean isUtc = date.endsWith("Z");
         int dotIndex = date.lastIndexOf('.');

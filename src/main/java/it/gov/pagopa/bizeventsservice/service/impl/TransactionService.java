@@ -37,11 +37,9 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class TransactionService implements ITransactionService {
-
 
     private final BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
     private final BizEventsViewCartRepository bizEventsViewCartRepository;
@@ -132,7 +130,6 @@ public class TransactionService implements ITransactionService {
             }
         }
 
-
         CosmosPageRequest pageResponse = (CosmosPageRequest) page.getPageable().next();
         String nextToken = pageResponse.getRequestContinuation();
 
@@ -205,31 +202,30 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public void disablePaidNotice(String fiscalCode, String transactionId) {
+
         List<BizEventsViewUser> listOfViewUser;
 
         // if the transactionId contains _CART_ it means that it's a cart transaction
-        if(TransactionIdFactory.isCart(transactionId)){
+        if (TransactionIdFactory.isCart(transactionId)){
 
             TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(transactionId);
             String transaction = viewTransactionId.transactionId();
 
             boolean isDebtor = viewTransactionId.eventId() != null;
-            if (isDebtor){
+            if (isDebtor) {
                 // if there is something after _CART_ it means that we have to filter also by eventId for debtor
                 String eventId = viewTransactionId.eventId();
-                 listOfViewUser = this.bizEventsViewUserRepository
+                listOfViewUser = this.bizEventsViewUserRepository
                         .findByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, eventId);
-            }
-            else {
+            } else {
                 // if there is nothing after _CART_ it means that we have to filter only by transactionId for payer
                 listOfViewUser = this.bizEventsViewUserRepository
-                        .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
+                        .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transaction);
             }
-        }
-        else {
-        // single paid notice transaction
-         listOfViewUser = this.bizEventsViewUserRepository
-                .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
+        } else {
+            // single paid notice transaction
+            listOfViewUser = this.bizEventsViewUserRepository
+                    .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
         }
 
         // set hidden to true and save
@@ -239,8 +235,8 @@ public class TransactionService implements ITransactionService {
     /**
      * This method sets the 'hidden' attribute to true for all BizEventsViewUser entities in the provided list
      *
-     * @param fiscalCode the user fiscal code
-     * @param transactionId the transaction id
+     * @param fiscalCode     the user fiscal code
+     * @param transactionId  the transaction id
      * @param listOfViewUser the list of BizEventsViewUser Entities to be updated
      */
     private void setHiddenAndSave(String fiscalCode, String transactionId, List<BizEventsViewUser> listOfViewUser) {
@@ -313,7 +309,7 @@ public class TransactionService implements ITransactionService {
             TransactionListOrder orderBy,
             Direction ordering
     ) {
-        String columnName = Optional.ofNullable(orderBy).map(o -> o.getColumnName()).orElse("transactionDate");
+        String columnName = Optional.ofNullable(orderBy).map(TransactionListOrder::getColumnName).orElse("transactionDate");
         String direction = Optional.ofNullable(ordering).map(Enum::name).orElse(Direction.DESC.name());
 
         final Sort sort = Sort.by(Direction.fromString(direction), columnName);
