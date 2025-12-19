@@ -47,6 +47,7 @@ public class ViewGenerator {
         List<BizEventsViewUser> listOfViewUser = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             BizEventsViewUser viewUser = generateBizEventsViewUser();
+            viewUser.setId(viewUser.getTransactionId() + i + "-p");
             viewUser.setTransactionId(viewUser.getTransactionId() + i);
             listOfViewUser.add(viewUser);
         }
@@ -128,6 +129,7 @@ public class ViewGenerator {
         List<BizEventsViewCart> listOfCartView = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             BizEventsViewCart viewCart = generateBizEventsViewCart();
+            viewCart.setId(viewCart.getTransactionId() + i);
             viewCart.setTransactionId(viewCart.getTransactionId() + i);
             listOfCartView.add(viewCart);
         }
