@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 @Service
 public class TransactionService implements ITransactionService {
 
-    public static final String CART = "_CART_";
+    private static final String CART = "_CART_";
     private final BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
     private final BizEventsViewCartRepository bizEventsViewCartRepository;
     private final BizEventsViewUserRepository bizEventsViewUserRepository;
