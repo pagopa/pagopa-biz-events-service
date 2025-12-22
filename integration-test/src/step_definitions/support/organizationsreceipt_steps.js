@@ -173,7 +173,7 @@ Given('Save all views on CosmosDB', async () => {
 	}
 })
 
-When('the user with fiscal code {string} asks for its transactions', (fiscalCode) => {
+When('the user with fiscal code {string} asks for its transactions', async (fiscalCode) => {
 	responseToCheck = await getTransactionListForUserWithFiscalCode(fiscalCode);
 })
 
