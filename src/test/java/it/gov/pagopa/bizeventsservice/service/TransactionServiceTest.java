@@ -31,7 +31,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -693,9 +692,8 @@ public class TransactionServiceTest {
                 transactionService.getPDFReceipt(
                         VALID_FISCAL_CODE, bizEvent));
 
-        Thread.sleep(2000); // generateReceiptClient.generateReceipt is launched as async invocation: so, wait 2s
         verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, bizEvent);
-        await().atMost(2, TimeUnit.SECONDS).untilAsserted(() -> verify(generateReceiptClient).generateReceipt("missing-id", "false", "{}"));
+        await().atMost(2, TimeUnit.SECONDS).untilAsserted(() -> verify(generateReceiptClient).generateReceipt("missing-id", "false", "{}")); // generateReceiptClient.generateReceipt is launched as async invocation: so, wait 2s
     }
 
     @Test
