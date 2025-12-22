@@ -18,7 +18,6 @@ import java.util.Optional;
 @Service
 public class BizEventsService implements IBizEventsService {
 
-    public static final String CART = "_CART_";
     private final BizEventsRepository bizEventsRepository;
 
     private final ModelMapper modelMapper;
