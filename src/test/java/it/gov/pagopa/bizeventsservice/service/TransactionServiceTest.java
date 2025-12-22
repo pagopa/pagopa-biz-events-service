@@ -680,7 +680,7 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void getPDFReceiptForMissingEventIdOK() throws InterruptedException {
+    void getPDFReceiptForMissingEventIdOK() {
 
         BizEvent bizEvent = BizEvent.builder().id("missing-id").ts(OffsetDateTime.MIN).build();
         when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
