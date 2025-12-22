@@ -31,6 +31,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -653,13 +654,13 @@ public class TransactionServiceTest {
     @Test
     void getPDFReceiptOK() {
 
-        BizEvent bizEvent = mock(BizEvent.class);
+        BizEvent bizEvent = BizEvent.builder().id("event-id").build();
         when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
 
         byte[] res =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getPDFReceipt(
-                                VALID_FISCAL_CODE, "event-id"));
+                                VALID_FISCAL_CODE, bizEvent));
 
         assertEquals(receipt.length, res.length);
     }
@@ -667,11 +668,11 @@ public class TransactionServiceTest {
     @Test
     void getPDFReceiptResponseOK() {
 
-        BizEvent bizEvent = mock(BizEvent.class);
+        BizEvent bizEvent = BizEvent.builder().id("event-id").build();
         when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
 
         var res = Assertions.assertDoesNotThrow(() ->
-                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, "event-id"));
+                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, bizEvent));
 
         assertEquals(200, res.getStatusCode().value());
     }
@@ -679,37 +680,34 @@ public class TransactionServiceTest {
     @Test
     void getPDFReceiptForMissingEventIdOK() {
 
-        BizEvent bizEvent = mock(BizEvent.class);
+        BizEvent bizEvent = BizEvent.builder().id("missing-id").ts(OffsetDateTime.MIN).build();
         when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
         Attachment attachmentDetail = mock(Attachment.class);
         AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();
         when(receiptClient.getAttachments(anyString(), eq("missing-id"))).thenThrow(FeignException.NotFound.class).thenReturn(attachments);
 
-        byte[] res =
-                Assertions.assertDoesNotThrow(() ->
-                        transactionService.getPDFReceipt(
-                                VALID_FISCAL_CODE, "missing-id"));
+        Assertions.assertThrows(AppException.class, () ->
+                transactionService.getPDFReceipt(
+                        VALID_FISCAL_CODE, bizEvent));
 
-        verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, "missing-id");
-        verify(receiptClient, times(2)).getAttachments(VALID_FISCAL_CODE, "missing-id");
+
+        verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, bizEvent);
         verify(generateReceiptClient).generateReceipt("missing-id", "false", "{}");
-        verify(receiptClient).getReceipt(eq(VALID_FISCAL_CODE), eq("missing-id"), any());
-        assertEquals(receipt.length, res.length);
     }
 
     @Test
     void getPDFReceiptForMissingPDFFileOK() {
 
-        BizEvent bizEvent = mock(BizEvent.class);
+        BizEvent bizEvent = BizEvent.builder().id("missing-pdf-file").build();
         when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
         when(receiptClient.getReceipt(anyString(), eq("missing-pdf-file"), any())).thenThrow(FeignException.NotFound.class).thenReturn(receipt);
 
         byte[] res =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getPDFReceipt(
-                                VALID_FISCAL_CODE, "missing-pdf-file"));
+                                VALID_FISCAL_CODE, bizEvent));
 
-        verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, "missing-pdf-file");
+        verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, bizEvent);
         verify(receiptClient).getAttachments(VALID_FISCAL_CODE, "missing-pdf-file");
         verify(generateReceiptClient).generateReceipt("missing-pdf-file", "false", "{}");
         verify(receiptClient, times(2)).getReceipt(eq(VALID_FISCAL_CODE), eq("missing-pdf-file"), any());
@@ -719,7 +717,7 @@ public class TransactionServiceTest {
     @Test
     void getPDFReceiptForUnhandledExceptionKO() {
 
-        BizEvent bizEvent = mock(BizEvent.class);
+        BizEvent bizEvent = BizEvent.builder().id("event-id").build();
         when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
         // Override @BeforeEach condition
         when(receiptClient.getAttachments(anyString(), eq("event-id"))).thenThrow(FeignException.BadRequest.class);
@@ -727,7 +725,7 @@ public class TransactionServiceTest {
 
         Assertions.assertThrows(FeignException.BadRequest.class, () ->
                 transactionService.getPDFReceipt(
-                        INVALID_FISCAL_CODE, "event-id"));
+                        INVALID_FISCAL_CODE, bizEvent));
 
         verify(receiptClient).getAttachments(INVALID_FISCAL_CODE, "event-id");
     }

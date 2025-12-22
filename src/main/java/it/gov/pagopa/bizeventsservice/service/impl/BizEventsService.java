@@ -7,6 +7,7 @@ import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
 import it.gov.pagopa.bizeventsservice.repository.replica.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
+import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,8 +49,28 @@ public class BizEventsService implements IBizEventsService {
 
     @Override
     public BizEvent getBizEvent(String id) {
-        // get biz event
-        Optional<BizEvent> optionalBizEvent = bizEventsRepository.findById(id, new PartitionKey(id));
+        Optional<BizEvent> optionalBizEvent;
+
+        if (TransactionIdFactory.isCart(id)) {
+
+            TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(id);
+            String cartId = viewTransactionId.transactionId();
+
+            boolean isDebtor = viewTransactionId.eventId() != null;
+
+            if (isDebtor) {
+                // is a debtor cart biz event, so get by biz event id
+                String bizId = viewTransactionId.eventId();
+                optionalBizEvent = bizEventsRepository.findById(bizId, new PartitionKey(bizId));
+
+            } else {
+                // is a payer cart biz event, so get by cart id because biz event id is not available
+                optionalBizEvent = bizEventsRepository.findByCartId(cartId).stream().findFirst();
+            }
+        } else {
+            // is a single payment, so get biz event by id
+            optionalBizEvent = bizEventsRepository.findById(id, new PartitionKey(id));
+        }
 
         if (optionalBizEvent.isEmpty()) {
             throw new AppException(AppError.BIZ_EVENT_NOT_FOUND_WITH_ID, id);

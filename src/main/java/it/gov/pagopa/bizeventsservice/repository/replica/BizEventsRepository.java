@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Qualifier("replicaCosmosTemplate")
 @Repository
@@ -62,6 +63,10 @@ public interface BizEventsRepository extends CosmosRepository<BizEvent, String> 
     List<Map<String, Object>> getCartData(
             @Param("transactionToRecover") String transactionToRecover
     );
+
+
+    @Query("select * from c where transactionDetails.transaction.transactionId = @cartId")
+    List<BizEvent> findByCartId(@Param("cartId") String cartId);
 
 
 }

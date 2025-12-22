@@ -4,6 +4,7 @@ import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 import feign.FeignException;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
+import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
@@ -20,6 +21,7 @@ import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartReposi
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
+import lombok.extern.slf4j.Slf4j;
 import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -35,10 +37,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class TransactionService implements ITransactionService {
 
     private final BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
@@ -250,16 +255,17 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public byte[] getPDFReceipt(String fiscalCode, String eventId) {
-        return this.acquirePDFReceipt(fiscalCode, eventId);
+    public byte[] getPDFReceipt(String fiscalCode, BizEvent event) {
+        return this.acquirePDFReceipt(fiscalCode, event);
     }
 
     @Override
-    public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, String eventId) {
-        var attachmentDetails = getAttachmentDetails(fiscalCode, eventId);
-        var name = attachmentDetails.getAttachments().get(0).getName();
-        var url = attachmentDetails.getAttachments().get(0).getUrl();
-        var receiptFile = getAttachmentFile(fiscalCode, eventId, url);
+    public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, BizEvent event) {
+
+        AttachmentsDetailsResponse attachmentDetails = getAttachmentDetails(fiscalCode, event);
+        String name = attachmentDetails.getAttachments().get(0).getName();
+        String url = attachmentDetails.getAttachments().get(0).getUrl();
+        byte[] receiptFile = getAttachmentFile(fiscalCode, event.getId(), url);
 
         return ResponseEntity
                 .ok()
@@ -269,23 +275,40 @@ public class TransactionService implements ITransactionService {
                 .body(new ByteArrayResource(receiptFile));
     }
 
-    private byte[] acquirePDFReceipt(String fiscalCode, String eventId) {
-        String url = getAttachmentDetails(fiscalCode, eventId).getAttachments().get(0).getUrl();
-        return this.getAttachmentFile(fiscalCode, eventId, url);
+    private byte[] acquirePDFReceipt(String fiscalCode, BizEvent event) {
+        String url = getAttachmentDetails(fiscalCode, event).getAttachments().get(0).getUrl();
+        return this.getAttachmentFile(fiscalCode, event.getId(), url);
     }
 
-    private AttachmentsDetailsResponse getAttachmentDetails(String fiscalCode, String eventId) {
+    private AttachmentsDetailsResponse getAttachmentDetails(String fiscalCode, BizEvent event) {
         try {
             // call the receipt-pdf-service to retrieve the PDF receipt details
-            return receiptClient.getAttachments(fiscalCode, eventId);
+            return receiptClient.getAttachments(fiscalCode, event.getId());
         } catch (FeignException.NotFound e) {
-            generateReceiptClient.generateReceipt(eventId, "false", "{}");
-            return receiptClient.getAttachments(fiscalCode, eventId);
+            if (event.getTs().isAfter(OffsetDateTime.now().minusMinutes(30))) {
+                throw new AppException(AppError.ATTACHMENT_NOT_FOUND, fiscalCode, event.getId());
+            }
+
+            CompletableFuture.runAsync(() -> {
+                try {
+                    generateReceiptClient.generateReceipt(event.getId(), Boolean.FALSE.toString(), "{}");
+                } catch (Exception ex) {
+                    log.error("Error during the generation of the receipt", ex);
+                }
+            });
+            throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, event.getId());
+
         } catch (FeignException.InternalServerError e) {
             String responseBody = e.contentUTF8();
             if (responseBody != null && responseBody.contains("PDFS_700")) {
-                generateReceiptClient.generateReceipt(eventId, "false", "{}");
-                return receiptClient.getAttachments(fiscalCode, eventId);
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        generateReceiptClient.generateReceipt(event.getId(), Boolean.FALSE.toString(), "{}");
+                    } catch (Exception ex) {
+                        log.error("Error during the generation of the receipt", ex);
+                    }
+                });
+                throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, event.getId());
             } else {
                 throw e; // rethrow the exception if this is not the expected case
             }
@@ -298,7 +321,7 @@ public class TransactionService implements ITransactionService {
             return receiptClient.getReceipt(fiscalCode, eventId, url);
         } catch (FeignException.NotFound e) {
             // re-generate the PDF receipt and return the generated file by getReceipt call
-            generateReceiptClient.generateReceipt(eventId, "false", "{}");
+            generateReceiptClient.generateReceipt(eventId, Boolean.FALSE.toString(), "{}");
             return receiptClient.getReceipt(fiscalCode, eventId, url);
         }
     }
