@@ -7,8 +7,8 @@ import it.gov.pagopa.bizeventsservice.model.response.paidnotice.InfoNotice;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
-import it.gov.pagopa.bizeventsservice.service.impl.TransactionService;
 import it.gov.pagopa.bizeventsservice.util.DateValidator;
+import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -97,10 +97,14 @@ public class ConvertViewsToTransactionDetailResponse {
 
         // PAGOPA-1763: if the tax code refers to a debtor, do not show the sections relating to the payer
         boolean isDebtor = bizEventsViewGeneral.getPayer() == null || !bizEventsViewGeneral.getPayer().getTaxCode().equals(taxCode);
+
+        // Generating transactionId as <viewGeneral.transactionId>_CART_<viewCart.id>
+        String transactionId = TransactionIdFactory.generate(bizEventsViewGeneral, listOfCartViews, isDebtor);
+
         return NoticeDetailResponse.builder()
                 .infoNotice(
                         InfoNotice.builder()
-                                .eventId(bizEventsViewGeneral.getTransactionId())
+                                .eventId(transactionId)
                                 .authCode(bizEventsViewGeneral.getAuthCode())
                                 .rrn(bizEventsViewGeneral.getRrn())
                                 .noticeDate(dateFormatZoned(bizEventsViewGeneral.getTransactionDate()))
@@ -137,17 +141,10 @@ public class ConvertViewsToTransactionDetailResponse {
         BigDecimal amountExtracted = new BigDecimal(bizEventsViewCart.getAmount());
         totalAmount.updateAndGet(v -> v.add(amountExtracted));
 
-        // define item ID as: <viewUser.transactionId>_CART_<viewCart.id>
-        String itemId = viewUser.getTransactionId();
-        if (isCart) {
-            itemId += TransactionService.CART;
-            if (!viewUser.getIsPayer()) {
-                itemId += bizEventsViewCart.getId();
-            }
-        }
+        String transactionId = TransactionIdFactory.generate(viewUser, bizEventsViewCart, isCart);
 
         return TransactionListItem.builder()
-                .transactionId(itemId)
+                .transactionId(transactionId)
                 .payeeName(bizEventsViewCart.getPayee().getName())
                 .payeeTaxCode(bizEventsViewCart.getPayee().getTaxCode())
                 .amount(totalAmount.get().setScale(2, RoundingMode.UNNECESSARY).toString()) 
