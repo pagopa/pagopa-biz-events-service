@@ -34,4 +34,8 @@ public class ProblemJson {
     @Schema(example = "There was an error processing the request", description = "A human readable explanation specific to this occurrence of the problem.")
     private String detail;
 
+    @JsonProperty("code")
+    @Schema(example = "The error code", description = "A machine-readable code specific to this error.")
+    private String code;
+
 }

@@ -121,6 +121,7 @@ Given('{int} view user with taxCode {string}, id prefix {string} and isCart {str
 		viewUserList.push(viewUser);
 	}
 });
+
 Given('{int} view general with payer tax code {string}, id prefix {string} and isCart {string} on cosmos', function (numberOfView, payerTaxCode, id, isCart) {
 	let isCartBool = isCart === 'true';
 	for(let i = 0; i < numberOfView; i++){
@@ -128,6 +129,7 @@ Given('{int} view general with payer tax code {string}, id prefix {string} and i
 		viewGeneralList.push(viewGeneral);
 	}
 });
+
 Given('{int} view cart with debtor taxCode {string}, id prefix {string} and isCart {string} on cosmos', function (numberOfView, debtorTaxCode, id, isCart) {
 	let isCartBool = isCart === 'true';
 	for(let i = 0; i < numberOfView; i++){
@@ -135,6 +137,7 @@ Given('{int} view cart with debtor taxCode {string}, id prefix {string} and isCa
 		viewCartList.push(viewCart);
 	}
 });
+
 Given('Save all views on CosmosDB', async () => {
 	//CLEAN DIRTY CASES
 	if (viewUserList.length > 0) {
@@ -185,7 +188,9 @@ Then('the user gets {int} transactions', (totalTransactions) => {
 Then('the transactions with cart items {string} for taxCode {string} have the correct amount and subject', (isCart, taxCode) => {
 	for (let transaction of responseToCheck.data.notices) {
 		let totalAmount = 0;
-		for(let viewCart of viewCartList.filter(el => el.id == transaction.eventId)){
+    	// splitting <viewCart.id> from transaction.eventId (built as <viewUser.transactionId>_CART_<viewCart.id>)
+		const viewCartIdFromTransaction = transaction.eventId.split('_CART_')[0];
+		for(let viewCart of viewCartList.filter(cart => cart.id == viewCartIdFromTransaction)){
 			totalAmount += viewCart.amount;
 			if(isCart == "true"){
 				assert.notStrictEqual(transaction.payeeName, viewCart.payee.name);
@@ -216,7 +221,17 @@ Then('the user with tax code {string} gets the transaction detail with id {strin
 	assert.strictEqual(infoNotice.eventId, id);
 
 	let totalAmount = 0;
-	for(let viewCart of viewCartList.filter(el => el.transactionId == infoNotice.eventId && (infoNotice?.payer?.taxCode === taxCode || el?.debtor?.taxCode === taxCode))){
+
+    // splitting sections from infoNotice.eventId (built as <viewUser.transactionId>_CART_<viewCart.id>)
+	const transactionIdSections = infoNotice.eventId.split('_CART_');
+	const trxId = transactionIdSections[0];
+	const viewCartId = transactionIdSections[1];
+
+    // defining functions for transaction checks
+	const isUserPayer = (infoNotice, taxCode) => infoNotice?.payer?.taxCode === taxCode;
+	const isTrxEligible = (viewCart, taxCode, viewCartId) => viewCart?.debtor?.taxCode === taxCode && viewCart?.id === viewCartId;
+
+	for(let viewCart of viewCartList.filter(viewCart =>viewCart.transactionId == trxId && (isUserPayer(infoNotice, taxCode) || isTrxEligible(viewCart, taxCode, viewCartId)))){
 		totalAmount += viewCart.amount;
 	}
 	

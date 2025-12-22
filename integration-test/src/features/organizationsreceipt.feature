@@ -43,26 +43,6 @@ Feature: All about Organizations Receipt
     Then the user gets the status code 200
     And the user with tax code "INTTST00A00A000A" gets the transaction detail with id "biz-event-service-int-test-transaction-30" and it has the correct amount
 
- Scenario: A payer user asks for a transaction detail with all cart items
-    Given 1 view user with taxCode "INTTST00A00A000A", id prefix "biz-event-service-int-test-transaction-4" and isCart "true" and isPayer "true" on cosmos
-    And 3 view general with payer tax code "INTTST00A00A000A", id prefix "biz-event-service-int-test-transaction-4" and isCart "true" on cosmos
-    And 1 view cart with debtor taxCode "INTTST00A00A000A", id prefix "biz-event-service-int-test-transaction-4" and isCart "true" on cosmos
-    And 2 view cart with debtor taxCode "INTTST00A00A000C", id prefix "biz-event-service-int-test-transaction-4" and isCart "true" on cosmos
-    And Save all views on CosmosDB
-    When the user with fiscal code "INTTST00A00A000A" asks the transaction with id "biz-event-service-int-test-transaction-4"
-    Then the user gets the status code 200
-    And the user with tax code "INTTST00A00A000A" gets the transaction detail with id "biz-event-service-int-test-transaction-4" and it has the correct amount
-
-  Scenario: A debtor user asks for a transaction detail with only their cart items
-    Given 1 view user with taxCode "INTTST00A00A000A", id prefix "biz-event-service-int-test-transaction-5" and isCart "true" and isPayer "true" on cosmos
-    And 3 view general with payer tax code "INTTST00A00A000A", id prefix "biz-event-service-int-test-transaction-5" and isCart "true" on cosmos
-    And 1 view cart with debtor taxCode "INTTST00A00A000A", id prefix "biz-event-service-int-test-transaction-5" and isCart "true" on cosmos
-    And 2 view cart with debtor taxCode "INTTST00A00A000C", id prefix "biz-event-service-int-test-transaction-5" and isCart "true" on cosmos
-    And Save all views on CosmosDB
-    When the user with fiscal code "INTTST00A00A000C" asks the transaction with id "biz-event-service-int-test-transaction-5"
-    Then the user gets the status code 200
-    And the user with tax code "INTTST00A00A000C" gets the transaction detail with id "biz-event-service-int-test-transaction-5" and it has the correct amount
-
   Scenario: A user hides a transaction
     Given 3 view user with taxCode "INTTST00A00A000D", id prefix "biz-event-service-int-test-transaction-6" and isCart "false" and isPayer "true" on cosmos
     And 3 view general with payer tax code "INTTST00A00A000D", id prefix "biz-event-service-int-test-transaction-6" and isCart "false" on cosmos

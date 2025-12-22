@@ -306,7 +306,7 @@ function createViewCart(id, transactionId, taxCode){
 	return {
 		"id": id,
 		"transactionId": transactionId,
-		"eventId": "string",
+		"eventId": id,
 		"amount": 100,
 		"subject": "string",
 		"payee": {
