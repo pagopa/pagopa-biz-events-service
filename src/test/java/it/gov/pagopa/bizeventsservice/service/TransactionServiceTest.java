@@ -246,19 +246,11 @@ public class TransactionServiceTest {
 
         BizEventsViewCart viewCart = listOfCartView.get(0);
         it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem cartItem = noticeDetailResponse.getCarts().get(0);
-        assertEquals(viewCart.getSubject(), cartItem.getSubject());
-        assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
-        assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
-        assertEquals(viewCart.getDebtor().getTaxCode(), cartItem.getDebtor().getTaxCode());
-        assertEquals(viewCart.getPayee().getName(), cartItem.getPayee().getName());
-        assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
-        assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
-        assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
+        assertCartItems(viewCart, cartItem);
     }
 
     @Test
     void idAndTaxCodeWithOneEventFromCartAsDebtorShouldReturnNoticeDetails() {
-        //BizEventsViewGeneral viewGeneral = ViewGenerator.generateBizEventsViewGeneralForDebtor(true);
         BizEventsViewGeneral viewGeneral = ViewGenerator.generateBizEventsViewGeneralForDebtor(true);
         when(bizEventsViewGeneralRepository.findByTransactionId(ViewGenerator.TRANSACTION_ID))
                 .thenReturn(List.of(viewGeneral));
@@ -291,14 +283,7 @@ public class TransactionServiceTest {
 
         BizEventsViewCart viewCart = listOfCartView.get(0);
         it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem cartItem = noticeDetailResponse.getCarts().get(0);
-        assertEquals(viewCart.getSubject(), cartItem.getSubject());
-        assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
-        assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
-        assertEquals(viewCart.getDebtor().getTaxCode(), cartItem.getDebtor().getTaxCode());
-        assertEquals(viewCart.getPayee().getName(), cartItem.getPayee().getName());
-        assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
-        assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
-        assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
+        assertCartItems(viewCart, cartItem);
     }
 
     @Test
@@ -339,6 +324,10 @@ public class TransactionServiceTest {
 
         BizEventsViewCart viewCart = listOfCartView.get(0);
         it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem cartItem = noticeDetailResponse.getCarts().get(0);
+        assertCartItems(viewCart, cartItem);
+    }
+
+    private static void assertCartItems(BizEventsViewCart viewCart, it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem cartItem) {
         assertEquals(viewCart.getSubject(), cartItem.getSubject());
         assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
         assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
@@ -383,14 +372,7 @@ public class TransactionServiceTest {
 
         BizEventsViewCart viewCart = listOfCartView.get(0);
         it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem cartItem = noticeDetailResponse.getCarts().get(0);
-        assertEquals(viewCart.getSubject(), cartItem.getSubject());
-        assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
-        assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
-        assertEquals(viewCart.getDebtor().getTaxCode(), cartItem.getDebtor().getTaxCode());
-        assertEquals(viewCart.getPayee().getName(), cartItem.getPayee().getName());
-        assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
-        assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
-        assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
+        assertCartItems(viewCart, cartItem);
     }
 
     @Test
@@ -548,14 +530,7 @@ public class TransactionServiceTest {
         for (int i = 0; i < noticeDetailResponse.getCarts().size(); i++) {
             BizEventsViewCart viewCart = listOfCartView.get(i);
             it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem cartItem = noticeDetailResponse.getCarts().get(i);
-            assertEquals(viewCart.getSubject(), cartItem.getSubject());
-            assertEquals(ViewGenerator.FORMATTED_AMOUNT, cartItem.getAmount());
-            assertEquals(viewCart.getDebtor().getName(), cartItem.getDebtor().getName());
-            assertEquals(viewCart.getDebtor().getTaxCode(), cartItem.getDebtor().getTaxCode());
-            assertEquals(viewCart.getPayee().getName(), cartItem.getPayee().getName());
-            assertEquals(viewCart.getPayee().getTaxCode(), cartItem.getPayee().getTaxCode());
-            assertEquals(viewCart.getRefNumberType(), cartItem.getRefNumberType());
-            assertEquals(viewCart.getRefNumberValue(), cartItem.getRefNumberValue());
+            assertCartItems(viewCart, cartItem);
         }
     }
 
