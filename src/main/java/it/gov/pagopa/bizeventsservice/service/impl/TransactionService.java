@@ -210,23 +210,15 @@ public class TransactionService implements ITransactionService {
 
         List<BizEventsViewUser> listOfViewUser;
 
-        // if the transactionId contains _CART_ it means that it's a cart transaction
-        if (TransactionIdFactory.isCart(transactionId)){
-
             TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(transactionId);
             String transaction = viewTransactionId.transactionId();
-
             boolean isDebtor = viewTransactionId.eventId() != null;
-            if (isDebtor) {
+
+        // if the transactionId contains _CART_ it means that it's a cart transaction
+        if (TransactionIdFactory.isCart(transactionId) && isDebtor){
                 // if there is something after _CART_ it means that we have to filter also by eventId for debtor
-                String eventId = viewTransactionId.eventId();
                 listOfViewUser = this.bizEventsViewUserRepository
-                        .findByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, eventId);
-            } else {
-                // if there is nothing after _CART_ it means that we have to filter only by transactionId for payer
-                listOfViewUser = this.bizEventsViewUserRepository
-                        .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transaction);
-            }
+                        .findByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, viewTransactionId.eventId());
         } else {
             // single paid notice transaction
             listOfViewUser = this.bizEventsViewUserRepository

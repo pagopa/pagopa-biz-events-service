@@ -51,24 +51,15 @@ public class BizEventsService implements IBizEventsService {
     public BizEvent getBizEvent(String id) {
         Optional<BizEvent> optionalBizEvent;
 
-        if (TransactionIdFactory.isCart(id)) {
+        TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(id);
+        String cartId = viewTransactionId.transactionId();
+        boolean isPayer = viewTransactionId.eventId() == null;
 
-            TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(id);
-            String cartId = viewTransactionId.transactionId();
-
-            boolean isDebtor = viewTransactionId.eventId() != null;
-
-            if (isDebtor) {
-                // is a debtor cart biz event, so get by biz event id
-                String bizId = viewTransactionId.eventId();
-                optionalBizEvent = bizEventsRepository.findById(bizId, new PartitionKey(bizId));
-
-            } else {
-                // is a payer cart biz event, so get by cart id because biz event id is not available
-                optionalBizEvent = bizEventsRepository.findByCartId(cartId).stream().findFirst();
-            }
+        if (TransactionIdFactory.isCart(id) && isPayer) {
+            // if it's a payer cart biz event, get by cart id because biz event id is not available
+            optionalBizEvent = bizEventsRepository.findByCartId(cartId).stream().findFirst();
         } else {
-            // is a single payment, so get biz event by id
+            // is a single payment or a debtor cart biz event, so get biz event by id
             optionalBizEvent = bizEventsRepository.findById(id, new PartitionKey(id));
         }
 
