@@ -262,10 +262,10 @@ public class TransactionService implements ITransactionService {
     @Override
     public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, BizEvent event) {
 
-        var attachmentDetails = getAttachmentDetails(fiscalCode, event);
-        var name = attachmentDetails.getAttachments().get(0).getName();
-        var url = attachmentDetails.getAttachments().get(0).getUrl();
-        var receiptFile = getAttachmentFile(fiscalCode, event.getId(), url);
+        AttachmentsDetailsResponse attachmentDetails = getAttachmentDetails(fiscalCode, event);
+        String name = attachmentDetails.getAttachments().get(0).getName();
+        String url = attachmentDetails.getAttachments().get(0).getUrl();
+        byte[] receiptFile = getAttachmentFile(fiscalCode, event.getId(), url);
 
         return ResponseEntity
                 .ok()
