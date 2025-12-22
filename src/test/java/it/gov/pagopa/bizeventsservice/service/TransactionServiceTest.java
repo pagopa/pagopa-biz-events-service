@@ -678,7 +678,7 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void getPDFReceiptForMissingEventIdOK() {
+    void getPDFReceiptForMissingEventIdOK() throws InterruptedException {
 
         BizEvent bizEvent = BizEvent.builder().id("missing-id").ts(OffsetDateTime.MIN).build();
         when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
@@ -690,7 +690,7 @@ public class TransactionServiceTest {
                 transactionService.getPDFReceipt(
                         VALID_FISCAL_CODE, bizEvent));
 
-
+        Thread.sleep(2000); // generateReceiptClient.generateReceipt is launched as async invocation: so, wait 2s
         verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, bizEvent);
         verify(generateReceiptClient).generateReceipt("missing-id", "false", "{}");
     }
