@@ -1,6 +1,7 @@
 package it.gov.pagopa.bizeventsservice.controller.impl;
 
 import it.gov.pagopa.bizeventsservice.controller.IPaidNoticeController;
+import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListWrapResponse;
@@ -67,7 +68,7 @@ public class PaidNoticeController implements IPaidNoticeController {
     @Override
     public ResponseEntity<Resource> generatePDF(@NotBlank String fiscalCode, @NotBlank String eventId) {
         // to check if is an OLD event present only on the PM --> the receipt is not available for events present exclusively on the PM
-        var bizEvent = bizEventsService.getBizEvent(eventId);
+        BizEvent bizEvent = bizEventsService.getBizEvent(eventId);
         return transactionService.getPDFReceiptResponse(fiscalCode, bizEvent);
     }
 

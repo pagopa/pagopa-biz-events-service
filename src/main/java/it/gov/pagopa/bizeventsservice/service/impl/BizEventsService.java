@@ -7,6 +7,7 @@ import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
 import it.gov.pagopa.bizeventsservice.repository.replica.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
+import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,15 +52,16 @@ public class BizEventsService implements IBizEventsService {
     public BizEvent getBizEvent(String id) {
         Optional<BizEvent> optionalBizEvent;
 
-        if (id.contains(CART)) {
-            // is a cart biz event
-            String[] parts = id.split(CART);
-            boolean isDebtor = parts.length > 1;
-            var cartId = parts[0];
+        if (TransactionIdFactory.isCart(id)) {
+
+            TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(id);
+            String cartId = viewTransactionId.transactionId();
+
+            boolean isDebtor = viewTransactionId.eventId() != null;
 
             if (isDebtor) {
                 // is a debtor cart biz event, so get by biz event id
-                var bizId = parts[1];
+                String bizId = viewTransactionId.eventId();
                 optionalBizEvent = bizEventsRepository.findById(bizId, new PartitionKey(bizId));
 
             } else {

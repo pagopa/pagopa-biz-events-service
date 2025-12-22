@@ -46,7 +46,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TransactionService implements ITransactionService {
 
-    private static final String FALSE = "false";
     private final BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
     private final BizEventsViewCartRepository bizEventsViewCartRepository;
     private final BizEventsViewUserRepository bizEventsViewUserRepository;
@@ -292,7 +291,7 @@ public class TransactionService implements ITransactionService {
 
             CompletableFuture.runAsync(() -> {
                 try {
-                    generateReceiptClient.generateReceipt(event.getId(), FALSE, "{}");
+                    generateReceiptClient.generateReceipt(event.getId(), Boolean.FALSE.toString(), "{}");
                 } catch (Exception ex) {
                     log.error("Error during the generation of the receipt", ex);
                 }
@@ -304,7 +303,7 @@ public class TransactionService implements ITransactionService {
             if (responseBody != null && responseBody.contains("PDFS_700")) {
                 CompletableFuture.runAsync(() -> {
                     try {
-                        generateReceiptClient.generateReceipt(event.getId(), FALSE, "{}");
+                        generateReceiptClient.generateReceipt(event.getId(), Boolean.FALSE.toString(), "{}");
                     } catch (Exception ex) {
                         log.error("Error during the generation of the receipt", ex);
                     }
@@ -322,7 +321,7 @@ public class TransactionService implements ITransactionService {
             return receiptClient.getReceipt(fiscalCode, eventId, url);
         } catch (FeignException.NotFound e) {
             // re-generate the PDF receipt and return the generated file by getReceipt call
-            generateReceiptClient.generateReceipt(eventId, FALSE, "{}");
+            generateReceiptClient.generateReceipt(eventId, Boolean.FALSE.toString(), "{}");
             return receiptClient.getReceipt(fiscalCode, eventId, url);
         }
     }
