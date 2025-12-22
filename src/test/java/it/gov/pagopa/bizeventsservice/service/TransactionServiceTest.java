@@ -31,13 +31,16 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static it.gov.pagopa.bizeventsservice.util.ViewGenerator.generateBizEventsViewUser;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -692,7 +695,7 @@ public class TransactionServiceTest {
 
         Thread.sleep(2000); // generateReceiptClient.generateReceipt is launched as async invocation: so, wait 2s
         verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, bizEvent);
-        verify(generateReceiptClient).generateReceipt("missing-id", "false", "{}");
+        await().atMost(2, TimeUnit.SECONDS).untilAsserted(() -> verify(generateReceiptClient).generateReceipt("missing-id", "false", "{}"));
     }
 
     @Test
