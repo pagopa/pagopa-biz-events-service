@@ -7,6 +7,7 @@ import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
 import it.gov.pagopa.bizeventsservice.repository.replica.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
+import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,6 @@ import java.util.Optional;
 @Service
 public class BizEventsService implements IBizEventsService {
 
-    public static final String CART = "_CART_";
     private final BizEventsRepository bizEventsRepository;
 
     private final ModelMapper modelMapper;
@@ -51,23 +51,15 @@ public class BizEventsService implements IBizEventsService {
     public BizEvent getBizEvent(String id) {
         Optional<BizEvent> optionalBizEvent;
 
-        if (id.contains(CART)) {
-            // is a cart biz event
-            String[] parts = id.split(CART);
-            boolean isDebtor = parts.length > 1;
-            var cartId = parts[0];
+        TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(id);
+        String cartId = viewTransactionId.transactionId();
+        boolean isPayer = viewTransactionId.eventId() == null;
 
-            if (isDebtor) {
-                // is a debtor cart biz event, so get by biz event id
-                var bizId = parts[1];
-                optionalBizEvent = bizEventsRepository.findById(bizId, new PartitionKey(bizId));
-
-            } else {
-                // is a payer cart biz event, so get by cart id because biz event id is not available
-                optionalBizEvent = bizEventsRepository.findByCartId(cartId).stream().findFirst();
-            }
+        if (TransactionIdFactory.isCart(id) && isPayer) {
+            // if it's a payer cart biz event, get by cart id because biz event id is not available
+            optionalBizEvent = bizEventsRepository.findByCartId(cartId).stream().findFirst();
         } else {
-            // is a single payment, so get biz event by id
+            // is a single payment or a debtor cart biz event, so get biz event by id
             optionalBizEvent = bizEventsRepository.findById(id, new PartitionKey(id));
         }
 

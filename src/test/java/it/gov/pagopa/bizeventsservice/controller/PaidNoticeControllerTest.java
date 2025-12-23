@@ -202,7 +202,7 @@ public class PaidNoticeControllerTest {
         when(response.getHeaders()).thenReturn(headers);
         when(response.getStatusCodeValue()).thenReturn(200);
         when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
-        when(transactionService.getPDFReceiptResponse(anyString(), anyString(), any())).thenReturn(response);
+        when(transactionService.getPDFReceiptResponse(anyString(), any(), any())).thenReturn(response);
 
         mvc.perform(get(PAIDS_EVENT_ID_PDF_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
