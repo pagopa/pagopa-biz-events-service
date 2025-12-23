@@ -86,7 +86,7 @@ public class TransactionServiceTest {
         AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();
         when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
         when(receiptClient.getReceipt(anyString(), anyString(), any())).thenReturn(receipt);
-        when(generateReceiptClient.generateReceipt(anyString(), anyString(), any())).thenReturn("OK");
+        when(generateReceiptClient.generateReceipt(anyString(), any())).thenReturn("OK");
     }
 
     @Test
@@ -523,7 +523,7 @@ public class TransactionServiceTest {
         when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
 
         var res = Assertions.assertDoesNotThrow(() ->
-                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, bizEvent));
+                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, "event-id", bizEvent));
 
         assertEquals(200, res.getStatusCode().value());
     }
@@ -543,7 +543,7 @@ public class TransactionServiceTest {
 
 
         verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, bizEvent);
-        verify(generateReceiptClient).generateReceipt("missing-id", "false", "{}");
+        verify(generateReceiptClient).generateReceipt("missing-id",  "{}");
     }
 
     @Test
@@ -560,7 +560,7 @@ public class TransactionServiceTest {
 
         verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, bizEvent);
         verify(receiptClient).getAttachments(VALID_FISCAL_CODE, "missing-pdf-file");
-        verify(generateReceiptClient).generateReceipt("missing-pdf-file", "false", "{}");
+        verify(generateReceiptClient).generateReceipt("missing-pdf-file", "{}");
         verify(receiptClient, times(2)).getReceipt(eq(VALID_FISCAL_CODE), eq("missing-pdf-file"), any());
         assertEquals(receipt.length, res.length);
     }

@@ -30,6 +30,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -90,7 +91,7 @@ public class PaidNoticeControllerTest {
         AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();
         when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
         when(receiptClient.getReceipt(anyString(), anyString(), any())).thenReturn(receipt);
-        when(generateReceiptClient.generateReceipt(anyString(), anyString(), any())).thenReturn("OK");
+        when(generateReceiptClient.generateReceipt(anyString(), any())).thenReturn("OK");
     }
 
     @Test
@@ -201,7 +202,7 @@ public class PaidNoticeControllerTest {
         when(response.getHeaders()).thenReturn(headers);
         when(response.getStatusCodeValue()).thenReturn(200);
         when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
-        when(transactionService.getPDFReceiptResponse(anyString(), any())).thenReturn(response);
+        when(transactionService.getPDFReceiptResponse(anyString(), anyString(), any())).thenReturn(response);
 
         mvc.perform(get(PAIDS_EVENT_ID_PDF_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
@@ -211,7 +212,7 @@ public class PaidNoticeControllerTest {
                 .andReturn();
 
         verify(bizEventsService).getBizEvent("event-id");
-        verify(transactionService).getPDFReceiptResponse(VALID_FISCAL_CODE, bizEvent);
+        verify(transactionService).getPDFReceiptResponse(VALID_FISCAL_CODE, "event-id", bizEvent);
     }
 
     @Test

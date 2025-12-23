@@ -68,7 +68,7 @@ public class PaidNoticeController implements IPaidNoticeController {
     public ResponseEntity<Resource> generatePDF(@NotBlank String fiscalCode, @NotBlank String eventId) {
         // to check if is an OLD event present only on the PM --> the receipt is not available for events present exclusively on the PM
         var bizEvent = bizEventsService.getBizEvent(eventId);
-        return transactionService.getPDFReceiptResponse(fiscalCode, bizEvent);
+        return transactionService.getPDFReceiptResponse(fiscalCode, eventId, bizEvent);
     }
 
 }
