@@ -44,6 +44,12 @@ function disableTransactionWithIdForUserWithFiscalCode(id, fiscalcode) {
     })
 }
 
+function generatePDF(id, fiscalCode) {
+    return get(bizevents_service_host + `paids/${id}/pdf`, {
+        "x-fiscal-code": fiscalCode
+    })
+}
+
 module.exports = {
     healthCheckInfo,
     getOrganizationReceipt,
@@ -51,5 +57,6 @@ module.exports = {
     getBizEventByOrgFiscalCodeAndIuv,
     getTransactionListForUserWithFiscalCode,
     getTransactionWithIdForUserWithFiscalCode,
-    disableTransactionWithIdForUserWithFiscalCode
+    disableTransactionWithIdForUserWithFiscalCode,
+    generatePDF
 }

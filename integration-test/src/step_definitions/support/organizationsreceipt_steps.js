@@ -1,6 +1,8 @@
 const assert = require('assert')
 const { Given, When, Then, setDefaultTimeout, After } = require('@cucumber/cucumber')
-const { getOrganizationReceipt, getBizEventById, getBizEventByOrgFiscalCodeAndIuv, getTransactionListForUserWithFiscalCode, getTransactionWithIdForUserWithFiscalCode, disableTransactionWithIdForUserWithFiscalCode } = require("./bizeventservice_client");
+const { getOrganizationReceipt, getBizEventById, getBizEventByOrgFiscalCodeAndIuv, getTransactionListForUserWithFiscalCode, getTransactionWithIdForUserWithFiscalCode, disableTransactionWithIdForUserWithFiscalCode,
+	generatePDF
+} = require("./bizeventservice_client");
 const { createDocument, deleteDocument } = require("./cosmosdb_client");
 const { createEvent, makeId, createViewUser, createViewGeneral, createViewCart } = require("./common");
 const { createDocumentInBizEventsDatastore, deleteDocumentFromBizEventsDatastore, deleteDocumentFromViewUserDatastore, deleteDocumentFromViewGeneralDatastore, deleteDocumentFromViewCartDatastore, createDocumentInViewUserDatastore, createDocumentInViewGeneralDatastore, createDocumentInViewCartDatastore } = require("./biz_events_cosmosdb_client");
@@ -213,6 +215,11 @@ When('the user with fiscal code {string} asks the transaction with id {string}',
 
 When('the user with taxCode {string} disables the transaction with id {string}', async function (taxCode, transactionId) {
 	responseToCheck = await disableTransactionWithIdForUserWithFiscalCode(transactionId, taxCode);
+	assert.strictEqual(responseToCheck.status, 200);
+})
+
+When('the user with taxCode {string} try to retrieve the pdf of the transaction {string}', async function (taxCode, transactionId) {
+	responseToCheck = await generatePDF(transactionId, taxCode);
 	assert.strictEqual(responseToCheck.status, 200);
 })
 
