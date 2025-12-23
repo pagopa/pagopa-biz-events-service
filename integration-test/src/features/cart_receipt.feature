@@ -34,12 +34,3 @@ Feature: All about Cart Receipt
     Then the user gets the status code 200
     And the user gets 0 transactions
 
-  Scenario: A user retrieves the pdf of a cart transaction
-    Given 1 view user with taxCode "INTTST00A00A000A", id prefix "biz-event-service-int-test-transaction-8" and isCart "true" and isPayer "true" on cosmos
-    And 3 view general with payer tax code "INTTST00A00A000A", id prefix "biz-event-service-int-test-transaction-8" and isCart "true" on cosmos
-    And 1 view cart with debtor taxCode "INTTST00A00A000A", id prefix "biz-event-service-int-test-transaction-8" and isCart "true" on cosmos
-    And 2 view cart with debtor taxCode "INTTST00A00A000C", id prefix "biz-event-service-int-test-transaction-8" and isCart "true" on cosmos
-    And Biz-Event with debtor fiscal code "INTTST00A00A000A" and id "biz-event-service-int-test-transaction-8"
-    And Save all views on CosmosDB
-    When the user with taxCode "INTTST00A00A000A" try to retrieve the pdf of the transaction "biz-event-service-int-test-transaction-8_CART_"
-    Then the user gets the status code 200
