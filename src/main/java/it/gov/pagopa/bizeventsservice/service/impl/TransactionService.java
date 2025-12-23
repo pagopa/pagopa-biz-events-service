@@ -46,6 +46,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static it.gov.pagopa.bizeventsservice.util.TransactionIdFactory.isCart;
+
 @Service
 @Slf4j
 public class TransactionService implements ITransactionService {
@@ -186,7 +188,7 @@ public class TransactionService implements ITransactionService {
         List<BizEventsViewCart> listOfCartViews;
 
         boolean isPayer = bizEventsViewGeneral.get(0).getPayer() != null && taxCode.equals(bizEventsViewGeneral.get(0).getPayer().getTaxCode());
-        boolean isCart = TransactionIdFactory.isCart(transactionId);
+        boolean isCart = isCart(transactionId);
         if (isCart && !isPayer) {
             listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndIdAndFilteredByTaxCode(extractedTransactionId, extractedViewCartId, taxCode);
         } else {
@@ -219,7 +221,7 @@ public class TransactionService implements ITransactionService {
             boolean isDebtor = viewTransactionId.eventId() != null;
 
         // if the transactionId contains _CART_ it means that it's a cart transaction
-        if (TransactionIdFactory.isCart(transactionId) && isDebtor){
+        if (isCart(transactionId) && isDebtor){
                 // if there is something after _CART_ it means that we have to filter also by eventId for debtor
                 listOfViewUser = this.bizEventsViewUserRepository
                         .findByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, viewTransactionId.eventId());
@@ -258,9 +260,7 @@ public class TransactionService implements ITransactionService {
     @Override
     public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId, BizEvent event) {
 
-        boolean isCart = eventId.contains(CART);
-
-        var attachmentDetails = getAttachmentDetails(fiscalCode, event, isCart);
+        var attachmentDetails = getAttachmentDetails(fiscalCode, event, isCart(eventId));
         var name = attachmentDetails.getAttachments().get(0).getName();
         var url = attachmentDetails.getAttachments().get(0).getUrl();
         var receiptFile = getAttachmentFile(fiscalCode, event.getId(), url);
