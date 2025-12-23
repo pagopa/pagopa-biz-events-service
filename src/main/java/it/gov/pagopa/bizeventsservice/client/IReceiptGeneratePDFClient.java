@@ -18,12 +18,12 @@ public interface IReceiptGeneratePDFClient {
             maxAttemptsExpression = "${generate.pdf.retry.maxAttempts}",
             backoff = @Backoff(delayExpression = "${generate.pdf.retry.maxDelay}"))
     @PostMapping(value = "${service.generate.pdf.receipt.path}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    String generateReceipt(@PathVariable("event-id") String eventId, @RequestBody String body);
+    String generateReceipt(@PathVariable("event-id") String eventId);
 
     @Retryable(
             exclude = FeignException.FeignClientException.class,
             maxAttemptsExpression = "${generate.pdf.retry.maxAttempts}",
             backoff = @Backoff(delayExpression = "${generate.pdf.retry.maxDelay}"))
     @PostMapping(value = "${service.generate.pdf.cart-receipt.path}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    String generateReceiptCart(@PathVariable("cart-id") String eventId, @RequestBody String body);
+    String generateReceiptCart(@PathVariable("cart-id") String eventId);
 }

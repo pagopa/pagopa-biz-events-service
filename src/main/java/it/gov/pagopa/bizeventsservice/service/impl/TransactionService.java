@@ -20,6 +20,7 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
+import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import lombok.extern.slf4j.Slf4j;
 import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
@@ -57,6 +58,7 @@ public class TransactionService implements ITransactionService {
     private final BizEventsViewUserRepository bizEventsViewUserRepository;
     private final IReceiptGetPDFClient receiptClient;
     private final IReceiptGeneratePDFClient generateReceiptClient;
+    private final IBizEventsService bizEventsService;
 
     @Autowired
     public TransactionService(
@@ -64,13 +66,15 @@ public class TransactionService implements ITransactionService {
             BizEventsViewCartRepository bizEventsViewCartRepository,
             BizEventsViewUserRepository bizEventsViewUserRepository,
             IReceiptGetPDFClient receiptClient,
-            IReceiptGeneratePDFClient generateReceiptClient
+            IReceiptGeneratePDFClient generateReceiptClient,
+            IBizEventsService bizEventsService
     ) {
         this.bizEventsViewGeneralRepository = bizEventsViewGeneralRepository;
         this.bizEventsViewCartRepository = bizEventsViewCartRepository;
         this.bizEventsViewUserRepository = bizEventsViewUserRepository;
         this.receiptClient = receiptClient;
         this.generateReceiptClient = generateReceiptClient;
+        this.bizEventsService = bizEventsService;
     }
 
     @Cacheable("noticeList")
@@ -258,7 +262,9 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId, BizEvent event) {
+    public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId) {
+
+        BizEvent event = bizEventsService.getBizEvent(eventId);
 
         var attachmentDetails = getAttachmentDetails(fiscalCode, event, isCart(eventId));
         var name = attachmentDetails.getAttachments().get(0).getName();
@@ -287,25 +293,13 @@ public class TransactionService implements ITransactionService {
                 throw new AppException(AppError.ATTACHMENT_NOT_FOUND, fiscalCode, event.getId());
             }
 
-            CompletableFuture.runAsync(() -> {
-                try {
-                    regeneratePdf(event.getId(), isCart);
-                } catch (Exception ex) {
-                    log.error("Error during the generation of the receipt", ex);
-                }
-            });
+            asyncRegenerate(event, isCart);
             throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, event.getId());
 
         } catch (FeignException.InternalServerError e) {
             String responseBody = e.contentUTF8();
             if (responseBody != null && responseBody.contains("PDFS_700")) {
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        regeneratePdf(event.getId(), isCart);
-                    } catch (Exception ex) {
-                        log.error("Error during the generation of the receipt", ex);
-                    }
-                });
+                asyncRegenerate(event, isCart);
                 throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, event.getId());
             } else {
                 throw e; // rethrow the exception if this is not the expected case
@@ -313,12 +307,22 @@ public class TransactionService implements ITransactionService {
         }
     }
 
+    private void asyncRegenerate(BizEvent event, boolean isCart) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                regeneratePdf(event.getId(), isCart);
+            } catch (Exception ex) {
+                log.error("Error during the generation of the receipt", ex);
+            }
+        });
+    }
+
     private void regeneratePdf(String event, boolean isCart) {
         if (isCart) {
-            generateReceiptClient.generateReceiptCart(event, "{}");
+            generateReceiptClient.generateReceiptCart(event);
         }
         else {
-            generateReceiptClient.generateReceipt(event, "{}");
+            generateReceiptClient.generateReceipt(event);
         }
     }
 

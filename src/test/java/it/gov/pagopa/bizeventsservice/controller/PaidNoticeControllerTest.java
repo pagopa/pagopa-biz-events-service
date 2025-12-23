@@ -90,7 +90,7 @@ public class PaidNoticeControllerTest {
         AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();
         when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
         when(receiptClient.getReceipt(anyString(), anyString(), any())).thenReturn(receipt);
-        when(generateReceiptClient.generateReceipt(anyString(), any())).thenReturn("OK");
+        when(generateReceiptClient.generateReceipt(anyString())).thenReturn("OK");
     }
 
     @Test
@@ -201,7 +201,7 @@ public class PaidNoticeControllerTest {
         when(response.getHeaders()).thenReturn(headers);
         when(response.getStatusCodeValue()).thenReturn(200);
         when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
-        when(transactionService.getPDFReceiptResponse(anyString(), any(), any())).thenReturn(response);
+        when(transactionService.getPDFReceiptResponse(anyString(), any())).thenReturn(response);
 
         mvc.perform(get(PAIDS_EVENT_ID_PDF_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
@@ -210,14 +210,13 @@ public class PaidNoticeControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_PDF))
                 .andReturn();
 
-        verify(bizEventsService).getBizEvent("event-id");
-        verify(transactionService).getPDFReceiptResponse(VALID_FISCAL_CODE, "event-id", bizEvent);
+        verify(transactionService).getPDFReceiptResponse(VALID_FISCAL_CODE, "event-id");
     }
 
     @Test
     void getPDFReceiptForOldPMEvent_ShouldReturnNOTFOUND() throws Exception {
         AppException ex = new AppException(HttpStatus.NOT_FOUND, ErrorCode.TS_000_000, "mock", "mock");
-        when(bizEventsService.getBizEvent(anyString())).thenThrow(ex);
+        when(transactionService.getPDFReceiptResponse(anyString(), anyString())).thenThrow(ex);
 
         mvc.perform(get(PAIDS_EVENT_ID_PDF_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
@@ -226,7 +225,7 @@ public class PaidNoticeControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
-        verify(bizEventsService).getBizEvent("event-id");
+        verify(transactionService).getPDFReceiptResponse(VALID_FISCAL_CODE, "event-id");
     }
 
 }

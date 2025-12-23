@@ -29,7 +29,7 @@ public interface ITransactionService {
 
     byte[] getPDFReceipt(String fiscalCode, BizEvent event);
 
-    ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId, BizEvent event);
+    ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId);
 
     void disableTransaction(String fiscalCode, String transactionId);
 
