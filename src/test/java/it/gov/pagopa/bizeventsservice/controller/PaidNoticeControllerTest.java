@@ -30,7 +30,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
