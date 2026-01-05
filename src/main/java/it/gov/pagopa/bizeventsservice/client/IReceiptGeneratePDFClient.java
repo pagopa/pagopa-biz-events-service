@@ -8,7 +8,6 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(value = "generateReceiptPDF", url = "${service.generate.pdf.receipt.host}", configuration = PDFGenerateReceiptFeignConfig.class)
 public interface IReceiptGeneratePDFClient {

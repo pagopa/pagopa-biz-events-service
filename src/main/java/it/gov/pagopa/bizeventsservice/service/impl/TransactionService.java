@@ -40,11 +40,8 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.OffsetDateTime;
 import javax.validation.constraints.NotBlank;
-import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static it.gov.pagopa.bizeventsservice.util.TransactionIdFactory.isCart;
