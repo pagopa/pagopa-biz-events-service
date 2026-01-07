@@ -22,8 +22,8 @@ import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRep
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
-import lombok.extern.slf4j.Slf4j;
 import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
@@ -38,8 +38,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.time.OffsetDateTime;
 import javax.validation.constraints.NotBlank;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -132,13 +132,13 @@ public class TransactionService implements ITransactionService {
 
                 BizEventsViewCart viewCart = viewCartAssociatedToViewUser.get();
                 TransactionListItem transactionListItem =
-                            ConvertViewsToTransactionDetailResponse
-                                    .convertTransactionListItem(
-                                            viewUser,
-                                            viewCart,
-                                            isCart
-                                    );
-                    listOfTransactionListItem.add(transactionListItem);
+                        ConvertViewsToTransactionDetailResponse
+                                .convertTransactionListItem(
+                                        viewUser,
+                                        viewCart,
+                                        isCart
+                                );
+                listOfTransactionListItem.add(transactionListItem);
             }
         }
 
@@ -217,19 +217,19 @@ public class TransactionService implements ITransactionService {
 
         List<BizEventsViewUser> listOfViewUser;
 
-            TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(transactionId);
-            String transaction = viewTransactionId.transactionId();
-            boolean isDebtor = viewTransactionId.eventId() != null;
+        TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(transactionId);
+        String transaction = viewTransactionId.transactionId();
+        boolean isDebtor = viewTransactionId.eventId() != null;
 
         // if the transactionId contains _CART_ it means that it's a cart transaction
-        if (isCart(transactionId) && isDebtor){
-                // if there is something after _CART_ it means that we have to filter also by eventId for debtor
-                listOfViewUser = this.bizEventsViewUserRepository
-                        .findByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, viewTransactionId.eventId());
+        if (isCart(transactionId) && isDebtor) {
+            // if there is something after _CART_ it means that we have to filter also by eventId for debtor
+            listOfViewUser = this.bizEventsViewUserRepository
+                    .findByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, viewTransactionId.eventId());
         } else {
             // single paid notice transaction
             listOfViewUser = this.bizEventsViewUserRepository
-                    .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
+                    .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transaction);
         }
 
         // set hidden to true and save
@@ -317,8 +317,7 @@ public class TransactionService implements ITransactionService {
     private void regeneratePdf(String event, boolean isCart) {
         if (isCart) {
             generateReceiptClient.generateReceiptCart(event);
-        }
-        else {
+        } else {
             generateReceiptClient.generateReceipt(event);
         }
     }
