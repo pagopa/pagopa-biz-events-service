@@ -35,20 +35,13 @@
           }
         } ],
         "responses" : {
-          "404" : {
-            "description" : "Not found the transaction.",
+          "401" : {
+            "description" : "Wrong or missing function key.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -78,13 +71,20 @@
               "application/json" : { }
             }
           },
-          "401" : {
-            "description" : "Wrong or missing function key.",
+          "404" : {
+            "description" : "Not found the transaction.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -190,27 +190,24 @@
           }
         } ],
         "responses" : {
-          "200" : {
-            "description" : "Obtained transaction list.",
+          "401" : {
+            "description" : "Wrong or missing function key.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
                 }
-              },
-              "x-continuation-token" : {
-                "description" : "continuation token for paginated query",
-                "style" : "simple",
+              }
+            }
+          },
+          "429" : {
+            "description" : "Too many requests.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/TransactionListWrapResponse"
                 }
               }
             }
@@ -233,24 +230,27 @@
               }
             }
           },
-          "429" : {
-            "description" : "Too many requests.",
+          "200" : {
+            "description" : "Obtained transaction list.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
                 }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Wrong or missing function key.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
+              },
+              "x-continuation-token" : {
+                "description" : "continuation token for paginated query",
+                "style" : "simple",
                 "schema" : {
                   "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionListWrapResponse"
                 }
               }
             }
@@ -312,6 +312,28 @@
           }
         } ],
         "responses" : {
+          "401" : {
+            "description" : "Wrong or missing function key.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "429" : {
+            "description" : "Too many requests.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
           "200" : {
             "description" : "Obtained transaction details.",
             "headers" : {
@@ -344,28 +366,6 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "429" : {
-            "description" : "Too many requests.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Wrong or missing function key.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
                 }
               }
             }
@@ -427,8 +427,8 @@
           }
         } ],
         "responses" : {
-          "200" : {
-            "description" : "Obtained the PDF receipt.",
+          "401" : {
+            "description" : "Wrong or missing function key.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -436,12 +436,15 @@
                   "type" : "string"
                 }
               }
-            },
-            "content" : {
-              "application/pdf" : {
+            }
+          },
+          "429" : {
+            "description" : "Too many requests.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
                 "schema" : {
-                  "type" : "string",
-                  "format" : "binary"
+                  "type" : "string"
                 }
               }
             }
@@ -482,8 +485,8 @@
               }
             }
           },
-          "429" : {
-            "description" : "Too many requests.",
+          "200" : {
+            "description" : "Obtained the PDF receipt.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -491,15 +494,12 @@
                   "type" : "string"
                 }
               }
-            }
-          },
-          "401" : {
-            "description" : "Wrong or missing function key.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
+            },
+            "content" : {
+              "application/pdf" : {
                 "schema" : {
-                  "type" : "string"
+                  "type" : "string",
+                  "format" : "binary"
                 }
               }
             }
@@ -563,17 +563,6 @@
               }
             }
           },
-          "429" : {
-            "description" : "Too many requests",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
           "400" : {
             "description" : "Bad Request",
             "headers" : {
@@ -588,6 +577,28 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "429" : {
+            "description" : "Too many requests",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
@@ -617,17 +628,6 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Forbidden",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
                 }
               }
             }
