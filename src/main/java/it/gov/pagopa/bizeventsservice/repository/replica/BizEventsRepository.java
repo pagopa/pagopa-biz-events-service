@@ -63,9 +63,4 @@ public interface BizEventsRepository extends CosmosRepository<BizEvent, String> 
             @Param("transactionToRecover") String transactionToRecover
     );
 
-
-    @Query("select * from c where c.transactionDetails.transaction.transactionId = @cartId")
-    List<BizEvent> findByCartId(@Param("cartId") String cartId);
-
-
 }
