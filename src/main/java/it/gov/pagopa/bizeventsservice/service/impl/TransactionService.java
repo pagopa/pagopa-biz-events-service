@@ -330,7 +330,7 @@ public class TransactionService implements ITransactionService {
             return receiptClient.getReceipt(fiscalCode, eventId, url);
         } catch (FeignException.NotFound e) {
             // re-generate the PDF receipt and return the generated file by getReceipt call
-            regeneratePdf(eventId, isCart(eventId));
+            asyncRegenerate(eventId, isCart(eventId));
             return receiptClient.getReceipt(fiscalCode, eventId, url);
         }
     }

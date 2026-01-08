@@ -33,4 +33,3 @@ Feature: All about Cart Receipt
     And the user with fiscal code "INTTST00A00A000D" asks for its transactions
     Then the user gets the status code 200
     And the user gets 0 transactions
-

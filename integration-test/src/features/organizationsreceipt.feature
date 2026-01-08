@@ -52,14 +52,3 @@ Feature: All about Organizations Receipt
     And the user with fiscal code "INTTST00A00A000D" asks for its transactions
     Then the user gets the status code 200
     And the user gets 2 transactions
-
-    # TODO FIXME
-  Scenario: A user retrieves the pdf of a cart transaction
-    Given Biz-Event with debtor fiscal code "INTTST00A00A000A" and id "biz-event-service-int-test-transaction-8"
-#    Given 1 view user with taxCode "INTTST00A00A000A", id prefix "biz-event-service-int-test-transaction-8" and isCart "true" and isPayer "true" on cosmos
-#    And 3 view general with payer tax code "INTTST00A00A000A", id prefix "biz-event-service-int-test-transaction-8" and isCart "true" on cosmos
-#    And 1 view cart with debtor taxCode "INTTST00A00A000A", id prefix "biz-event-service-int-test-transaction-8" and isCart "true" on cosmos
-#    And 2 view cart with debtor taxCode "INTTST00A00A000C", id prefix "biz-event-service-int-test-transaction-8" and isCart "true" on cosmos
-    And Save all on Cosmos DB
-    When the user with taxCode "INTTST00A00A000A" try to retrieve the pdf of the transaction "biz-event-service-int-test-transaction-8"
-    Then the user gets the status code 200
