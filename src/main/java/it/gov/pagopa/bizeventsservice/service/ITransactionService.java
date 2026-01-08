@@ -27,7 +27,7 @@ public interface ITransactionService {
 
     NoticeDetailResponse getPaidNoticeDetail(String fiscalCode, String eventId);
 
-    byte[] getPDFReceipt(String fiscalCode, BizEvent event);
+    byte[] getPDFReceipt(String fiscalCode, String eventId);
 
     ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId);
 

@@ -663,7 +663,7 @@ public class TransactionServiceTest {
         byte[] res =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getPDFReceipt(
-                                VALID_FISCAL_CODE, bizEvent));
+                                VALID_FISCAL_CODE, "event-id"));
 
         assertEquals(receipt.length, res.length);
     }
@@ -691,9 +691,9 @@ public class TransactionServiceTest {
 
         Assertions.assertThrows(AppException.class, () ->
                 transactionService.getPDFReceipt(
-                        VALID_FISCAL_CODE, bizEvent));
+                        VALID_FISCAL_CODE, "missing-id"));
 
-        verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, bizEvent);
+        verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, "missing-id");
         await().atMost(2, TimeUnit.SECONDS).untilAsserted(() -> verify(generateReceiptClient).generateReceipt("missing-id")); // generateReceiptClient.generateReceipt is launched as async invocation: so, wait 2s
     }
 
@@ -707,9 +707,9 @@ public class TransactionServiceTest {
         byte[] res =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getPDFReceipt(
-                                VALID_FISCAL_CODE, bizEvent));
+                                VALID_FISCAL_CODE, "missing-pdf-file"));
 
-        verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, bizEvent);
+        verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, "missing-pdf-file");
         verify(receiptClient).getAttachments(VALID_FISCAL_CODE, "missing-pdf-file");
         verify(generateReceiptClient).generateReceipt("missing-pdf-file");
         verify(receiptClient, times(2)).getReceipt(eq(VALID_FISCAL_CODE), eq("missing-pdf-file"), any());
@@ -727,7 +727,7 @@ public class TransactionServiceTest {
 
         Assertions.assertThrows(FeignException.BadRequest.class, () ->
                 transactionService.getPDFReceipt(
-                        INVALID_FISCAL_CODE, bizEvent));
+                        INVALID_FISCAL_CODE, "event-id"));
 
         verify(receiptClient).getAttachments(INVALID_FISCAL_CODE, "event-id");
     }

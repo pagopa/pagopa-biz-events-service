@@ -28,8 +28,8 @@
           }
         } ],
         "responses" : {
-          "401" : {
-            "description" : "Wrong or missing function key.",
+          "429" : {
+            "description" : "Too many requests.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -39,13 +39,20 @@
               }
             }
           },
-          "429" : {
-            "description" : "Too many requests.",
+          "500" : {
+            "description" : "Service unavailable.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -82,20 +89,13 @@
               }
             }
           },
-          "500" : {
-            "description" : "Service unavailable.",
+          "401" : {
+            "description" : "Wrong or missing function key.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -176,46 +176,6 @@
           }
         } ],
         "responses" : {
-          "401" : {
-            "description" : "Wrong or missing function key.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
-          "429" : {
-            "description" : "Too many requests.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Not found the transaction.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
           "200" : {
             "description" : "Obtained transaction list.",
             "headers" : {
@@ -241,6 +201,17 @@
               }
             }
           },
+          "429" : {
+            "description" : "Too many requests.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
           "500" : {
             "description" : "Service unavailable.",
             "headers" : {
@@ -255,6 +226,35 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not found the transaction.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Wrong or missing function key.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
@@ -291,13 +291,20 @@
           }
         } ],
         "responses" : {
-          "401" : {
-            "description" : "Wrong or missing function key.",
+          "200" : {
+            "description" : "Obtained transaction details.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionDetailResponse"
                 }
               }
             }
@@ -313,8 +320,8 @@
               }
             }
           },
-          "200" : {
-            "description" : "Obtained transaction details.",
+          "500" : {
+            "description" : "Service unavailable.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -326,7 +333,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/TransactionDetailResponse"
+                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -349,20 +356,13 @@
               }
             }
           },
-          "500" : {
-            "description" : "Service unavailable.",
+          "401" : {
+            "description" : "Wrong or missing function key.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -399,8 +399,27 @@
           }
         } ],
         "responses" : {
-          "401" : {
-            "description" : "Wrong or missing function key.",
+          "200" : {
+            "description" : "Obtained the PDF receipt.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "binary"
+                }
+              }
+            }
+          },
+          "429" : {
+            "description" : "Too many requests.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -410,8 +429,26 @@
               }
             }
           },
-          "429" : {
-            "description" : "Too many requests.",
+          "500" : {
+            "description" : "Service unavailable.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Wrong or missing function key.",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -456,43 +493,6 @@
                 }
               }
             }
-          },
-          "200" : {
-            "description" : "Obtained the PDF receipt.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/pdf" : {
-                "schema" : {
-                  "type" : "string",
-                  "format" : "binary"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Service unavailable.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemJson"
-                }
-              }
-            }
           }
         },
         "deprecated" : true,
@@ -517,8 +517,8 @@
         "description" : "Return OK if application is started",
         "operationId" : "healthCheck",
         "responses" : {
-          "200" : {
-            "description" : "OK",
+          "429" : {
+            "description" : "Too many requests",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -526,17 +526,10 @@
                   "type" : "string"
                 }
               }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/AppInfo"
-                }
-              }
             }
           },
-          "400" : {
-            "description" : "Bad Request",
+          "500" : {
+            "description" : "Service unavailable",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
@@ -564,13 +557,20 @@
               }
             }
           },
-          "429" : {
-            "description" : "Too many requests",
+          "200" : {
+            "description" : "OK",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AppInfo"
                 }
               }
             }
@@ -586,8 +586,8 @@
               }
             }
           },
-          "500" : {
-            "description" : "Service unavailable",
+          "400" : {
+            "description" : "Bad Request",
             "headers" : {
               "X-Request-Id" : {
                 "description" : "This header identifies the call",

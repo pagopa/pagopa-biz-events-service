@@ -254,8 +254,10 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public byte[] getPDFReceipt(String fiscalCode, BizEvent event) {
-        return this.acquirePDFReceipt(fiscalCode, event);
+    public byte[] getPDFReceipt(String fiscalCode, String eventId) {
+        // to check if is an OLD event present only on the PM --> the receipt is not available for events present exclusively on the PM
+        BizEvent bizEvent = bizEventsService.getBizEvent(eventId);
+        return this.acquirePDFReceipt(fiscalCode, eventId, bizEvent);
     }
 
     @Override
@@ -263,10 +265,10 @@ public class TransactionService implements ITransactionService {
 
         BizEvent event = bizEventsService.getBizEvent(eventId);
 
-        var attachmentDetails = getAttachmentDetails(fiscalCode, event, isCart(eventId));
+        var attachmentDetails = getAttachmentDetails(fiscalCode, eventId, event, isCart(eventId));
         var name = attachmentDetails.getAttachments().get(0).getName();
         var url = attachmentDetails.getAttachments().get(0).getUrl();
-        var receiptFile = getAttachmentFile(fiscalCode, event.getId(), url);
+        var receiptFile = getAttachmentFile(fiscalCode, eventId, url);
 
         return ResponseEntity
                 .ok()
@@ -276,38 +278,38 @@ public class TransactionService implements ITransactionService {
                 .body(new ByteArrayResource(receiptFile));
     }
 
-    private byte[] acquirePDFReceipt(String fiscalCode, BizEvent event) {
-        String url = getAttachmentDetails(fiscalCode, event, false).getAttachments().get(0).getUrl();
-        return this.getAttachmentFile(fiscalCode, event.getId(), url);
+    private byte[] acquirePDFReceipt(String fiscalCode, String eventId, BizEvent bizEvent) {
+        String url = getAttachmentDetails(fiscalCode, eventId, bizEvent, false).getAttachments().get(0).getUrl();
+        return this.getAttachmentFile(fiscalCode, eventId, url);
     }
 
-    private AttachmentsDetailsResponse getAttachmentDetails(String fiscalCode, BizEvent event, boolean isCart) {
+    private AttachmentsDetailsResponse getAttachmentDetails(String fiscalCode, String eventId, BizEvent event, boolean isCart) {
         try {
             // call the receipt-pdf-service to retrieve the PDF receipt details
-            return receiptClient.getAttachments(fiscalCode, event.getId());
+            return receiptClient.getAttachments(fiscalCode, eventId);
         } catch (FeignException.NotFound e) {
             if (event.getTs().isAfter(OffsetDateTime.now().minusMinutes(30))) {
-                throw new AppException(AppError.ATTACHMENT_NOT_FOUND, fiscalCode, event.getId());
+                throw new AppException(AppError.ATTACHMENT_NOT_FOUND, fiscalCode, eventId);
             }
 
-            asyncRegenerate(event, isCart);
-            throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, event.getId());
+            asyncRegenerate(eventId, isCart);
+            throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, eventId);
 
         } catch (FeignException.InternalServerError e) {
             String responseBody = e.contentUTF8();
             if (responseBody != null && responseBody.contains("PDFS_700")) {
-                asyncRegenerate(event, isCart);
-                throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, event.getId());
+                asyncRegenerate(eventId, isCart);
+                throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, eventId);
             } else {
                 throw e; // rethrow the exception if this is not the expected case
             }
         }
     }
 
-    private void asyncRegenerate(BizEvent event, boolean isCart) {
+    private void asyncRegenerate(String eventId, boolean isCart) {
         CompletableFuture.runAsync(() -> {
             try {
-                regeneratePdf(event.getId(), isCart);
+                regeneratePdf(eventId, isCart);
             } catch (Exception ex) {
                 log.error("Error during the generation of the receipt", ex);
             }
