@@ -79,28 +79,4 @@ public class PrimaryCosmosDBConfiguration extends AbstractCosmosConfiguration {
         }
     }
 
-
-//    @Bean("primaryCosmosAsyncClient")
-//    public CosmosAsyncClient primaryCosmosAsyncClient() {
-//        // build a dedicated builder for replica client
-//        return new CosmosClientBuilder()
-//                .endpoint(uri)
-//                .key(key)
-//                .buildAsyncClient();
-//    }
-//
-//    @Bean("primaryCosmosFactory")
-//    public CosmosFactory primaryCosmosFactory(@Qualifier("primaryCosmosAsyncClient") CosmosAsyncClient client) {
-//        return new CosmosFactory(client, dbName);
-//    }
-//
-//    @Bean("primaryCosmosTemplate")
-//    public CosmosTemplate primaryCosmosTemplate(
-//            @Qualifier("primaryCosmosFactory") CosmosFactory replicaFactory,
-//            CosmosConfig cosmosConfig,
-//            MappingCosmosConverter mappingCosmosConverter
-//    ) {
-//        return new CosmosTemplate(replicaFactory, cosmosConfig, mappingCosmosConverter);
-//    }
-
 }
