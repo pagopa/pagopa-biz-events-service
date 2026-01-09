@@ -5,6 +5,7 @@ import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsPrimaryRepository;
 import it.gov.pagopa.bizeventsservice.repository.replica.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
@@ -19,12 +20,14 @@ import java.util.Optional;
 public class BizEventsService implements IBizEventsService {
 
     private final BizEventsRepository bizEventsRepository;
+    private final BizEventsPrimaryRepository bizEventsPrimaryRepository;
 
     private final ModelMapper modelMapper;
 
     @Autowired
-    public BizEventsService(BizEventsRepository bizEventsRepository, ModelMapper modelMapper) {
+    public BizEventsService(BizEventsRepository bizEventsRepository, BizEventsPrimaryRepository bizEventsPrimaryRepository, ModelMapper modelMapper) {
         this.bizEventsRepository = bizEventsRepository;
+        this.bizEventsPrimaryRepository = bizEventsPrimaryRepository;
         this.modelMapper = modelMapper;
     }
 
@@ -57,10 +60,10 @@ public class BizEventsService implements IBizEventsService {
 
         if (TransactionIdFactory.isCart(id) && isPayer) {
             // if it's a payer cart biz event, get by cart id because biz event id is not available
-            optionalBizEvent = bizEventsRepository.findByCartId(cartId).stream().findFirst();
+            optionalBizEvent = bizEventsPrimaryRepository.findByCartId(cartId).stream().findFirst();
         } else {
             // is a single payment or a debtor cart biz event, so get biz event by id
-            optionalBizEvent = bizEventsRepository.findById(id, new PartitionKey(id));
+            optionalBizEvent = bizEventsPrimaryRepository.findById(id, new PartitionKey(id));
         }
 
         if (optionalBizEvent.isEmpty()) {

@@ -4,6 +4,7 @@ import com.azure.cosmos.models.PartitionKey;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsPrimaryRepository;
 import it.gov.pagopa.bizeventsservice.repository.replica.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.service.impl.BizEventsService;
 import it.gov.pagopa.bizeventsservice.util.Utility;
@@ -37,6 +38,8 @@ class BizEventsServiceTest {
 
     @Mock
     private BizEventsRepository bizEventsRepository;
+    @Mock
+    private BizEventsPrimaryRepository bizEventsPrimaryRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -55,7 +58,7 @@ class BizEventsServiceTest {
 
     @BeforeEach
     void setUp() {
-        bizEventsService = spy(new BizEventsService(bizEventsRepository, modelMapper));
+        bizEventsService = spy(new BizEventsService(bizEventsRepository, bizEventsPrimaryRepository, modelMapper));
     }
 
     @Test
@@ -119,7 +122,7 @@ class BizEventsServiceTest {
 
     @Test
     void getBizEventSuccess() {
-        when(bizEventsRepository.findById(BIZ_EVENT_ID, new PartitionKey(BIZ_EVENT_ID)))
+        when(bizEventsPrimaryRepository.findById(BIZ_EVENT_ID, new PartitionKey(BIZ_EVENT_ID)))
                 .thenReturn(Optional.of(bizEventEntity));
 
         BizEvent bizEvent = bizEventsService.getBizEvent(BIZ_EVENT_ID);

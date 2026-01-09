@@ -20,9 +20,10 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
+import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
-import lombok.extern.slf4j.Slf4j;
 import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
@@ -37,10 +38,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.validation.constraints.NotBlank;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import static it.gov.pagopa.bizeventsservice.util.TransactionIdFactory.isCart;
 
 @Service
 @Slf4j
@@ -51,6 +55,7 @@ public class TransactionService implements ITransactionService {
     private final BizEventsViewUserRepository bizEventsViewUserRepository;
     private final IReceiptGetPDFClient receiptClient;
     private final IReceiptGeneratePDFClient generateReceiptClient;
+    private final IBizEventsService bizEventsService;
 
     @Autowired
     public TransactionService(
@@ -58,13 +63,15 @@ public class TransactionService implements ITransactionService {
             BizEventsViewCartRepository bizEventsViewCartRepository,
             BizEventsViewUserRepository bizEventsViewUserRepository,
             IReceiptGetPDFClient receiptClient,
-            IReceiptGeneratePDFClient generateReceiptClient
+            IReceiptGeneratePDFClient generateReceiptClient,
+            IBizEventsService bizEventsService
     ) {
         this.bizEventsViewGeneralRepository = bizEventsViewGeneralRepository;
         this.bizEventsViewCartRepository = bizEventsViewCartRepository;
         this.bizEventsViewUserRepository = bizEventsViewUserRepository;
         this.receiptClient = receiptClient;
         this.generateReceiptClient = generateReceiptClient;
+        this.bizEventsService = bizEventsService;
     }
 
     @Cacheable("noticeList")
@@ -125,13 +132,13 @@ public class TransactionService implements ITransactionService {
 
                 BizEventsViewCart viewCart = viewCartAssociatedToViewUser.get();
                 TransactionListItem transactionListItem =
-                            ConvertViewsToTransactionDetailResponse
-                                    .convertTransactionListItem(
-                                            viewUser,
-                                            viewCart,
-                                            isCart
-                                    );
-                    listOfTransactionListItem.add(transactionListItem);
+                        ConvertViewsToTransactionDetailResponse
+                                .convertTransactionListItem(
+                                        viewUser,
+                                        viewCart,
+                                        isCart
+                                );
+                listOfTransactionListItem.add(transactionListItem);
             }
         }
 
@@ -182,7 +189,7 @@ public class TransactionService implements ITransactionService {
         List<BizEventsViewCart> listOfCartViews;
 
         boolean isPayer = bizEventsViewGeneral.get(0).getPayer() != null && taxCode.equals(bizEventsViewGeneral.get(0).getPayer().getTaxCode());
-        boolean isCart = TransactionIdFactory.isCart(transactionId);
+        boolean isCart = isCart(transactionId);
         if (isCart && !isPayer) {
             listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndIdAndFilteredByTaxCode(extractedTransactionId, extractedViewCartId, taxCode);
         } else {
@@ -210,19 +217,19 @@ public class TransactionService implements ITransactionService {
 
         List<BizEventsViewUser> listOfViewUser;
 
-            TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(transactionId);
-            String transaction = viewTransactionId.transactionId();
-            boolean isDebtor = viewTransactionId.eventId() != null;
+        TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(transactionId);
+        String transaction = viewTransactionId.transactionId();
+        boolean isDebtor = viewTransactionId.eventId() != null;
 
         // if the transactionId contains _CART_ it means that it's a cart transaction
-        if (TransactionIdFactory.isCart(transactionId) && isDebtor){
-                // if there is something after _CART_ it means that we have to filter also by eventId for debtor
-                listOfViewUser = this.bizEventsViewUserRepository
-                        .findByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, viewTransactionId.eventId());
+        if (isCart(transactionId) && isDebtor) {
+            // if there is something after _CART_ it means that we have to filter also by eventId for debtor
+            listOfViewUser = this.bizEventsViewUserRepository
+                    .findByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, viewTransactionId.eventId());
         } else {
             // single paid notice transaction
             listOfViewUser = this.bizEventsViewUserRepository
-                    .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
+                    .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transaction);
         }
 
         // set hidden to true and save
@@ -247,17 +254,21 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public byte[] getPDFReceipt(String fiscalCode, BizEvent event) {
-        return this.acquirePDFReceipt(fiscalCode, event);
+    public byte[] getPDFReceipt(String fiscalCode, String eventId) {
+        // to check if is an OLD event present only on the PM --> the receipt is not available for events present exclusively on the PM
+        BizEvent bizEvent = bizEventsService.getBizEvent(eventId);
+        return this.acquirePDFReceipt(fiscalCode, eventId, bizEvent);
     }
 
     @Override
-    public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, BizEvent event) {
+    public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId) {
 
-        AttachmentsDetailsResponse attachmentDetails = getAttachmentDetails(fiscalCode, event);
-        String name = attachmentDetails.getAttachments().get(0).getName();
-        String url = attachmentDetails.getAttachments().get(0).getUrl();
-        byte[] receiptFile = getAttachmentFile(fiscalCode, event.getId(), url);
+        BizEvent event = bizEventsService.getBizEvent(eventId);
+
+        var attachmentDetails = getAttachmentDetails(fiscalCode, eventId, event, isCart(eventId));
+        var name = attachmentDetails.getAttachments().get(0).getName();
+        var url = attachmentDetails.getAttachments().get(0).getUrl();
+        var receiptFile = getAttachmentFile(fiscalCode, eventId, url);
 
         return ResponseEntity
                 .ok()
@@ -267,43 +278,49 @@ public class TransactionService implements ITransactionService {
                 .body(new ByteArrayResource(receiptFile));
     }
 
-    private byte[] acquirePDFReceipt(String fiscalCode, BizEvent event) {
-        String url = getAttachmentDetails(fiscalCode, event).getAttachments().get(0).getUrl();
-        return this.getAttachmentFile(fiscalCode, event.getId(), url);
+    private byte[] acquirePDFReceipt(String fiscalCode, String eventId, BizEvent bizEvent) {
+        String url = getAttachmentDetails(fiscalCode, eventId, bizEvent, false).getAttachments().get(0).getUrl();
+        return this.getAttachmentFile(fiscalCode, eventId, url);
     }
 
-    private AttachmentsDetailsResponse getAttachmentDetails(String fiscalCode, BizEvent event) {
+    private AttachmentsDetailsResponse getAttachmentDetails(String fiscalCode, String eventId, BizEvent event, boolean isCart) {
         try {
             // call the receipt-pdf-service to retrieve the PDF receipt details
-            return receiptClient.getAttachments(fiscalCode, event.getId());
+            return receiptClient.getAttachments(fiscalCode, eventId);
         } catch (FeignException.NotFound e) {
             if (event.getTs().isAfter(OffsetDateTime.now().minusMinutes(30))) {
-                throw new AppException(AppError.ATTACHMENT_NOT_FOUND, fiscalCode, event.getId());
+                throw new AppException(AppError.ATTACHMENT_NOT_FOUND, fiscalCode, eventId);
             }
 
-            CompletableFuture.runAsync(() -> {
-                try {
-                    generateReceiptClient.generateReceipt(event.getId(), Boolean.FALSE.toString(), "{}");
-                } catch (Exception ex) {
-                    log.error("Error during the generation of the receipt", ex);
-                }
-            });
-            throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, event.getId());
+            asyncRegenerate(eventId, isCart);
+            throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, eventId);
 
         } catch (FeignException.InternalServerError e) {
             String responseBody = e.contentUTF8();
             if (responseBody != null && responseBody.contains("PDFS_700")) {
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        generateReceiptClient.generateReceipt(event.getId(), Boolean.FALSE.toString(), "{}");
-                    } catch (Exception ex) {
-                        log.error("Error during the generation of the receipt", ex);
-                    }
-                });
-                throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, event.getId());
+                asyncRegenerate(eventId, isCart);
+                throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, eventId);
             } else {
                 throw e; // rethrow the exception if this is not the expected case
             }
+        }
+    }
+
+    private void asyncRegenerate(String eventId, boolean isCart) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                regeneratePdf(eventId, isCart);
+            } catch (Exception ex) {
+                log.error("Error during the generation of the receipt", ex);
+            }
+        });
+    }
+
+    private void regeneratePdf(String event, boolean isCart) {
+        if (isCart) {
+            generateReceiptClient.generateReceiptCart(event);
+        } else {
+            generateReceiptClient.generateReceipt(event);
         }
     }
 
@@ -313,7 +330,7 @@ public class TransactionService implements ITransactionService {
             return receiptClient.getReceipt(fiscalCode, eventId, url);
         } catch (FeignException.NotFound e) {
             // re-generate the PDF receipt and return the generated file by getReceipt call
-            generateReceiptClient.generateReceipt(eventId, Boolean.FALSE.toString(), "{}");
+            asyncRegenerate(eventId, isCart(eventId));
             return receiptClient.getReceipt(fiscalCode, eventId, url);
         }
     }

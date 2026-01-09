@@ -9,6 +9,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 
+import javax.validation.constraints.NotBlank;
+
 public interface ITransactionService {
 
     /**
@@ -25,9 +27,9 @@ public interface ITransactionService {
 
     NoticeDetailResponse getPaidNoticeDetail(String fiscalCode, String eventId);
 
-    byte[] getPDFReceipt(String fiscalCode, BizEvent event);
+    byte[] getPDFReceipt(String fiscalCode, String eventId);
 
-    ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, BizEvent event);
+    ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId);
 
     void disableTransaction(String fiscalCode, String transactionId);
 
