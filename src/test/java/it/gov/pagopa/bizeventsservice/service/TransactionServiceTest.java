@@ -19,6 +19,7 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
+import it.gov.pagopa.bizeventsservice.service.impl.BizEventsService;
 import it.gov.pagopa.bizeventsservice.service.impl.TransactionService;
 import it.gov.pagopa.bizeventsservice.util.ViewGenerator;
 import org.junit.jupiter.api.*;
@@ -82,13 +83,13 @@ public class TransactionServiceTest {
     @BeforeEach
     void setUp() {
         transactionService = spy(new TransactionService(bizEventsViewGeneralRepository, bizEventsViewCartRepository, bizEventsViewUserRepository,
-                receiptClient, generateReceiptClient));
+                receiptClient, generateReceiptClient, bizEventsService));
         Attachment attachmentDetail = mock(Attachment.class);
         when(attachmentDetail.getName()).thenReturn("name.pdf");
         AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();
         when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
         when(receiptClient.getReceipt(anyString(), anyString(), any())).thenReturn(receipt);
-        when(generateReceiptClient.generateReceipt(anyString(), anyString(), any())).thenReturn("OK");
+        when(generateReceiptClient.generateReceipt(anyString())).thenReturn("OK");
     }
 
     @Test
@@ -106,7 +107,7 @@ public class TransactionServiceTest {
 
         List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
         when(bizEventsViewCartRepository.findByTransactionIdIn(anySet())).thenReturn(listOfCartView);
-        
+
         TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionList(
@@ -662,7 +663,7 @@ public class TransactionServiceTest {
         byte[] res =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getPDFReceipt(
-                                VALID_FISCAL_CODE, bizEvent));
+                                VALID_FISCAL_CODE, "event-id"));
 
         assertEquals(receipt.length, res.length);
     }
@@ -674,7 +675,7 @@ public class TransactionServiceTest {
         when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
 
         var res = Assertions.assertDoesNotThrow(() ->
-                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, bizEvent));
+                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, "event-id"));
 
         assertEquals(200, res.getStatusCode().value());
     }
@@ -690,10 +691,10 @@ public class TransactionServiceTest {
 
         Assertions.assertThrows(AppException.class, () ->
                 transactionService.getPDFReceipt(
-                        VALID_FISCAL_CODE, bizEvent));
+                        VALID_FISCAL_CODE, "missing-id"));
 
-        verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, bizEvent);
-        await().atMost(2, TimeUnit.SECONDS).untilAsserted(() -> verify(generateReceiptClient).generateReceipt("missing-id", "false", "{}")); // generateReceiptClient.generateReceipt is launched as async invocation: so, wait 2s
+        verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, "missing-id");
+        await().atMost(2, TimeUnit.SECONDS).untilAsserted(() -> verify(generateReceiptClient).generateReceipt("missing-id")); // generateReceiptClient.generateReceipt is launched as async invocation: so, wait 2s
     }
 
     @Test
@@ -706,11 +707,11 @@ public class TransactionServiceTest {
         byte[] res =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getPDFReceipt(
-                                VALID_FISCAL_CODE, bizEvent));
+                                VALID_FISCAL_CODE, "missing-pdf-file"));
 
-        verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, bizEvent);
+        verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, "missing-pdf-file");
         verify(receiptClient).getAttachments(VALID_FISCAL_CODE, "missing-pdf-file");
-        verify(generateReceiptClient).generateReceipt("missing-pdf-file", "false", "{}");
+        verify(generateReceiptClient).generateReceipt("missing-pdf-file");
         verify(receiptClient, times(2)).getReceipt(eq(VALID_FISCAL_CODE), eq("missing-pdf-file"), any());
         assertEquals(receipt.length, res.length);
     }
@@ -726,7 +727,7 @@ public class TransactionServiceTest {
 
         Assertions.assertThrows(FeignException.BadRequest.class, () ->
                 transactionService.getPDFReceipt(
-                        INVALID_FISCAL_CODE, bizEvent));
+                        INVALID_FISCAL_CODE, "event-id"));
 
         verify(receiptClient).getAttachments(INVALID_FISCAL_CODE, "event-id");
     }
