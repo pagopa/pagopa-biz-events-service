@@ -27,13 +27,10 @@ import javax.validation.constraints.NotBlank;
 public class TransactionController implements ITransactionController {
 
     private final ITransactionService transactionService;
-    private final IBizEventsService bizEventsService;
 
     @Autowired
-    public TransactionController(ITransactionService transactionService, IBizEventsService bizEventsService,
-                                 IReceiptGetPDFClient receiptClient, IReceiptGeneratePDFClient generateReceiptClient) {
+    public TransactionController(ITransactionService transactionService) {
         this.transactionService = transactionService;
-        this.bizEventsService = bizEventsService;
     }
 
 
