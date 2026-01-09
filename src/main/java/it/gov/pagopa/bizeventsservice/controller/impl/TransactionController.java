@@ -3,6 +3,7 @@ package it.gov.pagopa.bizeventsservice.controller.impl;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
 import it.gov.pagopa.bizeventsservice.controller.ITransactionController;
+import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
@@ -26,13 +27,10 @@ import javax.validation.constraints.NotBlank;
 public class TransactionController implements ITransactionController {
 
     private final ITransactionService transactionService;
-    private final IBizEventsService bizEventsService;
 
     @Autowired
-    public TransactionController(ITransactionService transactionService, IBizEventsService bizEventsService,
-                                 IReceiptGetPDFClient receiptClient, IReceiptGeneratePDFClient generateReceiptClient) {
+    public TransactionController(ITransactionService transactionService) {
         this.transactionService = transactionService;
-        this.bizEventsService = bizEventsService;
     }
 
 
@@ -63,8 +61,7 @@ public class TransactionController implements ITransactionController {
 
     @Override
     public ResponseEntity<byte[]> getPDFReceipt(@NotBlank String fiscalCode, @NotBlank String eventId) {
-        // to check if is an OLD event present only on the PM --> the receipt is not available for events present exclusively on the PM
-        bizEventsService.getBizEvent(eventId);
+
         byte[] receiptFile = transactionService.getPDFReceipt(fiscalCode, eventId);
         return ResponseEntity
                 .ok()

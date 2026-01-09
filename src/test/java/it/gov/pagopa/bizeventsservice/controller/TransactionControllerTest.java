@@ -6,6 +6,7 @@ import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
+import it.gov.pagopa.bizeventsservice.exception.ErrorCode;
 import it.gov.pagopa.bizeventsservice.model.response.Attachment;
 import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
@@ -79,12 +80,12 @@ public class TransactionControllerTest {
         TransactionDetailResponse transactionDetailResponse = Utility.readModelFromFile("biz-events/transactionDetails.json", TransactionDetailResponse.class);
         when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyString(), anyInt(), any(), any())).thenReturn(transactionListResponse);
         when(transactionService.getTransactionDetails(anyString(), anyString())).thenReturn(transactionDetailResponse);
-        when(transactionService.getPDFReceipt(anyString(), anyString())).thenReturn(receipt);
+        when(transactionService.getPDFReceipt(anyString(), any())).thenReturn(receipt);
         Attachment attachmentDetail = mock(Attachment.class);
         AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();
         when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
         when(receiptClient.getReceipt(anyString(), anyString(), any())).thenReturn(receipt);
-        when(generateReceiptClient.generateReceipt(anyString(), anyString(), any())).thenReturn("OK");
+        when(generateReceiptClient.generateReceipt(anyString())).thenReturn("OK");
     }
 
     @Test
@@ -197,15 +198,14 @@ public class TransactionControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_PDF))
                 .andReturn();
 
-        verify(bizEventsService).getBizEvent("event-id");
         verify(transactionService).getPDFReceipt(VALID_FISCAL_CODE, "event-id");
         assertEquals(receipt.length, result.getResponse().getContentAsByteArray().length);
     }
 
     @Test
     void getPDFReceiptForOldPMEvent_ShouldReturnNOTFOUND() throws Exception {
-        AppException ex = new AppException(HttpStatus.NOT_FOUND, "mock", "mock");
-        when(bizEventsService.getBizEvent(anyString())).thenThrow(ex);
+        AppException ex = new AppException(HttpStatus.NOT_FOUND, ErrorCode.TS_000_000, "mock", "mock");
+        when(transactionService.getPDFReceipt(any(), any())).thenThrow(ex);
 
         mvc.perform(get(TRANSACTION_RECEIPT_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
@@ -214,6 +214,5 @@ public class TransactionControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
-        verify(bizEventsService).getBizEvent("event-id");
     }
 }

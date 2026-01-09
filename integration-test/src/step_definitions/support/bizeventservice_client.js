@@ -1,4 +1,4 @@
-const { get, post } = require("./common");
+const {get, post} = require("./common");
 
 const bizevents_service_host = process.env.BIZ_EVENTS_SERVICE_HOST;
 const bizevents_helpdesk_host = process.env.BIZ_EVENTS_HELPDESK_HOST;
@@ -39,8 +39,14 @@ function getTransactionWithIdForUserWithFiscalCode(id, fiscalcode) {
 }
 
 function disableTransactionWithIdForUserWithFiscalCode(id, fiscalcode) {
-    return post(bizevents_trxsrv_host + `paids/${id}/disable`,"", {
+    return post(bizevents_service_host + `paids/${id}/disable`, JSON.stringify({}), {
         "x-fiscal-code": fiscalcode
+    })
+}
+
+function generatePDF(id, fiscalCode) {
+    return get(bizevents_service_host + `paids/${id}/pdf`, {
+        "x-fiscal-code": fiscalCode
     })
 }
 
@@ -51,5 +57,6 @@ module.exports = {
     getBizEventByOrgFiscalCodeAndIuv,
     getTransactionListForUserWithFiscalCode,
     getTransactionWithIdForUserWithFiscalCode,
-    disableTransactionWithIdForUserWithFiscalCode
+    disableTransactionWithIdForUserWithFiscalCode,
+    generatePDF
 }

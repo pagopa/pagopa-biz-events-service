@@ -51,6 +51,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST.value())
                 .title(BAD_REQUEST)
                 .detail("Invalid input format")
+                .code(ErrorCode.GN_400_002.name())
                 .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -71,6 +72,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST.value())
                 .title(BAD_REQUEST)
                 .detail(ex.getMessage())
+                .code(ErrorCode.GN_400_003.name())
                 .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -92,6 +94,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST.value())
                 .title(BAD_REQUEST)
                 .detail(String.format("Invalid value %s for property %s", ex.getValue(), ((MethodArgumentTypeMismatchException) ex).getName()))
+                .code(ErrorCode.GN_400_004.name())
                 .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -117,6 +120,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST.value())
                 .title(BAD_REQUEST)
                 .detail(detailsMessage)
+                .code(ErrorCode.GN_400_005.name())
                 .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -141,6 +145,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 .status(ex.getHttpStatus().value())
                 .title(ex.getTitle())
                 .detail(ex.getMessage())
+                .code(ex.getCode().name())
                 .build();
         return new ResponseEntity<>(errorResponse, ex.getHttpStatus());
     }
@@ -153,6 +158,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 .status(body.getStatus())
                 .title("A dependency returned an error: " + body.getTitle())
                 .detail(body.getDetail())
+                .code(ErrorCode.FG_000_001.name())
                 .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(ex.status()));
     }
@@ -171,6 +177,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .title(INTERNAL_SERVER_ERROR)
                 .detail(ex.getMessage())
+                .code(ErrorCode.GN_500_003.name())
                 .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }

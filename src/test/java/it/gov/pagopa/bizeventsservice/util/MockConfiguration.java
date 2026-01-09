@@ -1,6 +1,7 @@
 package it.gov.pagopa.bizeventsservice.util;
 
 import com.azure.spring.data.cosmos.common.ExpressionResolver;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsPrimaryRepository;
 import it.gov.pagopa.bizeventsservice.repository.replica.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
@@ -22,6 +23,12 @@ public class MockConfiguration {
     @Primary
     BizEventsRepository bizEventsRepository() {
         return Mockito.mock(BizEventsRepository.class);
+    }
+
+    @Bean
+    @Primary
+    BizEventsPrimaryRepository bizEventsPrimaryRepository() {
+        return Mockito.mock(BizEventsPrimaryRepository.class);
     }
 
     @Bean
