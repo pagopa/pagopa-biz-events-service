@@ -25,6 +25,8 @@ import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -74,7 +76,7 @@ public class TransactionService implements ITransactionService {
         this.bizEventsService = bizEventsService;
     }
 
-    @Cacheable("noticeList")
+    @Cacheable(value = "noticeList")
     @Override
     public TransactionListResponse getTransactionList(
             String taxCode,
@@ -212,6 +214,7 @@ public class TransactionService implements ITransactionService {
         setHiddenAndSave(fiscalCode, transactionId, listOfViewUser);
     }
 
+    @CacheEvict(value = "noticeList")
     @Override
     public void disablePaidNotice(String fiscalCode, String transactionId) {
 
