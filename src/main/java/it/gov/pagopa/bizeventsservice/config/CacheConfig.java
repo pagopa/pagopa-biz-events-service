@@ -24,6 +24,13 @@ import java.util.concurrent.TimeUnit;
 @EnableConfigurationProperties(CacheProperties.class)
 public class CacheConfig {
 
+    private final CacheManager caffeineCacheManager;
+
+    public CacheConfig(CacheManager caffeineCacheManager) {
+        this.caffeineCacheManager = caffeineCacheManager;
+    }
+
+
     @Bean
     public CacheManager caffeineCacheManager(CacheProperties cacheProperties) {
         return new CustomCaffeineCacheManager(cacheProperties);
@@ -55,5 +62,22 @@ public class CacheConfig {
 
             return new CaffeineCache(name, builder.build());
         }
+    }
+
+    /**
+     * Evict from cache all the noticeList entries related to the given tax code
+     *
+     * @param taxCode the tax code
+     */
+    public void evictNoticeListByTaxCode(String taxCode) {
+        CaffeineCache springCache = (CaffeineCache) caffeineCacheManager.getCache("noticeList");
+        if (springCache == null) return;
+
+        com.github.benmanes.caffeine.cache.Cache<Object, Object> nativeCache = springCache.getNativeCache();
+
+        nativeCache.asMap().keySet().removeIf(key -> {
+            String keyString = key.toString();
+            return keyString.contains(taxCode);
+        });
     }
 }

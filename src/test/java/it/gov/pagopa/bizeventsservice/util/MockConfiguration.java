@@ -1,6 +1,7 @@
 package it.gov.pagopa.bizeventsservice.util;
 
 import com.azure.spring.data.cosmos.common.ExpressionResolver;
+import it.gov.pagopa.bizeventsservice.config.CacheConfig;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsPrimaryRepository;
 import it.gov.pagopa.bizeventsservice.repository.replica.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartRepository;
@@ -49,9 +50,16 @@ public class MockConfiguration {
     BizEventsViewGeneralRepository bizEventsViewGeneralRepository() {
         return Mockito.mock(BizEventsViewGeneralRepository.class);
     }
+
     @Bean
     @Primary
     CacheManager cacheManager() {
         return Mockito.mock(CacheManager.class);
+    }
+
+    @Bean
+    @Primary
+    CacheConfig cacheConfig() {
+        return Mockito.mock(CacheConfig.class);
     }
 }

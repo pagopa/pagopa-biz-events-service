@@ -1,10 +1,10 @@
 package it.gov.pagopa.bizeventsservice.service.impl;
 
 import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
-import com.github.benmanes.caffeine.cache.Cache;
 import feign.FeignException;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
+import it.gov.pagopa.bizeventsservice.config.CacheConfig;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
@@ -27,9 +27,7 @@ import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -60,7 +58,7 @@ public class TransactionService implements ITransactionService {
     private final IReceiptGetPDFClient receiptClient;
     private final IReceiptGeneratePDFClient generateReceiptClient;
     private final IBizEventsService bizEventsService;
-    private final CacheManager caffeineCacheManager;
+    private final CacheConfig cacheConfig;
 
     @Autowired
     public TransactionService(
@@ -70,14 +68,14 @@ public class TransactionService implements ITransactionService {
             IReceiptGetPDFClient receiptClient,
             IReceiptGeneratePDFClient generateReceiptClient,
             IBizEventsService bizEventsService,
-            CacheManager caffeineCacheManager) {
+            CacheConfig cacheConfig){
         this.bizEventsViewGeneralRepository = bizEventsViewGeneralRepository;
         this.bizEventsViewCartRepository = bizEventsViewCartRepository;
         this.bizEventsViewUserRepository = bizEventsViewUserRepository;
         this.receiptClient = receiptClient;
         this.generateReceiptClient = generateReceiptClient;
         this.bizEventsService = bizEventsService;
-        this.caffeineCacheManager = caffeineCacheManager;
+        this.cacheConfig = cacheConfig;
     }
 
     @Cacheable(value = "noticeList")
@@ -220,7 +218,7 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public void disablePaidNotice(String fiscalCode, String transactionId) {
-        evictNoticeListByTaxCode(fiscalCode);
+        cacheConfig.evictNoticeListByTaxCode(fiscalCode);
 
         List<BizEventsViewUser> listOfViewUser;
 
@@ -241,23 +239,6 @@ public class TransactionService implements ITransactionService {
 
         // set hidden to true and save
         setHiddenAndSave(fiscalCode, transactionId, listOfViewUser);
-    }
-
-    /**
-     * Evict from cache all the noticeList entries related to the given tax code
-     *
-     * @param taxCode the tax code
-     */
-    public void evictNoticeListByTaxCode(String taxCode) {
-        CaffeineCache springCache = (CaffeineCache) caffeineCacheManager.getCache("noticeList");
-        if (springCache == null) return;
-
-        Cache<Object, Object> nativeCache = springCache.getNativeCache();
-
-        nativeCache.asMap().keySet().removeIf(key -> {
-            String keyString = key.toString();
-            return keyString.contains(taxCode);
-        });
     }
 
     /**
