@@ -7,6 +7,7 @@ import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartReposi
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
 import org.mockito.Mockito;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -47,5 +48,10 @@ public class MockConfiguration {
     @Primary
     BizEventsViewGeneralRepository bizEventsViewGeneralRepository() {
         return Mockito.mock(BizEventsViewGeneralRepository.class);
+    }
+    @Bean
+    @Primary
+    CacheManager cacheManager() {
+        return Mockito.mock(CacheManager.class);
     }
 }
