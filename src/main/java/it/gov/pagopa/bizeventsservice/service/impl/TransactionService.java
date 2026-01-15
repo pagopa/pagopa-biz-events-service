@@ -5,6 +5,7 @@ import feign.FeignException;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
 import it.gov.pagopa.bizeventsservice.config.CacheConfig;
+import it.gov.pagopa.bizeventsservice.config.CacheService;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
@@ -58,7 +59,7 @@ public class TransactionService implements ITransactionService {
     private final IReceiptGetPDFClient receiptClient;
     private final IReceiptGeneratePDFClient generateReceiptClient;
     private final IBizEventsService bizEventsService;
-    private final CacheConfig cacheConfig;
+    private final CacheService cacheService;
 
     @Autowired
     public TransactionService(
@@ -68,14 +69,14 @@ public class TransactionService implements ITransactionService {
             IReceiptGetPDFClient receiptClient,
             IReceiptGeneratePDFClient generateReceiptClient,
             IBizEventsService bizEventsService,
-            CacheConfig cacheConfig){
+            CacheService cacheService){
         this.bizEventsViewGeneralRepository = bizEventsViewGeneralRepository;
         this.bizEventsViewCartRepository = bizEventsViewCartRepository;
         this.bizEventsViewUserRepository = bizEventsViewUserRepository;
         this.receiptClient = receiptClient;
         this.generateReceiptClient = generateReceiptClient;
         this.bizEventsService = bizEventsService;
-        this.cacheConfig = cacheConfig;
+        this.cacheService = cacheService;
     }
 
     @Cacheable(value = "noticeList")
@@ -218,7 +219,7 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public void disablePaidNotice(String fiscalCode, String transactionId) {
-        cacheConfig.evictNoticeListByTaxCode(fiscalCode);
+        cacheService.evictNoticeListByTaxCode(fiscalCode);
 
         List<BizEventsViewUser> listOfViewUser;
 
