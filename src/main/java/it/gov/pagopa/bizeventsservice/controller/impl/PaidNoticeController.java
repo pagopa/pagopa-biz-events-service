@@ -1,12 +1,10 @@
 package it.gov.pagopa.bizeventsservice.controller.impl;
 
 import it.gov.pagopa.bizeventsservice.controller.IPaidNoticeController;
-import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListWrapResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
-import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -27,12 +25,10 @@ import static it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDet
 public class PaidNoticeController implements IPaidNoticeController {
 
     private final ITransactionService transactionService;
-    private final IBizEventsService bizEventsService;
 
     @Autowired
-    public PaidNoticeController(ITransactionService transactionService, IBizEventsService bizEventsService) {
+    public PaidNoticeController(ITransactionService transactionService) {
         this.transactionService = transactionService;
-        this.bizEventsService = bizEventsService;
     }
 
     @Override
