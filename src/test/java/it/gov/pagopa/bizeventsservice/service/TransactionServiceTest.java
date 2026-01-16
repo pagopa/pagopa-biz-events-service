@@ -4,6 +4,7 @@ import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 import feign.FeignException;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
+import it.gov.pagopa.bizeventsservice.util.CacheService;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
@@ -19,7 +20,6 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
-import it.gov.pagopa.bizeventsservice.service.impl.BizEventsService;
 import it.gov.pagopa.bizeventsservice.service.impl.TransactionService;
 import it.gov.pagopa.bizeventsservice.util.ViewGenerator;
 import org.junit.jupiter.api.*;
@@ -75,6 +75,8 @@ public class TransactionServiceTest {
     private IReceiptGeneratePDFClient generateReceiptClient;
     @MockBean
     private IBizEventsService bizEventsService;
+    @MockBean
+    private CacheService cacheService;
 
     private TransactionService transactionService;
 
@@ -83,7 +85,7 @@ public class TransactionServiceTest {
     @BeforeEach
     void setUp() {
         transactionService = spy(new TransactionService(bizEventsViewGeneralRepository, bizEventsViewCartRepository, bizEventsViewUserRepository,
-                receiptClient, generateReceiptClient, bizEventsService));
+                receiptClient, generateReceiptClient, bizEventsService, cacheService));
         Attachment attachmentDetail = mock(Attachment.class);
         when(attachmentDetail.getName()).thenReturn("name.pdf");
         AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();

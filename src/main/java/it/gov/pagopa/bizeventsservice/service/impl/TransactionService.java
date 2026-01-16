@@ -22,6 +22,7 @@ import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRep
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
+import it.gov.pagopa.bizeventsservice.util.CacheService;
 import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,7 @@ public class TransactionService implements ITransactionService {
     private final IReceiptGetPDFClient receiptClient;
     private final IReceiptGeneratePDFClient generateReceiptClient;
     private final IBizEventsService bizEventsService;
+    private final CacheService cacheService;
 
     @Autowired
     public TransactionService(
@@ -64,17 +66,18 @@ public class TransactionService implements ITransactionService {
             BizEventsViewUserRepository bizEventsViewUserRepository,
             IReceiptGetPDFClient receiptClient,
             IReceiptGeneratePDFClient generateReceiptClient,
-            IBizEventsService bizEventsService
-    ) {
+            IBizEventsService bizEventsService,
+            CacheService cacheService) {
         this.bizEventsViewGeneralRepository = bizEventsViewGeneralRepository;
         this.bizEventsViewCartRepository = bizEventsViewCartRepository;
         this.bizEventsViewUserRepository = bizEventsViewUserRepository;
         this.receiptClient = receiptClient;
         this.generateReceiptClient = generateReceiptClient;
         this.bizEventsService = bizEventsService;
+        this.cacheService = cacheService;
     }
 
-    @Cacheable("noticeList")
+    @Cacheable(value = "noticeList")
     @Override
     public TransactionListResponse getTransactionList(
             String taxCode,
@@ -214,6 +217,7 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public void disablePaidNotice(String fiscalCode, String transactionId) {
+        cacheService.evictNoticeListByTaxCode(fiscalCode);
 
         List<BizEventsViewUser> listOfViewUser;
 
