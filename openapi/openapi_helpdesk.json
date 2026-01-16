@@ -19,6 +19,17 @@
         "description" : "Return OK if application is started",
         "operationId" : "healthCheck",
         "responses" : {
+          "401" : {
+            "description" : "Unauthorized",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
           "400" : {
             "description" : "Bad Request",
             "headers" : {
@@ -33,6 +44,35 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AppInfo"
+                }
+              }
+            }
+          },
+          "429" : {
+            "description" : "Too many requests",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
@@ -55,28 +95,6 @@
               }
             }
           },
-          "429" : {
-            "description" : "Too many requests",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
           "403" : {
             "description" : "Forbidden",
             "headers" : {
@@ -84,24 +102,6 @@
                 "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
-                }
-              }
-            }
-          },
-          "200" : {
-            "description" : "OK",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/AppInfo"
                 }
               }
             }
@@ -136,6 +136,24 @@
           }
         } ],
         "responses" : {
+          "404" : {
+            "description" : "Not found the biz-event.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
           "422" : {
             "description" : "Unable to process the request.",
             "headers" : {
@@ -172,6 +190,17 @@
               }
             }
           },
+          "401" : {
+            "description" : "Wrong or missing function key.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
           "500" : {
             "description" : "Service unavailable.",
             "headers" : {
@@ -190,17 +219,6 @@
               }
             }
           },
-          "401" : {
-            "description" : "Wrong or missing function key.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
           "429" : {
             "description" : "Too many requests.",
             "headers" : {
@@ -208,24 +226,6 @@
                 "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Not found the biz-event.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -268,6 +268,24 @@
           }
         } ],
         "responses" : {
+          "404" : {
+            "description" : "Not found the biz-event.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
           "422" : {
             "description" : "Unable to process the request.",
             "headers" : {
@@ -304,6 +322,17 @@
               }
             }
           },
+          "401" : {
+            "description" : "Wrong or missing function key.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
           "500" : {
             "description" : "Service unavailable.",
             "headers" : {
@@ -322,17 +351,6 @@
               }
             }
           },
-          "401" : {
-            "description" : "Wrong or missing function key.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            }
-          },
           "429" : {
             "description" : "Too many requests.",
             "headers" : {
@@ -340,24 +358,6 @@
                 "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "Not found the biz-event.",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             }

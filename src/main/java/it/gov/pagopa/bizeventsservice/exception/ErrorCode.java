@@ -1,56 +1,58 @@
 package it.gov.pagopa.bizeventsservice.exception;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@NoArgsConstructor
+@RequiredArgsConstructor
 public enum ErrorCode {
 
-    // biz event
-    BZ_404_001,
-    BZ_404_002,
-    BZ_404_003,
-    BZ_404_004,
+    // --- BIZ EVENT ---
+    BZ_404_001("BZ_404_001", "NOT FOUND", "biz event", "Biz Event not found with IUR and IUV"),
+    BZ_404_002("BZ_404_002", "NOT FOUND", "biz event", "Biz Event not found with IUR"),
+    BZ_404_003("BZ_404_003", "NOT FOUND", "biz event", "Biz Event not found with ID"),
+    BZ_404_004("BZ_404_004", "NOT FOUND", "biz event", "Biz Event not found with CF and IUV"),
+    BZ_422_001("BZ_422_001", "Unprocessable Entity", "biz event", "Multiple BizEvents found with IUR and IUV"),
+    BZ_422_002("BZ_422_002", "Unprocessable Entity", "biz event", "Multiple BizEvents found with CF and IUR"),
+    BZ_422_003("BZ_422_003", "Unprocessable Entity", "biz event", "Multiple BizEvents found with CF and IUV"),
 
-    BZ_422_001,
-    BZ_422_002,
-    BZ_422_003,
+    // --- GENERIC ---
+    GN_400_001("GN_400_001", "BAD REQUEST", "generic", "-"),
+    GN_400_002("GN_400_002", "BAD REQUEST", "generic", "Invalid input"),
+    GN_400_003("GN_400_003", "BAD REQUEST", "generic", "Invalid CF (Tax Code)"),
+    GN_400_004("GN_400_004", "BAD REQUEST", "generic", "Invalid input type"),
+    GN_400_005("GN_400_005", "BAD REQUEST", "generic", "Invalid input parameter constraints"),
+    GN_500_001("GN_500_001", "Internal Server Error", "generic", "Generic Error"),
+    GN_500_002("GN_500_002", "Internal Server Error", "generic", "Generic Error"),
+    GN_500_003("GN_500_003", "Internal Server Error", "generic", "Generic Error"),
+    GN_500_004("GN_500_004", "Internal Server Error", "generic", "Generic Error"),
 
-    // generic
-    GN_400_001,
-    GN_400_002,
-    GN_400_003,
-    GN_400_004,
-    GN_400_005,
+    // --- FEIGN CLIENT ---
+    FG_000_001("FG_000_001", "Variable", "feign client", "Error occurred during call to underlying services"),
 
-    GN_500_001,
-    GN_500_002,
-    GN_500_003,
-    GN_500_004,
+    // --- VIEW USER ---
+    VU_404_001("VU_404_001", "NOT FOUND", "view user", "View User not found with CF"),
+    VU_404_002("VU_404_002", "NOT FOUND", "view user", "View User not found with CF and filters"),
+    VU_404_003("VU_404_003", "NOT FOUND", "view user", "View User not found with ID"),
 
-    // feign client
-    FG_000_001,
+    // --- VIEW GENERAL ---
+    VG_404_001("VG_404_001", "NOT FOUND", "view general", "View General not found with ID"),
 
-    // view user
-    VU_404_001,
-    VU_404_002,
-    VU_404_003,
+    // --- VIEW CART ---
+    VC_404_001("VC_404_001", "NOT FOUND", "view cart", "View Cart not found with ID and CF"),
 
-    // view general
-    VG_404_001,
+    // --- ATTACHMENT ---
+    AT_404_001("AT_404_001", "NOT FOUND", "attachment", "Attachment not found"),
+    AT_404_002("AT_404_002", "NOT FOUND", "attachment", "Attachment not found because it is currently being generated"),
 
-    // view cart
-    VC_404_001,
+    // --- UNKNOWN ---
+    UN_500_000("UN_500_000", "Internal Server Error", "unknown", "Unexpected error"),
 
-    // attachment
-    AT_404_001,
-    AT_404_002,
+    TS_000_000("TS_000_000", "test", "test", "used for testing");
 
-    // unknown
-    UN_500_000,
-
-    // test
-    TS_000_000,
+    private final String code;
+    private final String group;
+    private final String domain;
+    private final String description;
 
 }
