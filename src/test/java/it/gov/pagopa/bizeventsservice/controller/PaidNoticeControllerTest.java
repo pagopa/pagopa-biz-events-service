@@ -4,7 +4,6 @@ package it.gov.pagopa.bizeventsservice.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
-import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.exception.ErrorCode;
@@ -13,7 +12,6 @@ import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
-import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.Utility;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,8 +34,14 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -60,9 +64,6 @@ public class PaidNoticeControllerTest {
     private static final String CONTINUATION_TOKEN_HEADER_KEY = "x-continuation-token";
     @Autowired
     private MockMvc mvc;
-
-    @MockBean
-    private IBizEventsService bizEventsService;
 
     @MockBean
     private IReceiptGetPDFClient receiptClient;
@@ -192,15 +193,12 @@ public class PaidNoticeControllerTest {
 
     @Test
     void getPDFReceipt_ShouldReturnOK() throws Exception {
-
-        BizEvent bizEvent = mock(BizEvent.class);
         ResponseEntity<Resource> response = mock(ResponseEntity.class);
         when(response.getStatusCode()).thenReturn(HttpStatus.OK);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "application/pdf");
         when(response.getHeaders()).thenReturn(headers);
         when(response.getStatusCodeValue()).thenReturn(200);
-        when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
         when(transactionService.getPDFReceiptResponse(anyString(), any())).thenReturn(response);
 
         mvc.perform(get(PAIDS_EVENT_ID_PDF_PATH)
