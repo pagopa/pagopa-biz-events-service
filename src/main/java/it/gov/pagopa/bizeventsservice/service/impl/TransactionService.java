@@ -4,6 +4,8 @@ import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 import feign.FeignException;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
+import it.gov.pagopa.bizeventsservice.config.CacheConfig;
+import it.gov.pagopa.bizeventsservice.config.CacheService;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
@@ -25,6 +27,7 @@ import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -56,6 +59,7 @@ public class TransactionService implements ITransactionService {
     private final IReceiptGetPDFClient receiptClient;
     private final IReceiptGeneratePDFClient generateReceiptClient;
     private final IBizEventsService bizEventsService;
+    private final CacheService cacheService;
 
     @Autowired
     public TransactionService(
@@ -64,17 +68,18 @@ public class TransactionService implements ITransactionService {
             BizEventsViewUserRepository bizEventsViewUserRepository,
             IReceiptGetPDFClient receiptClient,
             IReceiptGeneratePDFClient generateReceiptClient,
-            IBizEventsService bizEventsService
-    ) {
+            IBizEventsService bizEventsService,
+            CacheService cacheService){
         this.bizEventsViewGeneralRepository = bizEventsViewGeneralRepository;
         this.bizEventsViewCartRepository = bizEventsViewCartRepository;
         this.bizEventsViewUserRepository = bizEventsViewUserRepository;
         this.receiptClient = receiptClient;
         this.generateReceiptClient = generateReceiptClient;
         this.bizEventsService = bizEventsService;
+        this.cacheService = cacheService;
     }
 
-    @Cacheable("noticeList")
+    @Cacheable(value = "noticeList")
     @Override
     public TransactionListResponse getTransactionList(
             String taxCode,
@@ -214,6 +219,7 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public void disablePaidNotice(String fiscalCode, String transactionId) {
+        cacheService.evictNoticeListByTaxCode(fiscalCode);
 
         List<BizEventsViewUser> listOfViewUser;
 
