@@ -8,6 +8,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 
+import javax.validation.constraints.NotBlank;
+
 public interface ITransactionService {
 
     /**
@@ -26,9 +28,15 @@ public interface ITransactionService {
 
     byte[] getPDFReceipt(String fiscalCode, String eventId);
 
-    ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, String eventId);
+    ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId);
 
     void disableTransaction(String fiscalCode, String transactionId);
-    
+
+    /**
+     * This method disable a paid notice for the given fiscal code and event id
+     *
+     * @param fiscalCode the fiscal code
+     * @param eventId the event id
+     */
     void disablePaidNotice(String fiscalCode, String eventId);
 }

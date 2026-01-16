@@ -4,15 +4,14 @@ package it.gov.pagopa.bizeventsservice.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
-import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
+import it.gov.pagopa.bizeventsservice.exception.ErrorCode;
 import it.gov.pagopa.bizeventsservice.model.response.Attachment;
 import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
-import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.Utility;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,8 +34,14 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -61,9 +66,6 @@ public class PaidNoticeControllerTest {
     private MockMvc mvc;
 
     @MockBean
-    private IBizEventsService bizEventsService;
-
-    @MockBean
     private IReceiptGetPDFClient receiptClient;
 
     @MockBean
@@ -84,12 +86,12 @@ public class PaidNoticeControllerTest {
         NoticeDetailResponse noticeDetailResponse = Utility.readModelFromFile("biz-events/paidNoticeDetails.json", NoticeDetailResponse.class);
         when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyString(), anyInt(), any(), any())).thenReturn(transactionListResponse);
         when(transactionService.getPaidNoticeDetail(anyString(), anyString())).thenReturn(noticeDetailResponse);
-        when(transactionService.getPDFReceipt(anyString(), anyString())).thenReturn(receipt);
+        when(transactionService.getPDFReceipt(anyString(), any())).thenReturn(receipt);
         Attachment attachmentDetail = mock(Attachment.class);
         AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();
         when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
         when(receiptClient.getReceipt(anyString(), anyString(), any())).thenReturn(receipt);
-        when(generateReceiptClient.generateReceipt(anyString(), anyString(), any())).thenReturn("OK");
+        when(generateReceiptClient.generateReceipt(anyString())).thenReturn("OK");
     }
 
     @Test
@@ -191,16 +193,13 @@ public class PaidNoticeControllerTest {
 
     @Test
     void getPDFReceipt_ShouldReturnOK() throws Exception {
-
-        BizEvent bizEvent = mock(BizEvent.class);
         ResponseEntity<Resource> response = mock(ResponseEntity.class);
         when(response.getStatusCode()).thenReturn(HttpStatus.OK);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "application/pdf");
         when(response.getHeaders()).thenReturn(headers);
         when(response.getStatusCodeValue()).thenReturn(200);
-        when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
-        when(transactionService.getPDFReceiptResponse(anyString(), anyString())).thenReturn(response);
+        when(transactionService.getPDFReceiptResponse(anyString(), any())).thenReturn(response);
 
         mvc.perform(get(PAIDS_EVENT_ID_PDF_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
@@ -209,14 +208,13 @@ public class PaidNoticeControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_PDF))
                 .andReturn();
 
-        verify(bizEventsService).getBizEvent("event-id");
         verify(transactionService).getPDFReceiptResponse(VALID_FISCAL_CODE, "event-id");
     }
 
     @Test
     void getPDFReceiptForOldPMEvent_ShouldReturnNOTFOUND() throws Exception {
-        AppException ex = new AppException(HttpStatus.NOT_FOUND, "mock", "mock");
-        when(bizEventsService.getBizEvent(anyString())).thenThrow(ex);
+        AppException ex = new AppException(HttpStatus.NOT_FOUND, ErrorCode.TS_000_000, "mock", "mock");
+        when(transactionService.getPDFReceiptResponse(anyString(), anyString())).thenThrow(ex);
 
         mvc.perform(get(PAIDS_EVENT_ID_PDF_PATH)
                         .header(FISCAL_CODE_HEADER_KEY, VALID_FISCAL_CODE)
@@ -225,7 +223,7 @@ public class PaidNoticeControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
 
-        verify(bizEventsService).getBizEvent("event-id");
+        verify(transactionService).getPDFReceiptResponse(VALID_FISCAL_CODE, "event-id");
     }
 
 }

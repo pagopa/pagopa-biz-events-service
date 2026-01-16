@@ -63,5 +63,4 @@ public interface BizEventsRepository extends CosmosRepository<BizEvent, String> 
             @Param("transactionToRecover") String transactionToRecover
     );
 
-
 }

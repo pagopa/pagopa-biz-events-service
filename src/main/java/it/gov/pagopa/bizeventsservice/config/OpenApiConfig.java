@@ -13,6 +13,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.servers.ServerVariable;
 import io.swagger.v3.oas.models.servers.ServerVariables;
+import it.gov.pagopa.bizeventsservice.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.GroupedOpenApi;
 import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
@@ -53,6 +54,30 @@ public class OpenApiConfig {
             @Value("${info.application.description}") String appDescription,
             @Value("${info.application.version}") String appVersion
     ) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(appDescription).append("""
+                
+                ### APP ERROR CODES ###
+              
+                
+                <details><summary>Details</summary>
+                
+                | Code | Group | Domain | Description |
+                | ---- | ----- | ------ | ----------- |
+                """);
+        for (ErrorCode errorCode : ErrorCode.values()) {
+            stringBuilder
+                    .append("| **")
+                    .append(errorCode.getCode())
+                    .append("** | *")
+                    .append(errorCode.getGroup())
+                    .append("* | ")
+                    .append(errorCode.getDomain())
+                    .append(" | ")
+                    .append(errorCode.getDescription())
+                    .append(" |\n");
+        }
+        stringBuilder.append("</details>");
         return new OpenAPI()
                 .servers(List.of(new Server().url(LOCAL_PATH),
                         new Server().url("{host}{basePath}")
@@ -73,7 +98,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title(appName)
                         .version(appVersion)
-                        .description(appDescription)
+                        .description(stringBuilder.toString())
                         .termsOfService("https://www.pagopa.gov.it/"));
     }
 

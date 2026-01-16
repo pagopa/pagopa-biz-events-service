@@ -4,6 +4,7 @@ import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 import feign.FeignException;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
+import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
@@ -19,7 +20,11 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
+import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
+import it.gov.pagopa.bizeventsservice.util.CacheService;
+import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
@@ -34,11 +39,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.validation.constraints.NotBlank;
+import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.function.Function;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import static it.gov.pagopa.bizeventsservice.util.TransactionIdFactory.isCart;
+
 @Service
+@Slf4j
 public class TransactionService implements ITransactionService {
 
     private final BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
@@ -46,6 +56,8 @@ public class TransactionService implements ITransactionService {
     private final BizEventsViewUserRepository bizEventsViewUserRepository;
     private final IReceiptGetPDFClient receiptClient;
     private final IReceiptGeneratePDFClient generateReceiptClient;
+    private final IBizEventsService bizEventsService;
+    private final CacheService cacheService;
 
     @Autowired
     public TransactionService(
@@ -53,16 +65,19 @@ public class TransactionService implements ITransactionService {
             BizEventsViewCartRepository bizEventsViewCartRepository,
             BizEventsViewUserRepository bizEventsViewUserRepository,
             IReceiptGetPDFClient receiptClient,
-            IReceiptGeneratePDFClient generateReceiptClient
-    ) {
+            IReceiptGeneratePDFClient generateReceiptClient,
+            IBizEventsService bizEventsService,
+            CacheService cacheService) {
         this.bizEventsViewGeneralRepository = bizEventsViewGeneralRepository;
         this.bizEventsViewCartRepository = bizEventsViewCartRepository;
         this.bizEventsViewUserRepository = bizEventsViewUserRepository;
         this.receiptClient = receiptClient;
         this.generateReceiptClient = generateReceiptClient;
+        this.bizEventsService = bizEventsService;
+        this.cacheService = cacheService;
     }
 
-    @Cacheable("noticeList")
+    @Cacheable(value = "noticeList")
     @Override
     public TransactionListResponse getTransactionList(
             String taxCode,
@@ -87,15 +102,10 @@ public class TransactionService implements ITransactionService {
                     .build();
         }
 
-        Map<String, BizEventsViewUser> viewUserGrouped = listOfViewUser.stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.toMap(
-                        BizEventsViewUser::getTransactionId,
-                        Function.identity(),
-                        (u1, u2) -> u1,
-                        LinkedHashMap::new
-                ));
-        List<BizEventsViewCart> bizEventsViewCart = this.bizEventsViewCartRepository.findByTransactionIdIn(viewUserGrouped.keySet());
+        Set<String> uniqueTransactionIds = listOfViewUser.stream()
+                .map(BizEventsViewUser::getTransactionId)
+                .collect(Collectors.toSet());
+        List<BizEventsViewCart> bizEventsViewCart = this.bizEventsViewCartRepository.findByTransactionIdIn(uniqueTransactionIds);
 
         if (bizEventsViewCart.isEmpty()) {
             return TransactionListResponse.builder()
@@ -104,24 +114,34 @@ public class TransactionService implements ITransactionService {
                     .build();
         }
 
-        Map<String, List<BizEventsViewCart>> viewCartGrouped = bizEventsViewCart.stream()
-                .collect(Collectors.groupingBy(BizEventsViewCart::getTransactionId));
+        Map<String, Boolean> viewCartsGroupedByTrxId = bizEventsViewCart.stream()
+                .collect(Collectors.toMap(
+                        BizEventsViewCart::getTransactionId,
+                        firstOccurrence -> false,
+                        (existingOccurrence, newOccurrence) -> true
+                ));
 
-        for (BizEventsViewUser viewUser : viewUserGrouped.values()) {
-            List<BizEventsViewCart> viewCarts = viewCartGrouped.get(viewUser.getTransactionId());
+        for (BizEventsViewUser viewUser : listOfViewUser) {
 
-            if (viewCarts != null && !viewCarts.isEmpty()) {
-                boolean isCart = viewCarts.size() > 1;
-                for (BizEventsViewCart viewCart : viewCarts) {
-                    TransactionListItem transactionListItem =
-                            ConvertViewsToTransactionDetailResponse
-                                    .convertTransactionListItem(
-                                            viewUser,
-                                            viewCart,
-                                            isCart
-                                    );
-                    listOfTransactionListItem.add(transactionListItem);
-                }
+            // Removing "-d" or "-p" suffix
+            final String viewUserIdPrefix = viewUser.getId().substring(0, viewUser.getId().length() - 2);
+
+            Optional<BizEventsViewCart> viewCartAssociatedToViewUser = bizEventsViewCart.stream()
+                    .filter(cart -> viewUserIdPrefix.equals(cart.getId()))
+                    .findFirst();
+            if (viewCartAssociatedToViewUser.isPresent()) {
+
+                boolean isCart = viewCartsGroupedByTrxId.getOrDefault(viewUser.getTransactionId(), false);
+
+                BizEventsViewCart viewCart = viewCartAssociatedToViewUser.get();
+                TransactionListItem transactionListItem =
+                        ConvertViewsToTransactionDetailResponse
+                                .convertTransactionListItem(
+                                        viewUser,
+                                        viewCart,
+                                        isCart
+                                );
+                listOfTransactionListItem.add(transactionListItem);
             }
         }
 
@@ -136,6 +156,7 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public TransactionDetailResponse getTransactionDetails(String taxCode, String eventReference) {
+
         List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(eventReference);
         if (bizEventsViewGeneral.isEmpty()) {
             throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_ID, eventReference);
@@ -157,16 +178,25 @@ public class TransactionService implements ITransactionService {
     @Cacheable("noticeDetails")
     @Override
     public NoticeDetailResponse getPaidNoticeDetail(String taxCode, String transactionId) {
-        List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(transactionId);
+
+        // Split passed transaction ID made as <viewUser.transactionId>_CART_<viewCart.id
+        TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(transactionId);
+        String extractedTransactionId = viewTransactionId.transactionId();
+        String extractedViewCartId = viewTransactionId.eventId();
+
+        List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(extractedTransactionId);
         if (bizEventsViewGeneral.isEmpty()) {
             throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_ID, transactionId);
         }
 
         List<BizEventsViewCart> listOfCartViews;
-        if (bizEventsViewGeneral.get(0).getPayer() != null && bizEventsViewGeneral.get(0).getPayer().getTaxCode().equals(taxCode)) {
-            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(transactionId);
+
+        boolean isPayer = bizEventsViewGeneral.get(0).getPayer() != null && taxCode.equals(bizEventsViewGeneral.get(0).getPayer().getTaxCode());
+        boolean isCart = isCart(transactionId);
+        if (isCart && !isPayer) {
+            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndIdAndFilteredByTaxCode(extractedTransactionId, extractedViewCartId, taxCode);
         } else {
-            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(transactionId, taxCode);
+            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(extractedTransactionId);
         }
         if (listOfCartViews.isEmpty()) {
             throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE, transactionId);
@@ -182,21 +212,42 @@ public class TransactionService implements ITransactionService {
         List<BizEventsViewUser> listOfViewUser = this.bizEventsViewUserRepository
                 .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
 
-        if (CollectionUtils.isEmpty(listOfViewUser)) {
-            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_ID, fiscalCode, transactionId);
-        }
-
-        // PAGOPA-1831: set hidden to true for all transactions with the same transactionId for the given fiscalCode
-        listOfViewUser.forEach(u -> u.setHidden(true));
-        bizEventsViewUserRepository.saveAll(listOfViewUser);
+        setHiddenAndSave(fiscalCode, transactionId, listOfViewUser);
     }
 
     @Override
     public void disablePaidNotice(String fiscalCode, String transactionId) {
+        cacheService.evictNoticeListByTaxCode(fiscalCode);
 
-        List<BizEventsViewUser> listOfViewUser = this.bizEventsViewUserRepository
-                .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
+        List<BizEventsViewUser> listOfViewUser;
 
+        TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(transactionId);
+        String transaction = viewTransactionId.transactionId();
+        boolean isDebtor = viewTransactionId.eventId() != null;
+
+        // if the transactionId contains _CART_ it means that it's a cart transaction
+        if (isCart(transactionId) && isDebtor) {
+            // if there is something after _CART_ it means that we have to filter also by eventId for debtor
+            listOfViewUser = this.bizEventsViewUserRepository
+                    .findByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, viewTransactionId.eventId());
+        } else {
+            // single paid notice transaction
+            listOfViewUser = this.bizEventsViewUserRepository
+                    .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transaction);
+        }
+
+        // set hidden to true and save
+        setHiddenAndSave(fiscalCode, transactionId, listOfViewUser);
+    }
+
+    /**
+     * This method sets the 'hidden' attribute to true for all BizEventsViewUser entities in the provided list
+     *
+     * @param fiscalCode     the user fiscal code
+     * @param transactionId  the transaction id
+     * @param listOfViewUser the list of BizEventsViewUser Entities to be updated
+     */
+    private void setHiddenAndSave(String fiscalCode, String transactionId, List<BizEventsViewUser> listOfViewUser) {
         if (CollectionUtils.isEmpty(listOfViewUser)) {
             throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_ID, fiscalCode, transactionId);
         }
@@ -208,12 +259,17 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public byte[] getPDFReceipt(String fiscalCode, String eventId) {
-        return this.acquirePDFReceipt(fiscalCode, eventId);
+        // to check if is an OLD event present only on the PM --> the receipt is not available for events present exclusively on the PM
+        BizEvent bizEvent = bizEventsService.getBizEvent(eventId);
+        return this.acquirePDFReceipt(fiscalCode, eventId, bizEvent);
     }
 
     @Override
-    public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, String eventId) {
-        var attachmentDetails = getAttachmentDetails(fiscalCode, eventId);
+    public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId) {
+
+        BizEvent event = bizEventsService.getBizEvent(eventId);
+
+        var attachmentDetails = getAttachmentDetails(fiscalCode, eventId, event, isCart(eventId));
         var name = attachmentDetails.getAttachments().get(0).getName();
         var url = attachmentDetails.getAttachments().get(0).getUrl();
         var receiptFile = getAttachmentFile(fiscalCode, eventId, url);
@@ -226,26 +282,49 @@ public class TransactionService implements ITransactionService {
                 .body(new ByteArrayResource(receiptFile));
     }
 
-    private byte[] acquirePDFReceipt(String fiscalCode, String eventId) {
-        String url = getAttachmentDetails(fiscalCode, eventId).getAttachments().get(0).getUrl();
+    private byte[] acquirePDFReceipt(String fiscalCode, String eventId, BizEvent bizEvent) {
+        String url = getAttachmentDetails(fiscalCode, eventId, bizEvent, false).getAttachments().get(0).getUrl();
         return this.getAttachmentFile(fiscalCode, eventId, url);
     }
 
-    private AttachmentsDetailsResponse getAttachmentDetails(String fiscalCode, String eventId) {
+    private AttachmentsDetailsResponse getAttachmentDetails(String fiscalCode, String eventId, BizEvent event, boolean isCart) {
         try {
             // call the receipt-pdf-service to retrieve the PDF receipt details
             return receiptClient.getAttachments(fiscalCode, eventId);
         } catch (FeignException.NotFound e) {
-            generateReceiptClient.generateReceipt(eventId, "false", "{}");
-            return receiptClient.getAttachments(fiscalCode, eventId);
+            if (event.getTs().isAfter(OffsetDateTime.now().minusMinutes(30))) {
+                throw new AppException(AppError.ATTACHMENT_NOT_FOUND, fiscalCode, eventId);
+            }
+
+            asyncRegenerate(eventId, isCart);
+            throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, eventId);
+
         } catch (FeignException.InternalServerError e) {
             String responseBody = e.contentUTF8();
             if (responseBody != null && responseBody.contains("PDFS_700")) {
-                generateReceiptClient.generateReceipt(eventId, "false", "{}");
-                return receiptClient.getAttachments(fiscalCode, eventId);
+                asyncRegenerate(eventId, isCart);
+                throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, eventId);
             } else {
                 throw e; // rethrow the exception if this is not the expected case
             }
+        }
+    }
+
+    private void asyncRegenerate(String eventId, boolean isCart) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                regeneratePdf(eventId, isCart);
+            } catch (Exception ex) {
+                log.error("Error during the generation of the receipt", ex);
+            }
+        });
+    }
+
+    private void regeneratePdf(String event, boolean isCart) {
+        if (isCart) {
+            generateReceiptClient.generateReceiptCart(event);
+        } else {
+            generateReceiptClient.generateReceipt(event);
         }
     }
 
@@ -255,7 +334,7 @@ public class TransactionService implements ITransactionService {
             return receiptClient.getReceipt(fiscalCode, eventId, url);
         } catch (FeignException.NotFound e) {
             // re-generate the PDF receipt and return the generated file by getReceipt call
-            generateReceiptClient.generateReceipt(eventId, "false", "{}");
+            asyncRegenerate(eventId, isCart(eventId));
             return receiptClient.getReceipt(fiscalCode, eventId, url);
         }
     }
@@ -266,7 +345,7 @@ public class TransactionService implements ITransactionService {
             TransactionListOrder orderBy,
             Direction ordering
     ) {
-        String columnName = Optional.ofNullable(orderBy).map(o -> o.getColumnName()).orElse("transactionDate");
+        String columnName = Optional.ofNullable(orderBy).map(TransactionListOrder::getColumnName).orElse("transactionDate");
         String direction = Optional.ofNullable(ordering).map(Enum::name).orElse(Direction.DESC.name());
 
         final Sort sort = Sort.by(Direction.fromString(direction), columnName);
