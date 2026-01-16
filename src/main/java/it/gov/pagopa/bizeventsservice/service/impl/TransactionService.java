@@ -4,8 +4,6 @@ import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 import feign.FeignException;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
-import it.gov.pagopa.bizeventsservice.config.CacheConfig;
-import it.gov.pagopa.bizeventsservice.config.CacheService;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
@@ -24,10 +22,10 @@ import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRep
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
+import it.gov.pagopa.bizeventsservice.util.CacheService;
 import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -69,7 +67,7 @@ public class TransactionService implements ITransactionService {
             IReceiptGetPDFClient receiptClient,
             IReceiptGeneratePDFClient generateReceiptClient,
             IBizEventsService bizEventsService,
-            CacheService cacheService){
+            CacheService cacheService) {
         this.bizEventsViewGeneralRepository = bizEventsViewGeneralRepository;
         this.bizEventsViewCartRepository = bizEventsViewCartRepository;
         this.bizEventsViewUserRepository = bizEventsViewUserRepository;

@@ -1,4 +1,4 @@
-package it.gov.pagopa.bizeventsservice.config;
+package it.gov.pagopa.bizeventsservice.util;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCache;

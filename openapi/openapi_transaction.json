@@ -592,24 +592,6 @@
               }
             }
           },
-          "200" : {
-            "description" : "OK",
-            "headers" : {
-              "X-Request-Id" : {
-                "description" : "This header identifies the call",
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/AppInfo"
-                }
-              }
-            }
-          },
           "401" : {
             "description" : "Unauthorized",
             "headers" : {
@@ -628,6 +610,24 @@
                 "description" : "This header identifies the call",
                 "schema" : {
                   "type" : "string"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AppInfo"
                 }
               }
             }
