@@ -672,9 +672,8 @@ public class TransactionServiceTest {
 
     @Test
     void getPDFReceiptResponseOK() {
-
         BizEvent bizEvent = BizEvent.builder().id("event-id").build();
-        when(bizEventsService.getBizEvent(anyString())).thenReturn(bizEvent);
+        when(bizEventsService.getBizEventFromLAPId(anyString())).thenReturn(bizEvent);
 
         var res = Assertions.assertDoesNotThrow(() ->
                 transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, "event-id"));

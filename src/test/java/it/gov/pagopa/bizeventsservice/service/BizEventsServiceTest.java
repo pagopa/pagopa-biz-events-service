@@ -139,40 +139,40 @@ class BizEventsServiceTest {
     }
 
     @Test
-    void getBizEventSuccess() {
+    void getBizEventFromLAPIdSuccess() {
         when(bizEventsPrimaryRepository.findById(BIZ_EVENT_ID, new PartitionKey(BIZ_EVENT_ID)))
                 .thenReturn(Optional.of(bizEventEntity));
 
-        BizEvent bizEvent = bizEventsService.getBizEvent(BIZ_EVENT_ID);
+        BizEvent bizEvent = bizEventsService.getBizEventFromLAPId(BIZ_EVENT_ID);
         assertEquals(bizEvent, bizEventEntity);
     }
 
     @Test
-    void getBizEventFailNotFound() {
+    void getBizEventFromLAPIdFailNotFound() {
         when(bizEventsRepository.findById("fake id", new PartitionKey("fake id")))
                 .thenReturn(Optional.empty());
 
-        AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEvent("fake id"));
+        AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEventFromLAPId("fake id"));
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
 
 
     @Test
-    void getBizEventFailNotFoundCartPayer() {
+    void getBizEventFromLAPIdFailNotFoundCartPayer() {
         when(bizEventsRepository.findById("fake id", new PartitionKey("fake id")))
                 .thenReturn(Optional.empty());
 
-        AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEvent("id_CART_"));
+        AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEventFromLAPId("id_CART_"));
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
 
 
     @Test
-    void getBizEventFailNotFoundCartDebtor() {
+    void getBizEventFromLAPIdFailNotFoundCartDebtor() {
         when(bizEventsRepository.findById("bizeventid", new PartitionKey("bizeventid")))
                 .thenReturn(Optional.empty());
 
-        AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEvent("cartid_CART_bizeventid"));
+        AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEventFromLAPId("cartid_CART_bizeventid"));
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
 
