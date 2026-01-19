@@ -52,6 +52,17 @@ public class BizEventsService implements IBizEventsService {
 
     @Override
     public BizEvent getBizEvent(String id) {
+        // get biz event
+        Optional<BizEvent> optionalBizEvent = bizEventsRepository.findById(id, new PartitionKey(id));
+
+        if (optionalBizEvent.isEmpty()) {
+            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND_WITH_ID, id);
+        }
+        return optionalBizEvent.get();
+    }
+
+    @Override
+    public BizEvent getBizEvent(String id) {
         Optional<BizEvent> optionalBizEvent;
 
         TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(id);
