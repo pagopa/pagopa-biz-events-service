@@ -17,27 +17,3 @@ overrides:
   endpoints:
     GET /info:
       availability_threshold: 0.90 # Default: 99%
-    GET /paids:
-      response_time_threshold: 9 # Default: 1
-      availability_threshold: 0.80 # Default: 99%
-    GET /paids/{event-id}:
-      response_time_threshold: 9 # Default: 1
-      availability_threshold: 0.80 # Default: 99%
-    POST /paids/{event-id}/disable:
-      response_time_threshold: 9 # Default: 1
-      availability_threshold: 0.80 # Default: 99%
-    GET /paids/{event-id}/pdf:
-      response_time_threshold: 9 # Default: 1
-      availability_threshold: 0.80 # Default: 99%
-    GET /transactions:
-      response_time_threshold: 9 # Default: 1
-      availability_threshold: 0.80 # Default: 99%
-    GET /transactions/{event-id}/pdf:
-      response_time_threshold: 9 # Default: 1
-      availability_threshold: 0.80 # Default: 99%
-    GET /transactions/{transaction-id}:
-      response_time_threshold: 9 # Default: 1
-      availability_threshold: 0.80 # Default: 99%
-    POST /transactions/{transaction-id}/disable:
-      response_time_threshold: 9 # Default: 1
-      availability_threshold: 0.80 # Default: 99%
