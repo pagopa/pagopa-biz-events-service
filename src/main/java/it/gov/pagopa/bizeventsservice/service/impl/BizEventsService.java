@@ -52,18 +52,34 @@ public class BizEventsService implements IBizEventsService {
 
     @Override
     public BizEvent getBizEvent(String id) {
+        // get biz event
+        Optional<BizEvent> optionalBizEvent = bizEventsRepository.findById(id, new PartitionKey(id));
+
+        if (optionalBizEvent.isEmpty()) {
+            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND_WITH_ID, id);
+        }
+        return optionalBizEvent.get();
+    }
+
+    @Override
+    public BizEvent getBizEventFromLAPId(String id) {
         Optional<BizEvent> optionalBizEvent;
 
-        TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(id);
-        String cartId = viewTransactionId.transactionId();
-        boolean isPayer = viewTransactionId.eventId() == null;
-
-        if (TransactionIdFactory.isCart(id) && isPayer) {
-            // if it's a payer cart biz event, get by cart id because biz event id is not available
-            optionalBizEvent = bizEventsPrimaryRepository.findByCartId(cartId).stream().findFirst();
+        if (TransactionIdFactory.isCart(id)) {
+            TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(id);
+            String cartId = viewTransactionId.transactionId();
+            String eventId = viewTransactionId.eventId();
+            boolean isPayer = eventId == null;
+            if (isPayer) {
+                // if it's a payer cart biz event, get by cart id because biz event id is not available
+                optionalBizEvent = this.bizEventsPrimaryRepository.findByCartId(cartId).stream().findFirst();
+            } else {
+                // is a debtor cart biz event, so get biz event by id
+                optionalBizEvent = this.bizEventsPrimaryRepository.findById(eventId, new PartitionKey(eventId));
+            }
         } else {
-            // is a single payment or a debtor cart biz event, so get biz event by id
-            optionalBizEvent = bizEventsPrimaryRepository.findById(id, new PartitionKey(id));
+            // is a single payment
+            optionalBizEvent = this.bizEventsPrimaryRepository.findById(id, new PartitionKey(id));
         }
 
         if (optionalBizEvent.isEmpty()) {

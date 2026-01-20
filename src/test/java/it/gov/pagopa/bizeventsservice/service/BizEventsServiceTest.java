@@ -51,7 +51,7 @@ class BizEventsServiceTest {
     private BizEvent bizEventEntityDuplicated;
 
     @BeforeAll
-    public void beforeAll() throws IOException {
+    void beforeAll() throws IOException {
         bizEventEntity = Utility.readModelFromFile("biz-events/bizEvent.json", BizEvent.class);
         bizEventEntityDuplicated = Utility.readModelFromFile("biz-events/bizEvent_duplicate.json", BizEvent.class);
     }
@@ -73,7 +73,7 @@ class BizEventsServiceTest {
     }
 
     @Test
-    void getOrganizationReceiptIuvIur_404() throws IOException {
+    void getOrganizationReceiptIuvIur_404() {
         when(bizEventsRepository.getBizEventByOrgFiscCodeIuvAndIur(ORGANIZATION_FISCAL_CODE, IUR, IUV))
                 .thenReturn(List.of(bizEventEntity));
 
@@ -82,7 +82,7 @@ class BizEventsServiceTest {
     }
 
     @Test
-    void getOrganizationReceiptIuvIur_422() throws IOException {
+    void getOrganizationReceiptIuvIur_422() {
         // mocking a fake save for duplicated entity
         when(bizEventsRepository.getBizEventByOrgFiscCodeIuvAndIur(ORGANIZATION_FISCAL_CODE, IUR, IUV))
                 .thenReturn(List.of(bizEventEntity, bizEventEntityDuplicated));
@@ -102,7 +102,7 @@ class BizEventsServiceTest {
     }
 
     @Test
-    void getOrganizationReceiptIur_404() throws IOException {
+    void getOrganizationReceiptIur_404() {
         when(bizEventsRepository.getBizEventByOrgFiscCodeAndIur(ORGANIZATION_FISCAL_CODE, IUR))
                 .thenReturn(List.of(bizEventEntity));
 
@@ -111,7 +111,7 @@ class BizEventsServiceTest {
     }
 
     @Test
-    void getOrganizationReceiptIur_422() throws IOException {
+    void getOrganizationReceiptIur_422() {
         // mocking a fake save for duplicated entity
         when(bizEventsRepository.getBizEventByOrgFiscCodeAndIur(ORGANIZATION_FISCAL_CODE, IUR))
                 .thenReturn(List.of(bizEventEntity, bizEventEntityDuplicated));
@@ -122,7 +122,7 @@ class BizEventsServiceTest {
 
     @Test
     void getBizEventSuccess() {
-        when(bizEventsPrimaryRepository.findById(BIZ_EVENT_ID, new PartitionKey(BIZ_EVENT_ID)))
+        when(bizEventsRepository.findById(BIZ_EVENT_ID, new PartitionKey(BIZ_EVENT_ID)))
                 .thenReturn(Optional.of(bizEventEntity));
 
         BizEvent bizEvent = bizEventsService.getBizEvent(BIZ_EVENT_ID);
@@ -138,23 +138,41 @@ class BizEventsServiceTest {
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
 
+    @Test
+    void getBizEventFromLAPIdSuccess() {
+        when(bizEventsPrimaryRepository.findById(BIZ_EVENT_ID, new PartitionKey(BIZ_EVENT_ID)))
+                .thenReturn(Optional.of(bizEventEntity));
+
+        BizEvent bizEvent = bizEventsService.getBizEventFromLAPId(BIZ_EVENT_ID);
+        assertEquals(bizEvent, bizEventEntity);
+    }
 
     @Test
-    void getBizEventFailNotFoundCartPayer() {
+    void getBizEventFromLAPIdFailNotFound() {
         when(bizEventsRepository.findById("fake id", new PartitionKey("fake id")))
                 .thenReturn(Optional.empty());
 
-        AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEvent("id_CART_"));
+        AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEventFromLAPId("fake id"));
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
 
 
     @Test
-    void getBizEventFailNotFoundCartDebtor() {
+    void getBizEventFromLAPIdFailNotFoundCartPayer() {
+        when(bizEventsRepository.findById("fake id", new PartitionKey("fake id")))
+                .thenReturn(Optional.empty());
+
+        AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEventFromLAPId("id_CART_"));
+        assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
+    }
+
+
+    @Test
+    void getBizEventFromLAPIdFailNotFoundCartDebtor() {
         when(bizEventsRepository.findById("bizeventid", new PartitionKey("bizeventid")))
                 .thenReturn(Optional.empty());
 
-        AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEvent("cartid_CART_bizeventid"));
+        AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEventFromLAPId("cartid_CART_bizeventid"));
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
 

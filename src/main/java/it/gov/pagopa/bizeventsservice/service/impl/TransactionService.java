@@ -266,8 +266,7 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId) {
-
-        BizEvent event = bizEventsService.getBizEvent(eventId);
+        BizEvent event = this.bizEventsService.getBizEventFromLAPId(eventId);
 
         var attachmentDetails = getAttachmentDetails(fiscalCode, eventId, event, isCart(eventId));
         var name = attachmentDetails.getAttachments().get(0).getName();
