@@ -95,7 +95,7 @@ export default function(data) {
 	console.log(`GetTransactionDetails... [status: ${response.status}, transaction-id: ${idToRecover}]`);
 
 	check(response, {"GetTransactionDetails status is 200": (res) => (res.status === 200)}, tag);
-	check(response, {"GetTransactionDetails transactionId is as expected": (res) => (JSON.parse(res.body).infoTransaction.transactionId == idToRecover)}, tag);
+	check(response, {"GetTransactionDetails transactionId is as expected": (res) => (JSON.parse(res.body).infoNotice.eventId == idToRecover)}, tag);
 
 }
 

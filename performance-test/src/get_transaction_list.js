@@ -94,7 +94,7 @@ export default function(data) {
 	console.log(`GetTransactionList... [status: ${response.status}, size: ${JSON.parse(response.body).transactions.length}]`);
 
 	check(response, {"GetTransactionList status is 200": (res) => (res.status === 200)}, tag);
-	check(response, {"GetTransactionList size is as expected": (res) => (JSON.parse(res.body).transactions.length <= size)}, tag);
+	check(response, {"GetTransactionList size is as expected": (res) => (JSON.parse(res.body).notices.length <= size)}, tag);
 
 }
 
