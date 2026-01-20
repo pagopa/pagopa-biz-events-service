@@ -29,7 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -75,7 +75,7 @@ public class PaidNoticeControllerTest {
     private ITransactionService transactionService;
 
 
-    private byte[] receipt = {69, 121, 101, 45, 62, 118, 101, 114, (byte) 196, (byte) 195, 61, 101, 98};
+    private final byte[] receipt = {69, 121, 101, 45, 62, 118, 101, 114, (byte) 196, (byte) 195, 61, 101, 98};
 
     @BeforeEach
     void setUp() throws IOException {
@@ -86,9 +86,8 @@ public class PaidNoticeControllerTest {
         NoticeDetailResponse noticeDetailResponse = Utility.readModelFromFile("biz-events/paidNoticeDetails.json", NoticeDetailResponse.class);
         when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyString(), anyInt(), any(), any())).thenReturn(transactionListResponse);
         when(transactionService.getPaidNoticeDetail(anyString(), anyString())).thenReturn(noticeDetailResponse);
-        when(transactionService.getPDFReceipt(anyString(), any())).thenReturn(receipt);
         Attachment attachmentDetail = mock(Attachment.class);
-        AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Arrays.asList(attachmentDetail)).build();
+        AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Collections.singletonList(attachmentDetail)).build();
         when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
         when(receiptClient.getReceipt(anyString(), anyString(), any())).thenReturn(receipt);
         when(generateReceiptClient.generateReceipt(anyString())).thenReturn("OK");

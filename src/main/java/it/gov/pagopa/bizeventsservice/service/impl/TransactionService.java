@@ -14,7 +14,6 @@ import it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDetailResp
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartRepository;
@@ -41,7 +40,11 @@ import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotBlank;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -154,27 +157,6 @@ public class TransactionService implements ITransactionService {
                 .build();
     }
 
-    @Override
-    public TransactionDetailResponse getTransactionDetails(String taxCode, String eventReference) {
-
-        List<BizEventsViewGeneral> bizEventsViewGeneral = this.bizEventsViewGeneralRepository.findByTransactionId(eventReference);
-        if (bizEventsViewGeneral.isEmpty()) {
-            throw new AppException(AppError.VIEW_GENERAL_NOT_FOUND_WITH_ID, eventReference);
-        }
-
-        List<BizEventsViewCart> listOfCartViews;
-        if (bizEventsViewGeneral.get(0).getPayer() != null && bizEventsViewGeneral.get(0).getPayer().getTaxCode().equals(taxCode)) {
-            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(eventReference);
-        } else {
-            listOfCartViews = this.bizEventsViewCartRepository.getBizEventsViewCartByTransactionIdAndFilteredByTaxCode(eventReference, taxCode);
-        }
-        if (listOfCartViews.isEmpty()) {
-            throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE, eventReference);
-        }
-
-        return ConvertViewsToTransactionDetailResponse.convertTransactionDetails(taxCode, bizEventsViewGeneral.get(0), listOfCartViews);
-    }
-
     @Cacheable("noticeDetails")
     @Override
     public NoticeDetailResponse getPaidNoticeDetail(String taxCode, String transactionId) {
@@ -203,16 +185,6 @@ public class TransactionService implements ITransactionService {
         }
 
         return ConvertViewsToTransactionDetailResponse.convertPaidNoticeDetails(taxCode, bizEventsViewGeneral.get(0), listOfCartViews);
-    }
-
-
-    @Override
-    public void disableTransaction(String fiscalCode, String transactionId) {
-
-        List<BizEventsViewUser> listOfViewUser = this.bizEventsViewUserRepository
-                .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transactionId);
-
-        setHiddenAndSave(fiscalCode, transactionId, listOfViewUser);
     }
 
     @Override
@@ -258,13 +230,6 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public byte[] getPDFReceipt(String fiscalCode, String eventId) {
-        // to check if is an OLD event present only on the PM --> the receipt is not available for events present exclusively on the PM
-        BizEvent bizEvent = bizEventsService.getBizEvent(eventId);
-        return this.acquirePDFReceipt(fiscalCode, eventId, bizEvent);
-    }
-
-    @Override
     public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId) {
         BizEvent event = this.bizEventsService.getBizEventFromLAPId(eventId);
 
@@ -279,11 +244,6 @@ public class TransactionService implements ITransactionService {
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline().filename(Optional.ofNullable(name).orElse("Receipt.pdf")).build().toString())
                 .body(new ByteArrayResource(receiptFile));
-    }
-
-    private byte[] acquirePDFReceipt(String fiscalCode, String eventId, BizEvent bizEvent) {
-        String url = getAttachmentDetails(fiscalCode, eventId, bizEvent, false).getAttachments().get(0).getUrl();
-        return this.getAttachmentFile(fiscalCode, eventId, url);
     }
 
     private AttachmentsDetailsResponse getAttachmentDetails(String fiscalCode, String eventId, BizEvent event, boolean isCart) {

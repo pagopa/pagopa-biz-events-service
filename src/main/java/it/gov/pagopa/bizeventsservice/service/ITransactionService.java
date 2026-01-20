@@ -2,7 +2,6 @@ package it.gov.pagopa.bizeventsservice.service;
 
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
-import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort.Direction;
@@ -20,23 +19,25 @@ public interface ITransactionService {
      * @param size              offset size
      * @return transaction list
      */
-    TransactionListResponse getTransactionList(String fiscalCode, Boolean isPayer, Boolean isDebtor, String continuationToken, Integer size, TransactionListOrder orderBy, Direction ordering);
-
-    TransactionDetailResponse getTransactionDetails(String fiscalCode, String transactionId);
+    TransactionListResponse getTransactionList(
+            String fiscalCode,
+            Boolean isPayer,
+            Boolean isDebtor,
+            String continuationToken,
+            Integer size,
+            TransactionListOrder orderBy,
+            Direction ordering
+    );
 
     NoticeDetailResponse getPaidNoticeDetail(String fiscalCode, String eventId);
 
-    byte[] getPDFReceipt(String fiscalCode, String eventId);
-
     ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId);
-
-    void disableTransaction(String fiscalCode, String transactionId);
 
     /**
      * This method disable a paid notice for the given fiscal code and event id
      *
      * @param fiscalCode the fiscal code
-     * @param eventId the event id
+     * @param eventId    the event id
      */
     void disablePaidNotice(String fiscalCode, String eventId);
 }
