@@ -45,6 +45,7 @@ jobs:
           source venv/bin/activate
           git clone --branch fix-availability-dashboard https://github.com/pagopa/opex-dashboard
           cd opex-dashboard
+          git checkout 6c6b91d31133081d4b954e6be0a8f941e3559733
           pip install -e .
           cd ..
           source venv/bin/activate
