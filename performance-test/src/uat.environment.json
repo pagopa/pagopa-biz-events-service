@@ -3,7 +3,7 @@
     {
       "env": "uat",
       "bizEventServiceURI": "https://api.uat.platform.pagopa.it/bizevents/service/v1/",
-      "bizEventTrxURI": "https://api.uat.platform.pagopa.it/bizevents/tx-service/v1/",
+      "bizEventTrxURI": "https://api.uat.platform.pagopa.it/bizevents/notices-service/v1/",
       "cosmosDBURI": "https://pagopa-u-weu-bizevents-ds-cosmos-account.documents.azure.com:443/",
       "databaseID":"db",
       "containerID":"biz-events",
