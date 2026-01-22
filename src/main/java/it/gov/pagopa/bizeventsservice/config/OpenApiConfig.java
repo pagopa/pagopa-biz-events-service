@@ -56,12 +56,12 @@ public class OpenApiConfig {
     ) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(appDescription).append("""
-                
+                                
                 ### APP ERROR CODES ###
-              
-                
+                              
+                                
                 <details><summary>Details</summary>
-                
+                                
                 | Code | Group | Domain | Description |
                 | ---- | ----- | ------ | ----------- |
                 """);
@@ -131,11 +131,12 @@ public class OpenApiConfig {
                     .filter(Objects::nonNull)
                     .anyMatch(elem -> HEADER_REQUEST_ID.equals(elem.getName()));
             if (!header) {
-                value.addParametersItem(new Parameter().in("header")
+                // add Request-ID as request header
+                value.readOperations().forEach(operation -> operation.addParametersItem(new Parameter().in("header")
                         .name(HEADER_REQUEST_ID)
                         .schema(new StringSchema())
                         .description("This header identifies the call, if not passed it is self-generated. This ID is returned in the response.")
-                        .required(false));
+                        .required(false)));
             }
 
             // add Request-ID as response header
