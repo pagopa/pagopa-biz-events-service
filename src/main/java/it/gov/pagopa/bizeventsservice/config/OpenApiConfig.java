@@ -44,7 +44,7 @@ public class OpenApiConfig {
     public static final String APIM_UAT = "https://api.uat.platform.pagopa.it";
     public static final String APIM_PROD = "https://api.platform.pagopa.it";
     private static final String API_KEY_SECURITY_SCHEMA_KEY = "ApiKey";
-    private static final String JWT_SECURITY_SCHEMA_KEY = "JWT";
+    private static final String JWT_SECURITY_SCHEMA_KEY = "Authorization";
 
     @Bean
     OpenAPI customOpenAPI(
