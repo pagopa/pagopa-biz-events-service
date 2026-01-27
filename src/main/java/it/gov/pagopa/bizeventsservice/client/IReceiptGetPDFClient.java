@@ -3,6 +3,7 @@ package it.gov.pagopa.bizeventsservice.client;
 import feign.FeignException;
 import it.gov.pagopa.bizeventsservice.config.feign.PDFGetReceiptFeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,6 @@ public interface IReceiptGetPDFClient {
             maxAttemptsExpression = "${get.pdf.retry.maxAttempts}",
             backoff = @Backoff(delayExpression = "${get.pdf.retry.maxDelay}"))
     @GetMapping(value = "/messages/{third-party-id}/pdf")
-    byte[] getReceiptPdf(@PathVariable("third-party-id") String thirdPartyId, @RequestParam("fiscal_code") String fiscalCode);
+    ResponseEntity<byte[]> getReceiptPdf(@PathVariable("third-party-id") String thirdPartyId, @RequestParam("fiscal_code") String fiscalCode);
 
 }

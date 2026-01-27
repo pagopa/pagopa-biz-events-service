@@ -229,17 +229,20 @@ public class TransactionService implements ITransactionService {
     public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId) {
         BizEvent event = this.bizEventsService.getBizEventFromLAPId(eventId);
 
-        var receiptFile = getReceiptPdf(fiscalCode, eventId, event);
+        ResponseEntity<byte[]> response = getReceiptPdf(fiscalCode, eventId, event);
+        byte[] receiptFile = response.getBody();
 
         return ResponseEntity
                 .ok()
                 .contentLength(receiptFile.length)
                 .contentType(MediaType.APPLICATION_PDF)
-                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline().filename("Receipt.pdf").build().toString()) // TODO verify pdf name
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline().filename(
+                        response.getHeaders().getOrDefault("filename", Collections.singletonList("receipt.pdf")).get(0)
+                ).build().toString())
                 .body(new ByteArrayResource(receiptFile));
     }
 
-    private byte[] getReceiptPdf(String fiscalCode, String eventId, BizEvent bizEvent) {
+    private ResponseEntity<byte[]> getReceiptPdf(String fiscalCode, String eventId, BizEvent bizEvent) {
         try {
             return this.receiptClient.getReceiptPdf(eventId, fiscalCode);
         } catch (FeignException e) {
