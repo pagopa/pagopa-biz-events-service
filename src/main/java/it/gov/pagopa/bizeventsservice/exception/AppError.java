@@ -24,7 +24,7 @@ public enum AppError {
     VIEW_GENERAL_NOT_FOUND_WITH_ID(HttpStatus.NOT_FOUND, ErrorCode.VG_404_001, VIEW_GENERAL_NOT_FOUND, "Not found a biz-events-view-general with id %s"),
     VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE(HttpStatus.NOT_FOUND, ErrorCode.VC_404_001, VIEW_CART_NOT_FOUND, "Not found a biz-events-view-cart with id %s for the given tax code"),
 
-    ATTACHMENT_NOT_FOUND(HttpStatus.NOT_FOUND, ErrorCode.AT_404_001, "Attachment not found", "Not found attachment of %s for bizEvent with id %s"),
+    ATTACHMENT_NOT_FOUND(HttpStatus.NOT_FOUND, ErrorCode.AT_404_001, "Attachment not found", "Not found attachment of %s for bizEvent with id %s, the receipt failure needs to be reviewed"), // TODO message
     ATTACHMENT_GENERATING(HttpStatus.NOT_FOUND, ErrorCode.AT_404_002, "Attachment not found", "Attachment of %s for bizEvent with id %s is still generating"),
 
     ERROR_MAPPING_BIZ_EVENT_TO_TRANSACTION_DETAIL(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.GN_500_001, INVALID_DATA, "Error mapping bizEvent data to transaction details, missing property %s for bizEvent with id %s"),
