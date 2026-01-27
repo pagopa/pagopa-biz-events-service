@@ -86,10 +86,12 @@ public class PaidNoticeControllerTest {
         NoticeDetailResponse noticeDetailResponse = Utility.readModelFromFile("biz-events/paidNoticeDetails.json", NoticeDetailResponse.class);
         when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyString(), anyInt(), any(), any())).thenReturn(transactionListResponse);
         when(transactionService.getPaidNoticeDetail(anyString(), anyString())).thenReturn(noticeDetailResponse);
-        Attachment attachmentDetail = mock(Attachment.class);
-        AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(Collections.singletonList(attachmentDetail)).build();
-        when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
-        when(receiptClient.getReceipt(anyString(), anyString(), any())).thenReturn(receipt);
+        ResponseEntity<byte[]> receiptPdfResponse = mock(ResponseEntity.class);
+        when(receiptPdfResponse.getBody()).thenReturn(receipt);
+        HttpHeaders headers = mock(HttpHeaders.class);
+        when(headers.getOrDefault(eq("filename"), any())).thenReturn(List.of("filename.pdf"));
+        when(receiptPdfResponse.getHeaders()).thenReturn(headers);
+        when(receiptClient.getReceiptPdf(anyString(), anyString())).thenReturn(receiptPdfResponse);
         when(generateReceiptClient.generateReceipt(anyString())).thenReturn("OK");
     }
 

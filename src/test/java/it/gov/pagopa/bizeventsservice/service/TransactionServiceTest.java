@@ -33,6 +33,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
@@ -94,11 +96,11 @@ public class TransactionServiceTest {
     void setUp() {
         transactionService = spy(new TransactionService(bizEventsViewGeneralRepository, bizEventsViewCartRepository, bizEventsViewUserRepository,
                 receiptClient, generateReceiptClient, bizEventsService, cacheService));
-        Attachment attachmentDetail = mock(Attachment.class);
-        when(attachmentDetail.getName()).thenReturn("name.pdf");
-        AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(List.of(attachmentDetail)).build();
-        when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
-        when(receiptClient.getReceipt(anyString(), anyString(), any())).thenReturn(receipt);
+        ResponseEntity<byte[]> receiptPdfResponse = mock(ResponseEntity.class);
+        when(receiptPdfResponse.getBody()).thenReturn(receipt);
+        HttpHeaders headers = mock(HttpHeaders.class);
+        when(headers.getOrDefault(eq("filename"), any())).thenReturn(List.of("filename.pdf"));
+        when(receiptPdfResponse.getHeaders()).thenReturn(headers);        when(receiptClient.getReceiptPdf(anyString(), anyString())).thenReturn(receiptPdfResponse);
         when(generateReceiptClient.generateReceipt(anyString())).thenReturn("OK");
     }
 
