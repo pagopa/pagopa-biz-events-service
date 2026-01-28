@@ -228,8 +228,15 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId) {
-        ResponseEntity<byte[]> response = getReceiptPdf(fiscalCode, eventId);
+        String[] splitId = eventId.split(CART_SUBSTRING);
+        String paymentIdentifier = splitId[splitId.length -1];
+
+        ResponseEntity<byte[]> response = getReceiptPdf(fiscalCode, eventId, paymentIdentifier);
         byte[] receiptFile = response.getBody();
+
+        if(receiptFile == null){
+            throw new AppException(AppError.ATTACHMENT_NOT_FOUND, fiscalCode, paymentIdentifier);
+        }
 
         return ResponseEntity
                 .ok()
@@ -241,7 +248,7 @@ public class TransactionService implements ITransactionService {
                 .body(new ByteArrayResource(receiptFile));
     }
 
-    private ResponseEntity<byte[]> getReceiptPdf(String fiscalCode, String eventId) {
+    private ResponseEntity<byte[]> getReceiptPdf(String fiscalCode, String eventId, String bizEventId) {
         try {
             return this.receiptClient.getReceiptPdf(eventId, fiscalCode);
         } catch (FeignException e) {
@@ -249,7 +256,6 @@ public class TransactionService implements ITransactionService {
             if (responseBody == null) {
                 throw e;
             }
-            String bizEventId = isCart(eventId) ? eventId.split(CART_SUBSTRING)[1] : eventId;
             // Receipt not yet generated
             if (responseBody.contains(PDFS_714.getErrorCode())) {
                 throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, bizEventId);
