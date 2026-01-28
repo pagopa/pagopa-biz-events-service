@@ -17,7 +17,7 @@ public interface IReceiptGetPDFClient {
             exclude = FeignException.FeignClientException.class,
             maxAttemptsExpression = "${get.pdf.retry.maxAttempts}",
             backoff = @Backoff(delayExpression = "${get.pdf.retry.maxDelay}"))
-    @GetMapping(value = "/messages/{third-party-id}/pdf")
+    @GetMapping(value = "/pdf/{third-party-id}")
     ResponseEntity<byte[]> getReceiptPdf(@PathVariable("third-party-id") String thirdPartyId, @RequestParam("fiscal_code") String fiscalCode);
 
 }
