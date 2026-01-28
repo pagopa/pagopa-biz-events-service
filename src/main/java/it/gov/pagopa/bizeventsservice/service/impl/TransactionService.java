@@ -269,11 +269,10 @@ public class TransactionService implements ITransactionService {
             // Receipt not found
             if (responseBody.contains(PDFS_800.getErrorCode()) || responseBody.contains(PDFS_801.getErrorCode())) {
                 BizEvent bizEvent = this.bizEventsService.getBizEventFromLAPId(eventId);
-                if (bizEvent.getTs().isAfter(OffsetDateTime.now().minusMinutes(30))) {
-                    throw new AppException(AppError.ATTACHMENT_GENERATING, eventId);
+                if (bizEvent.getTs().isBefore(OffsetDateTime.now().minusMinutes(30))) {
+                    asyncRegenerate(eventId, isCart(eventId));
                 }
 
-                asyncRegenerate(eventId, isCart(eventId));
                 throw new AppException(AppError.ATTACHMENT_GENERATING, eventId);
             }
             // Fiscal code not authorized
