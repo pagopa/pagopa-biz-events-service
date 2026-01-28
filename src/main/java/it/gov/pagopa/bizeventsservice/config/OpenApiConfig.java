@@ -39,14 +39,12 @@ public class OpenApiConfig {
     public static final String BASE_PATH_EC = "/bizevents/service/v1";
     public static final String BASE_PATH_LAP = "/bizevents/notices-service/v1";
     public static final String BASE_PATH_LAP_JWT = "/bizevents/notices-service-jwt/v1";
-    public static final String BASE_PATH_TRANSACTION = "/bizevents/tx-service/v1";
-    public static final String BASE_PATH_TRANSACTION_JWT = "/bizevents/tx-service-jwt/v1";
     public static final String LOCAL_PATH = "http://localhost:8080";
     public static final String APIM_DEV = "https://api.dev.platform.pagopa.it";
     public static final String APIM_UAT = "https://api.uat.platform.pagopa.it";
     public static final String APIM_PROD = "https://api.platform.pagopa.it";
     private static final String API_KEY_SECURITY_SCHEMA_KEY = "ApiKey";
-    private static final String JWT_SECURITY_SCHEMA_KEY = "JWT";
+    private static final String JWT_SECURITY_SCHEMA_KEY = "Authorization";
 
     @Bean
     OpenAPI customOpenAPI(
@@ -56,12 +54,12 @@ public class OpenApiConfig {
     ) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(appDescription).append("""
-                
+                                
                 ### APP ERROR CODES ###
-              
-                
+                              
+                                
                 <details><summary>Details</summary>
-                
+                                
                 | Code | Group | Domain | Description |
                 | ---- | ----- | ------ | ----------- |
                 """);
@@ -85,7 +83,7 @@ public class OpenApiConfig {
                                         .addServerVariable("host",
                                                 new ServerVariable()._enum(List.of(APIM_DEV, APIM_UAT, APIM_PROD))
                                                         ._default(APIM_PROD))
-                                        .addServerVariable("basePath", new ServerVariable()._enum(List.of(BASE_PATH_LAP, BASE_PATH_EC, BASE_PATH_HELPDESK, BASE_PATH_TRANSACTION))
+                                        .addServerVariable("basePath", new ServerVariable()._enum(List.of(BASE_PATH_LAP, BASE_PATH_EC, BASE_PATH_HELPDESK))
                                                 ._default(BASE_PATH_EC))
                                 )))
                 .components(new Components().addSecuritySchemes(API_KEY_SECURITY_SCHEMA_KEY,
@@ -131,11 +129,12 @@ public class OpenApiConfig {
                     .filter(Objects::nonNull)
                     .anyMatch(elem -> HEADER_REQUEST_ID.equals(elem.getName()));
             if (!header) {
-                value.addParametersItem(new Parameter().in("header")
+                // add Request-ID as request header
+                value.readOperations().forEach(operation -> operation.addParametersItem(new Parameter().in("header")
                         .name(HEADER_REQUEST_ID)
                         .schema(new StringSchema())
                         .description("This header identifies the call, if not passed it is self-generated. This ID is returned in the response.")
-                        .required(false));
+                        .required(false)));
             }
 
             // add Request-ID as response header
@@ -165,15 +164,8 @@ public class OpenApiConfig {
                         case "lap":
                             openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_LAP)));
                             break;
-                        case "transaction":
-                            openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_TRANSACTION)));
-                            break;
                         case "lap_jwt":
                             openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_LAP_JWT)));
-                            customizeForIOAuth(openApi);
-                            break;
-                        case "transaction_jwt":
-                            openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_TRANSACTION_JWT)));
                             customizeForIOAuth(openApi);
                             break;
                         default:
