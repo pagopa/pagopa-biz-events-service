@@ -228,14 +228,11 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId) {
-        String[] splitId = eventId.split(CART_SUBSTRING);
-        String paymentIdentifier = splitId[splitId.length -1];
-
-        ResponseEntity<byte[]> response = getReceiptPdf(fiscalCode, eventId, paymentIdentifier);
+        ResponseEntity<byte[]> response = getReceiptPdf(fiscalCode, eventId);
         byte[] receiptFile = response.getBody();
 
         if(receiptFile == null){
-            throw new AppException(AppError.ATTACHMENT_NOT_FOUND, fiscalCode, paymentIdentifier);
+            throw new AppException(AppError.ATTACHMENT_NOT_FOUND, eventId);
         }
 
         return ResponseEntity
@@ -248,7 +245,7 @@ public class TransactionService implements ITransactionService {
                 .body(new ByteArrayResource(receiptFile));
     }
 
-    private ResponseEntity<byte[]> getReceiptPdf(String fiscalCode, String eventId, String bizEventId) {
+    private ResponseEntity<byte[]> getReceiptPdf(String fiscalCode, String eventId) {
         try {
             return this.receiptClient.getReceiptPdf(eventId, fiscalCode);
         } catch (FeignException e) {
@@ -258,30 +255,30 @@ public class TransactionService implements ITransactionService {
             }
             // Receipt not yet generated
             if (responseBody.contains(PDFS_714.getErrorCode())) {
-                throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, bizEventId);
+                throw new AppException(AppError.ATTACHMENT_GENERATING, eventId);
             }
             // Receipt generation failed, retry
             if (responseBody.contains(PDFS_715.getErrorCode())) {
                 asyncRegenerate(eventId, isCart(eventId));
-                throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, bizEventId);
+                throw new AppException(AppError.ATTACHMENT_GENERATING, eventId);
             }
             // Receipt generation failed, review needed
             if (responseBody.contains(PDFS_716.getErrorCode())) {
-                throw new AppException(AppError.ATTACHMENT_NOT_FOUND, fiscalCode, bizEventId);
+                throw new AppException(AppError.ATTACHMENT_NOT_FOUND, eventId);
             }
             // Receipt not found
             if (responseBody.contains(PDFS_800.getErrorCode()) || responseBody.contains(PDFS_801.getErrorCode())) {
                 BizEvent bizEvent = this.bizEventsService.getBizEventFromLAPId(eventId);
                 if (bizEvent.getTs().isAfter(OffsetDateTime.now().minusMinutes(30))) {
-                    throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, bizEventId);
+                    throw new AppException(AppError.ATTACHMENT_GENERATING, eventId);
                 }
 
                 asyncRegenerate(eventId, isCart(eventId));
-                throw new AppException(AppError.ATTACHMENT_GENERATING, fiscalCode, bizEventId);
+                throw new AppException(AppError.ATTACHMENT_GENERATING, eventId);
             }
             // Fiscal code not authorized
             if (responseBody.contains(PDFS_706.getErrorCode())) {
-                throw new AppException(AppError.INVALID_FISCAL_CODE, fiscalCode, bizEventId);
+                throw new AppException(AppError.INVALID_FISCAL_CODE, eventId);
             }
             // Rethrow the exception if this is not the expected case
             throw e;
