@@ -549,12 +549,12 @@ public class TransactionServiceTest {
                         "getReceiptPdf",
                         Response.builder()
                                 .request(Request.create(
-                                                Request.HttpMethod.GET,
-                                                "/receipt",
-                                                Collections.emptyMap(),
-                                                null,
-                                                StandardCharsets.UTF_8
-                                        ))
+                                        Request.HttpMethod.GET,
+                                        "/receipt",
+                                        Collections.emptyMap(),
+                                        null,
+                                        StandardCharsets.UTF_8
+                                ))
                                 .build()
                 );
         when(receiptClient.getReceiptPdf(VALID_FISCAL_CODE, EVENT_ID)).thenThrow(feignException);
@@ -728,7 +728,7 @@ public class TransactionServiceTest {
                 );
         when(receiptClient.getReceiptPdf(VALID_FISCAL_CODE, EVENT_ID)).thenThrow(feignException);
 
-        FeignException e = Assertions.assertThrows(FeignException.class, () ->
+        Assertions.assertThrows(FeignException.class, () ->
                 transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, EVENT_ID));
 
         verify(bizEventsService, never()).getBizEventFromLAPId(anyString());
