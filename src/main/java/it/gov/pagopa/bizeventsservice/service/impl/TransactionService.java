@@ -44,7 +44,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static it.gov.pagopa.bizeventsservice.exception.enumeration.ReceiptServiceStatusCode.*;
-import static it.gov.pagopa.bizeventsservice.util.TransactionIdFactory.CART_SUBSTRING;
 import static it.gov.pagopa.bizeventsservice.util.TransactionIdFactory.isCart;
 
 @Service
