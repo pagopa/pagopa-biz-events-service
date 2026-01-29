@@ -247,7 +247,7 @@ public class TransactionService implements ITransactionService {
 
     private ResponseEntity<byte[]> getReceiptPdf(String fiscalCode, String eventId) {
         try {
-            return this.receiptClient.getReceiptPdf(eventId, fiscalCode);
+            return this.receiptClient.getReceiptPdf(fiscalCode, eventId);
         } catch (FeignException e) {
             String responseBody = e.contentUTF8();
             if (responseBody == null) {
