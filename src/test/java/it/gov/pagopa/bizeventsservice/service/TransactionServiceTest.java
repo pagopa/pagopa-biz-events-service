@@ -3,6 +3,7 @@ package it.gov.pagopa.bizeventsservice.service;
 import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 import feign.FeignException;
 import feign.Request;
+import feign.RequestTemplate;
 import feign.Response;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
@@ -553,7 +554,8 @@ public class TransactionServiceTest {
                                         "/receipt",
                                         Collections.emptyMap(),
                                         null,
-                                        StandardCharsets.UTF_8
+                                        StandardCharsets.UTF_8,
+                                        new RequestTemplate()
                                 ))
                                 .build()
                 );
@@ -722,7 +724,8 @@ public class TransactionServiceTest {
                                         "/receipt",
                                         Collections.emptyMap(),
                                         "genericError".getBytes(),
-                                        StandardCharsets.UTF_8
+                                        StandardCharsets.UTF_8,
+                                        new RequestTemplate()
                                 ))
                                 .build()
                 );
