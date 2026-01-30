@@ -147,7 +147,12 @@ function getDocumentForTest(id) {
 				"transferCategory": "paGetPaymentTest",
 				"remittanceInformation": "/RFB/00202200000217527/5.00/TXT/"
 			}
-		]
+		],
+		"transactionDetails": {
+			"transaction": {
+				"transactionId": id
+			}
+		}
 	}
 }
 
@@ -322,12 +327,12 @@ function createViewCart(id, transactionId, taxCode) {
 	};
 }
 
-function createReceipt(eventId, pdfName, status, errCode) {
+function createReceipt(eventId, fiscalCode, pdfName, status, errCode) {
 	return {
 		"eventId": eventId,
 		"id": eventId,
 		"eventData": {
-			"payerFiscalCode": "INTTST00A00A000E",
+			"payerFiscalCode": fiscalCode,
 		},
 		"status": status,
 		"mdAttachPayer": {
@@ -337,6 +342,22 @@ function createReceipt(eventId, pdfName, status, errCode) {
 			"code": errCode
 		}
 	}
+}
+
+async function createToken(fiscalCode) {
+	const tokenizer_url = process.env.TOKENIZER_URL;
+	const token_api_key = process.env.TOKENIZER_API_KEY;
+	const headers = {
+		"x-api-key": token_api_key
+	};
+
+	return await axios.put(tokenizer_url, { "pii": fiscalCode }, { headers })
+		.then(res => {
+			return res.data;
+		})
+		.catch(error => {
+			return error.response;
+		});
 }
 
 module.exports = {
@@ -351,5 +372,6 @@ module.exports = {
 	createViewUser,
 	createViewGeneral,
 	createViewCart,
-	createReceipt
+	createReceipt,
+	createToken
 }
