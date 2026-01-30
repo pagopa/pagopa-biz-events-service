@@ -6,7 +6,7 @@ const path = require('path');
 const { createReceipt, createToken } = require('./common');
 const { createDocumentInReceiptDatastore, deleteDocumentFromReceiptDatastore } = require('./receipt_cosmosdb_client');
 const { generatePDF } = require('./bizeventservice_client');
-const { uploadBlobFromLocalPath, deleteBlob } = require('./blob_storage_client');
+const { createBlobPdf, deleteReceiptAttachment } = require('./receipts_blob_storage_client');
 
 // ======================================================
 // CONFIG
@@ -25,7 +25,7 @@ After(async function () {
   }
   // delete pdf
   if (pdfName) {
-    await deleteBlob(pdfName);
+    await deleteReceiptAttachment(pdfName);
   }
 
   receipt = null;
@@ -42,8 +42,7 @@ Given(
   async function (attachmentName) {
     pdfName = attachmentName;
 
-    fs.writeFileSync(pdfName, PDF_CONTENT, "binary");
-    let res = await uploadBlobFromLocalPath(pdfName, pdfName);
+    let res = await createBlobPdf(pdfName, PDF_CONTENT);
     assert.notStrictEqual(res.status, 500);
   }
 );
