@@ -51,6 +51,8 @@ Given(
   'a receipt with eventId {string}, pdf name {string}, status {string} and errCode {string}',
   async function (eventId, pdfName, status, errCode) {
     const pdvResponse = await createToken("INTTST00A00A000E");
+
+    await createToken("INTTST00A00A000X"); // Create token for invalid fiscal code
     receipt = createReceipt(eventId, pdvResponse.token, pdfName, status, errCode);
 
     let res = await createDocumentInReceiptDatastore(receipt);
