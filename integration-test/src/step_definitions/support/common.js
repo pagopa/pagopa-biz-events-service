@@ -344,22 +344,6 @@ function createReceipt(eventId, fiscalCode, pdfName, status, errCode) {
 	}
 }
 
-async function createToken(fiscalCode) {
-	const tokenizer_url = process.env.TOKENIZER_URL;
-	const token_api_key = process.env.TOKENIZER_API_KEY;
-	const headers = {
-		"x-api-key": token_api_key
-	};
-
-	return await axios.put(tokenizer_url, { "pii": fiscalCode }, { headers })
-		.then(res => {
-			return res.data;
-		})
-		.catch(error => {
-			return error.response;
-		});
-}
-
 module.exports = {
 	get,
 	post,
@@ -372,6 +356,5 @@ module.exports = {
 	createViewUser,
 	createViewGeneral,
 	createViewCart,
-	createReceipt,
-	createToken
+	createReceipt
 }
