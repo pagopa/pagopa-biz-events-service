@@ -10,6 +10,8 @@ public interface IBizEventsService {
 
     BizEvent getBizEvent(String id);
 
+    BizEvent getBizEventFromLAPId(String id);
+
     BizEvent getBizEventByOrgFiscalCodeAndIuv(String organizationFiscalCode,
                                               String iuv);
 

@@ -4,6 +4,7 @@ import com.azure.cosmos.models.PartitionKey;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsPrimaryRepository;
 import it.gov.pagopa.bizeventsservice.repository.replica.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.service.impl.BizEventsService;
 import it.gov.pagopa.bizeventsservice.util.Utility;
@@ -37,6 +38,8 @@ class BizEventsServiceTest {
 
     @Mock
     private BizEventsRepository bizEventsRepository;
+    @Mock
+    private BizEventsPrimaryRepository bizEventsPrimaryRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -48,14 +51,14 @@ class BizEventsServiceTest {
     private BizEvent bizEventEntityDuplicated;
 
     @BeforeAll
-    public void beforeAll() throws IOException {
+    void beforeAll() throws IOException {
         bizEventEntity = Utility.readModelFromFile("biz-events/bizEvent.json", BizEvent.class);
         bizEventEntityDuplicated = Utility.readModelFromFile("biz-events/bizEvent_duplicate.json", BizEvent.class);
     }
 
     @BeforeEach
     void setUp() {
-        bizEventsService = spy(new BizEventsService(bizEventsRepository, modelMapper));
+        bizEventsService = spy(new BizEventsService(bizEventsRepository, bizEventsPrimaryRepository, modelMapper));
     }
 
     @Test
@@ -70,7 +73,7 @@ class BizEventsServiceTest {
     }
 
     @Test
-    void getOrganizationReceiptIuvIur_404() throws IOException {
+    void getOrganizationReceiptIuvIur_404() {
         when(bizEventsRepository.getBizEventByOrgFiscCodeIuvAndIur(ORGANIZATION_FISCAL_CODE, IUR, IUV))
                 .thenReturn(List.of(bizEventEntity));
 
@@ -79,7 +82,7 @@ class BizEventsServiceTest {
     }
 
     @Test
-    void getOrganizationReceiptIuvIur_422() throws IOException {
+    void getOrganizationReceiptIuvIur_422() {
         // mocking a fake save for duplicated entity
         when(bizEventsRepository.getBizEventByOrgFiscCodeIuvAndIur(ORGANIZATION_FISCAL_CODE, IUR, IUV))
                 .thenReturn(List.of(bizEventEntity, bizEventEntityDuplicated));
@@ -99,7 +102,7 @@ class BizEventsServiceTest {
     }
 
     @Test
-    void getOrganizationReceiptIur_404() throws IOException {
+    void getOrganizationReceiptIur_404() {
         when(bizEventsRepository.getBizEventByOrgFiscCodeAndIur(ORGANIZATION_FISCAL_CODE, IUR))
                 .thenReturn(List.of(bizEventEntity));
 
@@ -108,7 +111,7 @@ class BizEventsServiceTest {
     }
 
     @Test
-    void getOrganizationReceiptIur_422() throws IOException {
+    void getOrganizationReceiptIur_422() {
         // mocking a fake save for duplicated entity
         when(bizEventsRepository.getBizEventByOrgFiscCodeAndIur(ORGANIZATION_FISCAL_CODE, IUR))
                 .thenReturn(List.of(bizEventEntity, bizEventEntityDuplicated));
@@ -132,6 +135,44 @@ class BizEventsServiceTest {
                 .thenReturn(Optional.empty());
 
         AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEvent("fake id"));
+        assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
+    }
+
+    @Test
+    void getBizEventFromLAPIdSuccess() {
+        when(bizEventsPrimaryRepository.findById(BIZ_EVENT_ID, new PartitionKey(BIZ_EVENT_ID)))
+                .thenReturn(Optional.of(bizEventEntity));
+
+        BizEvent bizEvent = bizEventsService.getBizEventFromLAPId(BIZ_EVENT_ID);
+        assertEquals(bizEvent, bizEventEntity);
+    }
+
+    @Test
+    void getBizEventFromLAPIdFailNotFound() {
+        when(bizEventsRepository.findById("fake id", new PartitionKey("fake id")))
+                .thenReturn(Optional.empty());
+
+        AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEventFromLAPId("fake id"));
+        assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
+    }
+
+
+    @Test
+    void getBizEventFromLAPIdFailNotFoundCartPayer() {
+        when(bizEventsRepository.findById("fake id", new PartitionKey("fake id")))
+                .thenReturn(Optional.empty());
+
+        AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEventFromLAPId("id_CART_"));
+        assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
+    }
+
+
+    @Test
+    void getBizEventFromLAPIdFailNotFoundCartDebtor() {
+        when(bizEventsRepository.findById("bizeventid", new PartitionKey("bizeventid")))
+                .thenReturn(Optional.empty());
+
+        AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEventFromLAPId("cartid_CART_bizeventid"));
         assertEquals(HttpStatus.NOT_FOUND, e.getHttpStatus());
     }
 

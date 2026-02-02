@@ -8,6 +8,7 @@ import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResp
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
 import it.gov.pagopa.bizeventsservice.util.DateValidator;
+import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -32,48 +33,6 @@ public class ConvertViewsToTransactionDetailResponse {
     private ConvertViewsToTransactionDetailResponse() {
     }
 
-    public static TransactionDetailResponse convertTransactionDetails(String taxCode, BizEventsViewGeneral bizEventsViewGeneral, List<BizEventsViewCart> listOfCartViews) {
-        List<CartItem> listOfCartItems = new ArrayList<>();
-        AtomicReference<BigDecimal> totalAmount = new AtomicReference<>(BigDecimal.ZERO);
-
-        for (BizEventsViewCart bizEventsViewCart : listOfCartViews) {
-
-            listOfCartItems.add(
-                    CartItem.builder()
-                            .subject(bizEventsViewCart.getSubject())
-                            .amount(new BigDecimal(bizEventsViewCart.getAmount()).setScale(2, RoundingMode.UNNECESSARY).toString())
-                            .debtor(bizEventsViewCart.getDebtor())
-                            .payee(bizEventsViewCart.getPayee())
-                            .refNumberType(bizEventsViewCart.getRefNumberType())
-                            .refNumberValue(bizEventsViewCart.getRefNumberValue())
-                            .build()
-            );
-            BigDecimal amountExtracted = new BigDecimal(bizEventsViewCart.getAmount());
-            totalAmount.updateAndGet(v -> v.add(amountExtracted));
-        }
-
-        // PAGOPA-1763: if the tax code refers to a debtor, do not show the sections relating to the payer
-        boolean isDebtor = bizEventsViewGeneral.getPayer() == null || !bizEventsViewGeneral.getPayer().getTaxCode().equals(taxCode);
-        return TransactionDetailResponse.builder()
-                .infoTransaction(
-                        InfoTransactionView.builder()
-                                .transactionId(bizEventsViewGeneral.getTransactionId())
-                                .authCode(bizEventsViewGeneral.getAuthCode())
-                                .rrn(bizEventsViewGeneral.getRrn())
-                                .transactionDate(dateFormatZoned(bizEventsViewGeneral.getTransactionDate()))
-                                .pspName(bizEventsViewGeneral.getPspName())
-                                .walletInfo(isDebtor ? null : bizEventsViewGeneral.getWalletInfo())
-                                .payer(isDebtor ? null : bizEventsViewGeneral.getPayer())
-                                .amount(totalAmount.get().setScale(2, RoundingMode.UNNECESSARY).toString())
-                                .fee(StringUtils.isNotEmpty(bizEventsViewGeneral.getFee()) ? bizEventsViewGeneral.getFee().replace(',', '.') : bizEventsViewGeneral.getFee())
-                                .paymentMethod(isDebtor ? null : bizEventsViewGeneral.getPaymentMethod())
-                                .origin(bizEventsViewGeneral.getOrigin())
-                                .build()
-                )
-                .carts(listOfCartItems)
-                .build();
-    }
-
     public static NoticeDetailResponse convertPaidNoticeDetails(String taxCode, BizEventsViewGeneral bizEventsViewGeneral, List<BizEventsViewCart> listOfCartViews) {
         List<it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem> listOfCartItems = new ArrayList<>();
         AtomicReference<BigDecimal> totalAmount = new AtomicReference<>(BigDecimal.ZERO);
@@ -96,10 +55,14 @@ public class ConvertViewsToTransactionDetailResponse {
 
         // PAGOPA-1763: if the tax code refers to a debtor, do not show the sections relating to the payer
         boolean isDebtor = bizEventsViewGeneral.getPayer() == null || !bizEventsViewGeneral.getPayer().getTaxCode().equals(taxCode);
+
+        // Generating transactionId as <viewGeneral.transactionId>_CART_<viewCart.id>
+        String transactionId = TransactionIdFactory.generate(bizEventsViewGeneral, listOfCartViews, isDebtor);
+
         return NoticeDetailResponse.builder()
                 .infoNotice(
                         InfoNotice.builder()
-                                .eventId(bizEventsViewGeneral.getTransactionId())
+                                .eventId(transactionId)
                                 .authCode(bizEventsViewGeneral.getAuthCode())
                                 .rrn(bizEventsViewGeneral.getRrn())
                                 .noticeDate(dateFormatZoned(bizEventsViewGeneral.getTransactionDate()))
@@ -136,8 +99,10 @@ public class ConvertViewsToTransactionDetailResponse {
         BigDecimal amountExtracted = new BigDecimal(bizEventsViewCart.getAmount());
         totalAmount.updateAndGet(v -> v.add(amountExtracted));
 
+        String transactionId = TransactionIdFactory.generate(viewUser, bizEventsViewCart, isCart);
+
         return TransactionListItem.builder()
-                .transactionId(viewUser.getTransactionId())
+                .transactionId(transactionId)
                 .payeeName(bizEventsViewCart.getPayee().getName())
                 .payeeTaxCode(bizEventsViewCart.getPayee().getTaxCode())
                 .amount(totalAmount.get().setScale(2, RoundingMode.UNNECESSARY).toString()) 
