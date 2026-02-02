@@ -1,8 +1,5 @@
 const { Given, When, Then, setDefaultTimeout, After } = require('@cucumber/cucumber');
 const assert = require('assert');
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
 const { createReceipt } = require('./common');
 const { createToken } = require('./tokenizer_client');
 const { createDocumentInReceiptDatastore, deleteDocumentFromReceiptDatastore } = require('./receipt_cosmosdb_client');
