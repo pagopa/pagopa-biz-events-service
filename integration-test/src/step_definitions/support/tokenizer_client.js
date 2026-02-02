@@ -7,7 +7,9 @@ async function createToken(fiscalCode) {
         "x-api-key": token_api_key
     };
 
-    return await put(tokenizer_url, { "pii": fiscalCode }, { headers });
+    const response = await put(tokenizer_url, { "pii": fiscalCode }, { headers })
+    
+    return response.data;
 }
 
 module.exports = {
