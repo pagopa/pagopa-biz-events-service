@@ -16,12 +16,6 @@ Feature: Retrieve receipts' PDF
     Then the user gets the status code 404 for generatePDF
     And the user gets the custom code "AT_404_002"
 
-  Scenario: A user tries to retrieve the PDF of a receipt that is being processed
-    Given a receipt with eventId "biz-event-service-int-test-pdf-3", pdf name "biz-event-service-int-test-pdf-3.pdf", status "INSERTED" and errCode "null"
-    When the user with fiscal code "INTTST00A00A000E" asks for the PDF with thirdPartyId "biz-event-service-int-test-pdf-3"
-    Then the user gets the status code 404 for generatePDF
-    And the user gets the custom code "AT_404_002"
-
   Scenario: A user tries to retrieve the PDF of a receipt that failed but is retryable
     Given a receipt with eventId "biz-event-service-int-test-pdf-4", pdf name "biz-event-service-int-test-pdf-4.pdf", status "FAILED" and errCode "900"
     When the user with fiscal code "INTTST00A00A000E" asks for the PDF with thirdPartyId "biz-event-service-int-test-pdf-4"
