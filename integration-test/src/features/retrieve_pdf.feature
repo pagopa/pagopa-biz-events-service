@@ -50,4 +50,4 @@ Feature: Retrieve receipts' PDF
     Given a receipt with eventId "biz-event-service-int-test-pdf-9", pdf name "biz-event-service-int-test-pdf-9.pdf", status "IO_NOTIFIED" and errCode "null"
     When the user with fiscal code "INTTST00A00A000X" asks for the PDF with thirdPartyId "biz-event-service-int-test-pdf-9"
     Then the user gets the status code 400 for generatePDF
-    And the user gets the custom code "GN_400_001"
+    And the user gets the custom code "GN_400_003"
