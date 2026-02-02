@@ -16,7 +16,7 @@ public enum AppError {
     BIZ_EVENT_NOT_UNIQUE_IUR(HttpStatus.UNPROCESSABLE_ENTITY, ErrorCode.BZ_422_002, BIZ_NOT_UNIQUE_HEADER, "More than one biz event was found for the Organization Fiscal Code %s and IUR %s"),
     BIZ_EVENT_NOT_UNIQUE_WITH_ORG_CF_AND_IUV(HttpStatus.UNPROCESSABLE_ENTITY, ErrorCode.BZ_422_003, BIZ_NOT_UNIQUE_HEADER, "More than one biz event was found for the Organization Fiscal Code %s and IUV %s"),
 
-    INVALID_FISCAL_CODE(HttpStatus.BAD_REQUEST, ErrorCode.GN_400_001, INVALID_DATA, "Provided Fiscal Code is not authorized to retrieve the attachment for request with id %s"),
+    INVALID_FISCAL_CODE(HttpStatus.BAD_REQUEST, ErrorCode.GN_400_003, INVALID_DATA, "Provided Fiscal Code is not authorized to retrieve the attachment for request with id %s"),
 
     VIEW_USER_NOT_FOUND_WITH_TAX_CODE(HttpStatus.NOT_FOUND, ErrorCode.VU_404_001, VIEW_USER_NOT_FOUND, "Not found a biz-events-view-user with tax code %s"),
     VIEW_USER_NOT_FOUND_WITH_TAX_CODE_AND_FILTER(HttpStatus.NOT_FOUND, ErrorCode.VU_404_002, VIEW_USER_NOT_FOUND, "Not found a biz-events-view-user with tax code %s and is_payer filter set to %s and is_debtor filter set to %s"),
