@@ -108,7 +108,7 @@ microservice-chart:
   envSecret:
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-d-connection-string'
     COSMOS_DB_PRIMARY_KEY: 'cosmos-d-biz-key'
-    PDF_RECEIPT_SUBSCRIPTION_KEY: "bizevent-d-receiptpdfservice-subscription-key"
+    PDF_RECEIPT_SUBSCRIPTION_KEY: "receiptpdfservice-internal-d-subscription-key"
     PDF_GENERATE_RECEIPT_SUBSCRIPTION_KEY: "bizevent-d-generatepdfservice-subscription-key"
     REDIS_PWD: 'redis-password'
     REDIS_HOST: 'redis-hostname'
