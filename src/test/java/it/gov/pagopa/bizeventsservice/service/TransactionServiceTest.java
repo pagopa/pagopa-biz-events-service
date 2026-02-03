@@ -573,12 +573,13 @@ public class TransactionServiceTest {
         FeignException feignException = mock(FeignException.class);
         when(feignException.contentUTF8()).thenReturn(PDFS_714.getErrorCode());
         when(receiptClient.getReceiptPdf(VALID_FISCAL_CODE, EVENT_ID)).thenThrow(feignException);
+        BizEvent biz = BizEvent.builder().ts(OffsetDateTime.now().minusMinutes(10)).build();
+        when(bizEventsService.getBizEventFromLAPId(EVENT_ID)).thenReturn(biz);
 
         AppException e = Assertions.assertThrows(AppException.class, () ->
                 transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, EVENT_ID));
 
         assertEquals(AppError.ATTACHMENT_GENERATING.getCode(), e.getCode());
-        verify(bizEventsService, never()).getBizEventFromLAPId(anyString());
         verify(generateReceiptClient, never()).generateReceipt(anyString());
         verify(generateReceiptClient, never()).generateReceiptCart(anyString());
     }

@@ -45,6 +45,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static it.gov.pagopa.bizeventsservice.exception.enumeration.ReceiptServiceStatusCode.*;
+import static it.gov.pagopa.bizeventsservice.util.TransactionIdFactory.extract;
 import static it.gov.pagopa.bizeventsservice.util.TransactionIdFactory.isCart;
 
 @Service
@@ -67,7 +68,8 @@ public class TransactionService implements ITransactionService {
             IReceiptGetPDFClient receiptClient,
             IReceiptGeneratePDFClient generateReceiptClient,
             IBizEventsService bizEventsService,
-            CacheService cacheService) {
+            CacheService cacheService
+    ) {
         this.bizEventsViewGeneralRepository = bizEventsViewGeneralRepository;
         this.bizEventsViewCartRepository = bizEventsViewCartRepository;
         this.bizEventsViewUserRepository = bizEventsViewUserRepository;
@@ -230,7 +232,7 @@ public class TransactionService implements ITransactionService {
         ResponseEntity<byte[]> response = getReceiptPdf(fiscalCode, eventId);
         byte[] receiptFile = response.getBody();
 
-        if(receiptFile == null){
+        if (receiptFile == null) {
             throw new AppException(AppError.ATTACHMENT_NOT_FOUND, eventId);
         }
 
@@ -260,22 +262,18 @@ public class TransactionService implements ITransactionService {
             throw e;
         }
 
-        if (containsError(responseBody, PDFS_714)) {
+        if (containsAnyError(responseBody, PDFS_714, PDFS_800, PDFS_801)) {
+            handleReceiptNotFound(eventId);
             throw new AppException(AppError.ATTACHMENT_GENERATING, eventId);
         }
 
         if (containsError(responseBody, PDFS_715)) {
-            asyncRegenerate(eventId, isCart(eventId));
+            asyncRegenerate(eventId);
             throw new AppException(AppError.ATTACHMENT_GENERATING, eventId);
         }
 
         if (containsError(responseBody, PDFS_716)) {
             throw new AppException(AppError.ATTACHMENT_NOT_FOUND, eventId);
-        }
-
-        if (containsAnyError(responseBody, PDFS_800, PDFS_801)) {
-            handleReceiptNotFound(eventId);
-            throw new AppException(AppError.ATTACHMENT_GENERATING, eventId);
         }
 
         if (containsError(responseBody, PDFS_706)) {
@@ -301,25 +299,26 @@ public class TransactionService implements ITransactionService {
                 bizEvent.getTs().isBefore(OffsetDateTime.now().minusMinutes(30));
 
         if (olderThan30Minutes) {
-            asyncRegenerate(eventId, isCart(eventId));
+            asyncRegenerate(eventId);
         }
     }
 
-    private void asyncRegenerate(String eventId, boolean isCart) {
+    private void asyncRegenerate(String eventId) {
         CompletableFuture.runAsync(() -> {
             try {
-                regeneratePdf(eventId, isCart);
+                regeneratePdf(eventId);
             } catch (Exception ex) {
                 log.error("Error during the generation of the receipt", ex);
             }
         });
     }
 
-    private void regeneratePdf(String event, boolean isCart) {
-        if (isCart) {
-            this.generateReceiptClient.generateReceiptCart(event);
+    private void regeneratePdf(String eventId) {
+        if (isCart(eventId)) {
+            TransactionIdFactory.ViewTransactionId extracted = extract(eventId);
+            this.generateReceiptClient.generateReceiptCart(extracted.transactionId());
         } else {
-            this.generateReceiptClient.generateReceipt(event);
+            this.generateReceiptClient.generateReceipt(eventId);
         }
     }
 
