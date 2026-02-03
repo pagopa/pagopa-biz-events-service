@@ -18,9 +18,9 @@ public enum AppError {
 
     INVALID_FISCAL_CODE(HttpStatus.BAD_REQUEST, ErrorCode.GN_400_003, INVALID_DATA, "Provided Fiscal Code is not authorized to retrieve the attachment for request with id %s"),
 
-    VIEW_USER_NOT_FOUND_WITH_TAX_CODE(HttpStatus.NOT_FOUND, ErrorCode.VU_404_001, VIEW_USER_NOT_FOUND, "Not found a biz-events-view-user with tax code %s"),
-    VIEW_USER_NOT_FOUND_WITH_TAX_CODE_AND_FILTER(HttpStatus.NOT_FOUND, ErrorCode.VU_404_002, VIEW_USER_NOT_FOUND, "Not found a biz-events-view-user with tax code %s and is_payer filter set to %s and is_debtor filter set to %s"),
-    VIEW_USER_NOT_FOUND_WITH_ID(HttpStatus.NOT_FOUND, ErrorCode.VU_404_003, VIEW_USER_NOT_FOUND, "Not found a biz-events-view-user with tax code %s and id %s"),
+    VIEW_USER_NOT_FOUND_WITH_TAX_CODE(HttpStatus.NOT_FOUND, ErrorCode.VU_404_001, VIEW_USER_NOT_FOUND, "Not found a biz-events-view-user for the given tax code"),
+    VIEW_USER_NOT_FOUND_WITH_TAX_CODE_AND_FILTER(HttpStatus.NOT_FOUND, ErrorCode.VU_404_002, VIEW_USER_NOT_FOUND, "Not found a biz-events-view-user with is_payer filter set to %s and is_debtor filter set to %s for the given tax code"),
+    VIEW_USER_NOT_FOUND_WITH_ID(HttpStatus.NOT_FOUND, ErrorCode.VU_404_003, VIEW_USER_NOT_FOUND, "Not found a biz-events-view-user with id %s for the given tax code"),
     VIEW_GENERAL_NOT_FOUND_WITH_ID(HttpStatus.NOT_FOUND, ErrorCode.VG_404_001, VIEW_GENERAL_NOT_FOUND, "Not found a biz-events-view-general with id %s"),
     VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE(HttpStatus.NOT_FOUND, ErrorCode.VC_404_001, VIEW_CART_NOT_FOUND, "Not found a biz-events-view-cart with id %s for the given tax code"),
 
