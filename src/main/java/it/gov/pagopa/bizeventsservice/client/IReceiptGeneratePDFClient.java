@@ -1,17 +1,15 @@
 package it.gov.pagopa.bizeventsservice.client;
 
 import feign.FeignException;
-import feign.Headers;
-import it.gov.pagopa.bizeventsservice.config.feign.PDFGenerateReceiptFeignConfig;
+import it.gov.pagopa.bizeventsservice.config.feign.ReceiptInternalFeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.MediaType;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(value = "generateReceiptPDF", url = "${service.generate.pdf.receipt.host}", configuration = PDFGenerateReceiptFeignConfig.class)
+@FeignClient(value = "generateReceiptPDF", url = "${service.generate.pdf.receipt.host}", configuration = ReceiptInternalFeignConfig.class)
 public interface IReceiptGeneratePDFClient {
 
     @Retryable(
