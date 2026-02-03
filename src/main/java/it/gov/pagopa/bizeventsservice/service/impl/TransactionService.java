@@ -10,6 +10,7 @@ import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
+import it.gov.pagopa.bizeventsservice.exception.enumeration.ReceiptServiceStatusCode;
 import it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
@@ -247,38 +248,60 @@ public class TransactionService implements ITransactionService {
         try {
             return this.receiptClient.getReceiptPdf(fiscalCode, eventId);
         } catch (FeignException e) {
-            String responseBody = e.contentUTF8();
-            if (responseBody == null) {
-                throw e;
-            }
-            // Receipt not yet generated
-            if (responseBody.contains(PDFS_714.getErrorCode())) {
-                throw new AppException(AppError.ATTACHMENT_GENERATING, eventId);
-            }
-            // Receipt generation failed, retry
-            if (responseBody.contains(PDFS_715.getErrorCode())) {
-                asyncRegenerate(eventId, isCart(eventId));
-                throw new AppException(AppError.ATTACHMENT_GENERATING, eventId);
-            }
-            // Receipt generation failed, review needed
-            if (responseBody.contains(PDFS_716.getErrorCode())) {
-                throw new AppException(AppError.ATTACHMENT_NOT_FOUND, eventId);
-            }
-            // Receipt not found
-            if (responseBody.contains(PDFS_800.getErrorCode()) || responseBody.contains(PDFS_801.getErrorCode())) {
-                BizEvent bizEvent = this.bizEventsService.getBizEventFromLAPId(eventId);
-                if (bizEvent.getTs().isBefore(OffsetDateTime.now().minusMinutes(30))) {
-                    asyncRegenerate(eventId, isCart(eventId));
-                }
+            handleFeignException(eventId, e);
+            throw e; // fallback, unreachable code
+        }
+    }
 
-                throw new AppException(AppError.ATTACHMENT_GENERATING, eventId);
-            }
-            // Fiscal code not authorized
-            if (responseBody.contains(PDFS_706.getErrorCode())) {
-                throw new AppException(AppError.INVALID_FISCAL_CODE, eventId);
-            }
-            // Rethrow the exception if this is not the expected case
+    private void handleFeignException(String eventId, FeignException e) {
+        String responseBody = e.contentUTF8();
+
+        if (responseBody == null) {
             throw e;
+        }
+
+        if (containsError(responseBody, PDFS_714)) {
+            throw new AppException(AppError.ATTACHMENT_GENERATING, eventId);
+        }
+
+        if (containsError(responseBody, PDFS_715)) {
+            asyncRegenerate(eventId, isCart(eventId));
+            throw new AppException(AppError.ATTACHMENT_GENERATING, eventId);
+        }
+
+        if (containsError(responseBody, PDFS_716)) {
+            throw new AppException(AppError.ATTACHMENT_NOT_FOUND, eventId);
+        }
+
+        if (containsAnyError(responseBody, PDFS_800, PDFS_801)) {
+            handleReceiptNotFound(eventId);
+            throw new AppException(AppError.ATTACHMENT_GENERATING, eventId);
+        }
+
+        if (containsError(responseBody, PDFS_706)) {
+            throw new AppException(AppError.INVALID_FISCAL_CODE, eventId);
+        }
+
+        throw e;
+    }
+
+    private boolean containsError(String responseBody, ReceiptServiceStatusCode error) {
+        return responseBody.contains(error.getErrorCode());
+    }
+
+    private boolean containsAnyError(String responseBody, ReceiptServiceStatusCode... errors) {
+        return Arrays.stream(errors)
+                .anyMatch(e -> responseBody.contains(e.getErrorCode()));
+    }
+
+    private void handleReceiptNotFound(String eventId) {
+        BizEvent bizEvent = this.bizEventsService.getBizEventFromLAPId(eventId);
+
+        boolean olderThan30Minutes =
+                bizEvent.getTs().isBefore(OffsetDateTime.now().minusMinutes(30));
+
+        if (olderThan30Minutes) {
+            asyncRegenerate(eventId, isCart(eventId));
         }
     }
 
@@ -294,9 +317,9 @@ public class TransactionService implements ITransactionService {
 
     private void regeneratePdf(String event, boolean isCart) {
         if (isCart) {
-            generateReceiptClient.generateReceiptCart(event);
+            this.generateReceiptClient.generateReceiptCart(event);
         } else {
-            generateReceiptClient.generateReceipt(event);
+            this.generateReceiptClient.generateReceipt(event);
         }
     }
 
