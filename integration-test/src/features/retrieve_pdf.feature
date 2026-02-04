@@ -11,7 +11,8 @@ Feature: Retrieve receipts' PDF
     And the PDF content is valid
   
   Scenario: A user tries to retrieve the PDF of a receipt that is being processed
-    Given a receipt with eventId "biz-event-service-int-test-pdf-2", pdf name "biz-event-service-int-test-pdf-2.pdf", status "INSERTED" and errCode "null"
+    Given Biz-Event to test with id "biz-event-service-int-test-pdf-2" and save it on Cosmos DB
+    And a receipt with eventId "biz-event-service-int-test-pdf-2", pdf name "biz-event-service-int-test-pdf-2.pdf", status "INSERTED" and errCode "null"
     When the user with fiscal code "INTTST00A00A000E" asks for the PDF with thirdPartyId "biz-event-service-int-test-pdf-2"
     Then the user gets the status code 404 for generatePDF
     And the user gets the custom code "AT_404_002"
