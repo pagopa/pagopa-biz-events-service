@@ -1,16 +1,19 @@
 package it.gov.pagopa.bizeventsservice.service;
 
 import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
+import feign.FeignException;
+import feign.Request;
+import feign.RequestTemplate;
+import feign.Response;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewCart;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewGeneral;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
+import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
-import it.gov.pagopa.bizeventsservice.model.response.Attachment;
-import it.gov.pagopa.bizeventsservice.model.response.AttachmentsDetailsResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.InfoNotice;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
@@ -21,40 +24,34 @@ import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserReposi
 import it.gov.pagopa.bizeventsservice.service.impl.TransactionService;
 import it.gov.pagopa.bizeventsservice.util.CacheService;
 import it.gov.pagopa.bizeventsservice.util.ViewGenerator;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static it.gov.pagopa.bizeventsservice.exception.enumeration.ReceiptServiceStatusCode.*;
+import static it.gov.pagopa.bizeventsservice.util.ViewGenerator.EVENT_ID;
 import static it.gov.pagopa.bizeventsservice.util.ViewGenerator.generateBizEventsViewUser;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -70,6 +67,9 @@ public class TransactionServiceTest {
     public static final String TRANSACTION_RECEIPT_PATH = "/transactions/event-id/pdf";
     public static final String VALID_FISCAL_CODE = "AAAAAA00A00A000A";
     public static final String FISCAL_CODE_HEADER_KEY = "x-fiscal-code";
+    public static final String PDF_FILE_NAME = "pdfFileName";
+    public static final String HEADER_FILENAME = "filename";
+    public static final String EVENT_ID_CART = "eventId_CART_";
 
     @MockBean
     private BizEventsViewUserRepository bizEventsViewUserRepository;
@@ -94,11 +94,12 @@ public class TransactionServiceTest {
     void setUp() {
         transactionService = spy(new TransactionService(bizEventsViewGeneralRepository, bizEventsViewCartRepository, bizEventsViewUserRepository,
                 receiptClient, generateReceiptClient, bizEventsService, cacheService));
-        Attachment attachmentDetail = mock(Attachment.class);
-        when(attachmentDetail.getName()).thenReturn("name.pdf");
-        AttachmentsDetailsResponse attachments = AttachmentsDetailsResponse.builder().attachments(List.of(attachmentDetail)).build();
-        when(receiptClient.getAttachments(anyString(), anyString())).thenReturn(attachments);
-        when(receiptClient.getReceipt(anyString(), anyString(), any())).thenReturn(receipt);
+        ResponseEntity<byte[]> receiptPdfResponse = mock(ResponseEntity.class);
+        when(receiptPdfResponse.getBody()).thenReturn(receipt);
+        HttpHeaders headers = mock(HttpHeaders.class);
+        when(headers.getOrDefault(eq(HEADER_FILENAME), any())).thenReturn(List.of("filename.pdf"));
+        when(receiptPdfResponse.getHeaders()).thenReturn(headers);
+        when(receiptClient.getReceiptPdf(anyString(), anyString())).thenReturn(receiptPdfResponse);
         when(generateReceiptClient.generateReceipt(anyString())).thenReturn("OK");
     }
 
@@ -224,9 +225,9 @@ public class TransactionServiceTest {
 
     @Test
     void idAndTaxCodeWithOneEventShouldReturnNoticeDetails() {
-    	BizEventsViewGeneral viewGeneral = ViewGenerator.generateBizEventsViewGeneral(false);
+        BizEventsViewGeneral viewGeneral = ViewGenerator.generateBizEventsViewGeneral(false);
         when(bizEventsViewGeneralRepository.findByTransactionId(ViewGenerator.TRANSACTION_ID))
-        .thenReturn(List.of(viewGeneral));
+                .thenReturn(List.of(viewGeneral));
         List<BizEventsViewCart> listOfCartView = Collections.singletonList(ViewGenerator.generateBizEventsViewCart());
         when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID))
                 .thenReturn(listOfCartView);
@@ -391,35 +392,35 @@ public class TransactionServiceTest {
 
     @Test
     void idAndTaxCodeWithNoEventShouldReturnException() {
-    	when(bizEventsViewGeneralRepository.findByTransactionId(ViewGenerator.TRANSACTION_ID))
-    	.thenReturn(Collections.emptyList());
-    	
-    	Assertions.assertThrows(AppException.class, () ->
-    	transactionService.getPaidNoticeDetail(
-    			ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+        when(bizEventsViewGeneralRepository.findByTransactionId(ViewGenerator.TRANSACTION_ID))
+                .thenReturn(Collections.emptyList());
 
-    	verify(bizEventsViewGeneralRepository).findByTransactionId(ViewGenerator.TRANSACTION_ID);
+        Assertions.assertThrows(AppException.class, () ->
+                transactionService.getPaidNoticeDetail(
+                        ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
 
-    	BizEventsViewGeneral viewGeneral = ViewGenerator.generateBizEventsViewGeneral(false);
-    	when(bizEventsViewGeneralRepository.findByTransactionId(ViewGenerator.TRANSACTION_ID))
-    	.thenReturn(List.of(viewGeneral));
-    	List<BizEventsViewCart> listOfCartView = new ArrayList<>();
-    	when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID))
-    	.thenReturn(listOfCartView);
+        verify(bizEventsViewGeneralRepository).findByTransactionId(ViewGenerator.TRANSACTION_ID);
 
-    	Assertions.assertThrows(AppException.class, () ->
-    	transactionService.getPaidNoticeDetail(
-    			ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
-    	
-    	verify(bizEventsViewGeneralRepository, times(2)).findByTransactionId(ViewGenerator.TRANSACTION_ID);
+        BizEventsViewGeneral viewGeneral = ViewGenerator.generateBizEventsViewGeneral(false);
+        when(bizEventsViewGeneralRepository.findByTransactionId(ViewGenerator.TRANSACTION_ID))
+                .thenReturn(List.of(viewGeneral));
+        List<BizEventsViewCart> listOfCartView = new ArrayList<>();
+        when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID))
+                .thenReturn(listOfCartView);
+
+        Assertions.assertThrows(AppException.class, () ->
+                transactionService.getPaidNoticeDetail(
+                        ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+
+        verify(bizEventsViewGeneralRepository, times(2)).findByTransactionId(ViewGenerator.TRANSACTION_ID);
         verify(bizEventsViewCartRepository).getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID);
     }
 
     @Test
     void idAndTaxCodeWithMultipleCartEventsShouldReturnNoticeDetails() {
-    	BizEventsViewGeneral viewGeneral = ViewGenerator.generateBizEventsViewGeneral(true);
+        BizEventsViewGeneral viewGeneral = ViewGenerator.generateBizEventsViewGeneral(true);
         when(bizEventsViewGeneralRepository.findByTransactionId(ViewGenerator.TRANSACTION_ID))
-        .thenReturn(List.of(viewGeneral));
+                .thenReturn(List.of(viewGeneral));
         List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
         when(bizEventsViewCartRepository.getBizEventsViewCartByTransactionId(ViewGenerator.TRANSACTION_ID))
                 .thenReturn(listOfCartView);
@@ -453,7 +454,7 @@ public class TransactionServiceTest {
         verify(bizEventsViewUserRepository).saveAll(argument.capture());
         assertEquals(Boolean.TRUE, argument.getValue().get(0).getHidden());
     }
-    
+
     @Test
     void transactionViewUserDisabledEmptyList() {
         List<BizEventsViewUser> viewUserList = new ArrayList<>();
@@ -464,7 +465,7 @@ public class TransactionServiceTest {
 
         verify(bizEventsViewUserRepository, times(0)).saveAll(viewUserList);
     }
-    
+
     @Test
     void transactionViewUserCartDisabledPayer() {
 
@@ -480,7 +481,7 @@ public class TransactionServiceTest {
                 .thenReturn(viewUserList);
 
         Assertions.assertDoesNotThrow(() -> transactionService.disablePaidNotice(
-                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID+"_CART_"));
+                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID + "_CART_"));
 
         ArgumentCaptor<List<BizEventsViewUser>> argument = ArgumentCaptor.forClass(List.class);
         verify(bizEventsViewUserRepository).saveAll(argument.capture());
@@ -503,7 +504,7 @@ public class TransactionServiceTest {
                 .thenReturn(viewUserList);
 
         Assertions.assertDoesNotThrow(() -> transactionService.disablePaidNotice(
-                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID+"_CART_"+ViewGenerator.EVENT_ID));
+                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID + "_CART_" + ViewGenerator.EVENT_ID));
 
         ArgumentCaptor<List<BizEventsViewUser>> argument = ArgumentCaptor.forClass(List.class);
         verify(bizEventsViewUserRepository).saveAll(argument.capture());
@@ -511,13 +512,231 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void getPDFReceiptResponseOK() {
-        BizEvent bizEvent = BizEvent.builder().id("event-id").build();
-        when(bizEventsService.getBizEventFromLAPId(anyString())).thenReturn(bizEvent);
+    void getPDFReceiptResponse_OK() throws IOException {
+        MultiValueMap headers = new LinkedMultiValueMap();
+        headers.put(HEADER_FILENAME, List.of(PDF_FILE_NAME));
+        byte[] body = "body".getBytes();
+        ResponseEntity<byte[]> clientResponse = new ResponseEntity<byte[]>(
+                body,
+                headers,
+                HttpStatus.valueOf(200));
+        when(receiptClient.getReceiptPdf(VALID_FISCAL_CODE, EVENT_ID)).thenReturn(clientResponse);
 
-        var res = Assertions.assertDoesNotThrow(() ->
-                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, "event-id"));
+        ResponseEntity<Resource> res = Assertions.assertDoesNotThrow(() ->
+                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, EVENT_ID));
 
         assertEquals(200, res.getStatusCode().value());
+        assertTrue(res.getHeaders().getOrDefault(HttpHeaders.CONTENT_DISPOSITION, List.of("")).get(0).contains(PDF_FILE_NAME));
+        assertArrayEquals(body, res.getBody().getInputStream().readAllBytes());
+    }
+
+    @Test
+    void getPDFReceiptResponse_KO_EmptyBodyFromClient() {
+        ResponseEntity<byte[]> clientResponse = new ResponseEntity<>(
+                (byte[]) null,
+                HttpStatus.valueOf(200));
+        when(receiptClient.getReceiptPdf(VALID_FISCAL_CODE, EVENT_ID)).thenReturn(clientResponse);
+
+        AppException e = Assertions.assertThrows(AppException.class, () ->
+                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, EVENT_ID));
+
+        assertEquals(AppError.ATTACHMENT_NOT_FOUND.getCode(), e.getCode());
+    }
+
+    @Test
+    void getPDFReceiptResponse_KO_ExceptionEmptyBody() {
+        FeignException feignException =
+                FeignException.errorStatus(
+                        "getReceiptPdf",
+                        Response.builder()
+                                .request(Request.create(
+                                        Request.HttpMethod.GET,
+                                        "/receipt",
+                                        Collections.emptyMap(),
+                                        null,
+                                        StandardCharsets.UTF_8,
+                                        new RequestTemplate()
+                                ))
+                                .build()
+                );
+        when(receiptClient.getReceiptPdf(VALID_FISCAL_CODE, EVENT_ID)).thenThrow(feignException);
+
+        Assertions.assertThrows(FeignException.class, () ->
+                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, EVENT_ID));
+        verify(bizEventsService, never()).getBizEventFromLAPId(anyString());
+        verify(generateReceiptClient, never()).generateReceipt(anyString());
+        verify(generateReceiptClient, never()).generateReceiptCart(anyString());
+    }
+
+    @Test
+    void getPDFReceiptResponse_KO_ErrorPDFS714() {
+        FeignException feignException = mock(FeignException.class);
+        when(feignException.contentUTF8()).thenReturn(PDFS_714.getErrorCode());
+        when(receiptClient.getReceiptPdf(VALID_FISCAL_CODE, EVENT_ID)).thenThrow(feignException);
+        BizEvent biz = BizEvent.builder().ts(OffsetDateTime.now().minusMinutes(10)).build();
+        when(bizEventsService.getBizEventFromLAPId(EVENT_ID)).thenReturn(biz);
+
+        AppException e = Assertions.assertThrows(AppException.class, () ->
+                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, EVENT_ID));
+
+        assertEquals(AppError.ATTACHMENT_GENERATING.getCode(), e.getCode());
+        verify(generateReceiptClient, never()).generateReceipt(anyString());
+        verify(generateReceiptClient, never()).generateReceiptCart(anyString());
+    }
+
+    @Test
+    void getPDFReceiptResponse_KO_Receipt_ErrorPDFS715() {
+        FeignException feignException = mock(FeignException.class);
+        when(feignException.contentUTF8()).thenReturn(PDFS_715.getErrorCode());
+        when(receiptClient.getReceiptPdf(VALID_FISCAL_CODE, EVENT_ID)).thenThrow(feignException);
+        when(generateReceiptClient.generateReceipt(EVENT_ID)).thenReturn("ok");
+
+        AppException e = Assertions.assertThrows(AppException.class, () ->
+                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, EVENT_ID));
+
+        assertEquals(AppError.ATTACHMENT_GENERATING.getCode(), e.getCode());
+        verify(bizEventsService, never()).getBizEventFromLAPId(anyString());
+        verify(generateReceiptClient, never()).generateReceiptCart(anyString());
+    }
+
+    @Test
+    void getPDFReceiptResponse_KO_Cart_ErrorPDFS715() {
+        FeignException feignException = mock(FeignException.class);
+        when(feignException.contentUTF8()).thenReturn(PDFS_715.getErrorCode());
+        when(receiptClient.getReceiptPdf(VALID_FISCAL_CODE, EVENT_ID_CART)).thenThrow(feignException);
+        when(generateReceiptClient.generateReceiptCart(EVENT_ID_CART)).thenReturn("ok");
+
+        AppException e = Assertions.assertThrows(AppException.class, () ->
+                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, EVENT_ID_CART));
+
+        assertEquals(AppError.ATTACHMENT_GENERATING.getCode(), e.getCode());
+        verify(bizEventsService, never()).getBizEventFromLAPId(anyString());
+        verify(generateReceiptClient, never()).generateReceipt(anyString());
+    }
+
+    @Test
+    void getPDFReceiptResponse_KO_ErrorPDFS716() {
+        FeignException feignException = mock(FeignException.class);
+        when(feignException.contentUTF8()).thenReturn(PDFS_716.getErrorCode());
+        when(receiptClient.getReceiptPdf(VALID_FISCAL_CODE, EVENT_ID)).thenThrow(feignException);
+
+        AppException e = Assertions.assertThrows(AppException.class, () ->
+                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, EVENT_ID));
+
+        assertEquals(AppError.ATTACHMENT_NOT_FOUND.getCode(), e.getCode());
+        verify(bizEventsService, never()).getBizEventFromLAPId(anyString());
+        verify(generateReceiptClient, never()).generateReceipt(anyString());
+        verify(generateReceiptClient, never()).generateReceiptCart(anyString());
+    }
+
+    @Test
+    void getPDFReceiptResponse_KO_Receipt_ErrorPDFS800_OldBizEvent() {
+        FeignException feignException = mock(FeignException.class);
+        when(feignException.contentUTF8()).thenReturn(PDFS_800.getErrorCode());
+        when(receiptClient.getReceiptPdf(VALID_FISCAL_CODE, EVENT_ID)).thenThrow(feignException);
+        when(generateReceiptClient.generateReceipt(EVENT_ID)).thenReturn("ok");
+        BizEvent biz = BizEvent.builder().ts(OffsetDateTime.now().minusMinutes(50)).build();
+        when(bizEventsService.getBizEventFromLAPId(EVENT_ID)).thenReturn(biz);
+
+        AppException e = Assertions.assertThrows(AppException.class, () ->
+                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, EVENT_ID));
+
+        assertEquals(AppError.ATTACHMENT_GENERATING.getCode(), e.getCode());
+        verify(bizEventsService, atMostOnce()).getBizEventFromLAPId(EVENT_ID);
+        verify(generateReceiptClient, atMostOnce()).generateReceipt(EVENT_ID);
+        verify(generateReceiptClient, never()).generateReceiptCart(anyString());
+    }
+
+    @Test
+    void getPDFReceiptResponse_KO_Cart_ErrorPDFS801_OldBizEvent() {
+        FeignException feignException = mock(FeignException.class);
+        when(feignException.contentUTF8()).thenReturn(PDFS_801.getErrorCode());
+        when(receiptClient.getReceiptPdf(VALID_FISCAL_CODE, EVENT_ID_CART)).thenThrow(feignException);
+        when(generateReceiptClient.generateReceiptCart(EVENT_ID_CART)).thenReturn("ok");
+        BizEvent biz = BizEvent.builder().ts(OffsetDateTime.now().minusMinutes(50)).build();
+        when(bizEventsService.getBizEventFromLAPId(EVENT_ID_CART)).thenReturn(biz);
+
+        AppException e = Assertions.assertThrows(AppException.class, () ->
+                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, EVENT_ID_CART));
+
+        assertEquals(AppError.ATTACHMENT_GENERATING.getCode(), e.getCode());
+        verify(bizEventsService, atMostOnce()).getBizEventFromLAPId(EVENT_ID_CART);
+        verify(generateReceiptClient, atMostOnce()).generateReceiptCart(EVENT_ID_CART);
+        verify(generateReceiptClient, never()).generateReceipt(anyString());
+    }
+
+    @Test
+    void getPDFReceiptResponse_KO_Receipt_ErrorPDFS800_NewBizEvent() {
+        FeignException feignException = mock(FeignException.class);
+        when(feignException.contentUTF8()).thenReturn(PDFS_800.getErrorCode());
+        when(receiptClient.getReceiptPdf(VALID_FISCAL_CODE, EVENT_ID)).thenThrow(feignException);
+        BizEvent biz = BizEvent.builder().ts(OffsetDateTime.now().minusMinutes(10)).build();
+        when(bizEventsService.getBizEventFromLAPId(EVENT_ID)).thenReturn(biz);
+
+        AppException e = Assertions.assertThrows(AppException.class, () ->
+                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, EVENT_ID));
+
+        assertEquals(AppError.ATTACHMENT_GENERATING.getCode(), e.getCode());
+        verify(bizEventsService, atMostOnce()).getBizEventFromLAPId(EVENT_ID);
+        verify(generateReceiptClient, never()).generateReceipt(anyString());
+        verify(generateReceiptClient, never()).generateReceiptCart(anyString());
+    }
+
+    @Test
+    void getPDFReceiptResponse_KO_Cart_ErrorPDFS801_NewBizEvent() {
+        FeignException feignException = mock(FeignException.class);
+        when(feignException.contentUTF8()).thenReturn(PDFS_801.getErrorCode());
+        when(receiptClient.getReceiptPdf(VALID_FISCAL_CODE, EVENT_ID_CART)).thenThrow(feignException);
+        BizEvent biz = BizEvent.builder().ts(OffsetDateTime.now().minusMinutes(10)).build();
+        when(bizEventsService.getBizEventFromLAPId(EVENT_ID_CART)).thenReturn(biz);
+
+        AppException e = Assertions.assertThrows(AppException.class, () ->
+                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, EVENT_ID_CART));
+
+        assertEquals(AppError.ATTACHMENT_GENERATING.getCode(), e.getCode());
+        verify(bizEventsService, atMostOnce()).getBizEventFromLAPId(EVENT_ID_CART);
+        verify(generateReceiptClient, never()).generateReceiptCart(anyString());
+        verify(generateReceiptClient, never()).generateReceipt(anyString());
+    }
+
+    @Test
+    void getPDFReceiptResponse_KO_ErrorPDFS706() {
+        FeignException feignException = mock(FeignException.class);
+        when(feignException.contentUTF8()).thenReturn(PDFS_706.getErrorCode());
+        when(receiptClient.getReceiptPdf(VALID_FISCAL_CODE, EVENT_ID)).thenThrow(feignException);
+
+        AppException e = Assertions.assertThrows(AppException.class, () ->
+                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, EVENT_ID));
+
+        assertEquals(AppError.INVALID_FISCAL_CODE.getCode(), e.getCode());
+        verify(bizEventsService, never()).getBizEventFromLAPId(anyString());
+        verify(generateReceiptClient, never()).generateReceipt(anyString());
+        verify(generateReceiptClient, never()).generateReceiptCart(anyString());
+    }
+
+    @Test
+    void getPDFReceiptResponse_KO_GenericError() {
+        FeignException feignException =
+                FeignException.errorStatus(
+                        "getReceiptPdf",
+                        Response.builder()
+                                .request(Request.create(
+                                        Request.HttpMethod.GET,
+                                        "/receipt",
+                                        Collections.emptyMap(),
+                                        "genericError".getBytes(),
+                                        StandardCharsets.UTF_8,
+                                        new RequestTemplate()
+                                ))
+                                .build()
+                );
+        when(receiptClient.getReceiptPdf(VALID_FISCAL_CODE, EVENT_ID)).thenThrow(feignException);
+
+        Assertions.assertThrows(FeignException.class, () ->
+                transactionService.getPDFReceiptResponse(VALID_FISCAL_CODE, EVENT_ID));
+
+        verify(bizEventsService, never()).getBizEventFromLAPId(anyString());
+        verify(generateReceiptClient, never()).generateReceipt(anyString());
+        verify(generateReceiptClient, never()).generateReceiptCart(anyString());
     }
 }

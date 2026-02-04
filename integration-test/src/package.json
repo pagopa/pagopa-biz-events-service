@@ -9,12 +9,15 @@
     "cucumber": "npx cucumber-js --publish -r step_definitions"
   },
   "dependencies": {
-    "@azure/cosmos": "^4.0.0",
     "@cucumber/cucumber": "^8.4.0",
     "axios": "^1.0.0",
     "crypto-js": "^4.0.0",
     "dotenv": "^16.0.2",
     "dotenv-cli": "^3.2.0",
     "npx": "^10.2.2"
+  },
+  "devDependencies": {
+    "@azure/cosmos": "^4.0.0",
+    "@azure/storage-blob": "^12.15.0"
   }
 }

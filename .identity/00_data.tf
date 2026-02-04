@@ -83,3 +83,18 @@ data "azurerm_key_vault_secret" "key_vault_report_slack_webhook" {
   name         = "pagopa-pagamenti-report-slack-webhook"
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
+
+data "azurerm_cosmosdb_account" "receipts_cosmos" {
+  name                = "pagopa-${var.env_short}-${local.location_short}-receipts-ds-cosmos-account"
+  resource_group_name = "pagopa-${var.env_short}-${local.location_short}-receipts-rg"
+}
+
+data "azurerm_storage_account" "receipts_sa" {
+  name                = "pagopa${var.env_short}${local.location_short}receiptsfnsa"
+  resource_group_name = "pagopa-${var.env_short}-${local.location_short}-receipts-st-rg"
+}
+
+data "azurerm_key_vault_secret" "key_vault_tokenizer_api_key" {
+  name         = "tokenizer-api-key"
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
+}
