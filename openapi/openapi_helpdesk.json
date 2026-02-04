@@ -35,6 +35,24 @@
           }
         ],
         "responses": {
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "headers": {
@@ -53,8 +71,8 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
+          "401": {
+            "description": "Unauthorized",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -64,20 +82,13 @@
               }
             }
           },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
                 "schema": {
                   "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -102,17 +113,6 @@
           },
           "429": {
             "description": "Too many requests",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -169,8 +169,8 @@
               }
             }
           },
-          "500": {
-            "description": "Service unavailable.",
+          "404": {
+            "description": "Not found the biz-event.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -198,24 +198,6 @@
               }
             }
           },
-          "404": {
-            "description": "Not found the biz-event.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
           "200": {
             "description": "Obtained biz-event.",
             "headers": {
@@ -230,6 +212,24 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BizEvent"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Service unavailable.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -308,8 +308,8 @@
               }
             }
           },
-          "500": {
-            "description": "Service unavailable.",
+          "404": {
+            "description": "Not found the biz-event.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -337,24 +337,6 @@
               }
             }
           },
-          "404": {
-            "description": "Not found the biz-event.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
           "200": {
             "description": "Obtained biz-event.",
             "headers": {
@@ -369,6 +351,24 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BizEvent"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Service unavailable.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -402,20 +402,6 @@
   },
   "components": {
     "schemas": {
-      "AppInfo": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "version": {
-            "type": "string"
-          },
-          "environment": {
-            "type": "string"
-          }
-        }
-      },
       "ProblemJson": {
         "type": "object",
         "properties": {
@@ -440,6 +426,20 @@
             "type": "string",
             "description": "A machine-readable code specific to this error.",
             "example": "The error code"
+          }
+        }
+      },
+      "AppInfo": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "environment": {
+            "type": "string"
           }
         }
       },
@@ -814,9 +814,6 @@
             "items": {
               "$ref": "#/components/schemas/MapEntry"
             }
-          },
-          "iur": {
-            "type": "string"
           },
           "IUR": {
             "type": "string"

@@ -54,24 +54,6 @@
               }
             }
           },
-          "500": {
-            "description": "Service unavailable.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Wrong or missing function key.",
             "headers": {
@@ -81,20 +63,6 @@
                   "type": "string"
                 }
               }
-            }
-          },
-          "200": {
-            "description": "Event Disabled.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {}
             }
           },
           "404": {
@@ -113,6 +81,38 @@
                   "$ref": "#/components/schemas/ProblemJson"
                 }
               }
+            }
+          },
+          "500": {
+            "description": "Service unavailable.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Event Disabled.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {}
             }
           }
         },
@@ -217,35 +217,6 @@
               }
             }
           },
-          "500": {
-            "description": "Service unavailable.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Wrong or missing function key.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "200": {
             "description": "Obtained paid notices list.",
             "headers": {
@@ -267,6 +238,35 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/NoticeListWrapResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Wrong or missing function key.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Service unavailable.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -336,8 +336,8 @@
               }
             }
           },
-          "500": {
-            "description": "Service unavailable.",
+          "200": {
+            "description": "Obtained paid notice detail.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -349,7 +349,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
+                  "$ref": "#/components/schemas/NoticeDetailResponse"
                 }
               }
             }
@@ -365,8 +365,8 @@
               }
             }
           },
-          "200": {
-            "description": "Obtained paid notice detail.",
+          "500": {
+            "description": "Service unavailable.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -378,7 +378,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/NoticeDetailResponse"
+                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -437,8 +437,45 @@
           }
         ],
         "responses": {
-          "422": {
-            "description": "Unprocessable receipt.",
+          "429": {
+            "description": "Too many requests.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Obtained the PDF receipt.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Disposition": {
+                "description": "Content disposition with name of the file",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found the receipt.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -455,13 +492,20 @@
               }
             }
           },
-          "429": {
-            "description": "Too many requests.",
+          "422": {
+            "description": "Unprocessable receipt.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
                 "schema": {
                   "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -497,50 +541,6 @@
             "content": {
               "application/json": {}
             }
-          },
-          "404": {
-            "description": "Not found the receipt.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "Obtained the PDF receipt.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Content-Disposition": {
-                "description": "Content disposition with name of the file",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/pdf": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
           }
         },
         "security": [
@@ -570,6 +570,24 @@
           }
         ],
         "responses": {
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
           "200": {
             "description": "OK",
             "headers": {
@@ -588,8 +606,8 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
+          "401": {
+            "description": "Unauthorized",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -599,20 +617,13 @@
               }
             }
           },
-          "400": {
-            "description": "Bad Request",
+          "403": {
+            "description": "Forbidden",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
                 "schema": {
                   "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -637,17 +648,6 @@
           },
           "429": {
             "description": "Too many requests",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",

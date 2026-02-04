@@ -2037,9 +2037,6 @@
               "$ref": "#/components/schemas/MapEntry"
             }
           },
-          "iur": {
-            "type": "string"
-          },
           "IUR": {
             "type": "string"
           }
