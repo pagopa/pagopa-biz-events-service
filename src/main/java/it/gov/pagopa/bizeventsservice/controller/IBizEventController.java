@@ -27,7 +27,7 @@ import static it.gov.pagopa.bizeventsservice.util.Constants.X_CONTINUATION_TOKEN
 import static it.gov.pagopa.bizeventsservice.util.Constants.X_FISCAL_CODE;
 
 @Tag(name = "Biz-Events Helpdesk")
-@RequestMapping
+@RequestMapping("/events")
 @Validated
 public interface IBizEventController {
 
@@ -40,7 +40,7 @@ public interface IBizEventController {
             @ApiResponse(responseCode = "422", description = "Unable to process the request.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
-    @GetMapping(value = "/events/{biz-event-id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{biz-event-id}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<BizEvent> getBizEvent(
             @Parameter(description = "The id of the biz-event.", required = true) @NotBlank @PathVariable("biz-event-id") String bizEventId);
 
@@ -53,7 +53,7 @@ public interface IBizEventController {
             @ApiResponse(responseCode = "422", description = "Unable to process the request.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
-    @GetMapping(value = "/events/organizations/{organization-fiscal-code}/iuvs/{iuv}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/organizations/{organization-fiscal-code}/iuvs/{iuv}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<BizEvent> getBizEventByOrganizationFiscalCodeAndIuv(
             @Parameter(description = "The fiscal code of the Organization.", required = true) @NotBlank @PathVariable("organization-fiscal-code") String organizationFiscalCode,
             @Parameter(description = "The unique payment identification. Alphanumeric code that uniquely associates and identifies three key elements of a payment: reason, payer, amount", required = true) @NotBlank @PathVariable("iuv") String iuv);
@@ -66,7 +66,7 @@ public interface IBizEventController {
      * @param size              optional parameter defining page size, defaults to 10
      * @return the paid notices list
      */
-    @GetMapping("/events/paids")
+    @GetMapping("/paids")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained paid notices list.",
                     headers = @Header(name = X_CONTINUATION_TOKEN, description = "continuation token for paginated query", schema = @Schema(type = "string")),
@@ -75,7 +75,7 @@ public interface IBizEventController {
             @ApiResponse(responseCode = "404", description = "Not found the fiscal code.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
-    @Operation(summary = "Retrieve the paged transaction list from biz events.", description = "This operation is deprecated. Use Paid Notice APIs instead", security = {
+    @Operation(summary = "Retrieve the paged transaction list from biz events.", description = "Retrieve the list of paid notices", security = {
             @SecurityRequirement(name = "ApiKey")})
     ResponseEntity<NoticeListWrapResponse> getPaidNoticesWithHiddenParam(
             @RequestHeader(name = X_FISCAL_CODE) String fiscalCode,
@@ -86,4 +86,18 @@ public interface IBizEventController {
             @RequestParam(required = false, defaultValue = "false") @Parameter(description = "Filter notices by hidden property") Boolean hidden,
             @RequestParam(required = false, name = "orderby", defaultValue = "TRANSACTION_DATE") @Parameter(description = "Order by TRANSACTION_DATE") Order.TransactionListOrder orderBy,
             @RequestParam(required = false, name = "ordering", defaultValue = "DESC") @Parameter(description = "Direction of ordering") Sort.Direction ordering);
+
+    @Operation(summary = "Enable the paid notice details given its id.", security = {
+            @SecurityRequirement(name = "ApiKey")}, operationId = "enablePaidNotice")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Event enabled.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
+            @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "404", description = "Not found the paid event.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
+            @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
+    @PostMapping(value = "/{event-id}/enable", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<Void> enablePaidNotice(
+            @RequestHeader(X_FISCAL_CODE) @NotBlank String fiscalCode,
+            @Parameter(description = "The id of the paid event.", required = true) @NotBlank @PathVariable("event-id") String eventId);
 }

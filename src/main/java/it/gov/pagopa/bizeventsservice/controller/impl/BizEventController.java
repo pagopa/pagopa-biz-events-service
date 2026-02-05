@@ -58,4 +58,10 @@ public class BizEventController implements IBizEventController {
                 .header(X_CONTINUATION_TOKEN, transactionListResponse.getContinuationToken())
                 .body(NoticeListWrapResponse.builder().notices(convertToNoticeList(transactionListResponse)).build());
     }
+
+    @Override
+    public ResponseEntity<Void> enablePaidNotice(String fiscalCode, String eventId) {
+        transactionService.enablePaidNotice(fiscalCode, eventId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
