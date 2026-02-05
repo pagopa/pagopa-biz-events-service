@@ -74,7 +74,7 @@ public class PaidNoticeControllerTest {
         });
         TransactionListResponse transactionListResponse = TransactionListResponse.builder().transactionList(transactionListItems).build();
         NoticeDetailResponse noticeDetailResponse = Utility.readModelFromFile("biz-events/paidNoticeDetails.json", NoticeDetailResponse.class);
-        when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyString(), anyInt(), any(), any())).thenReturn(transactionListResponse);
+        when(transactionService.getTransactionList(eq(VALID_FISCAL_CODE), any(), any(), anyString(), anyBoolean(), anyInt(), any(), any())).thenReturn(transactionListResponse);
         when(transactionService.getPaidNoticeDetail(anyString(), anyString())).thenReturn(noticeDetailResponse);
         ResponseEntity<byte[]> receiptPdfResponse = mock(ResponseEntity.class);
         when(receiptPdfResponse.getBody()).thenReturn(receipt);
@@ -110,7 +110,7 @@ public class PaidNoticeControllerTest {
 
     @Test
     void getPaidNoticesListWithInvalidFiscalCodeShouldReturnError() throws Exception {
-        when(transactionService.getTransactionList(eq(INVALID_FISCAL_CODE), any(), any(), any(), anyInt(), any(), any())).thenAnswer(x -> {
+        when(transactionService.getTransactionList(eq(INVALID_FISCAL_CODE), any(), any(), any(), anyBoolean(), anyInt(), any(), any())).thenAnswer(x -> {
             throw new AppException(AppError.INVALID_FISCAL_CODE, INVALID_FISCAL_CODE);
         });
         mvc.perform(get(PAIDS_PATH)
