@@ -86,6 +86,7 @@ public class TransactionService implements ITransactionService {
             Boolean isPayer,
             Boolean isDebtor,
             String continuationToken,
+            Boolean hidden,
             Integer size,
             TransactionListOrder orderBy,
             Direction ordering
@@ -94,7 +95,7 @@ public class TransactionService implements ITransactionService {
 
         final CosmosPageRequest pageRequest = getCosmosPageRequest(continuationToken, size, orderBy, ordering);
         final Page<BizEventsViewUser> page = this.bizEventsViewUserRepository
-                .getBizEventsViewUserByTaxCode(taxCode, isPayer, isDebtor, pageRequest);
+                .getBizEventsViewUserByTaxCode(taxCode, isPayer, isDebtor, hidden, pageRequest);
         List<BizEventsViewUser> listOfViewUser = page.getContent();
 
         if (listOfViewUser.isEmpty()) {
