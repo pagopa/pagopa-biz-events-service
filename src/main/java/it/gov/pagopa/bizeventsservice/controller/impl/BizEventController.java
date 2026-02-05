@@ -60,8 +60,8 @@ public class BizEventController implements IBizEventController {
     }
 
     @Override
-    public ResponseEntity<Void> enablePaidNotice(String fiscalCode, String eventId) {
-        transactionService.enablePaidNotice(fiscalCode, eventId);
+    public ResponseEntity<Void> enablePaidNotice(String fiscalCode, String transactionId) {
+        transactionService.enablePaidNotice(fiscalCode, transactionId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -44,10 +44,10 @@ public interface ITransactionService {
     void disablePaidNotice(String fiscalCode, String eventId);
 
     /**
-     * This method enable a paid notice for the given fiscal code and event id
+     * This method enable a paid notice for the given fiscal code and transaction id
      *
      * @param fiscalCode the fiscal code
-     * @param eventId    the event id
+     * @param transactionId the transaction id
      */
-    void enablePaidNotice(String fiscalCode, String eventId);
+    void enablePaidNotice(String fiscalCode, String transactionId);
 }

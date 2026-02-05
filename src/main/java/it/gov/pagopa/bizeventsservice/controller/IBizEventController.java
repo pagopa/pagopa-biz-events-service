@@ -96,7 +96,7 @@ public interface IBizEventController {
             @ApiResponse(responseCode = "404", description = "Not found the paid event.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
-    @PostMapping(value = "/{event-id}/enable", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/{transaction-id}/enable", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<Void> enablePaidNotice(
             @RequestHeader(X_FISCAL_CODE) @NotBlank String fiscalCode,
             @Parameter(description = "The id of the paid event.", required = true) @NotBlank @PathVariable("event-id") String eventId);
