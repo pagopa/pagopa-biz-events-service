@@ -60,8 +60,34 @@ public class ConvertBizEventEntityToCtReceiptModelResponse implements Converter<
                     .eMail(be.getPayer().getEMail())
                     .build();
         }
+        
+        if (be.getTransferList() != null && !be.getTransferList().isEmpty()) {
+            ctTransferListPA = new ArrayList<>();
 
-        if (null != be.getTransferList() && !be.getTransferList().isEmpty()) {
+            for (Transfer t : be.getTransferList()) {
+
+            	// Priority: MBDAttachment as string
+            	String mbdAttachment = t.getMbdAttachment();
+            	// fallback: MBD object
+            	if (mbdAttachment == null || mbdAttachment.isBlank()) {
+            	    mbdAttachment = t.getMbd() != null ? t.getMbd().getMbdAttachment() : null;
+            	}
+
+                ctTransferListPA.add(TransferPA.builder()
+                        .idTransfer(Integer.valueOf(t.getIdTransfer()))
+                        .transferAmount(t.getAmount() != null && !t.getAmount().isBlank() ? new BigDecimal(t.getAmount()) : null)
+                        .fiscalCodePA(t.getFiscalCodePA())
+                        .iban(t.getIban())
+                        .mbdAttachment(mbdAttachment)
+                        .remittanceInformation(t.getRemittanceInformation())
+                        .transferCategory(t.getTransferCategory())
+                        .metadata(t.getMetadata())
+                        .build());
+            }
+        }
+
+
+        /*if (null != be.getTransferList() && !be.getTransferList().isEmpty()) {
             ctTransferListPA = new ArrayList<>();
             for (Transfer t : be.getTransferList()) {
                 ctTransferListPA.add(TransferPA.builder()
@@ -75,7 +101,7 @@ public class ConvertBizEventEntityToCtReceiptModelResponse implements Converter<
                         .metadata(t.getMetadata())
                         .build());
             }
-        }
+        }*/
 
 
         return CtReceiptModelResponse.builder()
@@ -84,7 +110,8 @@ public class ConvertBizEventEntityToCtReceiptModelResponse implements Converter<
                 .fiscalCode(be.getCreditor().getIdPA())
                 .outcome("OK") // default hardcoded
                 .creditorReferenceId(be.getDebtorPosition().getIuv())
-                .paymentAmount(BigDecimal.valueOf(Double.valueOf(be.getPaymentInfo().getAmount())))
+                .paymentAmount(be.getPaymentInfo().getAmount() != null ? 
+                		new BigDecimal(be.getPaymentInfo().getAmount()) : null)
                 .description(be.getPaymentInfo().getRemittanceInformation())
 
                 .companyName(be.getCreditor().getCompanyName())
@@ -102,9 +129,8 @@ public class ConvertBizEventEntityToCtReceiptModelResponse implements Converter<
                 .payer(ctReceiptPayer)
                 .paymentMethod(be.getPaymentInfo().getPaymentMethod())
 
-                .fee(BigDecimal.valueOf(null != be.getPaymentInfo().getFee() ? Double.valueOf(be.getPaymentInfo().getFee()) : null))
-                .primaryCiIncurredFee(null != be.getPaymentInfo().getPrimaryCiIncurredFee() ?
-                        BigDecimal.valueOf(Double.valueOf(be.getPaymentInfo().getPrimaryCiIncurredFee())) : null)
+                .fee(be.getPaymentInfo().getFee() != null ? new BigDecimal(be.getPaymentInfo().getFee()) : null)
+                .primaryCiIncurredFee(be.getPaymentInfo().getPrimaryCiIncurredFee() != null ? new BigDecimal(be.getPaymentInfo().getPrimaryCiIncurredFee()) : null)
                 .idBundle(be.getPaymentInfo().getIdBundle())
                 .idCiBundle(be.getPaymentInfo().getIdCiBundle())
                 .paymentDateTime(LocalDate.parse(StringUtils.substringBeforeLast(be.getPaymentInfo().getPaymentDateTime(), "."), dfDateTime))

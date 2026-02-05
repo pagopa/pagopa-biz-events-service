@@ -47,13 +47,15 @@ class BizEventsServiceTest {
     private IBizEventsService bizEventsService;
 
     private BizEvent bizEventEntity;
-
     private BizEvent bizEventEntityDuplicated;
+    private BizEvent bizEventEntityWithMbd;
 
     @BeforeAll
     void beforeAll() throws IOException {
         bizEventEntity = Utility.readModelFromFile("biz-events/bizEvent.json", BizEvent.class);
         bizEventEntityDuplicated = Utility.readModelFromFile("biz-events/bizEvent_duplicate.json", BizEvent.class);
+        bizEventEntityWithMbd = Utility.readModelFromFile("biz-events/bizEvent_with_MBD.json", BizEvent.class);
+
     }
 
     @BeforeEach
@@ -204,4 +206,41 @@ class BizEventsServiceTest {
         AppException e = assertThrows(AppException.class, () -> bizEventsService.getBizEventByOrgFiscalCodeAndIuv(ORGANIZATION_FISCAL_CODE, IUV));
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, e.getHttpStatus());
     }
+    
+    @Test
+    void getOrganizationReceiptIuvIur_shouldMapMbdAttachmentStringAndFallbackToMbdObject() {
+        when(bizEventsRepository.getBizEventByOrgFiscCodeIuvAndIur(ORGANIZATION_FISCAL_CODE, IUR, IUV))
+                .thenReturn(List.of(bizEventEntityWithMbd));
+
+        CtReceiptModelResponse ctReceipt = bizEventsService.getOrganizationReceipt(ORGANIZATION_FISCAL_CODE, IUR, IUV);
+
+        // assert transfer list
+        Assertions.assertNotNull(ctReceipt.getTransferList());
+        assertEquals(2, ctReceipt.getTransferList().size());
+
+        // 1. MBDAttachment string
+        assertEquals("FROM_STRING", ctReceipt.getTransferList().get(0).getMbdAttachment());
+
+        // 2. MBD.mbdAttachment in MBD object
+        assertEquals("FROM_MBD", ctReceipt.getTransferList().get(1).getMbdAttachment());
+
+        assertEquals("50.0", ctReceipt.getTransferList().get(0).getTransferAmount().toPlainString());
+        assertEquals("51.0", ctReceipt.getTransferList().get(1).getTransferAmount().toPlainString());
+    }
+    
+    @Test
+    void getOrganizationReceiptIur_shouldMapMbdAttachmentStringAndFallbackToMbdObject() {
+        when(bizEventsRepository.getBizEventByOrgFiscCodeAndIur(ORGANIZATION_FISCAL_CODE, IUR))
+                .thenReturn(List.of(bizEventEntityWithMbd));
+
+        CtReceiptModelResponse ctReceipt = bizEventsService.getOrganizationReceipt(ORGANIZATION_FISCAL_CODE, IUR);
+
+        Assertions.assertNotNull(ctReceipt.getTransferList());
+        assertEquals(2, ctReceipt.getTransferList().size());
+
+        assertEquals("FROM_STRING", ctReceipt.getTransferList().get(0).getMbdAttachment());
+        assertEquals("FROM_MBD", ctReceipt.getTransferList().get(1).getMbdAttachment());
+    }
+
+
 }

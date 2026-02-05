@@ -1,0 +1,108 @@
+{
+    "id": "b77d4987-a3e4-48d4-a2fd-af504f8b79e9",
+    "version": "2",
+    "complete": "false",
+    "receiptId": "85570ffebb13411b80d79f415641ec55",
+    "missingInfo": [
+        "idPaymentManager",
+        "debtor.streetName",
+        "paymentInfo.primaryCiIncurredFee",
+        "paymentInfo.idBundle",
+        "paymentInfo.idCiBundle"
+    ],
+    "debtorPosition": {
+        "modelType": "2",
+        "noticeNumber": "021150441415530487",
+        "iuv": "112006686812600"
+    },
+    "creditor": {
+        "idPA": "66666666666",
+        "idBrokerPA": "nodo-doc-dev",
+        "idStation": "nodo-doc-dev_v2_1",
+        "companyName": "nodo-doc-dev",
+        "officeName": "officeName"
+    },
+    "psp": {
+        "idPsp": "nodo-doc-dev",
+        "idBrokerPsp": "nodo-doc-dev",
+        "idChannel": "nodo-doc-dev",
+        "pspPartitaIVA": "NODODOCDEV1",
+        "pspFiscalCode": "NODODOCDEV123456",
+        "channelDescription": "atm",
+        "psp": "prova"
+    },
+    "debtor": {
+        "fullName": "fullName",
+        "entityUniqueIdentifierType": "F",
+        "entityUniqueIdentifierValue": "entity",
+        "civicNumber": "civicNumber",
+        "postalCode": "postalCode",
+        "city": "city",
+        "stateProvinceRegion": "stateProvinceRegion",
+        "country": "IT",
+        "email": "mail@mail.it"
+    },
+    "payer": {
+        "fullName": "fullName",
+        "entityUniqueIdentifierType": "F",
+        "entityUniqueIdentifierValue": "asdlol",
+        "streetName": "streetName",
+        "civicNumber": "civicNumber",
+        "postalCode": "postalCode",
+        "city": "city",
+        "stateProvinceRegion": "stateProvinceRegion",
+        "country": "IT",
+        "email": "mail@mail.it"
+    },
+    "paymentInfo": {
+        "paymentDateTime": "2022-12-06T17:54:08.017744",
+        "applicationDate": "2021-01-01",
+        "transferDate": "2021-01-01",
+        "dueDate": "2021-10-27",
+        "paymentToken": "CCD01",
+        "amount": "101.0",
+        "fee": "10.0",
+        "totalNotice": "1",
+        "paymentMethod": "cash",
+        "touchpoint": "atm",
+        "remittanceInformation": "test",
+        "description": "test",
+        "metadata": [
+            {
+                "key": "?",
+                "value": "?"
+            },
+            {
+                "key": "?2",
+                "value": "?2"
+            }
+        ]
+    },
+    "transferList": [
+        {
+            "idTransfer": "1",
+            "fiscalCodePA": "00000000099",
+            "companyName": "nodo-doc-dev",
+            "amount": "50.0",
+            "transferCategory": "transferCategory",
+            "remittanceInformation": "remittanceInformation",
+			"MBDAttachment": "FROM_STRING"
+        },
+        {
+            "idTransfer": "2",
+            "fiscalCodePA": "00000000099",
+            "companyName": "nodo-doc-dev",
+            "amount": "51.0",
+            "transferCategory": "transferCategory",
+            "remittanceInformation": "remittanceInformation",
+			"MBD": { "MBDAttachment": "FROM_MBD" }
+        }
+    ],
+    "eventStatus": "DONE",
+    "eventRetryEnrichmentCount": 0,
+    "_rid": "sMJGAMl3HZnLAAAAAAAAAA==",
+    "_self": "dbs/sMJGAA==/colls/sMJGAMl3HZk=/docs/sMJGAMl3HZnLAAAAAAAAAA==/",
+    "_etag": "\"0400170f-0000-0d00-0000-639095940000\"",
+    "_attachments": "attachments/",
+    "_ts": 1670419860
+}
