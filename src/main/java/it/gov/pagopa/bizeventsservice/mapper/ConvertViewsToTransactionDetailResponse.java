@@ -7,7 +7,6 @@ import it.gov.pagopa.bizeventsservice.model.response.paidnotice.InfoNotice;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.*;
-import it.gov.pagopa.bizeventsservice.util.DateValidator;
 import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -15,20 +14,12 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.DateTimeException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 public class ConvertViewsToTransactionDetailResponse {
-    private static final List<String> LIST_RECEIPT_DATE_FORMAT_IN = List.of("yyyy-MM-dd'T'HH:mm:ss");
-    private static final String RECEIPT_DATE_FORMAT_OUT = "yyyy-MM-dd'T'HH:mm:ssX";
 
     private ConvertViewsToTransactionDetailResponse() {
     }
@@ -65,7 +56,7 @@ public class ConvertViewsToTransactionDetailResponse {
                                 .eventId(transactionId)
                                 .authCode(bizEventsViewGeneral.getAuthCode())
                                 .rrn(bizEventsViewGeneral.getRrn())
-                                .noticeDate(dateFormatZoned(bizEventsViewGeneral.getTransactionDate()))
+                                .noticeDate(bizEventsViewGeneral.getTransactionDate())
                                 .pspName(bizEventsViewGeneral.getPspName())
                                 .walletInfo(isDebtor ? null : bizEventsViewGeneral.getWalletInfo())
                                 .payer(isDebtor ? null : bizEventsViewGeneral.getPayer())
@@ -106,40 +97,10 @@ public class ConvertViewsToTransactionDetailResponse {
                 .payeeName(bizEventsViewCart.getPayee().getName())
                 .payeeTaxCode(bizEventsViewCart.getPayee().getTaxCode())
                 .amount(totalAmount.get().setScale(2, RoundingMode.UNNECESSARY).toString()) 
-                .transactionDate(dateFormatZoned(viewUser.getTransactionDate()))
+                .transactionDate(viewUser.getTransactionDate())
                 .isCart(isCart)
                 .isPayer(BooleanUtils.isTrue(viewUser.getIsPayer()))
                 .isDebtor(BooleanUtils.isTrue(viewUser.getIsDebtor()))
                 .build();
-    }
-    
-    private static String dateFormatZoned(String date) {
-        boolean isUtc = date.endsWith("Z");
-        int dotIndex = date.lastIndexOf('.');
-
-        // milliseconds removed if present
-        String dateSub = (dotIndex != -1) ? date.substring(0, dotIndex) : date;
-        // if UTC I add a trailing 'Z' which may have been removed with the millisecond trim
-        if (isUtc && !dateSub.endsWith("Z")) {
-            dateSub += "Z";
-        }
-
-        // If it was already a date in the expected UTC format I return it as it is otherwise it is formatted
-        return DateValidator.isValid(dateSub, RECEIPT_DATE_FORMAT_OUT)
-                ? dateSub
-                : dateFormat(dateSub);
-    }
-
-    private static String dateFormat(String date) {
-        for (String format : LIST_RECEIPT_DATE_FORMAT_IN) {
-            if (DateValidator.isValid(date, format)) {
-                LocalDateTime ldt = LocalDateTime.parse(date, DateTimeFormatter.ofPattern(format));
-                // Convert from local to UTC
-                ZonedDateTime zdt = ldt.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneOffset.UTC);
-                return DateTimeFormatter.ofPattern(RECEIPT_DATE_FORMAT_OUT).format(zdt);
-            }
-        }
-        throw new DateTimeException("The date [" + date + "] is not in one of the expected formats "
-            + LIST_RECEIPT_DATE_FORMAT_IN + " and cannot be parsed");
     }
 }
