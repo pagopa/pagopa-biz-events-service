@@ -4,7 +4,7 @@
     "title": "Biz-Events Service - Biz-Events Helpdesk",
     "description": "Microservice for exposing REST APIs for bizevent Helpdesk.",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.3.1-1-PIDM-864-date-error"
+    "version": "0.3.1"
   },
   "servers": [
     {

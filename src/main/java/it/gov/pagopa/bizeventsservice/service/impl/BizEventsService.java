@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BizEventsService implements IBizEventsService {
@@ -99,7 +100,11 @@ public class BizEventsService implements IBizEventsService {
         }
         // the query should always return only one element
         else if (bizEventEntityList.size() > 1) {
-            throw new AppException(AppError.BIZ_EVENT_NOT_UNIQUE_WITH_ORG_CF_AND_IUV, organizationFiscalCode, iuv);
+            // get multiple event id to enrich details info
+            String eventsId = bizEventEntityList.stream()
+                    .map(event -> "[" + event.getId() + "]")
+                    .collect(Collectors.joining());
+            throw new AppException(AppError.BIZ_EVENT_NOT_UNIQUE_WITH_ORG_CF_AND_IUV, organizationFiscalCode, iuv, eventsId);
         }
         return bizEventEntityList.get(0);
     }
