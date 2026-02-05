@@ -16,6 +16,7 @@ public interface ITransactionService {
      *
      * @param fiscalCode        fiscal code to filter transaction list
      * @param continuationToken continuation token for paginated query
+     * @param hidden filter by hidden transactions
      * @param size              offset size
      * @return transaction list
      */
@@ -24,6 +25,7 @@ public interface ITransactionService {
             Boolean isPayer,
             Boolean isDebtor,
             String continuationToken,
+            Boolean hidden,
             Integer size,
             TransactionListOrder orderBy,
             Direction ordering
@@ -40,4 +42,12 @@ public interface ITransactionService {
      * @param eventId    the event id
      */
     void disablePaidNotice(String fiscalCode, String eventId);
+
+    /**
+     * This method enable a paid notice for the given fiscal code and transaction id
+     *
+     * @param fiscalCode the fiscal code
+     * @param transactionId the transaction id
+     */
+    void enablePaidNotice(String fiscalCode, String transactionId);
 }

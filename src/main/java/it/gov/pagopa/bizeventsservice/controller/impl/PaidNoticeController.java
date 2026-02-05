@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.constraints.NotBlank;
 
 import static it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDetailResponse.convertToNoticeList;
+import static it.gov.pagopa.bizeventsservice.util.Constants.X_CONTINUATION_TOKEN;
 
 /**
  * Implementation of {@link IPaidNoticeController} that contains the Rest Controller
@@ -48,7 +49,7 @@ public class PaidNoticeController implements IPaidNoticeController {
                                                                  Order.TransactionListOrder orderBy,
                                                                  Sort.Direction ordering) {
         TransactionListResponse transactionListResponse = transactionService.getTransactionList(fiscalCode, isPayer, isDebtor,
-                continuationToken, size, orderBy, ordering);
+                continuationToken, false, size, orderBy, ordering);
 
         return ResponseEntity.ok()
                 .header(X_CONTINUATION_TOKEN, transactionListResponse.getContinuationToken())

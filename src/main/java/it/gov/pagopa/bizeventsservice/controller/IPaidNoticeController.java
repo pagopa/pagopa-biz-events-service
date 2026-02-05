@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
+import static com.azure.cosmos.implementation.HttpConstants.HttpHeaders.PAGE_SIZE;
+import static it.gov.pagopa.bizeventsservice.util.Constants.X_CONTINUATION_TOKEN;
 import static it.gov.pagopa.bizeventsservice.util.Constants.X_FISCAL_CODE;
 
 
@@ -31,8 +33,6 @@ import static it.gov.pagopa.bizeventsservice.util.Constants.X_FISCAL_CODE;
 @RequestMapping("/paids")
 @Validated
 public interface IPaidNoticeController {
-    String X_CONTINUATION_TOKEN = "x-continuation-token";
-    String PAGE_SIZE = "size";
 
     /**
      * @param fiscalCode

@@ -113,7 +113,7 @@ public class TransactionServiceTest {
         Pageable pageable = mock(Pageable.class);
         when(pageOfViewUser.getPageable()).thenReturn(pageable);
         when(pageable.next()).thenReturn(pageRequest);
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any()))
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any()))
                 .thenReturn(pageOfViewUser);
 
         List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
@@ -122,7 +122,7 @@ public class TransactionServiceTest {
         TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionList(
-                                ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, CONTINUATION_TOKEN, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, CONTINUATION_TOKEN, false, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
         assertEquals(CONTINUATION_TOKEN, transactionListResponse.getContinuationToken());
         List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
         assertNotNull(transactionListItems);
@@ -134,7 +134,7 @@ public class TransactionServiceTest {
             assertEquals(ViewGenerator.PAYEE_TAX_CODE, listItem.getPayeeTaxCode());
         }
 
-        verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any());
+        verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any());
         verifyNoMoreInteractions(bizEventsViewUserRepository);
     }
 
@@ -148,7 +148,7 @@ public class TransactionServiceTest {
         Pageable pageable = mock(Pageable.class);
         when(pageOfViewUser.getPageable()).thenReturn(pageable);
         when(pageable.next()).thenReturn(pageRequest);
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any()))
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any()))
                 .thenReturn(pageOfViewUser);
 
         List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
@@ -159,7 +159,7 @@ public class TransactionServiceTest {
         TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionList(
-                                ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, CONTINUATION_TOKEN, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, CONTINUATION_TOKEN, false, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
         assertEquals(CONTINUATION_TOKEN, transactionListResponse.getContinuationToken());
         List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
         assertNotNull(transactionListItems);
@@ -171,7 +171,7 @@ public class TransactionServiceTest {
             assertEquals(ViewGenerator.PAYEE_TAX_CODE, listItem.getPayeeTaxCode());
         }
 
-        verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any());
+        verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any());
         verifyNoMoreInteractions(bizEventsViewUserRepository);
     }
 
@@ -181,19 +181,19 @@ public class TransactionServiceTest {
         when(pageOfViewUser.getContent()).thenReturn(Collections.emptyList());
         Pageable pageable = mock(Pageable.class);
         when(pageOfViewUser.getPageable()).thenReturn(pageable);
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any()))
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any()))
                 .thenReturn(pageOfViewUser);
 
         TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionList(
-                                ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, CONTINUATION_TOKEN, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, CONTINUATION_TOKEN, false, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
         assertNull(transactionListResponse.getContinuationToken());
         List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
         assertNotNull(transactionListItems);
         assertTrue(transactionListItems.isEmpty());
 
-        verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any());
+        verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any());
         verifyNoMoreInteractions(bizEventsViewUserRepository);
         verify(bizEventsViewCartRepository, never()).findByTransactionIdIn(anySet());
     }
@@ -205,7 +205,7 @@ public class TransactionServiceTest {
         when(pageOfViewUser.getContent()).thenReturn(listOfViewUser);
         Pageable pageable = mock(Pageable.class);
         when(pageOfViewUser.getPageable()).thenReturn(pageable);
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any()))
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any()))
                 .thenReturn(pageOfViewUser);
 
         when(bizEventsViewCartRepository.findByTransactionIdIn(anySet())).thenReturn(Collections.emptyList());
@@ -213,13 +213,13 @@ public class TransactionServiceTest {
         TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
                         transactionService.getTransactionList(
-                                ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, CONTINUATION_TOKEN, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
+                                ViewGenerator.USER_TAX_CODE_WITH_TX, null, null, CONTINUATION_TOKEN, false, PAGE_SIZE, TransactionListOrder.TRANSACTION_DATE, Direction.DESC));
         assertNull(transactionListResponse.getContinuationToken());
         List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
         assertNotNull(transactionListItems);
         assertTrue(transactionListItems.isEmpty());
 
-        verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any());
+        verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any());
         verifyNoMoreInteractions(bizEventsViewUserRepository);
     }
 
