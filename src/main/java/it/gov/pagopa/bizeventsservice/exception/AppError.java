@@ -8,13 +8,14 @@ import static it.gov.pagopa.bizeventsservice.util.Constants.*;
 
 @Getter
 public enum AppError {
+
     BIZ_EVENT_NOT_FOUND_IUV_IUR(HttpStatus.NOT_FOUND, ErrorCode.BZ_404_001, BIZ_NOT_FOUND_HEADER, "Not found a biz event for the Organization Fiscal Code %s and IUR %s and IUV %s"),
     BIZ_EVENT_NOT_FOUND_IUR(HttpStatus.NOT_FOUND, ErrorCode.BZ_404_002, BIZ_NOT_FOUND_HEADER, "Not found a biz event for the Organization Fiscal Code %s and IUR %s"),
     BIZ_EVENT_NOT_FOUND_WITH_ID(HttpStatus.NOT_FOUND, ErrorCode.BZ_404_003, BIZ_NOT_FOUND_HEADER, "Not found a biz event with id %s"),
     BIZ_EVENT_NOT_FOUND_WITH_ORG_CF_AND_IUV(HttpStatus.NOT_FOUND, ErrorCode.BZ_404_004, BIZ_NOT_FOUND_HEADER, "Not found a biz event for the Organization Fiscal Code %s and IUV %s"),
     BIZ_EVENT_NOT_UNIQUE_IUV_IUR(HttpStatus.UNPROCESSABLE_ENTITY, ErrorCode.BZ_422_001, BIZ_NOT_UNIQUE_HEADER, "More than one biz event was found for the Organization Fiscal Code %s and IUR %s and IUV %s"),
     BIZ_EVENT_NOT_UNIQUE_IUR(HttpStatus.UNPROCESSABLE_ENTITY, ErrorCode.BZ_422_002, BIZ_NOT_UNIQUE_HEADER, "More than one biz event was found for the Organization Fiscal Code %s and IUR %s"),
-    BIZ_EVENT_NOT_UNIQUE_WITH_ORG_CF_AND_IUV(HttpStatus.UNPROCESSABLE_ENTITY, ErrorCode.BZ_422_003, BIZ_NOT_UNIQUE_HEADER, "More than one biz event was found for the Organization Fiscal Code %s and IUV %s"),
+    BIZ_EVENT_NOT_UNIQUE_WITH_ORG_CF_AND_IUV(HttpStatus.UNPROCESSABLE_ENTITY, ErrorCode.BZ_422_003, BIZ_NOT_UNIQUE_HEADER, "More than one biz event was found for the Organization Fiscal Code %s and IUV %s, event ids are %s"),
 
     INVALID_FISCAL_CODE(HttpStatus.BAD_REQUEST, ErrorCode.GN_400_003, INVALID_DATA, "Provided Fiscal Code is not authorized to retrieve the attachment for request with id %s"),
 
