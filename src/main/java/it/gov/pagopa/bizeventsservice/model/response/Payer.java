@@ -2,10 +2,7 @@ package it.gov.pagopa.bizeventsservice.model.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.bizeventsservice.model.response.enumeration.EntityUniqueIdentifierType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -24,8 +21,10 @@ public class Payer implements Serializable {
     @NotNull(message = "entityUniqueIdentifierType is required")
     private EntityUniqueIdentifierType entityUniqueIdentifierType;
     @NotBlank(message = "entityUniqueIdentifierValue is required")
+    @ToString.Exclude
     private String entityUniqueIdentifierValue;
     @NotBlank(message = "fullName is required")
+    @ToString.Exclude
     private String fullName;
     private String streetName;
     private String civicNumber;
@@ -34,5 +33,6 @@ public class Payer implements Serializable {
     private String stateProvinceRegion;
     private String country;
     @JsonProperty(value = "email")
+    @ToString.Exclude
     private String eMail;
 }

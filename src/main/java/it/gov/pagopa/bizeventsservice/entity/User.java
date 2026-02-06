@@ -9,8 +9,10 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class User {
+    @ToString.Exclude
     private String fullName;
     private UserType type;
+    @ToString.Exclude
     private String fiscalCode;
     private String notificationEmail;
     private String userId;
