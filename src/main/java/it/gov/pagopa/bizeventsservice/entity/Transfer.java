@@ -21,7 +21,7 @@ public class Transfer {
     private String remittanceInformation;
     @JsonProperty(value = "IBAN")
     private String iban;
-    @JsonProperty(value = "MBD")
-    private MBD mbd;
+    @JsonProperty(value = "MBDAttachment")
+    private String mbdAttachment; //MBD base64
     private List<MapEntry> metadata;
 }
