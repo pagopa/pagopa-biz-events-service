@@ -18,4 +18,8 @@ public class User {
     private String userId;
     private String userStatus;
     private String userStatusDescription;
+    @ToString.Exclude
+    private String name;
+    @ToString.Exclude
+    private String surname;
 }
