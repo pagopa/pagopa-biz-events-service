@@ -85,7 +85,9 @@ public class LoggingAspect {
 	    Map<String, String> params = new HashMap<>();
 	    int i = 0;
 	    for (var paramName : codeSignature.getParameterNames()) {
-	      params.put(paramName, deNull(joinPoint.getArgs()[i++]));
+			if(!paramName.equals("fiscalCode")) {
+				params.put(paramName, deNull(joinPoint.getArgs()[i++]));
+			}
 	    }
 	    return params;
 	  }

@@ -10,6 +10,7 @@ import lombok.*;
 public class Info {
     private String type;
     private String blurredNumber;
+    @ToString.Exclude
     private String holder;
     private String expireMonth;
     private String expireYear;

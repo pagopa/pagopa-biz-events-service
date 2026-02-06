@@ -23,6 +23,7 @@ import java.io.Serializable;
 public class CartItem implements Serializable {
 
     private static final long serialVersionUID = -6391592801925923358L;
+
     @Schema(required = true)
     @NotNull
     private String subject;

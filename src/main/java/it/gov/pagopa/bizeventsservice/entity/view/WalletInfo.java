@@ -2,10 +2,7 @@ package it.gov.pagopa.bizeventsservice.entity.view;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 
@@ -20,6 +17,8 @@ public class WalletInfo implements Serializable {
      *
      */
     private static final long serialVersionUID = -6409303257722729484L;
+
+    @ToString.Exclude
     private String accountHolder;
     private String brand;
     private String blurredNumber;

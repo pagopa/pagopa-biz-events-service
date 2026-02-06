@@ -2,10 +2,7 @@ package it.gov.pagopa.bizeventsservice.model.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import it.gov.pagopa.bizeventsservice.model.MapEntry;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -30,11 +27,13 @@ public class CtReceiptModelResponse implements Serializable {
     @NotBlank(message = "noticeNumber is required")
     private String noticeNumber;
     @NotBlank(message = "fiscalCode is required")
+    @ToString.Exclude
     private String fiscalCode;
     @Builder.Default
     @NotBlank(message = "outcome is required")
     private String outcome = "OK";
     @NotBlank(message = "creditorReferenceId is required")
+    @ToString.Exclude
     private String creditorReferenceId;
     @NotNull(message = "paymentAmount is required")
     private BigDecimal paymentAmount;

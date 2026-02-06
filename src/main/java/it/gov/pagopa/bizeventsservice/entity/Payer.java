@@ -9,8 +9,10 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Payer {
+    @ToString.Exclude
     private String fullName;
     private String entityUniqueIdentifierType;
+    @ToString.Exclude
     private String entityUniqueIdentifierValue;
     private String streetName;
     private String civicNumber;
@@ -19,5 +21,6 @@ public class Payer {
     private String stateProvinceRegion;
     private String country;
     @JsonProperty(value = "email")
+    @ToString.Exclude
     private String eMail;
 }
