@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.gov.pagopa.bizeventsservice.config.openapi.OpenApiScope;
+import it.gov.pagopa.bizeventsservice.config.openapi.VisibleFor;
 import it.gov.pagopa.bizeventsservice.model.ProblemJson;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
@@ -78,6 +80,7 @@ public interface IPaidNoticeController {
             @RequestParam(name = PAGE_SIZE, required = false, defaultValue = "10") Integer size,
             @Valid @Parameter(description = "Filter by payer") @RequestParam(value = "is_payer", required = false) Boolean isPayer,
             @Valid @Parameter(description = "Filter by debtor") @RequestParam(value = "is_debtor", required = false) Boolean isDebtor,
+            @VisibleFor(OpenApiScope.HELP_DESK) @RequestParam(required = false, defaultValue = "false", name = "hidden") @Parameter(description = "Filter notices by hidden property") Boolean hidden,
             @RequestParam(required = false, name = "orderby", defaultValue = "TRANSACTION_DATE") @Parameter(description = "Order by TRANSACTION_DATE") Order.TransactionListOrder orderBy,
             @RequestParam(required = false, name = "ordering", defaultValue = "DESC") @Parameter(description = "Direction of ordering") Sort.Direction ordering);
 

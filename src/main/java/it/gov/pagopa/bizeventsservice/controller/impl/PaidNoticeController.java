@@ -46,10 +46,11 @@ public class PaidNoticeController implements IPaidNoticeController {
                                                                  Integer size,
                                                                  Boolean isPayer,
                                                                  Boolean isDebtor,
+                                                                 Boolean hidden,
                                                                  Order.TransactionListOrder orderBy,
                                                                  Sort.Direction ordering) {
         TransactionListResponse transactionListResponse = transactionService.getTransactionList(fiscalCode, isPayer, isDebtor,
-                continuationToken, false, size, orderBy, ordering);
+                continuationToken, hidden, size, orderBy, ordering);
 
         return ResponseEntity.ok()
                 .header(X_CONTINUATION_TOKEN, transactionListResponse.getContinuationToken())
