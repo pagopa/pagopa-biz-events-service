@@ -47,8 +47,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static it.gov.pagopa.bizeventsservice.exception.enumeration.ReceiptServiceStatusCode.*;
-import static it.gov.pagopa.bizeventsservice.util.ViewGenerator.EVENT_ID;
-import static it.gov.pagopa.bizeventsservice.util.ViewGenerator.generateBizEventsViewUser;
+import static it.gov.pagopa.bizeventsservice.util.ViewGenerator.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -445,10 +444,10 @@ public class TransactionServiceTest {
     @Test
     void transactionViewUserDisabled() {
         List<BizEventsViewUser> viewUserList = Collections.singletonList(generateBizEventsViewUser());
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndTransactionId(anyString(), anyString()))
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndTransactionIdAndHidden(USER_TAX_CODE_WITH_TX, TRANSACTION_ID, false))
                 .thenReturn(viewUserList);
-        Assertions.assertDoesNotThrow(() -> transactionService.disablePaidNotice(
-                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+        Assertions.assertDoesNotThrow(() -> transactionService.updateBizEventVisibility(
+                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID, true));
 
         ArgumentCaptor<List<BizEventsViewUser>> argument = ArgumentCaptor.forClass(List.class);
         verify(bizEventsViewUserRepository).saveAll(argument.capture());
@@ -458,10 +457,10 @@ public class TransactionServiceTest {
     @Test
     void transactionViewUserDisabledEmptyList() {
         List<BizEventsViewUser> viewUserList = new ArrayList<>();
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndTransactionId(anyString(), anyString()))
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndTransactionIdAndHidden(USER_TAX_CODE_WITH_TX, TRANSACTION_ID, false))
                 .thenReturn(viewUserList);
-        Assertions.assertThrows(AppException.class, () -> transactionService.disablePaidNotice(
-                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID));
+        Assertions.assertThrows(AppException.class, () -> transactionService.updateBizEventVisibility(
+                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID, true));
 
         verify(bizEventsViewUserRepository, times(0)).saveAll(viewUserList);
     }
@@ -477,11 +476,11 @@ public class TransactionServiceTest {
             viewUserList.add(u);
         }
 
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndTransactionId(anyString(), anyString()))
+        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCodeAndTransactionIdAndHidden(USER_TAX_CODE_WITH_TX, TRANSACTION_ID, false))
                 .thenReturn(viewUserList);
 
-        Assertions.assertDoesNotThrow(() -> transactionService.disablePaidNotice(
-                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID + "_CART_"));
+        Assertions.assertDoesNotThrow(() -> transactionService.updateBizEventVisibility(
+                ViewGenerator.USER_TAX_CODE_WITH_TX, TRANSACTION_ID_ON_CART_FOR_PAYER, true));
 
         ArgumentCaptor<List<BizEventsViewUser>> argument = ArgumentCaptor.forClass(List.class);
         verify(bizEventsViewUserRepository).saveAll(argument.capture());
@@ -500,11 +499,11 @@ public class TransactionServiceTest {
             viewUserList.add(u);
         }
 
-        when(bizEventsViewUserRepository.findByFiscalCodeAndTransactionIdAndEventId(anyString(), anyString(), anyString()))
+        when(bizEventsViewUserRepository.findByFiscalCodeAndTransactionIdAndEventIdAndHidden(USER_TAX_CODE_WITH_TX,TRANSACTION_ID, EVENT_ID, false))
                 .thenReturn(viewUserList);
 
-        Assertions.assertDoesNotThrow(() -> transactionService.disablePaidNotice(
-                ViewGenerator.USER_TAX_CODE_WITH_TX, ViewGenerator.TRANSACTION_ID + "_CART_" + ViewGenerator.EVENT_ID));
+        Assertions.assertDoesNotThrow(() -> transactionService.updateBizEventVisibility(
+                ViewGenerator.USER_TAX_CODE_WITH_TX, TRANSACTION_ID_ON_CART_FOR_DEBTOR, true));
 
         ArgumentCaptor<List<BizEventsViewUser>> argument = ArgumentCaptor.forClass(List.class);
         verify(bizEventsViewUserRepository).saveAll(argument.capture());
