@@ -1,4 +1,4 @@
-package it.gov.pagopa.bizeventsservice.config;
+package it.gov.pagopa.bizeventsservice.config.openapi;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -22,11 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static it.gov.pagopa.bizeventsservice.util.Constants.HEADER_REQUEST_ID;
 import static it.gov.pagopa.bizeventsservice.util.Constants.X_FISCAL_CODE;
@@ -148,30 +144,49 @@ public class OpenApiConfig {
 
     @Bean
     public Map<String, GroupedOpenApi> configureGroupOpenApi(Map<String, GroupedOpenApi> groupOpenApi) {
-        groupOpenApi.forEach((id, groupedOpenApi) -> groupedOpenApi.getOpenApiCustomisers()
-                .add(openApi -> {
-                    var baseTitle = openApi.getInfo().getTitle();
-                    var group = groupedOpenApi.getDisplayName();
-                    openApi.getInfo().setTitle(baseTitle + " - " + group);
-                    switch (id) {
-                        case "helpdesk":
-                            openApi.getInfo().setDescription("Microservice for exposing REST APIs for bizevent Helpdesk.");
-                            openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_HELPDESK)));
-                            break;
-                        case "ec":
-                            openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_EC)));
-                            break;
-                        case "lap":
-                            openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_LAP)));
-                            break;
-                        case "lap_jwt":
-                            openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_LAP_JWT)));
-                            customizeForIOAuth(openApi);
-                            break;
-                        default:
-                            break;
-                    }
-                }));
+        groupOpenApi.forEach((id, groupedOpenApi) -> {
+            switch (id) {
+                case "helpdesk" -> groupedOpenApi.getOperationCustomizers()
+                        .add(new VisibleForOperationCustomizer(OpenApiScope.HELP_DESK));
+
+                case "ec" -> groupedOpenApi.getOperationCustomizers()
+                        .add(new VisibleForOperationCustomizer(OpenApiScope.EC));
+
+                case "lap" -> groupedOpenApi.getOperationCustomizers()
+                        .add(new VisibleForOperationCustomizer(OpenApiScope.LAP));
+
+                case "lap_jwt" -> groupedOpenApi.getOperationCustomizers()
+                        .add(new VisibleForOperationCustomizer(OpenApiScope.LAP_JWT));
+
+                default -> groupedOpenApi.getOperationCustomizers()
+                        .add(new VisibleForOperationCustomizer(OpenApiScope.PUBLIC));
+            }
+
+            groupedOpenApi.getOpenApiCustomisers()
+                    .add(openApi -> {
+                        var baseTitle = openApi.getInfo().getTitle();
+                        var group = groupedOpenApi.getDisplayName();
+                        openApi.getInfo().setTitle(baseTitle + " - " + group);
+                        switch (id) {
+                            case "helpdesk" -> {
+                                openApi.getInfo().setDescription("Microservice for exposing REST APIs for bizevent Helpdesk.");
+                                openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_HELPDESK)));
+                            }
+                            case "ec" -> {
+                                openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_EC)));
+                            }
+                            case "lap" -> {
+                                openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_LAP)));
+                            }
+                            case "lap_jwt" -> {
+                                openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_LAP_JWT)));
+                                customizeForIOAuth(openApi);
+                            }
+                            default -> {
+                            }
+                        }
+                    });
+        });
         return groupOpenApi;
     }
 
