@@ -3,7 +3,6 @@ Feature: All about Cart Receipt
   Background:
     Given Biz-Events Service running
 
-
   Scenario: A payer user asks for a transaction detail with all cart items
     Given 1 view user with taxCode "INTTST00A00A000A", id prefix "biz-event-service-int-test-transaction-4" and isCart "true" and isPayer "true" on cosmos
     And 3 view general with payer tax code "INTTST00A00A000A", id prefix "biz-event-service-int-test-transaction-4" and isCart "true" on cosmos

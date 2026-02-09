@@ -1,7 +1,7 @@
 const assert = require('assert')
 const { Given, When, Then, setDefaultTimeout, After } = require('@cucumber/cucumber')
 const { getOrganizationReceipt, getBizEventById, getBizEventByOrgFiscalCodeAndIuv, getTransactionListForUserWithFiscalCode, getTransactionWithIdForUserWithFiscalCode, disableTransactionWithIdForUserWithFiscalCode,
-	generatePDF
+	generatePDF, enableTransactionWithIdForUserWithFiscalCode
 } = require("./bizeventservice_client");
 const { createDocument, deleteDocument } = require("./cosmosdb_client");
 const { createEvent, makeId, createViewUser, createViewGeneral, createViewCart } = require("./common");
@@ -124,6 +124,14 @@ Given('{int} view user with taxCode {string}, id prefix {string} and isCart {str
 	}
 });
 
+Given('{int} view user with taxCode {string}, id prefix {string} and isCart {string} and isPayer {string} and hidden {string} on cosmos', function (numberOfView, taxCode, id, isCart, isPayer, hidden) {
+	let isCartBool = isCart === 'true';
+	for(let i = 0; i < numberOfView; i++){
+		let viewUser = createViewUser(taxCode, id+i, isCartBool ? id : id+i, hidden === "true", isPayer === "true");
+		viewUserList.push(viewUser);
+	}
+});
+
 Given('{int} view general with payer tax code {string}, id prefix {string} and isCart {string} on cosmos', function (numberOfView, payerTaxCode, id, isCart) {
 	let isCartBool = isCart === 'true';
 	for(let i = 0; i < numberOfView; i++){
@@ -215,6 +223,11 @@ When('the user with fiscal code {string} asks the transaction with id {string}',
 
 When('the user with taxCode {string} disables the transaction with id {string}', async function (taxCode, transactionId) {
 	responseToCheck = await disableTransactionWithIdForUserWithFiscalCode(transactionId, taxCode);
+	assert.strictEqual(responseToCheck.status, 200);
+})
+
+When('the operator enables the transaction with id {string} and taxCode {string}', async function (transactionId, taxCode) {
+	responseToCheck = await enableTransactionWithIdForUserWithFiscalCode(transactionId, taxCode);
 	assert.strictEqual(responseToCheck.status, 200);
 })
 
