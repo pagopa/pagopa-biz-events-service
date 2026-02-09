@@ -41,6 +41,10 @@ public class OpenApiConfig {
     public static final String APIM_PROD = "https://api.platform.pagopa.it";
     private static final String API_KEY_SECURITY_SCHEMA_KEY = "ApiKey";
     private static final String JWT_SECURITY_SCHEMA_KEY = "Authorization";
+    private static final String HELPDESK_SCOPE = "helpdesk";
+    private static final String EC_SCOPE = "ec";
+    private static final String LAP_SCOPE = "lap";
+    private static final String LAP_JWT_SCOPE = "lap_jwt";
 
     @Bean
     OpenAPI customOpenAPI(
@@ -110,6 +114,7 @@ public class OpenApiConfig {
                         .collect(ApiResponses::new, (map, item) -> map.addApiResponse(item.getKey(), item.getValue()), ApiResponses::putAll);
                 operation.setResponses(responses);
             }));
+
             openApi.setPaths(paths);
         };
     }
@@ -146,20 +151,20 @@ public class OpenApiConfig {
     public Map<String, GroupedOpenApi> configureGroupOpenApi(Map<String, GroupedOpenApi> groupOpenApi) {
         groupOpenApi.forEach((id, groupedOpenApi) -> {
             switch (id) {
-                case "helpdesk" -> groupedOpenApi.getOperationCustomizers()
-                        .add(new VisibleForOperationCustomizer(OpenApiScope.HELP_DESK));
+                case HELPDESK_SCOPE -> groupedOpenApi.getOperationCustomizers()
+                        .add(new VisibleOnlyForOperationCustomizer(OpenApiScope.HELPDESK));
 
-                case "ec" -> groupedOpenApi.getOperationCustomizers()
-                        .add(new VisibleForOperationCustomizer(OpenApiScope.EC));
+                case EC_SCOPE -> groupedOpenApi.getOperationCustomizers()
+                        .add(new VisibleOnlyForOperationCustomizer(OpenApiScope.EC));
 
-                case "lap" -> groupedOpenApi.getOperationCustomizers()
-                        .add(new VisibleForOperationCustomizer(OpenApiScope.LAP));
+                case LAP_SCOPE -> groupedOpenApi.getOperationCustomizers()
+                        .add(new VisibleOnlyForOperationCustomizer(OpenApiScope.LAP));
 
-                case "lap_jwt" -> groupedOpenApi.getOperationCustomizers()
-                        .add(new VisibleForOperationCustomizer(OpenApiScope.LAP_JWT));
+                case LAP_JWT_SCOPE -> groupedOpenApi.getOperationCustomizers()
+                        .add(new VisibleOnlyForOperationCustomizer(OpenApiScope.LAP_JWT));
 
                 default -> groupedOpenApi.getOperationCustomizers()
-                        .add(new VisibleForOperationCustomizer(OpenApiScope.PUBLIC));
+                        .add(new VisibleOnlyForOperationCustomizer(OpenApiScope.PUBLIC));
             }
 
             groupedOpenApi.getOpenApiCustomisers()
@@ -168,17 +173,13 @@ public class OpenApiConfig {
                         var group = groupedOpenApi.getDisplayName();
                         openApi.getInfo().setTitle(baseTitle + " - " + group);
                         switch (id) {
-                            case "helpdesk" -> {
+                            case HELPDESK_SCOPE -> {
                                 openApi.getInfo().setDescription("Microservice for exposing REST APIs for bizevent Helpdesk.");
                                 openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_HELPDESK)));
                             }
-                            case "ec" -> {
-                                openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_EC)));
-                            }
-                            case "lap" -> {
-                                openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_LAP)));
-                            }
-                            case "lap_jwt" -> {
+                            case EC_SCOPE -> openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_EC)));
+                            case LAP_SCOPE -> openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_LAP)));
+                            case LAP_JWT_SCOPE -> {
                                 openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_LAP_JWT)));
                                 customizeForIOAuth(openApi);
                             }
