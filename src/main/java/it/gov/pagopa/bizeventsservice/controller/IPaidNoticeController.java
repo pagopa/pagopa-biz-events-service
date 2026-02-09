@@ -112,7 +112,7 @@ public interface IPaidNoticeController {
     @VisibleOnlyFor(OpenApiScope.HELPDESK)
     ResponseEntity<Void> enablePaidNotice(
             @RequestHeader(X_FISCAL_CODE) @NotBlank String fiscalCode,
-            @Parameter(description = "The id of the paid event.", required = true) @NotBlank @PathVariable("event-id") String eventId);
+            @Parameter(description = "The id of the paid event.", required = true) @NotBlank @PathVariable("transaction-id") String transactionId);
 
     @Operation(summary = "Retrieve the PDF receipt given event id.", security = {
             @SecurityRequirement(name = "ApiKey")}, operationId = "generatePDF")

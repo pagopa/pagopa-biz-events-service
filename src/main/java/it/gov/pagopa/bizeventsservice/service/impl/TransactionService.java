@@ -188,7 +188,7 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public void disablePaidNotice(String fiscalCode, String transactionId) {
+    public void updateBizEventVisibility(String fiscalCode, String transactionId, Boolean hidden) {
         cacheService.evictNoticeListByTaxCode(fiscalCode);
 
         List<BizEventsViewUser> listOfViewUser;
@@ -201,40 +201,15 @@ public class TransactionService implements ITransactionService {
         if (isCart(transactionId) && isDebtor) {
             // if there is something after _CART_ it means that we have to filter also by eventId for debtor
             listOfViewUser = this.bizEventsViewUserRepository
-                    .findByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, viewTransactionId.eventId());
+                    .findByFiscalCodeAndTransactionIdAndEventIdAndHidden(fiscalCode, transaction, viewTransactionId.eventId(), !hidden);
         } else {
             // single paid notice transaction
             listOfViewUser = this.bizEventsViewUserRepository
-                    .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transaction);
+                    .getBizEventsViewUserByTaxCodeAndTransactionIdAndHidden(fiscalCode, transaction, !hidden);
         }
 
         // set hidden to true and save
-        setHiddenAndSave(transactionId, listOfViewUser, true);
-    }
-
-    @Override
-    public void enablePaidNotice(String fiscalCode, String transactionId) {
-        cacheService.evictNoticeListByTaxCode(fiscalCode);
-
-        List<BizEventsViewUser> listOfViewUser;
-
-        TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(transactionId);
-        String transaction = viewTransactionId.transactionId();
-        boolean isDebtor = viewTransactionId.eventId() != null;
-
-        // if the transactionId contains _CART_ it means that it's a cart transaction
-        if (isCart(transactionId) && isDebtor) {
-            // if there is something after _CART_ it means that we have to filter also by eventId for debtor
-            listOfViewUser = this.bizEventsViewUserRepository
-                    .findDisabledByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, viewTransactionId.eventId());
-        } else {
-            // single paid notice transaction
-            listOfViewUser = this.bizEventsViewUserRepository
-                    .getDisabledBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transaction);
-        }
-
-        // set hidden to true and save
-        setHiddenAndSave(transactionId, listOfViewUser, false);
+        setHiddenAndSave(transactionId, listOfViewUser, hidden);
     }
 
     /**

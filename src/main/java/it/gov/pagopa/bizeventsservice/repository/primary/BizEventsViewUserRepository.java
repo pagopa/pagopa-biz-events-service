@@ -22,17 +22,11 @@ public interface BizEventsViewUserRepository extends CosmosRepository<BizEventsV
     @Query("select * from c where c.taxCode = @taxCode and c.hidden = false")
     List<BizEventsViewUser> getBizEventsViewUserByTaxCode(@Param("taxCode") String taxCode);
 
-    @Query("select * from c where c.transactionId=@transactionId and c.taxCode = @fiscalCode and c.hidden = false")
-    List<BizEventsViewUser> getBizEventsViewUserByTaxCodeAndTransactionId(String fiscalCode, String transactionId);
+    @Query("select * from c where c.transactionId=@transactionId and c.taxCode = @fiscalCode and c.hidden = @hidden")
+    List<BizEventsViewUser> getBizEventsViewUserByTaxCodeAndTransactionIdAndHidden(String fiscalCode, String transactionId, Boolean hidden);
 
-    @Query("select * from c where c.transactionId=@transactionId and c.taxCode = @fiscalCode and c.hidden = true")
-    List<BizEventsViewUser> getDisabledBizEventsViewUserByTaxCodeAndTransactionId(String fiscalCode, String transactionId);
-
-    @Query("select * from c where c.transactionId=@transactionId and c.taxCode = @fiscalCode and c.hidden = false and STARTSWITH(c.id, @eventId)")
-    List<BizEventsViewUser> findByFiscalCodeAndTransactionIdAndEventId(String fiscalCode, String transactionId, String eventId);
-
-    @Query("select * from c where c.transactionId=@transactionId and c.taxCode = @fiscalCode and c.hidden = true and STARTSWITH(c.id, @eventId)")
-    List<BizEventsViewUser> findDisabledByFiscalCodeAndTransactionIdAndEventId(String fiscalCode, String transactionId, String eventId);
+    @Query("select * from c where c.transactionId=@transactionId and c.taxCode = @fiscalCode and c.hidden = @hidden and STARTSWITH(c.id, @eventId)")
+    List<BizEventsViewUser> findByFiscalCodeAndTransactionIdAndEventIdAndHidden(String fiscalCode, String transactionId, String eventId, Boolean hidden);
 
     @Query("select * from c where c.taxCode = @fiscalCode and c.hidden = false and STARTSWITH(c.id, @eventId)")
     List<BizEventsViewUser> getBizEventsViewUserByTaxCodeAndId(String fiscalCode, String eventId);
