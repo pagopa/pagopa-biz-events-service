@@ -13,5 +13,4 @@ public class Constants {
     public static final String VIEW_CART_NOT_FOUND = "Biz-events-view-cart not found";
     public static final String INVALID_DATA = "Invalid Data";
     public static final String X_CONTINUATION_TOKEN = "x-continuation-token";
-    public static final String PAGE_SIZE = "size";
 }

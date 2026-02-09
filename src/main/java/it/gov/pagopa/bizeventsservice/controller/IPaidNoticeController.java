@@ -26,9 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
-import static com.azure.cosmos.implementation.HttpConstants.HttpHeaders.PAGE_SIZE;
-import static it.gov.pagopa.bizeventsservice.util.Constants.X_CONTINUATION_TOKEN;
-import static it.gov.pagopa.bizeventsservice.util.Constants.X_FISCAL_CODE;
+import static it.gov.pagopa.bizeventsservice.util.Constants.*;
 
 
 @Tag(name = "Paid Notice REST APIs")
@@ -77,7 +75,7 @@ public interface IPaidNoticeController {
     ResponseEntity<NoticeListWrapResponse> getPaidNotices(
             @RequestHeader(name = X_FISCAL_CODE) String fiscalCode,
             @RequestHeader(name = X_CONTINUATION_TOKEN, required = false) String continuationToken,
-            @RequestParam(name = PAGE_SIZE, required = false, defaultValue = "10") Integer size,
+            @RequestParam(name = "size", required = false, defaultValue = "10") Integer size,
             @Valid @Parameter(description = "Filter by payer") @RequestParam(value = "is_payer", required = false) Boolean isPayer,
             @Valid @Parameter(description = "Filter by debtor") @RequestParam(value = "is_debtor", required = false) Boolean isDebtor,
             @VisibleOnlyFor(OpenApiScope.HELPDESK) @RequestParam(required = false, defaultValue = "false", name = "hidden") @Parameter(description = "Filter notices by hidden property") Boolean hidden,
