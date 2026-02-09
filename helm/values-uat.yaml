@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-biz-events-service
-    tag: "0.3.2"
+    tag: "0.3.4"
     pullPolicy: Always
   livenessProbe:
     httpGet:
