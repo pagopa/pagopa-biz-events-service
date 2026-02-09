@@ -64,6 +64,12 @@ public class PaidNoticeController implements IPaidNoticeController {
     }
 
     @Override
+    public ResponseEntity<Void> enablePaidNotice(String fiscalCode, String transactionId) {
+        transactionService.enablePaidNotice(fiscalCode, transactionId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Override
     public ResponseEntity<Resource> generatePDF(@NotBlank String fiscalCode, @NotBlank String eventId) {
         // to check if is an OLD event present only on the PM --> the receipt is not available for events present exclusively on the PM
         return transactionService.getPDFReceiptResponse(fiscalCode, eventId);

@@ -3,7 +3,6 @@ package it.gov.pagopa.bizeventsservice.controller.impl;
 import it.gov.pagopa.bizeventsservice.controller.IBizEventController;
 import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
-import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +14,10 @@ import javax.validation.constraints.NotBlank;
 public class BizEventController implements IBizEventController {
 
     private final IBizEventsService bizEventsService;
-    private final ITransactionService transactionService;
 
     @Autowired
-    public BizEventController(IBizEventsService bizEventsService, ITransactionService transactionService) {
+    public BizEventController(IBizEventsService bizEventsService) {
         this.bizEventsService = bizEventsService;
-        this.transactionService = transactionService;
     }
 
     @Override
@@ -33,11 +30,5 @@ public class BizEventController implements IBizEventController {
             @NotBlank String organizationFiscalCode, @NotBlank String iuv) {
         return new ResponseEntity<>(bizEventsService.getBizEventByOrgFiscalCodeAndIuv(organizationFiscalCode, iuv),
                 HttpStatus.OK);
-    }
-
-    @Override
-    public ResponseEntity<Void> enablePaidNotice(String fiscalCode, String transactionId) {
-        transactionService.enablePaidNotice(fiscalCode, transactionId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
