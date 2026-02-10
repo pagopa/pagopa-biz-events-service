@@ -64,8 +64,8 @@ public class PaidNoticeController implements IPaidNoticeController {
     }
 
     @Override
-    public ResponseEntity<Void> enablePaidNotice(String fiscalCode, String transactionId) {
-        transactionService.updateBizEventVisibility(fiscalCode, transactionId, false);
+    public ResponseEntity<Void> enablePaidNotice(String fiscalCode, String eventId) {
+        transactionService.updateBizEventVisibility(fiscalCode, eventId, false);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
