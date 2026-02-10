@@ -33,6 +33,7 @@ public interface IPaymentsController {
     @Operation(summary = "The organization get the receipt for the creditor institution using IUV and IUR.", security = {@SecurityRequirement(name = "ApiKey")}, operationId = "getOrganizationReceiptIuvIur")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "CtReceipt", implementation = CtReceiptModelResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "404", description = "Not found the receipt.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "422", description = "Unable to process the request.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
@@ -51,6 +52,7 @@ public interface IPaymentsController {
     @Operation(summary = "The organization get the receipt for the creditor institution using IUR.", security = {@SecurityRequirement(name = "ApiKey")}, operationId = "getOrganizationReceiptIur")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "CtReceipt", implementation = CtReceiptModelResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "404", description = "Not found the receipt.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "422", description = "Unable to process the request.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
