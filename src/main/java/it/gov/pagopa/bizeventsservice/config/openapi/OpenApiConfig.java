@@ -2,6 +2,7 @@ package it.gov.pagopa.bizeventsservice.config.openapi;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.info.Info;
@@ -172,6 +173,8 @@ public class OpenApiConfig {
                         var baseTitle = openApi.getInfo().getTitle();
                         var group = groupedOpenApi.getDisplayName();
                         openApi.getInfo().setTitle(baseTitle + " - " + group);
+                        // Remove empty paths
+                        cleanUpEmptyPaths(openApi);
                         switch (id) {
                             case HELPDESK_SCOPE -> {
                                 openApi.getInfo().setDescription("Microservice for exposing REST APIs for bizevent Helpdesk.");
@@ -189,6 +192,20 @@ public class OpenApiConfig {
                     });
         });
         return groupOpenApi;
+    }
+
+    private static void cleanUpEmptyPaths(OpenAPI openApi) {
+        List<String> pathsToRemove = new ArrayList<>();
+        openApi.getPaths().forEach((key, value) -> {
+            if(isInvalidPath(value)){
+                pathsToRemove.add(key);
+            }
+        });
+        pathsToRemove.forEach(key ->  openApi.getPaths().remove(key));
+    }
+
+    private static boolean isInvalidPath(PathItem value) {
+        return value.getGet() == null && value.getPatch() == null && value.getPut() == null && value.getPost() == null && value.getDelete() == null && value.getOptions() == null && value.getHead() == null;
     }
 
     private void customizeForIOAuth(OpenAPI openApi) {
