@@ -88,6 +88,24 @@
               }
             }
           },
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Wrong or missing function key.",
             "headers": {
@@ -214,6 +232,24 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BizEvent"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -472,6 +508,24 @@
               }
             }
           },
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Wrong or missing function key.",
             "headers": {
@@ -616,6 +670,24 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CtReceiptModelResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -820,6 +892,24 @@
               }
             }
           },
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Wrong or missing function key.",
             "headers": {
@@ -936,6 +1026,24 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/NoticeDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -1180,6 +1288,24 @@
                 "schema": {
                   "type": "string",
                   "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -1940,26 +2066,6 @@
           }
         }
       },
-      "MBD": {
-        "type": "object",
-        "properties": {
-          "IUBD": {
-            "type": "string"
-          },
-          "oraAcquisto": {
-            "type": "string"
-          },
-          "importo": {
-            "type": "string"
-          },
-          "tipoBollo": {
-            "type": "string"
-          },
-          "MBDAttachment": {
-            "type": "string"
-          }
-        }
-      },
       "PaymentAuthorizationRequest": {
         "type": "object",
         "properties": {
@@ -2185,8 +2291,8 @@
           "IBAN": {
             "type": "string"
           },
-          "MBD": {
-            "$ref": "#/components/schemas/MBD"
+          "MBDAttachment": {
+            "type": "string"
           }
         }
       },
@@ -2218,6 +2324,12 @@
             "type": "string"
           },
           "userStatusDescription": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "surname": {
             "type": "string"
           }
         }

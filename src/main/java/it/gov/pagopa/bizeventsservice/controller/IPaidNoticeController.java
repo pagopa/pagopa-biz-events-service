@@ -44,6 +44,7 @@ public interface IPaidNoticeController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained paid notice detail.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "NoticeDetailResponse", implementation = NoticeDetailResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "404", description = "Not found the transaction.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
@@ -66,6 +67,7 @@ public interface IPaidNoticeController {
             @ApiResponse(responseCode = "200", description = "Obtained paid notices list.",
                     headers = @Header(name = X_CONTINUATION_TOKEN, description = "continuation token for paginated query", schema = @Schema(type = "string")),
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = NoticeListWrapResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "404", description = "Not found the fiscal code.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
@@ -102,6 +104,7 @@ public interface IPaidNoticeController {
             @ApiResponse(responseCode = "200", description = "Obtained the PDF receipt.",
                     headers = {@Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "Content disposition with name of the file", schema = @Schema(type = "string"))},
                     content = {@Content(mediaType = MediaType.APPLICATION_PDF_VALUE, schema = @Schema(implementation = Resource.class)),}),
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
             @ApiResponse(responseCode = "404", description = "Not found the receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "422", description = "Unprocessable receipt.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
