@@ -4,7 +4,7 @@
     "title": "Biz-Events Service - Biz-Events Helpdesk",
     "description": "Microservice for exposing REST APIs for bizevent Helpdesk.",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "version": "0.3.4-1-PIDM-972-improve-hidden-notices"
+    "version": "0.3.5"
   },
   "servers": [
     {
@@ -15,699 +15,6 @@
     }
   ],
   "paths": {
-    "/paids/{event-id}/enable": {
-      "post": {
-        "tags": [
-          "Paid Notice REST APIs"
-        ],
-        "summary": "Enable the paid notice details given its id.",
-        "operationId": "enablePaidNotice",
-        "parameters": [
-          {
-            "name": "x-fiscal-code",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "event-id",
-            "in": "path",
-            "description": "The id of the paid event.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "X-Request-Id",
-            "in": "header",
-            "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Wrong or missing function key.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found the paid event.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Service unavailable.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "Event enabled.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {}
-            }
-          },
-          "429": {
-            "description": "Too many requests.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ]
-      }
-    },
-    "/paids/{event-id}/disable": {
-      "post": {
-        "tags": [
-          "Paid Notice REST APIs"
-        ],
-        "summary": "Disable the paid notice details given its id.",
-        "operationId": "disablePaidNotice",
-        "parameters": [
-          {
-            "name": "x-fiscal-code",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "event-id",
-            "in": "path",
-            "description": "The id of the paid event.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "X-Request-Id",
-            "in": "header",
-            "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Event Disabled.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {}
-            }
-          },
-          "401": {
-            "description": "Wrong or missing function key.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found the paid event.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Service unavailable.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too many requests.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ]
-      }
-    },
-    "/paids": {
-      "get": {
-        "tags": [
-          "Paid Notice REST APIs"
-        ],
-        "summary": "Retrieve the paged transaction list from biz events.",
-        "description": "This operation is deprecated. Use Paid Notice APIs instead",
-        "operationId": "getPaidNotices",
-        "parameters": [
-          {
-            "name": "x-fiscal-code",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-continuation-token",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "size",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 10
-            }
-          },
-          {
-            "name": "is_payer",
-            "in": "query",
-            "description": "Filter by payer",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "is_debtor",
-            "in": "query",
-            "description": "Filter by debtor",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "hidden",
-            "in": "query",
-            "description": "Filter notices by hidden property",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "default": false
-            }
-          },
-          {
-            "name": "orderby",
-            "in": "query",
-            "description": "Order by TRANSACTION_DATE",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "TRANSACTION_DATE",
-              "enum": [
-                "TRANSACTION_DATE"
-              ]
-            }
-          },
-          {
-            "name": "ordering",
-            "in": "query",
-            "description": "Direction of ordering",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "DESC",
-              "enum": [
-                "ASC",
-                "DESC"
-              ]
-            }
-          },
-          {
-            "name": "X-Request-Id",
-            "in": "header",
-            "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "404": {
-            "description": "Not found the fiscal code.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Wrong or missing function key.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Service unavailable.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "Obtained paid notices list.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "x-continuation-token": {
-                "description": "continuation token for paginated query",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NoticeListWrapResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too many requests.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ]
-      }
-    },
-    "/paids/{event-id}": {
-      "get": {
-        "tags": [
-          "Paid Notice REST APIs"
-        ],
-        "summary": "Retrieve the paid notice details given its id.",
-        "operationId": "getPaidNoticeDetail",
-        "parameters": [
-          {
-            "name": "x-fiscal-code",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "event-id",
-            "in": "path",
-            "description": "The id of the paid event.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "X-Request-Id",
-            "in": "header",
-            "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "401": {
-            "description": "Wrong or missing function key.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found the transaction.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Service unavailable.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "Obtained paid notice detail.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NoticeDetailResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too many requests.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ]
-      }
-    },
-    "/paids/{event-id}/pdf": {
-      "get": {
-        "tags": [
-          "Paid Notice REST APIs"
-        ],
-        "summary": "Retrieve the PDF receipt given event id.",
-        "operationId": "generatePDF",
-        "parameters": [
-          {
-            "name": "x-fiscal-code",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "event-id",
-            "in": "path",
-            "description": "The id of the paid event.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "X-Request-Id",
-            "in": "header",
-            "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "404": {
-            "description": "Not found the receipt.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable receipt.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Wrong or missing function key.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {}
-            }
-          },
-          "500": {
-            "description": "Service unavailable.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "Obtained the PDF receipt.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Content-Disposition": {
-                "description": "Content disposition with name of the file",
-                "style": "simple",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/pdf": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too many requests.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ]
-      }
-    },
     "/info": {
       "get": {
         "tags": [
@@ -728,8 +35,8 @@
           }
         ],
         "responses": {
-          "400": {
-            "description": "Bad Request",
+          "200": {
+            "description": "OK",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -741,7 +48,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
+                  "$ref": "#/components/schemas/AppInfo"
                 }
               }
             }
@@ -797,8 +104,8 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "400": {
+            "description": "Bad Request",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -810,7 +117,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AppInfo"
+                  "$ref": "#/components/schemas/ProblemJson"
                 }
               }
             }
@@ -869,19 +176,8 @@
               }
             }
           },
-          "401": {
-            "description": "Wrong or missing function key.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found the biz-event.",
+          "500": {
+            "description": "Service unavailable.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -894,6 +190,17 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -916,8 +223,8 @@
               }
             }
           },
-          "500": {
-            "description": "Service unavailable.",
+          "404": {
+            "description": "Not found the biz-event.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -934,8 +241,26 @@
               }
             }
           },
-          "429": {
-            "description": "Too many requests.",
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Wrong or missing function key.",
             "headers": {
               "X-Request-Id": {
                 "description": "This header identifies the call",
@@ -1008,53 +333,6 @@
               }
             }
           },
-          "401": {
-            "description": "Wrong or missing function key.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found the biz-event.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unable to process the request.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
-                }
-              }
-            }
-          },
           "500": {
             "description": "Service unavailable.",
             "headers": {
@@ -1083,6 +361,71 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Unable to process the request.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found the biz-event.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemJson"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Wrong or missing function key.",
+            "headers": {
+              "X-Request-Id": {
+                "description": "This header identifies the call",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1095,6 +438,20 @@
   },
   "components": {
     "schemas": {
+      "AppInfo": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "environment": {
+            "type": "string"
+          }
+        }
+      },
       "ProblemJson": {
         "type": "object",
         "properties": {
@@ -1119,213 +476,6 @@
             "type": "string",
             "description": "A machine-readable code specific to this error.",
             "example": "The error code"
-          }
-        }
-      },
-      "NoticeListItem": {
-        "required": [
-          "amount",
-          "eventId",
-          "isCart",
-          "isDebtor",
-          "isPayer",
-          "noticeDate",
-          "payeeTaxCode"
-        ],
-        "type": "object",
-        "properties": {
-          "eventId": {
-            "type": "string"
-          },
-          "payeeName": {
-            "type": "string"
-          },
-          "payeeTaxCode": {
-            "type": "string"
-          },
-          "amount": {
-            "type": "string"
-          },
-          "noticeDate": {
-            "type": "string"
-          },
-          "isCart": {
-            "type": "boolean"
-          },
-          "isPayer": {
-            "type": "boolean"
-          },
-          "isDebtor": {
-            "type": "boolean"
-          }
-        }
-      },
-      "NoticeListWrapResponse": {
-        "required": [
-          "notices"
-        ],
-        "type": "object",
-        "properties": {
-          "notices": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/NoticeListItem"
-            }
-          }
-        }
-      },
-      "CartItem": {
-        "required": [
-          "amount",
-          "refNumberType",
-          "refNumberValue",
-          "subject"
-        ],
-        "type": "object",
-        "properties": {
-          "subject": {
-            "type": "string"
-          },
-          "amount": {
-            "type": "string"
-          },
-          "payee": {
-            "$ref": "#/components/schemas/UserDetail"
-          },
-          "debtor": {
-            "$ref": "#/components/schemas/UserDetail"
-          },
-          "refNumberValue": {
-            "type": "string"
-          },
-          "refNumberType": {
-            "type": "string"
-          }
-        }
-      },
-      "InfoNotice": {
-        "required": [
-          "amount",
-          "eventId",
-          "noticeDate",
-          "origin",
-          "pspName",
-          "rrn"
-        ],
-        "type": "object",
-        "properties": {
-          "eventId": {
-            "type": "string"
-          },
-          "authCode": {
-            "type": "string"
-          },
-          "rrn": {
-            "type": "string"
-          },
-          "noticeDate": {
-            "type": "string"
-          },
-          "pspName": {
-            "type": "string"
-          },
-          "walletInfo": {
-            "$ref": "#/components/schemas/WalletInfo"
-          },
-          "paymentMethod": {
-            "type": "string",
-            "enum": [
-              "BBT",
-              "BP",
-              "AD",
-              "CP",
-              "PO",
-              "OBEP",
-              "JIF",
-              "MYBK",
-              "PPAL",
-              "UNKNOWN"
-            ]
-          },
-          "payer": {
-            "$ref": "#/components/schemas/UserDetail"
-          },
-          "amount": {
-            "type": "string"
-          },
-          "fee": {
-            "type": "string"
-          },
-          "origin": {
-            "type": "string",
-            "enum": [
-              "INTERNAL",
-              "PM",
-              "NDP001PROD",
-              "NDP002PROD",
-              "NDP003PROD",
-              "NDP004PROD",
-              "UNKNOWN"
-            ]
-          }
-        }
-      },
-      "NoticeDetailResponse": {
-        "type": "object",
-        "properties": {
-          "infoNotice": {
-            "$ref": "#/components/schemas/InfoNotice"
-          },
-          "carts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CartItem"
-            }
-          }
-        }
-      },
-      "UserDetail": {
-        "required": [
-          "taxCode"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "taxCode": {
-            "type": "string"
-          }
-        }
-      },
-      "WalletInfo": {
-        "type": "object",
-        "properties": {
-          "accountHolder": {
-            "type": "string"
-          },
-          "brand": {
-            "type": "string"
-          },
-          "blurredNumber": {
-            "type": "string"
-          },
-          "maskedEmail": {
-            "type": "string"
-          }
-        }
-      },
-      "AppInfo": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "version": {
-            "type": "string"
-          },
-          "environment": {
-            "type": "string"
           }
         }
       },
@@ -1680,9 +830,6 @@
             "items": {
               "$ref": "#/components/schemas/MapEntry"
             }
-          },
-          "iur": {
-            "type": "string"
           },
           "IUR": {
             "type": "string"

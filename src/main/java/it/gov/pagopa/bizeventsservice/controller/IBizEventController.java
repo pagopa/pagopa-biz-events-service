@@ -26,6 +26,7 @@ public interface IBizEventController {
             @SecurityRequirement(name = "ApiKey")}, operationId = "getBizEvent")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained biz-event.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "BizEvent", implementation = BizEvent.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "404", description = "Not found the biz-event.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "422", description = "Unable to process the request.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
@@ -39,6 +40,7 @@ public interface IBizEventController {
             @SecurityRequirement(name = "ApiKey")}, operationId = "getBizEventByOrganizationFiscalCodeAndIuv")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained biz-event.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "BizEvent", implementation = BizEvent.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "404", description = "Not found the biz-event.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "422", description = "Unable to process the request.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
