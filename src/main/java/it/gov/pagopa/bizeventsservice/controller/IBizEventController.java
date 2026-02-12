@@ -13,14 +13,12 @@ import it.gov.pagopa.bizeventsservice.model.ProblemJson;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotBlank;
 
 @Tag(name = "Biz-Events Helpdesk")
-@RequestMapping
+@RequestMapping("/events")
 @Validated
 public interface IBizEventController {
 
@@ -34,7 +32,7 @@ public interface IBizEventController {
             @ApiResponse(responseCode = "422", description = "Unable to process the request.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
-    @GetMapping(value = "/events/{biz-event-id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{biz-event-id}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<BizEvent> getBizEvent(
             @Parameter(description = "The id of the biz-event.", required = true) @NotBlank @PathVariable("biz-event-id") String bizEventId);
 
@@ -48,7 +46,7 @@ public interface IBizEventController {
             @ApiResponse(responseCode = "422", description = "Unable to process the request.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
             @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
-    @GetMapping(value = "/events/organizations/{organization-fiscal-code}/iuvs/{iuv}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/organizations/{organization-fiscal-code}/iuvs/{iuv}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<BizEvent> getBizEventByOrganizationFiscalCodeAndIuv(
             @Parameter(description = "The fiscal code of the Organization.", required = true) @NotBlank @PathVariable("organization-fiscal-code") String organizationFiscalCode,
             @Parameter(description = "The unique payment identification. Alphanumeric code that uniquely associates and identifies three key elements of a payment: reason, payer, amount", required = true) @NotBlank @PathVariable("iuv") String iuv);

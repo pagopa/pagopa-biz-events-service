@@ -44,6 +44,12 @@ function disableTransactionWithIdForUserWithFiscalCode(id, fiscalcode) {
     })
 }
 
+function enableTransactionWithIdForUserWithFiscalCode(id, fiscalcode) {
+    return post(bizevents_helpdesk_host + `paids/${id}/enable`, JSON.stringify({}), {
+        "x-fiscal-code": fiscalcode
+    })
+}
+
 function generatePDF(id, fiscalCode) {
     return get(bizevents_trxsrv_host + `paids/${id}/pdf`, {
         "x-fiscal-code": fiscalCode
@@ -58,5 +64,6 @@ module.exports = {
     getTransactionListForUserWithFiscalCode,
     getTransactionWithIdForUserWithFiscalCode,
     disableTransactionWithIdForUserWithFiscalCode,
+    enableTransactionWithIdForUserWithFiscalCode,
     generatePDF
 }

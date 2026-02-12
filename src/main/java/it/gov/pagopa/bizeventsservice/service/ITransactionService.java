@@ -16,6 +16,7 @@ public interface ITransactionService {
      *
      * @param fiscalCode        fiscal code to filter transaction list
      * @param continuationToken continuation token for paginated query
+     * @param hidden            filter by hidden transactions
      * @param size              offset size
      * @return transaction list
      */
@@ -24,6 +25,7 @@ public interface ITransactionService {
             Boolean isPayer,
             Boolean isDebtor,
             String continuationToken,
+            Boolean hidden,
             Integer size,
             TransactionListOrder orderBy,
             Direction ordering
@@ -34,10 +36,11 @@ public interface ITransactionService {
     ResponseEntity<Resource> getPDFReceiptResponse(String fiscalCode, @NotBlank String eventId);
 
     /**
-     * This method disable a paid notice for the given fiscal code and event id
+     * This method updates a paid notice's visibility for the given fiscal code and event id
      *
      * @param fiscalCode the fiscal code
      * @param eventId    the event id
+     * @param hidden     the value of the property "hidden" to save on the biz event (false = visible, true = disabled)
      */
-    void disablePaidNotice(String fiscalCode, String eventId);
+    void updateBizEventVisibility(String fiscalCode, String eventId, Boolean hidden);
 }

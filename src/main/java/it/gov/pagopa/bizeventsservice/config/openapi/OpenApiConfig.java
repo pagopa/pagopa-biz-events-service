@@ -1,7 +1,8 @@
-package it.gov.pagopa.bizeventsservice.config;
+package it.gov.pagopa.bizeventsservice.config.openapi;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.info.Info;
@@ -22,11 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static it.gov.pagopa.bizeventsservice.util.Constants.HEADER_REQUEST_ID;
 import static it.gov.pagopa.bizeventsservice.util.Constants.X_FISCAL_CODE;
@@ -45,6 +42,10 @@ public class OpenApiConfig {
     public static final String APIM_PROD = "https://api.platform.pagopa.it";
     private static final String API_KEY_SECURITY_SCHEMA_KEY = "ApiKey";
     private static final String JWT_SECURITY_SCHEMA_KEY = "Authorization";
+    private static final String HELPDESK_SCOPE = "helpdesk";
+    private static final String EC_SCOPE = "ec";
+    private static final String LAP_SCOPE = "lap";
+    private static final String LAP_JWT_SCOPE = "lap_jwt";
 
     @Bean
     OpenAPI customOpenAPI(
@@ -114,6 +115,7 @@ public class OpenApiConfig {
                         .collect(ApiResponses::new, (map, item) -> map.addApiResponse(item.getKey(), item.getValue()), ApiResponses::putAll);
                 operation.setResponses(responses);
             }));
+
             openApi.setPaths(paths);
         };
     }
@@ -148,31 +150,62 @@ public class OpenApiConfig {
 
     @Bean
     public Map<String, GroupedOpenApi> configureGroupOpenApi(Map<String, GroupedOpenApi> groupOpenApi) {
-        groupOpenApi.forEach((id, groupedOpenApi) -> groupedOpenApi.getOpenApiCustomisers()
-                .add(openApi -> {
-                    var baseTitle = openApi.getInfo().getTitle();
-                    var group = groupedOpenApi.getDisplayName();
-                    openApi.getInfo().setTitle(baseTitle + " - " + group);
-                    switch (id) {
-                        case "helpdesk":
-                            openApi.getInfo().setDescription("Microservice for exposing REST APIs for bizevent Helpdesk.");
-                            openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_HELPDESK)));
-                            break;
-                        case "ec":
-                            openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_EC)));
-                            break;
-                        case "lap":
-                            openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_LAP)));
-                            break;
-                        case "lap_jwt":
-                            openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_LAP_JWT)));
-                            customizeForIOAuth(openApi);
-                            break;
-                        default:
-                            break;
-                    }
-                }));
+        groupOpenApi.forEach((id, groupedOpenApi) -> {
+            switch (id) {
+                case HELPDESK_SCOPE -> groupedOpenApi.getOperationCustomizers()
+                        .add(new VisibleOnlyForOperationCustomizer(OpenApiScope.HELPDESK));
+
+                case EC_SCOPE -> groupedOpenApi.getOperationCustomizers()
+                        .add(new VisibleOnlyForOperationCustomizer(OpenApiScope.EC));
+
+                case LAP_SCOPE -> groupedOpenApi.getOperationCustomizers()
+                        .add(new VisibleOnlyForOperationCustomizer(OpenApiScope.LAP));
+
+                case LAP_JWT_SCOPE -> groupedOpenApi.getOperationCustomizers()
+                        .add(new VisibleOnlyForOperationCustomizer(OpenApiScope.LAP_JWT));
+
+                default -> groupedOpenApi.getOperationCustomizers()
+                        .add(new VisibleOnlyForOperationCustomizer(OpenApiScope.PUBLIC));
+            }
+
+            groupedOpenApi.getOpenApiCustomisers()
+                    .add(openApi -> {
+                        var baseTitle = openApi.getInfo().getTitle();
+                        var group = groupedOpenApi.getDisplayName();
+                        openApi.getInfo().setTitle(baseTitle + " - " + group);
+                        // Remove empty paths
+                        cleanUpEmptyPaths(openApi);
+                        switch (id) {
+                            case HELPDESK_SCOPE -> {
+                                openApi.getInfo().setDescription("Microservice for exposing REST APIs for bizevent Helpdesk.");
+                                openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_HELPDESK)));
+                            }
+                            case EC_SCOPE -> openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_EC)));
+                            case LAP_SCOPE -> openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_LAP)));
+                            case LAP_JWT_SCOPE -> {
+                                openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_LAP_JWT)));
+                                customizeForIOAuth(openApi);
+                            }
+                            default -> {
+                            }
+                        }
+                    });
+        });
         return groupOpenApi;
+    }
+
+    private static void cleanUpEmptyPaths(OpenAPI openApi) {
+        List<String> pathsToRemove = new ArrayList<>();
+        openApi.getPaths().forEach((key, value) -> {
+            if(isInvalidPath(value)){
+                pathsToRemove.add(key);
+            }
+        });
+        pathsToRemove.forEach(key ->  openApi.getPaths().remove(key));
+    }
+
+    private static boolean isInvalidPath(PathItem value) {
+        return value.getGet() == null && value.getPatch() == null && value.getPut() == null && value.getPost() == null && value.getDelete() == null && value.getOptions() == null && value.getHead() == null;
     }
 
     private void customizeForIOAuth(OpenAPI openApi) {

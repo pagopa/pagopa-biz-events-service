@@ -86,6 +86,7 @@ public class TransactionService implements ITransactionService {
             Boolean isPayer,
             Boolean isDebtor,
             String continuationToken,
+            Boolean hidden,
             Integer size,
             TransactionListOrder orderBy,
             Direction ordering
@@ -94,7 +95,7 @@ public class TransactionService implements ITransactionService {
 
         final CosmosPageRequest pageRequest = getCosmosPageRequest(continuationToken, size, orderBy, ordering);
         final Page<BizEventsViewUser> page = this.bizEventsViewUserRepository
-                .getBizEventsViewUserByTaxCode(taxCode, isPayer, isDebtor, pageRequest);
+                .getBizEventsViewUserByTaxCode(taxCode, isPayer, isDebtor, hidden, pageRequest);
         List<BizEventsViewUser> listOfViewUser = page.getContent();
 
         if (listOfViewUser.isEmpty()) {
@@ -187,43 +188,44 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public void disablePaidNotice(String fiscalCode, String transactionId) {
+    public void updateBizEventVisibility(String fiscalCode, String eventId, Boolean hidden) {
         cacheService.evictNoticeListByTaxCode(fiscalCode);
 
         List<BizEventsViewUser> listOfViewUser;
 
-        TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(transactionId);
+        TransactionIdFactory.ViewTransactionId viewTransactionId = TransactionIdFactory.extract(eventId);
         String transaction = viewTransactionId.transactionId();
         boolean isDebtor = viewTransactionId.eventId() != null;
 
-        // if the transactionId contains _CART_ it means that it's a cart transaction
-        if (isCart(transactionId) && isDebtor) {
+        // if the eventId contains _CART_ it means that it's a cart transaction
+        if (isCart(eventId) && isDebtor) {
             // if there is something after _CART_ it means that we have to filter also by eventId for debtor
             listOfViewUser = this.bizEventsViewUserRepository
-                    .findByFiscalCodeAndTransactionIdAndEventId(fiscalCode, transaction, viewTransactionId.eventId());
+                    .findByFiscalCodeAndTransactionIdAndEventIdAndHidden(fiscalCode, transaction, viewTransactionId.eventId(), !hidden);
         } else {
             // single paid notice transaction
             listOfViewUser = this.bizEventsViewUserRepository
-                    .getBizEventsViewUserByTaxCodeAndTransactionId(fiscalCode, transaction);
+                    .getBizEventsViewUserByTaxCodeAndTransactionIdAndHidden(fiscalCode, transaction, !hidden);
         }
 
         // set hidden to true and save
-        setHiddenAndSave(transactionId, listOfViewUser);
+        setHiddenAndSave(eventId, listOfViewUser, hidden);
     }
 
     /**
-     * This method sets the 'hidden' attribute to true for all BizEventsViewUser entities in the provided list
+     * This method sets the 'hidden' attribute to @hiddenValue for all BizEventsViewUser entities in the provided list
      *
-     * @param transactionId  the transaction id
+     * @param eventId  the id of the transaction (bizEventId or cartId)
      * @param listOfViewUser the list of BizEventsViewUser Entities to be updated
+     * @param hiddenValue  value of the hidden property
      */
-    private void setHiddenAndSave(String transactionId, List<BizEventsViewUser> listOfViewUser) {
+    private void setHiddenAndSave(String eventId, List<BizEventsViewUser> listOfViewUser, Boolean hiddenValue) {
         if (CollectionUtils.isEmpty(listOfViewUser)) {
-            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_ID, transactionId);
+            throw new AppException(AppError.VIEW_USER_NOT_FOUND_WITH_ID, eventId);
         }
 
-        // set hidden to true for all paid notices with the same transactionId for the given fiscalCode
-        listOfViewUser.forEach(u -> u.setHidden(true));
+        // set hidden to @hiddenValue for all paid notices with the same eventId for the given fiscalCode
+        listOfViewUser.forEach(u -> u.setHidden(hiddenValue));
         bizEventsViewUserRepository.saveAll(listOfViewUser);
     }
 

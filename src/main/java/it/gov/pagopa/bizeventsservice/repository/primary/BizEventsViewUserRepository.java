@@ -16,18 +16,18 @@ import java.util.List;
 @Repository
 public interface BizEventsViewUserRepository extends CosmosRepository<BizEventsViewUser, String> {
 
-    @Query("SELECT * FROM c WHERE c.taxCode = @taxCode AND c.hidden = false AND (IS_NULL(@isPayer) = true OR c.isPayer = @isPayer) AND (IS_NULL(@isDebtor) = true OR c.isDebtor = @isDebtor)")
-    Page<BizEventsViewUser> getBizEventsViewUserByTaxCode(@Param("taxCode") String taxCode, @Param("isPayer") Boolean isPayer, @Param("isDebtor") Boolean isDebtor, Pageable pageable);
+    @Query("SELECT * FROM c WHERE c.taxCode = @taxCode AND c.hidden = @hidden AND (IS_NULL(@isPayer) = true OR c.isPayer = @isPayer) AND (IS_NULL(@isDebtor) = true OR c.isDebtor = @isDebtor)")
+    Page<BizEventsViewUser> getBizEventsViewUserByTaxCode(@Param("taxCode") String taxCode, @Param("isPayer") Boolean isPayer, @Param("isDebtor") Boolean isDebtor, @Param("hidden") Boolean hidden, Pageable pageable);
 
     @Query("select * from c where c.taxCode = @taxCode and c.hidden = false")
     List<BizEventsViewUser> getBizEventsViewUserByTaxCode(@Param("taxCode") String taxCode);
 
-    @Query("select * from c where c.transactionId=@transactionId and c.taxCode = @fiscalCode and c.hidden = false")
-    List<BizEventsViewUser> getBizEventsViewUserByTaxCodeAndTransactionId(String fiscalCode, String transactionId);
+    @Query("select * from c where c.transactionId=@transactionId and c.taxCode = @fiscalCode and c.hidden = @hidden")
+    List<BizEventsViewUser> getBizEventsViewUserByTaxCodeAndTransactionIdAndHidden(String fiscalCode, String transactionId, Boolean hidden);
 
-    @Query("select * from c where c.transactionId=@transactionId and c.taxCode = @fiscalCode and c.hidden = false and STARTSWITH(c.id, @eventId)")
-    List<BizEventsViewUser> findByFiscalCodeAndTransactionIdAndEventId(String fiscalCode, String transactionId, String eventId);
-    
+    @Query("select * from c where c.transactionId=@transactionId and c.taxCode = @fiscalCode and c.hidden = @hidden and STARTSWITH(c.id, @eventId)")
+    List<BizEventsViewUser> findByFiscalCodeAndTransactionIdAndEventIdAndHidden(String fiscalCode, String transactionId, String eventId, Boolean hidden);
+
     @Query("select * from c where c.taxCode = @fiscalCode and c.hidden = false and STARTSWITH(c.id, @eventId)")
     List<BizEventsViewUser> getBizEventsViewUserByTaxCodeAndId(String fiscalCode, String eventId);
 }
