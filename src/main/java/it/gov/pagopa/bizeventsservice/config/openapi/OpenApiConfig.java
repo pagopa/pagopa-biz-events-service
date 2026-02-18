@@ -16,9 +16,8 @@ import io.swagger.v3.oas.models.servers.ServerVariable;
 import io.swagger.v3.oas.models.servers.ServerVariables;
 import it.gov.pagopa.bizeventsservice.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
-import org.springdoc.core.GroupedOpenApi;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
-import org.springdoc.core.customizers.OpenApiCustomiser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -102,7 +101,7 @@ public class OpenApiConfig {
     }
 
     @Bean
-    OpenApiCustomiser sortOperationsAlphabetically() {
+    GlobalOpenApiCustomizer sortOperationsAlphabetically() {
         return openApi -> {
             Paths paths = openApi.getPaths().entrySet()
                     .stream()
@@ -168,7 +167,7 @@ public class OpenApiConfig {
                         .add(new VisibleOnlyForOperationCustomizer(OpenApiScope.PUBLIC));
             }
 
-            groupedOpenApi.getOpenApiCustomisers()
+            groupedOpenApi.getOpenApiCustomizers()
                     .add(openApi -> {
                         var baseTitle = openApi.getInfo().getTitle();
                         var group = groupedOpenApi.getDisplayName();
