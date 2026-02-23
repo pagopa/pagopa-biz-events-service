@@ -19,10 +19,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static it.gov.pagopa.bizeventsservice.util.CommonUtil.deNull;
 
@@ -87,10 +84,12 @@ public class LoggingAspect {
     private static Map<String, String> getParams(ProceedingJoinPoint joinPoint) {
         CodeSignature codeSignature = (CodeSignature) joinPoint.getSignature();
         Map<String, String> params = new HashMap<>();
-        int i = 0;
-        for (var paramName : codeSignature.getParameterNames()) {
-            if (!paramName.equals("fiscalCode")) {
-                params.put(paramName, deNull(joinPoint.getArgs()[i++]));
+
+        String[] parameterNames = codeSignature.getParameterNames();
+        for (int i = 0; i < parameterNames.length; i++) {
+            var paramName = parameterNames[i];
+            if (!paramName.equals("fiscalCode") && !paramName.equals("continuationToken")) {
+                params.put(paramName, deNull(joinPoint.getArgs()[i]));
             }
         }
         return params;
