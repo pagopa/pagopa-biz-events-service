@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-biz-events-service
-    tag: "0.4.1"
+    tag: "0.4.1-1-PIDM-610-upgrade-spring-boot-version"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -109,8 +109,6 @@ microservice-chart:
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-p-connection-string'
     COSMOS_DB_PRIMARY_KEY: 'cosmos-p-biz-key'
     RECEIPT_INTERNAL_SUBSCRIPTION_KEY: "receiptpdfservice-internal-p-subscription-key"
-    REDIS_PWD: 'redis-password'
-    REDIS_HOST: 'redis-hostname'
   keyvault:
     name: "pagopa-p-bizevents-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"

@@ -38,6 +38,9 @@ public class PrimaryCosmosDBConfiguration extends AbstractCosmosConfiguration {
     @Value("${azure.cosmos.populate-query-metrics}")
     private boolean queryMetricsEnabled;
 
+    @Value("${azure.cosmos.responseContinuationTokenLimitInKb}")
+    private int responseContinuationTokenLimitInKb;
+
     @Bean
     CosmosClientBuilder getCosmosClientBuilder() {
         AzureKeyCredential azureKeyCredential = new AzureKeyCredential(key);
@@ -62,6 +65,7 @@ public class PrimaryCosmosDBConfiguration extends AbstractCosmosConfiguration {
     public CosmosConfig cosmosConfig() {
         return CosmosConfig.builder()
                 .enableQueryMetrics(queryMetricsEnabled)
+                .responseContinuationTokenLimitInKb(responseContinuationTokenLimitInKb)
                 .responseDiagnosticsProcessor(new ResponseDiagnosticsProcessorImplementation())
                 .build();
     }
