@@ -5,15 +5,21 @@ import com.azure.core.credential.AzureKeyCredential;
 import com.azure.cosmos.CosmosAsyncClient;
 import com.azure.cosmos.CosmosClientBuilder;
 import com.azure.cosmos.DirectConnectionConfig;
+import com.azure.spring.data.cosmos.Constants;
 import com.azure.spring.data.cosmos.CosmosFactory;
-import com.azure.spring.data.cosmos.config.AbstractCosmosConfiguration;
 import com.azure.spring.data.cosmos.config.CosmosConfig;
+import com.azure.spring.data.cosmos.config.CosmosConfigurationSupport;
 import com.azure.spring.data.cosmos.core.CosmosTemplate;
 import com.azure.spring.data.cosmos.core.ResponseDiagnostics;
 import com.azure.spring.data.cosmos.core.ResponseDiagnosticsProcessor;
+import com.azure.spring.data.cosmos.core.convert.MappingCosmosConverter;
+import com.azure.spring.data.cosmos.core.mapping.CosmosMappingContext;
 import com.azure.spring.data.cosmos.core.mapping.EnableCosmosAuditing;
 import com.azure.spring.data.cosmos.repository.config.EnableCosmosRepositories;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
@@ -23,11 +29,11 @@ import org.springframework.lang.Nullable;
 import java.time.Duration;
 
 @Configuration
-@EnableCosmosRepositories("it.gov.pagopa.bizeventsservice.repository.primary")
+@EnableCosmosRepositories(value = "it.gov.pagopa.bizeventsservice.repository.primary", cosmosTemplateRef = "primaryCosmosTemplate")
 @EnableCosmosAuditing
 @ConditionalOnExpression("'${info.properties.environment}'!='test'")
 @Slf4j
-public class PrimaryCosmosDBConfiguration extends AbstractCosmosConfiguration {
+public class PrimaryCosmosDBConfiguration extends CosmosConfigurationSupport {
 
     @Value("${azure.cosmos.uri}")
     private String uri;
@@ -44,7 +50,11 @@ public class PrimaryCosmosDBConfiguration extends AbstractCosmosConfiguration {
     @Value("${azure.cosmos.responseContinuationTokenLimitInKb}")
     private int responseContinuationTokenLimitInKb;
 
-    @Bean
+    @Qualifier(Constants.OBJECT_MAPPER_BEAN_NAME)
+    @Autowired(required = false)
+    private ObjectMapper objectMapper;
+
+    @Bean("primaryCosmosAsyncClient")
     CosmosAsyncClient getCosmosClientBuilder() {
         AzureKeyCredential azureKeyCredential = new AzureKeyCredential(key);
         DirectConnectionConfig directConnectionConfig = DirectConnectionConfig.getDefaultConfig()
@@ -59,16 +69,20 @@ public class PrimaryCosmosDBConfiguration extends AbstractCosmosConfiguration {
     }
 
     @Bean("primaryCosmosFactory")
-    public CosmosFactory primaryCosmosFactory(CosmosFactory cosmosFactory) {
-        return cosmosFactory;
+    public CosmosFactory replicaCosmosFactory(@Qualifier("primaryCosmosAsyncClient") CosmosAsyncClient client) {
+        return new CosmosFactory(client, dbName);
     }
 
     @Bean("primaryCosmosTemplate")
-    public CosmosTemplate primaryCosmosTemplate(CosmosTemplate cosmosTemplate) {
-        return cosmosTemplate;
+    public CosmosTemplate replicaCosmosTemplate(
+            @Qualifier("primaryCosmosFactory") CosmosFactory replicaFactory,
+            CosmosConfig cosmosConfig,
+            MappingCosmosConverter mappingCosmosConverter
+    ) {
+        return new CosmosTemplate(replicaFactory, cosmosConfig, mappingCosmosConverter);
     }
 
-    @Override
+    @Bean
     public CosmosConfig cosmosConfig() {
         return CosmosConfig.builder()
                 .enableQueryMetrics(queryMetricsEnabled)
@@ -80,6 +94,11 @@ public class PrimaryCosmosDBConfiguration extends AbstractCosmosConfiguration {
     @Override
     protected String getDatabaseName() {
         return dbName;
+    }
+
+    @Bean
+    public MappingCosmosConverter mappingCosmosConverter(CosmosMappingContext cosmosMappingContext) {
+        return new MappingCosmosConverter(cosmosMappingContext, objectMapper);
     }
 
     private static class ResponseDiagnosticsProcessorImplementation implements ResponseDiagnosticsProcessor {

@@ -18,7 +18,7 @@ import java.time.Duration;
 import java.util.Collections;
 
 @Configuration
-@EnableCosmosRepositories("it.gov.pagopa.bizeventsservice.repository.replica")
+@EnableCosmosRepositories(value = "it.gov.pagopa.bizeventsservice.repository.replica", cosmosTemplateRef = "replicaCosmosTemplate")
 @ConditionalOnExpression("'${info.properties.environment}'!='test'")
 public class ReplicaCosmosDBConfiguration {
 
