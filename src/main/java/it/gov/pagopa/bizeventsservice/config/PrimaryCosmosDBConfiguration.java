@@ -65,7 +65,7 @@ public class PrimaryCosmosDBConfiguration extends AbstractCosmosConfiguration {
     public CosmosConfig cosmosConfig() {
         return CosmosConfig.builder()
                 .enableQueryMetrics(queryMetricsEnabled)
-//                .responseContinuationTokenLimitInKb(responseContinuationTokenLimitInKb)
+                .responseContinuationTokenLimitInKb(responseContinuationTokenLimitInKb)
                 .responseDiagnosticsProcessor(new ResponseDiagnosticsProcessorImplementation())
                 .build();
     }

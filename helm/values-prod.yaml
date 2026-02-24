@@ -63,10 +63,10 @@ microservice-chart:
       cpu: "500m"
     limits:
       memory: "1256Mi"
-      cpu: "800m"
+      cpu: "1200m"
   autoscaling:
     enable: true
-    minReplica: 3
+    minReplica: 4
     maxReplica: 20
     pollingInterval: 10 # seconds
     cooldownPeriod: 50 # seconds
@@ -117,6 +117,7 @@ microservice-chart:
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-p-connection-string'
     COSMOS_DB_PRIMARY_KEY: 'cosmos-p-biz-key'
     RECEIPT_INTERNAL_SUBSCRIPTION_KEY: "receiptpdfservice-internal-p-subscription-key"
+    OTEL_EXPORTER_OTLP_HEADERS: 'elastic-apm-secret-token'
   keyvault:
     name: "pagopa-p-bizevents-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
