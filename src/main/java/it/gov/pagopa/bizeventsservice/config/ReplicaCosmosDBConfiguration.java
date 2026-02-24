@@ -2,6 +2,7 @@ package it.gov.pagopa.bizeventsservice.config;
 
 import com.azure.cosmos.CosmosAsyncClient;
 import com.azure.cosmos.CosmosClientBuilder;
+import com.azure.cosmos.DirectConnectionConfig;
 import com.azure.spring.data.cosmos.CosmosFactory;
 import com.azure.spring.data.cosmos.config.CosmosConfig;
 import com.azure.spring.data.cosmos.core.CosmosTemplate;
@@ -13,7 +14,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
+import java.time.Duration;
+import java.util.Collections;
 
 @Configuration
 @EnableCosmosRepositories("it.gov.pagopa.bizeventsservice.repository.replica")
@@ -37,11 +39,15 @@ public class ReplicaCosmosDBConfiguration {
      */
     @Bean("replicaCosmosAsyncClient")
     public CosmosAsyncClient replicaCosmosAsyncClient() {
-        // build a dedicated builder for replica client
+        DirectConnectionConfig directConnectionConfig = DirectConnectionConfig.getDefaultConfig()
+                .setConnectTimeout(Duration.ofSeconds(10))
+                .setNetworkRequestTimeout(Duration.ofSeconds(5));
+
         return new CosmosClientBuilder()
                 .endpoint(uri)
                 .key(key)
-                .preferredRegions(List.of(readRegion))
+                .preferredRegions(Collections.singletonList(readRegion))
+                .directMode(directConnectionConfig)
                 .buildAsyncClient();
     }
 
@@ -65,5 +71,4 @@ public class ReplicaCosmosDBConfiguration {
     ) {
         return new CosmosTemplate(replicaFactory, cosmosConfig, mappingCosmosConverter);
     }
-
 }
