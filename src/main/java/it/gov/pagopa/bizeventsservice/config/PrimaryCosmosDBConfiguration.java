@@ -2,6 +2,7 @@ package it.gov.pagopa.bizeventsservice.config;
 
 
 import com.azure.core.credential.AzureKeyCredential;
+import com.azure.cosmos.CosmosAsyncClient;
 import com.azure.cosmos.CosmosClientBuilder;
 import com.azure.cosmos.DirectConnectionConfig;
 import com.azure.spring.data.cosmos.CosmosFactory;
@@ -18,6 +19,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.Nullable;
+
+import java.time.Duration;
 
 @Configuration
 @EnableCosmosRepositories("it.gov.pagopa.bizeventsservice.repository.primary")
@@ -42,13 +45,17 @@ public class PrimaryCosmosDBConfiguration extends AbstractCosmosConfiguration {
     private int responseContinuationTokenLimitInKb;
 
     @Bean
-    CosmosClientBuilder getCosmosClientBuilder() {
+    CosmosAsyncClient getCosmosClientBuilder() {
         AzureKeyCredential azureKeyCredential = new AzureKeyCredential(key);
-        DirectConnectionConfig directConnectionConfig = new DirectConnectionConfig();
+        DirectConnectionConfig directConnectionConfig = DirectConnectionConfig.getDefaultConfig()
+                .setConnectTimeout(Duration.ofSeconds(10))
+                .setNetworkRequestTimeout(Duration.ofSeconds(5));
+
         return new CosmosClientBuilder()
                 .endpoint(uri)
                 .credential(azureKeyCredential)
-                .directMode(directConnectionConfig);
+                .directMode(directConnectionConfig)
+                .buildAsyncClient();
     }
 
     @Bean("primaryCosmosFactory")
