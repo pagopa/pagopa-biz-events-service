@@ -102,6 +102,11 @@ microservice-chart:
     CACHE_DEFAULT_SIZE: "1000"
     CACHE_NOTICE_LIST_EVICT_SECONDS: "15"
     CACHE_NOTICE_DETAILS_EVICT_SECONDS: "20"
+    OTEL_SERVICE_NAME: "pagopa-bizevents-service"
+    OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=dev"
+    OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
+    OTEL_LOGS_EXPORTER: none
+    OTEL_TRACES_SAMPLER: "always_on"
   envFieldRef:
     APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
     APP_VERSION: "metadata.labels['app.kubernetes.io/version']"
@@ -109,6 +114,7 @@ microservice-chart:
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-d-connection-string'
     COSMOS_DB_PRIMARY_KEY: 'cosmos-d-biz-key'
     RECEIPT_INTERNAL_SUBSCRIPTION_KEY: "receiptpdfservice-internal-d-subscription-key"
+    OTEL_EXPORTER_OTLP_HEADERS: 'elastic-apm-secret-token'
   keyvault:
     name: "pagopa-d-bizevents-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
