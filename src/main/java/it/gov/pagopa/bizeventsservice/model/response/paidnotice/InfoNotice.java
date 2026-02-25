@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import it.gov.pagopa.bizeventsservice.entity.view.UserDetail;
 import it.gov.pagopa.bizeventsservice.entity.view.WalletInfo;
 import it.gov.pagopa.bizeventsservice.entity.view.enumeration.OriginType;
-import it.gov.pagopa.bizeventsservice.entity.view.enumeration.PaymentMethodType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -43,7 +42,8 @@ public class InfoNotice implements Serializable {
     @NotNull
     private String pspName;
     private WalletInfo walletInfo;
-    private PaymentMethodType paymentMethod;
+    @Schema(example = "APPL, BPAY, RBPS, RBPR, RBPB, RICO, RPIC, GOOG, MYBK, RBPP, PPAL, SATY, KLRN, BBT, BP, AD, CP, PO, OBEP, JIF, MYBK, PPAL, UNKNOWN")
+    private String paymentMethod;
     private UserDetail payer;
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull

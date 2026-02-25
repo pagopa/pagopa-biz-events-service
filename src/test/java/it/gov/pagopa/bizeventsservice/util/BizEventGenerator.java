@@ -2,7 +2,6 @@ package it.gov.pagopa.bizeventsservice.util;
 
 import it.gov.pagopa.bizeventsservice.entity.*;
 import it.gov.pagopa.bizeventsservice.entity.view.enumeration.OriginType;
-import it.gov.pagopa.bizeventsservice.entity.view.enumeration.PaymentMethodType;
 import it.gov.pagopa.bizeventsservice.model.response.enumeration.StatusType;
 
 import java.util.ArrayList;
@@ -104,7 +103,7 @@ public class BizEventGenerator {
                         .fee(FEE_WITH_SINGLE_DIGIT_CENTS)
                         .remittanceInformation(REMITTANCE_INFORMATION)
                         .IUR(IUR)
-                        .paymentMethod(PaymentMethodType.AD.name())
+                        .paymentMethod("AD")
                         .build())
                 .transactionDetails(TransactionDetails.builder()
                         .wallet(WalletItem.builder()
@@ -175,7 +174,7 @@ public class BizEventGenerator {
                         .fee(FEE_WITH_SINGLE_DIGIT_CENTS)
                         .remittanceInformation(REMITTANCE_INFORMATION)
                         .IUR(IUR)
-                        .paymentMethod(PaymentMethodType.AD.name())
+                        .paymentMethod("AD")
                         .build())
                 .transactionDetails(TransactionDetails.builder()
                         .wallet(WalletItem.builder()

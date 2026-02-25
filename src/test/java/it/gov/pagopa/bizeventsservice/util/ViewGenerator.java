@@ -2,7 +2,6 @@ package it.gov.pagopa.bizeventsservice.util;
 
 import it.gov.pagopa.bizeventsservice.entity.view.*;
 import it.gov.pagopa.bizeventsservice.entity.view.enumeration.OriginType;
-import it.gov.pagopa.bizeventsservice.entity.view.enumeration.PaymentMethodType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +88,7 @@ public class ViewGenerator {
         return BizEventsViewGeneral.builder()
                 .transactionId(TRANSACTION_ID)
                 .authCode(AUTH_CODE)
-                .paymentMethod(PaymentMethodType.AD)
+                .paymentMethod("AD")
                 .rrn(RRN)
                 .pspName(PSP_NAME)
                 .transactionDate(TRANSACTION_DATE_ZULU)
@@ -112,7 +111,7 @@ public class ViewGenerator {
         return BizEventsViewGeneral.builder()
                 .transactionId(TRANSACTION_ID)
                 .authCode(AUTH_CODE)
-                .paymentMethod(PaymentMethodType.AD)
+                .paymentMethod("AD")
                 .rrn(RRN)
                 .pspName(PSP_NAME)
                 .transactionDate(TRANSACTION_DATE_ZULU)
@@ -128,7 +127,7 @@ public class ViewGenerator {
                     .id(EVENT_ID + "-" + i)
                     .transactionId(TRANSACTION_ID)
                     .authCode(AUTH_CODE)
-                    .paymentMethod(PaymentMethodType.AD)
+                    .paymentMethod("AD")
                     .rrn(RRN)
                     .pspName(PSP_NAME)
                     .transactionDate(TRANSACTION_DATE_ZULU)
