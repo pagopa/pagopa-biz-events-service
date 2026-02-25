@@ -12,7 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -29,27 +29,27 @@ public class InfoNotice implements Serializable {
      *
      */
     private static final long serialVersionUID = -5306955320137743890L;
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     private String eventId;
     private String authCode;
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     private String rrn;
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     private String noticeDate;
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     private String pspName;
     private WalletInfo walletInfo;
     private PaymentMethodType paymentMethod;
     private UserDetail payer;
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     private String amount;
     private String fee;
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     private OriginType origin;
 }
