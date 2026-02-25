@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -24,18 +24,18 @@ public class CartItem implements Serializable {
 
     private static final long serialVersionUID = -6391592801925923358L;
 
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     private String subject;
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     private String amount;
     private UserDetail payee;
     private UserDetail debtor;
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     private String refNumberValue;
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     private String refNumberType;
 }

@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -21,33 +21,33 @@ import java.io.Serializable;
 @JsonInclude(Include.NON_NULL)
 public class NoticeListItem implements Serializable {
 
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     private String eventId;
 
     private String payeeName;
 
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     private String payeeTaxCode;
 
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     private String amount;
 
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     private String noticeDate;
 
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     private Boolean isCart;
 
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     private Boolean isPayer;
 
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     @Builder.Default
     private Boolean isDebtor = false;
