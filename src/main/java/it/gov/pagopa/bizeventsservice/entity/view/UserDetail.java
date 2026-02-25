@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Builder
@@ -22,7 +22,7 @@ public class UserDetail implements Serializable {
 
     @ToString.Exclude
     private String name;
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(required = true)
     @NotNull
     @ToString.Exclude
     private String taxCode;

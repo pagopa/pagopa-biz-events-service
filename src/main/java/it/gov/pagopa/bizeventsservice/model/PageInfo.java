@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 @Data
 @Builder
@@ -19,22 +19,22 @@ import jakarta.validation.constraints.PositiveOrZero;
 public class PageInfo {
 
     @JsonProperty("page")
-    @Schema(description = "Page number", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Page number", required = true)
     @PositiveOrZero
     Integer page;
 
     @JsonProperty("limit")
-    @Schema(description = "Required number of items per page", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Required number of items per page", required = true)
     @Positive
     Integer limit;
 
     @JsonProperty("items_found")
-    @Schema(description = "Number of items found. (The last page may have fewer elements than required)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Number of items found. (The last page may have fewer elements than required)", required = true)
     @PositiveOrZero
     Integer itemsFound;
 
     @JsonProperty("total_pages")
-    @Schema(description = "Total number of pages", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Total number of pages", required = true)
     @PositiveOrZero
     Integer totalPages;
 }
