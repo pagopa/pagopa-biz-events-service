@@ -3,7 +3,6 @@ package it.gov.pagopa.bizeventsservice.config;
 
 import com.azure.core.credential.AzureKeyCredential;
 import com.azure.cosmos.CosmosClientBuilder;
-import com.azure.cosmos.DirectConnectionConfig;
 import com.azure.spring.data.cosmos.CosmosFactory;
 import com.azure.spring.data.cosmos.config.AbstractCosmosConfiguration;
 import com.azure.spring.data.cosmos.config.CosmosConfig;
@@ -44,11 +43,10 @@ public class PrimaryCosmosDBConfiguration extends AbstractCosmosConfiguration {
     @Bean
     CosmosClientBuilder getCosmosClientBuilder() {
         AzureKeyCredential azureKeyCredential = new AzureKeyCredential(key);
-        DirectConnectionConfig directConnectionConfig = new DirectConnectionConfig();
         return new CosmosClientBuilder()
                 .endpoint(uri)
                 .credential(azureKeyCredential)
-                .directMode(directConnectionConfig);
+                .directMode();
     }
 
     @Bean("primaryCosmosFactory")

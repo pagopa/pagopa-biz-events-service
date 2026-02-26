@@ -27,7 +27,6 @@ import it.gov.pagopa.bizeventsservice.util.ViewGenerator;
 import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +35,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -70,19 +70,19 @@ public class TransactionServiceTest {
     public static final String HEADER_FILENAME = "filename";
     public static final String EVENT_ID_CART = "eventId_CART_";
 
-    @MockBean
+    @MockitoBean
     private BizEventsViewUserRepository bizEventsViewUserRepository;
-    @MockBean
+    @MockitoBean
     private BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
-    @MockBean
+    @MockitoBean
     private BizEventsViewCartRepository bizEventsViewCartRepository;
-    @MockBean
+    @MockitoBean
     private IReceiptGetPDFClient receiptClient;
-    @MockBean
+    @MockitoBean
     private IReceiptGeneratePDFClient generateReceiptClient;
-    @MockBean
+    @MockitoBean
     private IBizEventsService bizEventsService;
-    @MockBean
+    @MockitoBean
     private CacheService cacheService;
 
     private TransactionService transactionService;
