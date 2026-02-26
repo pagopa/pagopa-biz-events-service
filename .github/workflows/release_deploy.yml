@@ -30,11 +30,15 @@ on:
           - buildNumber
           - skip
         default: skip
-      beta:
-        required: false
+      is_canary:
         type: boolean
-        description: deploy beta version on AKS
+        description: 'Mark the release as canary on AKS'
         default: false
+      traffic_weight:
+        required: false
+        type: number
+        default: 0
+        description: 'The percentage of traffic to be sent to the canary version'
 
 permissions:
   packages: write
@@ -84,12 +88,12 @@ jobs:
     steps:
       - name: Make Release
         id: release
-        uses: pagopa/github-actions-template/maven-release@d91a1fd0b913c9830589be5d86cdb71c90813fae # v1.5.4
+        uses: pagopa/github-actions-template/maven-release@525266fb788f4da438e5919fcf660fe8637271ed # 2.2
         with:
           semver: ${{ needs.setup.outputs.semver }}
           github_token: ${{ secrets.BOT_TOKEN_GITHUB }}
-          beta: ${{ inputs.beta }}
-          skip_ci: ${{ inputs.beta }}
+          beta: ${{ inputs.is_canary }}
+          skip_ci: false
 
   image:
     needs: [ setup, release ]
@@ -99,7 +103,7 @@ jobs:
     steps:
       - name: Build and Push
         id: semver
-        uses: pagopa/github-actions-template/ghcr-build-push@d91a1fd0b913c9830589be5d86cdb71c90813fae # v1.5.4
+        uses: pagopa/github-actions-template/ghcr-build-push@525266fb788f4da438e5919fcf660fe8637271ed # 2.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ needs.release.outputs.version }}
@@ -111,7 +115,14 @@ jobs:
     uses: ./.github/workflows/deploy_with_github_runner.yml
     with:
       environment: ${{ needs.setup.outputs.environment }}
-    secrets: inherit
+      suffix_name: ${{ inputs.is_canary == true && '-canary' || '' }}
+      is_canary: ${{ inputs.is_canary == true }}
+      traffic_weight: ${{ inputs.traffic_weight || 0 }}
+      image_tag: ${{ needs.release.outputs.version }}
+    secrets:
+      CD_CLIENT_ID: ${{ secrets.CD_CLIENT_ID }}
+      SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+      TENANT_ID: ${{ secrets.TENANT_ID }}
 
   notify:
     needs: [ setup, release, deploy_aks ]
