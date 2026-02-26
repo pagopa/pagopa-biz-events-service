@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-biz-events-service
-    tag: "0.5.1"
+    tag: "0.5.2"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -129,7 +129,7 @@ microservice-chart:
                 values:
                   - "user"
   canaryDelivery:
-    create: true
+    create: false
     ingress:
       type: header
       headerName: X-Canary
