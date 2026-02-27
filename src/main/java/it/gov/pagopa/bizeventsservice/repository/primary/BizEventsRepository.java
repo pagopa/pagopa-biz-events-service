@@ -1,4 +1,4 @@
-package it.gov.pagopa.bizeventsservice.repository.replica;
+package it.gov.pagopa.bizeventsservice.repository.primary;
 
 import com.azure.spring.data.cosmos.repository.CosmosRepository;
 import com.azure.spring.data.cosmos.repository.Query;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Map;
 
-@Qualifier("replicaCosmosTemplate")
+//@Qualifier("primaryCosmosTemplate")
 @Repository
 public interface BizEventsRepository extends CosmosRepository<BizEvent, String> {
 

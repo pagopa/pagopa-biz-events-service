@@ -6,7 +6,7 @@ import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsPrimaryRepository;
-import it.gov.pagopa.bizeventsservice.repository.replica.BizEventsRepository;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import org.modelmapper.ModelMapper;

@@ -3,7 +3,7 @@ package it.gov.pagopa.bizeventsservice.util;
 import com.azure.spring.data.cosmos.common.ExpressionResolver;
 import it.gov.pagopa.bizeventsservice.config.CacheConfig;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsPrimaryRepository;
-import it.gov.pagopa.bizeventsservice.repository.replica.BizEventsRepository;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
