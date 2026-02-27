@@ -2,6 +2,7 @@ package it.gov.pagopa.bizeventsservice.controller.impl;
 
 import it.gov.pagopa.bizeventsservice.controller.IPaidNoticeController;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListWrapResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
@@ -73,6 +74,12 @@ public class PaidNoticeController implements IPaidNoticeController {
     public ResponseEntity<Resource> generatePDF(@NotBlank String fiscalCode, @NotBlank String eventId) {
         // to check if is an OLD event present only on the PM --> the receipt is not available for events present exclusively on the PM
         return transactionService.getPDFReceiptResponse(fiscalCode, eventId);
+    }
+
+    @Override
+    public ResponseEntity<CartItem> getPaidNoticeDetailByCfOrgAndNavAndDebtorFiscalCode(String organizationFiscalCode, String nav, String debtorFiscalCode) {
+        return new ResponseEntity<>(transactionService.getCartItemByCfOrgAndNavAndDebtorFiscalCode(organizationFiscalCode, nav, debtorFiscalCode),
+                HttpStatus.OK);
     }
 
 }

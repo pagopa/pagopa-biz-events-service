@@ -13,6 +13,7 @@ import it.gov.pagopa.bizeventsservice.config.openapi.OpenApiScope;
 import it.gov.pagopa.bizeventsservice.config.openapi.VisibleOnlyFor;
 import it.gov.pagopa.bizeventsservice.model.ProblemJson;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListWrapResponse;
 import org.springframework.core.io.Resource;
@@ -131,4 +132,27 @@ public interface IPaidNoticeController {
             @RequestHeader(X_FISCAL_CODE) @NotBlank String fiscalCode,
             @Parameter(description = "The id of the paid event.", required = true) @NotBlank @PathVariable("event-id") String eventId);
 
+    /**
+     * Retrieve the paid notice details given nav, organization-fiscal-code and debtorFiscalCode
+     *
+     * @param organizationFiscalCode
+     * @param nav
+     * @param debtorFiscalCode
+     * @return
+     */
+    @Operation(summary = "Retrieve the paid notice details given nav, organization-fiscal-code and debtorFiscalCode.", security = {
+            @SecurityRequirement(name = "ApiKey")}, operationId = "getPaidNoticeDetail")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Obtained paid notice detail.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "CartItem", implementation = CartItem.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class))),
+            @ApiResponse(responseCode = "401", description = "Wrong or missing function key.", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "404", description = "Not found the transaction.", content = @Content(schema = @Schema(implementation = ProblemJson.class))),
+            @ApiResponse(responseCode = "429", description = "Too many requests.", content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "500", description = "Service unavailable.", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ProblemJson.class)))})
+    @GetMapping(value = "/organizations/{organization-fiscal-code}/notices/{nav}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<CartItem> getPaidNoticeDetailByCfOrgAndNavAndDebtorFiscalCode(
+            @Parameter(description = "The fiscal code of the Organization.", required = true) @NotBlank @PathVariable("organization-fiscal-code") String organizationFiscalCode,
+            @Parameter(description = "The unique payment identification. Alphanumeric code that uniquely associates and identifies three key elements of a payment: reason, payer, amount", required = true) @NotBlank @PathVariable("nav") String nav,
+            @Parameter(description = "Fiscal code of the citizen.", required = true) @NotBlank @RequestHeader(name = "cf-cit", required = true) String debtorFiscalCode);
 }

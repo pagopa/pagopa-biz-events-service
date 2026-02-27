@@ -13,6 +13,8 @@ import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.exception.enumeration.ReceiptServiceStatusCode;
 import it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.InfoNotice;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
@@ -24,6 +26,7 @@ import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.CacheService;
 import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
@@ -39,6 +42,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotBlank;
+import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -210,6 +214,32 @@ public class TransactionService implements ITransactionService {
 
         // set hidden to true and save
         setHiddenAndSave(eventId, listOfViewUser, hidden);
+    }
+
+    /**
+     * Retrieve the paid notice details given nav, organization-fiscal-code and debtorFiscalCode
+     *
+     * @param nav
+     * @param cfOrg
+     * @param debtorFiscalCode
+     * @return
+     */
+    @Override
+    public CartItem getCartItemByCfOrgAndNavAndDebtorFiscalCode(String nav, String cfOrg, String debtorFiscalCode) {
+
+        List<BizEventsViewCart> cartItems = this.bizEventsViewCartRepository.getCartItemByCfOrgAndNavAndDebtorFiscalCode(nav, cfOrg, debtorFiscalCode);
+        BizEventsViewCart bizEventsViewCart = cartItems.get(0);
+        if (bizEventsViewCart != null) {
+            return CartItem.builder()
+                    .subject(bizEventsViewCart.getSubject())
+                    .amount(bizEventsViewCart.getAmount())
+                    .debtor(bizEventsViewCart.getDebtor())
+                    .payee(bizEventsViewCart.getPayee())
+                    .refNumberType(bizEventsViewCart.getRefNumberType())
+                    .refNumberValue(bizEventsViewCart.getRefNumberValue())
+                    .build();
+        }
+        return null;
     }
 
     /**
