@@ -88,12 +88,13 @@ jobs:
     steps:
       - name: Make Release
         id: release
-        uses: pagopa/github-actions-template/maven-release@713f5abd8f8ee210e5f6a4243ae52eb7c1b3b5ab # 2.4.1
+        uses: pagopa/github-actions-template/maven-release@afcfa9d6c7419aedeed2c0827bf7ea1304643fa6 # 2.4.0
         with:
           semver: ${{ needs.setup.outputs.semver }}
           github_token: ${{ secrets.BOT_TOKEN_GITHUB }}
           beta: ${{ inputs.is_canary }}
           skip_ci: false
+          prerelease: ${{ steps.release.outputs.version == 'buildNumber' }}
 
   image:
     needs: [ setup, release ]
