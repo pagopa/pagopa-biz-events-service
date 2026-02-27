@@ -14,6 +14,7 @@ import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.InfoNotice;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
@@ -22,6 +23,7 @@ import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartReposi
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.service.impl.TransactionService;
+import it.gov.pagopa.bizeventsservice.util.BizEventGenerator;
 import it.gov.pagopa.bizeventsservice.util.CacheService;
 import it.gov.pagopa.bizeventsservice.util.ViewGenerator;
 import org.junit.jupiter.api.*;
@@ -737,5 +739,42 @@ public class TransactionServiceTest {
         verify(bizEventsService, never()).getBizEventFromLAPId(anyString());
         verify(generateReceiptClient, never()).generateReceipt(anyString());
         verify(generateReceiptClient, never()).generateReceiptCart(anyString());
+    }
+
+    @Test
+    void getCartItemByCfOrgAndNavAndDebtorFiscalCode_KO() {
+        when(bizEventsViewCartRepository
+                .getCartItemByCfOrgAndNavAndDebtorFiscalCode(BizEventGenerator.NAV, BizEventGenerator.CF_ORG, BizEventGenerator.DEBTOR_VALID_CF))
+                .thenReturn(null);
+
+        Assertions.assertThrows(AppException.class, () ->
+                transactionService
+                        .getCartItemByCfOrgAndNavAndDebtorFiscalCode(BizEventGenerator.NAV, BizEventGenerator.CF_ORG, BizEventGenerator.DEBTOR_VALID_CF)
+        );
+
+        verify(bizEventsViewCartRepository)
+                .getCartItemByCfOrgAndNavAndDebtorFiscalCode(BizEventGenerator.NAV, BizEventGenerator.CF_ORG, BizEventGenerator.DEBTOR_VALID_CF);
+    }
+
+    @Test
+    void getCartItemByCfOrgAndNavAndDebtorFiscalCode_OK() {
+
+        BizEventsViewCart mockCart = ViewGenerator.generateBizEventsViewCart();
+
+        when(bizEventsViewCartRepository
+                .getCartItemByCfOrgAndNavAndDebtorFiscalCode(BizEventGenerator.NAV, BizEventGenerator.CF_ORG, BizEventGenerator.DEBTOR_VALID_CF))
+                .thenReturn(mockCart);
+
+        CartItem result = transactionService
+                .getCartItemByCfOrgAndNavAndDebtorFiscalCode(BizEventGenerator.NAV, BizEventGenerator.CF_ORG, BizEventGenerator.DEBTOR_VALID_CF);
+
+        assertNotNull(result);
+        assertEquals(mockCart.getSubject(), result.getSubject());
+        assertEquals(mockCart.getAmount(), result.getAmount());
+        assertEquals(mockCart.getDebtor(), result.getDebtor());
+
+        verify(bizEventsViewCartRepository)
+                .getCartItemByCfOrgAndNavAndDebtorFiscalCode(BizEventGenerator.NAV, BizEventGenerator.CF_ORG, BizEventGenerator.DEBTOR_VALID_CF);
+
     }
 }

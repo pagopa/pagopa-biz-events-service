@@ -75,6 +75,8 @@ public class BizEventGenerator {
     public static final String TRANSFER_AMOUNT_HIGHEST = "10000.00";
     public static final String TRANSFER_AMOUNT_MEDIUM = "20.00";
     public static final String TRANSFER_AMOUNT_LOWEST = "10.00";
+    public static final String NAV = "NAV";
+    public static final String CF_ORG = "100632531";
 
     public static BizEvent generateValidBizEvent(int index) {
         return BizEvent.builder()

@@ -227,19 +227,20 @@ public class TransactionService implements ITransactionService {
     @Override
     public CartItem getCartItemByCfOrgAndNavAndDebtorFiscalCode(String nav, String cfOrg, String debtorFiscalCode) {
 
-        List<BizEventsViewCart> cartItems = this.bizEventsViewCartRepository.getCartItemByCfOrgAndNavAndDebtorFiscalCode(nav, cfOrg, debtorFiscalCode);
-        BizEventsViewCart bizEventsViewCart = cartItems.get(0);
-        if (bizEventsViewCart != null) {
-            return CartItem.builder()
-                    .subject(bizEventsViewCart.getSubject())
-                    .amount(bizEventsViewCart.getAmount())
-                    .debtor(bizEventsViewCart.getDebtor())
-                    .payee(bizEventsViewCart.getPayee())
-                    .refNumberType(bizEventsViewCart.getRefNumberType())
-                    .refNumberValue(bizEventsViewCart.getRefNumberValue())
-                    .build();
+        BizEventsViewCart cartItem = this.bizEventsViewCartRepository.getCartItemByCfOrgAndNavAndDebtorFiscalCode(nav, cfOrg, debtorFiscalCode);
+
+        if (cartItem == null) {
+            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND_WITH_ORG_CF_AND_NAV_AND_DEBTOR_FISCAL_CODE, cfOrg, nav, debtorFiscalCode);
         }
-        return null;
+
+        return CartItem.builder()
+                .subject(cartItem.getSubject())
+                .amount(cartItem.getAmount())
+                .debtor(cartItem.getDebtor())
+                .payee(cartItem.getPayee())
+                .refNumberType(cartItem.getRefNumberType())
+                .refNumberValue(cartItem.getRefNumberValue())
+                .build();
     }
 
     /**
