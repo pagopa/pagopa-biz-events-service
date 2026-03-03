@@ -12,6 +12,7 @@ public enum ErrorCode {
     BZ_404_002("BZ_404_002", "NOT FOUND", "biz event", "Biz Event not found with IUR"),
     BZ_404_003("BZ_404_003", "NOT FOUND", "biz event", "Biz Event not found with ID"),
     BZ_404_004("BZ_404_004", "NOT FOUND", "biz event", "Biz Event not found with CF and IUV"),
+    BZ_404_005("BZ_404_005", "NOT FOUND", "biz event", "Biz Event not found with CF and NAV"),
     BZ_422_001("BZ_422_001", "Unprocessable Entity", "biz event", "Multiple BizEvents found with IUR and IUV"),
     BZ_422_002("BZ_422_002", "Unprocessable Entity", "biz event", "Multiple BizEvents found with CF and IUR"),
     BZ_422_003("BZ_422_003", "Unprocessable Entity", "biz event", "Multiple BizEvents found with CF and IUV"),

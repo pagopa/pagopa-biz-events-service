@@ -13,6 +13,7 @@ import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.exception.enumeration.ReceiptServiceStatusCode;
 import it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
+import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.InfoNotice;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
@@ -227,19 +228,21 @@ public class TransactionService implements ITransactionService {
     @Override
     public CartItem getCartItemByCfOrgAndNavAndDebtorFiscalCode(String nav, String cfOrg, String debtorFiscalCode) {
 
-        BizEventsViewCart cartItem = this.bizEventsViewCartRepository.getCartItemByCfOrgAndNavAndDebtorFiscalCode(nav, cfOrg, debtorFiscalCode);
+        List<BizEventsViewCart> bizEventEntityList = this.bizEventsViewCartRepository.getCartItemByCfOrgAndNavAndDebtorFiscalCode(nav, cfOrg, debtorFiscalCode);
 
-        if (cartItem == null) {
-            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND_WITH_ORG_CF_AND_NAV_AND_DEBTOR_FISCAL_CODE, cfOrg, nav, debtorFiscalCode);
+        if (bizEventEntityList.isEmpty()) {
+            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND_WITH_ORG_CF_AND_NAV_AND_DEBTOR_FISCAL_CODE, cfOrg, nav);
         }
 
+        BizEventsViewCart bizEvent = bizEventEntityList.get(0);
+
         return CartItem.builder()
-                .subject(cartItem.getSubject())
-                .amount(cartItem.getAmount())
-                .debtor(cartItem.getDebtor())
-                .payee(cartItem.getPayee())
-                .refNumberType(cartItem.getRefNumberType())
-                .refNumberValue(cartItem.getRefNumberValue())
+                .subject(bizEvent.getSubject())
+                .amount(bizEvent.getAmount())
+                .debtor(bizEvent.getDebtor())
+                .payee(bizEvent.getPayee())
+                .refNumberType(bizEvent.getRefNumberType())
+                .refNumberValue(bizEvent.getRefNumberValue())
                 .build();
     }
 

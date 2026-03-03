@@ -759,19 +759,19 @@ public class TransactionServiceTest {
     @Test
     void getCartItemByCfOrgAndNavAndDebtorFiscalCode_OK() {
 
-        BizEventsViewCart mockCart = ViewGenerator.generateBizEventsViewCart();
+        List<BizEventsViewCart> mockCartList = ViewGenerator.generateListOfFiveViewCart();
 
         when(bizEventsViewCartRepository
                 .getCartItemByCfOrgAndNavAndDebtorFiscalCode(BizEventGenerator.NAV, BizEventGenerator.CF_ORG, BizEventGenerator.DEBTOR_VALID_CF))
-                .thenReturn(mockCart);
+                .thenReturn(mockCartList);
 
         CartItem result = transactionService
                 .getCartItemByCfOrgAndNavAndDebtorFiscalCode(BizEventGenerator.NAV, BizEventGenerator.CF_ORG, BizEventGenerator.DEBTOR_VALID_CF);
 
         assertNotNull(result);
-        assertEquals(mockCart.getSubject(), result.getSubject());
-        assertEquals(mockCart.getAmount(), result.getAmount());
-        assertEquals(mockCart.getDebtor(), result.getDebtor());
+        assertEquals(mockCartList.get(0).getSubject(), result.getSubject());
+        assertEquals(mockCartList.get(0).getAmount(), result.getAmount());
+        assertEquals(mockCartList.get(0).getDebtor(), result.getDebtor());
 
         verify(bizEventsViewCartRepository)
                 .getCartItemByCfOrgAndNavAndDebtorFiscalCode(BizEventGenerator.NAV, BizEventGenerator.CF_ORG, BizEventGenerator.DEBTOR_VALID_CF);

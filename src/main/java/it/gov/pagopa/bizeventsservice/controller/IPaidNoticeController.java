@@ -154,5 +154,5 @@ public interface IPaidNoticeController {
     ResponseEntity<CartItem> getPaidNoticeDetailByCfOrgAndNavAndDebtorFiscalCode(
             @Parameter(description = "The fiscal code of the Organization.", required = true) @NotBlank @PathVariable("organization-fiscal-code") String organizationFiscalCode,
             @Parameter(description = "The unique payment identification. Alphanumeric code that uniquely associates and identifies three key elements of a payment: reason, payer, amount", required = true) @NotBlank @PathVariable("nav") String nav,
-            @Parameter(description = "Fiscal code of the citizen.", required = true) @NotBlank @RequestHeader(name = "cf-cit", required = true) String debtorFiscalCode);
+            @Parameter(description = "Fiscal code of the citizen.", required = true) @NotBlank @RequestHeader(CF_CIT) String debtorFiscalCode);
 }
