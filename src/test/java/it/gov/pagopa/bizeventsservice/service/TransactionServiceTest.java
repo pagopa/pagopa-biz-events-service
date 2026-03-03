@@ -745,7 +745,7 @@ public class TransactionServiceTest {
     void getCartItemByCfOrgAndNavAndDebtorFiscalCode_KO() {
         when(bizEventsViewCartRepository
                 .getCartItemByCfOrgAndNavAndDebtorFiscalCode(BizEventGenerator.NAV, BizEventGenerator.CF_ORG, BizEventGenerator.DEBTOR_VALID_CF))
-                .thenReturn(null);
+                .thenReturn(Collections.emptyList());
 
         Assertions.assertThrows(AppException.class, () ->
                 transactionService
