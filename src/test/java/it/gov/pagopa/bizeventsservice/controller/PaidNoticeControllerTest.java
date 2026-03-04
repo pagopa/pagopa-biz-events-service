@@ -56,9 +56,6 @@ public class PaidNoticeControllerTest {
     public static final String PAIDS_EVENT_ID_PDF_PATH = "/paids/event-id/pdf";
     private static final String CONTINUATION_TOKEN_HEADER_KEY = "x-continuation-token";
     public static final String HIDDEN_PARAM = "hidden";
-    private static final String ORGANIZATION_FISCAL_CODE = "12345678901";
-    private static final String NAV = "NAV131546213164";
-    private static final String PAIDS_ORGANIZATION_NAV_CF_PATH = String.format("/paids/organizations/%s/notices/%s", ORGANIZATION_FISCAL_CODE, NAV);
 
     @Autowired
     private MockMvc mvc;
@@ -269,44 +266,6 @@ public class PaidNoticeControllerTest {
                 .andReturn();
 
         verify(transactionService).getPDFReceiptResponse(VALID_FISCAL_CODE, "event-id");
-    }
-
-    @Test
-    void getPaidNoticeDetailByCfOrgAndNavAndDebtorFiscalCode_ShouldReturnOK() throws Exception {
-        when(transactionService.getCartItemByCfOrgAndNavAndDebtorFiscalCode(
-                ORGANIZATION_FISCAL_CODE, NAV, VALID_FISCAL_CODE))
-                .thenReturn(ViewGenerator.generateCartItemView());
-
-        mvc.perform(get(PAIDS_ORGANIZATION_NAV_CF_PATH, ORGANIZATION_FISCAL_CODE, NAV)
-                        .header("cf-cit", VALID_FISCAL_CODE)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-
-        verify(transactionService).getCartItemByCfOrgAndNavAndDebtorFiscalCode(
-                ORGANIZATION_FISCAL_CODE, NAV, VALID_FISCAL_CODE);
-    }
-
-    @Test
-    void getPaidNoticeDetailByCfOrgAndNavAndDebtorFiscalCode_ShouldReturnBadRequestIfHeaderMissing() throws Exception {
-        mvc.perform(get(PAIDS_ORGANIZATION_NAV_CF_PATH, ORGANIZATION_FISCAL_CODE, NAV)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void getPaidNoticeDetailByCfOrgAndNavAndDebtorFiscalCode_ShouldReturnErrorForInvalidFiscalCode() throws Exception {
-        when(transactionService.getCartItemByCfOrgAndNavAndDebtorFiscalCode(
-                ORGANIZATION_FISCAL_CODE, NAV, INVALID_FISCAL_CODE))
-                .thenAnswer(invocation -> {
-                    throw new AppException(AppError.INVALID_FISCAL_CODE, INVALID_FISCAL_CODE);
-                });
-
-        mvc.perform(get(PAIDS_ORGANIZATION_NAV_CF_PATH, ORGANIZATION_FISCAL_CODE, NAV)
-                        .header("cf-cit", INVALID_FISCAL_CODE)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andReturn();
     }
 
 }

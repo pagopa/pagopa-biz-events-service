@@ -76,10 +76,4 @@ public class PaidNoticeController implements IPaidNoticeController {
         return transactionService.getPDFReceiptResponse(fiscalCode, eventId);
     }
 
-    @Override
-    public ResponseEntity<CartItem> getPaidNoticeDetailByCfOrgAndNavAndDebtorFiscalCode(String organizationFiscalCode, String nav, String debtorFiscalCode) {
-        return new ResponseEntity<>(transactionService.getCartItemByCfOrgAndNavAndDebtorFiscalCode(organizationFiscalCode, nav, debtorFiscalCode),
-                HttpStatus.OK);
-    }
-
 }
