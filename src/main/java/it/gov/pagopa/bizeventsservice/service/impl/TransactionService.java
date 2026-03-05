@@ -13,9 +13,7 @@ import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.exception.enumeration.ReceiptServiceStatusCode;
 import it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
-import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem;
-import it.gov.pagopa.bizeventsservice.model.response.paidnotice.InfoNotice;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
@@ -27,7 +25,6 @@ import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.CacheService;
 import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
@@ -43,7 +40,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotBlank;
-import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -231,7 +227,7 @@ public class TransactionService implements ITransactionService {
         List<BizEventsViewCart> bizEventEntityList = this.bizEventsViewCartRepository.getCartItemByCfOrgAndNavAndDebtorFiscalCode(nav, cfOrg, debtorFiscalCode);
 
         if (bizEventEntityList.isEmpty()) {
-            throw new AppException(AppError.BIZ_EVENT_NOT_FOUND_WITH_ORG_CF_AND_NAV_AND_DEBTOR_FISCAL_CODE, cfOrg, nav);
+            throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_ORG_CF_AND_NAV_AND_DEBTOR_FISCAL_CODE, cfOrg, nav);
         }
 
         BizEventsViewCart bizEvent = bizEventEntityList.get(0);

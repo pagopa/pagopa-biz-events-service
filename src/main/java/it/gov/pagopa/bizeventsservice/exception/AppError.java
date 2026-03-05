@@ -13,7 +13,6 @@ public enum AppError {
     BIZ_EVENT_NOT_FOUND_IUR(HttpStatus.NOT_FOUND, ErrorCode.BZ_404_002, BIZ_NOT_FOUND_HEADER, "Not found a biz event for the Organization Fiscal Code %s and IUR %s"),
     BIZ_EVENT_NOT_FOUND_WITH_ID(HttpStatus.NOT_FOUND, ErrorCode.BZ_404_003, BIZ_NOT_FOUND_HEADER, "Not found a biz event with id %s"),
     BIZ_EVENT_NOT_FOUND_WITH_ORG_CF_AND_IUV(HttpStatus.NOT_FOUND, ErrorCode.BZ_404_004, BIZ_NOT_FOUND_HEADER, "Not found a biz event for the Organization Fiscal Code %s and IUV %s"),
-    BIZ_EVENT_NOT_FOUND_WITH_ORG_CF_AND_NAV_AND_DEBTOR_FISCAL_CODE(HttpStatus.NOT_FOUND, ErrorCode.BZ_404_005, BIZ_NOT_FOUND_HEADER, "Not found a biz event for the Organization Fiscal Code %s and NAV %s and debtorFiscalCode"),
     BIZ_EVENT_NOT_UNIQUE_IUV_IUR(HttpStatus.UNPROCESSABLE_ENTITY, ErrorCode.BZ_422_001, BIZ_NOT_UNIQUE_HEADER, "More than one biz event was found for the Organization Fiscal Code %s and IUR %s and IUV %s"),
     BIZ_EVENT_NOT_UNIQUE_IUR(HttpStatus.UNPROCESSABLE_ENTITY, ErrorCode.BZ_422_002, BIZ_NOT_UNIQUE_HEADER, "More than one biz event was found for the Organization Fiscal Code %s and IUR %s"),
     BIZ_EVENT_NOT_UNIQUE_WITH_ORG_CF_AND_IUV(HttpStatus.UNPROCESSABLE_ENTITY, ErrorCode.BZ_422_003, BIZ_NOT_UNIQUE_HEADER, "More than one biz event was found for the Organization Fiscal Code %s and IUV %s, event ids are %s"),
@@ -25,6 +24,7 @@ public enum AppError {
     VIEW_USER_NOT_FOUND_WITH_ID(HttpStatus.NOT_FOUND, ErrorCode.VU_404_003, VIEW_USER_NOT_FOUND, "Not found a biz-events-view-user with id %s for the given tax code"),
     VIEW_GENERAL_NOT_FOUND_WITH_ID(HttpStatus.NOT_FOUND, ErrorCode.VG_404_001, VIEW_GENERAL_NOT_FOUND, "Not found a biz-events-view-general with id %s"),
     VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE(HttpStatus.NOT_FOUND, ErrorCode.VC_404_001, VIEW_CART_NOT_FOUND, "Not found a biz-events-view-cart with id %s for the given tax code"),
+    VIEW_CART_NOT_FOUND_WITH_ORG_CF_AND_NAV_AND_DEBTOR_FISCAL_CODE(HttpStatus.NOT_FOUND, ErrorCode.VC_404_002, VIEW_CART_NOT_FOUND, "Not found a biz-events-view-cart for the Organization Fiscal Code %s and NAV %s and debtorFiscalCode"),
 
     ATTACHMENT_NOT_FOUND(HttpStatus.NOT_FOUND, ErrorCode.AT_404_001, "Attachment not found", "Not found attachment for id %s, the receipt failure needs to be reviewed"),
     ATTACHMENT_GENERATING(HttpStatus.NOT_FOUND, ErrorCode.AT_404_002, "Attachment not found", "Attachment for id %s is still generating"),

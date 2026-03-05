@@ -13,7 +13,6 @@ import it.gov.pagopa.bizeventsservice.config.openapi.OpenApiScope;
 import it.gov.pagopa.bizeventsservice.config.openapi.VisibleOnlyFor;
 import it.gov.pagopa.bizeventsservice.model.ProblemJson;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order;
-import it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeListWrapResponse;
 import org.springframework.core.io.Resource;

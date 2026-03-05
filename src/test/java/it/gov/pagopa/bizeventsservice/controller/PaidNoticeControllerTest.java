@@ -11,7 +11,6 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.Utility;
-import it.gov.pagopa.bizeventsservice.util.ViewGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
