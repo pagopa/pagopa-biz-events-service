@@ -13,6 +13,7 @@ import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.exception.enumeration.ReceiptServiceStatusCode;
 import it.gov.pagopa.bizeventsservice.mapper.ConvertViewsToTransactionDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
@@ -210,6 +211,35 @@ public class TransactionService implements ITransactionService {
 
         // set hidden to true and save
         setHiddenAndSave(eventId, listOfViewUser, hidden);
+    }
+
+    /**
+     * Retrieve the paid notice details given nav, organization-fiscal-code and debtorFiscalCode
+     *
+     * @param cfOrg
+     * @param nav
+     * @param debtorFiscalCode
+     * @return
+     */
+    @Override
+    public CartItem getCartItemByCfOrgAndNavAndDebtorFiscalCode(String cfOrg, String nav, String debtorFiscalCode) {
+
+        List<BizEventsViewCart> bizEventEntityList = this.bizEventsViewCartRepository.getCartItemByCfOrgAndNavAndDebtorFiscalCode(cfOrg, nav, debtorFiscalCode);
+
+        if (bizEventEntityList.isEmpty()) {
+            throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_ORG_CF_AND_NAV_AND_DEBTOR_FISCAL_CODE, cfOrg, nav);
+        }
+
+        BizEventsViewCart bizEvent = bizEventEntityList.get(0);
+
+        return CartItem.builder()
+                .subject(bizEvent.getSubject())
+                .amount(bizEvent.getAmount())
+                .debtor(bizEvent.getDebtor())
+                .payee(bizEvent.getPayee())
+                .refNumberType(bizEvent.getRefNumberType())
+                .refNumberValue(bizEvent.getRefNumberValue())
+                .build();
     }
 
     /**

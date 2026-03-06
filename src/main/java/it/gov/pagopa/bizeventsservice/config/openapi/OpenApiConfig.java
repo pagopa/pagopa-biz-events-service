@@ -35,6 +35,7 @@ public class OpenApiConfig {
     public static final String BASE_PATH_EC = "/bizevents/service/v1";
     public static final String BASE_PATH_LAP = "/bizevents/notices-service/v1";
     public static final String BASE_PATH_LAP_JWT = "/bizevents/notices-service-jwt/v1";
+    public static final String BASE_PATH_TRANSACTION = "/searchtransactions/v1";
     public static final String LOCAL_PATH = "http://localhost:8080";
     public static final String APIM_DEV = "https://api.dev.platform.pagopa.it";
     public static final String APIM_UAT = "https://api.uat.platform.pagopa.it";
@@ -45,6 +46,7 @@ public class OpenApiConfig {
     private static final String EC_SCOPE = "ec";
     private static final String LAP_SCOPE = "lap";
     private static final String LAP_JWT_SCOPE = "lap_jwt";
+    private static final String TRANSACTIONS_SCOPE = "transactions";
 
     @Bean
     OpenAPI customOpenAPI(
@@ -83,7 +85,7 @@ public class OpenApiConfig {
                                         .addServerVariable("host",
                                                 new ServerVariable()._enum(List.of(APIM_DEV, APIM_UAT, APIM_PROD))
                                                         ._default(APIM_PROD))
-                                        .addServerVariable("basePath", new ServerVariable()._enum(List.of(BASE_PATH_LAP, BASE_PATH_EC, BASE_PATH_HELPDESK))
+                                        .addServerVariable("basePath", new ServerVariable()._enum(List.of(BASE_PATH_LAP, BASE_PATH_EC, BASE_PATH_HELPDESK, BASE_PATH_TRANSACTION))
                                                 ._default(BASE_PATH_EC))
                                 )))
                 .components(new Components().addSecuritySchemes(API_KEY_SECURITY_SCHEMA_KEY,
@@ -163,6 +165,9 @@ public class OpenApiConfig {
                 case LAP_JWT_SCOPE -> groupedOpenApi.getOperationCustomizers()
                         .add(new VisibleOnlyForOperationCustomizer(OpenApiScope.LAP_JWT));
 
+                case TRANSACTIONS_SCOPE -> groupedOpenApi.getOperationCustomizers()
+                        .add(new VisibleOnlyForOperationCustomizer(OpenApiScope.TRANSACTIONS));
+
                 default -> groupedOpenApi.getOperationCustomizers()
                         .add(new VisibleOnlyForOperationCustomizer(OpenApiScope.PUBLIC));
             }
@@ -185,6 +190,7 @@ public class OpenApiConfig {
                                 openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_LAP_JWT)));
                                 customizeForIOAuth(openApi);
                             }
+                            case TRANSACTIONS_SCOPE -> openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_TRANSACTION)));
                             default -> {
                             }
                         }

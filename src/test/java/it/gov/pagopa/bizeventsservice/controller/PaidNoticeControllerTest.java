@@ -55,6 +55,7 @@ public class PaidNoticeControllerTest {
     public static final String PAIDS_EVENT_ID_PDF_PATH = "/paids/event-id/pdf";
     private static final String CONTINUATION_TOKEN_HEADER_KEY = "x-continuation-token";
     public static final String HIDDEN_PARAM = "hidden";
+
     @Autowired
     private MockMvc mvc;
 
