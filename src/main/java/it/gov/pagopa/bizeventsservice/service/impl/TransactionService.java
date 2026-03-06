@@ -216,15 +216,15 @@ public class TransactionService implements ITransactionService {
     /**
      * Retrieve the paid notice details given nav, organization-fiscal-code and debtorFiscalCode
      *
-     * @param nav
      * @param cfOrg
+     * @param nav
      * @param debtorFiscalCode
      * @return
      */
     @Override
-    public CartItem getCartItemByCfOrgAndNavAndDebtorFiscalCode(String nav, String cfOrg, String debtorFiscalCode) {
+    public CartItem getCartItemByCfOrgAndNavAndDebtorFiscalCode(String cfOrg, String nav, String debtorFiscalCode) {
 
-        List<BizEventsViewCart> bizEventEntityList = this.bizEventsViewCartRepository.getCartItemByCfOrgAndNavAndDebtorFiscalCode(nav, cfOrg, debtorFiscalCode);
+        List<BizEventsViewCart> bizEventEntityList = this.bizEventsViewCartRepository.getCartItemByCfOrgAndNavAndDebtorFiscalCode(cfOrg, nav, debtorFiscalCode);
 
         if (bizEventEntityList.isEmpty()) {
             throw new AppException(AppError.VIEW_CART_NOT_FOUND_WITH_ORG_CF_AND_NAV_AND_DEBTOR_FISCAL_CODE, cfOrg, nav);

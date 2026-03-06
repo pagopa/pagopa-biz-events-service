@@ -48,10 +48,10 @@ public interface ITransactionService {
     /**
      * Retrieve the paid notice details given nav, organization-fiscal-code and debtorFiscalCode
      *
-     * @param nav
      * @param cfOrg
+     * @param nav
      * @param debtorFiscalCode
      * @return
      */
-    CartItem getCartItemByCfOrgAndNavAndDebtorFiscalCode(String nav, String cfOrg, String debtorFiscalCode);
+    CartItem getCartItemByCfOrgAndNavAndDebtorFiscalCode(String cfOrg, String nav, String debtorFiscalCode);
 }
