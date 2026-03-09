@@ -190,7 +190,21 @@ public class OpenApiConfig {
                                 openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_LAP_JWT)));
                                 customizeForIOAuth(openApi);
                             }
-                            case TRANSACTIONS_SCOPE -> openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_TRANSACTION)));
+                            case TRANSACTIONS_SCOPE -> {
+                                openApi.setServers(List.of(new Server().url(LOCAL_PATH), new Server().url(APIM_PROD + BASE_PATH_TRANSACTION)));
+
+                                // remove security schema
+                                if (openApi.getComponents() != null && openApi.getComponents().getSecuritySchemes() != null) {
+                                    openApi.getComponents().setSecuritySchemes(null);
+                                }
+
+                                // remove ApiKey security from operations
+                                openApi.getPaths().values().forEach(pathItem ->
+                                        pathItem.readOperations().forEach(operation ->
+                                                operation.setSecurity(Collections.emptyList())
+                                        )
+                                );
+                            }
                             default -> {
                             }
                         }
