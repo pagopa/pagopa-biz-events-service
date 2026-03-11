@@ -32,8 +32,8 @@ public interface ITransactionsController {
      * @param debtorFiscalCode
      * @return
      */
-    @Operation(summary = "Retrieve the paid notice details given nav, organization-fiscal-code and debtorFiscalCode.", security = {
-            @SecurityRequirement(name = "ApiKey")}, operationId = "getPaidNoticeDetail")
+    @Operation(summary = "Retrieve the paid notice details given organization-fiscal-code, nav and debtorFiscalCode.", security = {
+            @SecurityRequirement(name = "ApiKey")}, operationId = "getPaidNoticeDetailByCfOrgAndNavAndDebtorFiscalCode")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Obtained paid notice detail.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(name = "CartItem", implementation = CartItem.class))),
