@@ -1,6 +1,7 @@
 package it.gov.pagopa.bizeventsservice.service;
 
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import org.springframework.core.io.Resource;
@@ -43,4 +44,14 @@ public interface ITransactionService {
      * @param hidden     the value of the property "hidden" to save on the biz event (false = visible, true = disabled)
      */
     void updateBizEventVisibility(String fiscalCode, String eventId, Boolean hidden);
+
+    /**
+     * Retrieve the paid notice details given nav, organization-fiscal-code and debtorFiscalCode
+     *
+     * @param cfOrg
+     * @param nav
+     * @param debtorFiscalCode
+     * @return
+     */
+    CartItem getCartItemByCfOrgAndNavAndDebtorFiscalCode(String cfOrg, String nav, String debtorFiscalCode);
 }
