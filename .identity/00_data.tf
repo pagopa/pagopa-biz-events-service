@@ -103,3 +103,8 @@ data "azurerm_key_vault_secret" "key_vault_receipts_tokenizer_api_key" {
   name         = "tokenizer-api-key"
   key_vault_id = data.azurerm_key_vault.receipts_key_vault.id
 }
+
+data "azurerm_key_vault_secret" "key_vault_search_transactions_token_secret" {
+  name        = "search-transactions-token-secret"
+  key_vault_id = data.azurerm_key_vault.receipts_key_vault.id
+}
