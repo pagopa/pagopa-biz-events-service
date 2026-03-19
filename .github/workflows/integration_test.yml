@@ -60,6 +60,7 @@ jobs:
           RECEIPT_COSMOS_DB_CONN_STRING_ENV: ${{ secrets.RECEIPT_COSMOS_DB_CONN_STRING }}
           RECEIPTS_STORAGE_CONN_STRING_ENV: ${{ secrets.RECEIPTS_STORAGE_CONN_STRING }}
           TOKENIZER_API_KEY_ENV: ${{ secrets.TOKENIZER_API_KEY }}
+          SEARCH_TRANSACTION_TOKEN: ${{ secrets.SEARCH_TRANSACTION_TOKEN }}
         run: |
           export SUBKEY="$SUBKEY_ENV"
           export CANARY=${{ inputs.canary }}
@@ -69,6 +70,7 @@ jobs:
           export RECEIPT_COSMOS_DB_CONN_STRING="$RECEIPT_COSMOS_DB_CONN_STRING_ENV"
           export RECEIPTS_STORAGE_CONN_STRING="$RECEIPTS_STORAGE_CONN_STRING_ENV"
           export TOKENIZER_API_KEY="$TOKENIZER_API_KEY_ENV"
+          export SEARCH_TRANSACTION_TOKEN="$SEARCH_TRANSACTION_TOKEN"
 
           cd ./integration-test
           chmod +x ./run_integration_test.sh

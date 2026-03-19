@@ -3,7 +3,7 @@ const {get, post} = require("./common");
 const bizevents_service_host = process.env.BIZ_EVENTS_SERVICE_HOST;
 const bizevents_helpdesk_host = process.env.BIZ_EVENTS_HELPDESK_HOST;
 const bizevents_trxsrv_host = process.env.BIZ_EVENTS_LAPSRV_HOST;
-
+const bizevents_search_transaction_host = process.env.BIZ_EVENTS_TRANSACTIONS_HOST;
 
 // is the same 4all
 function healthCheckInfo() {
@@ -56,6 +56,14 @@ function generatePDF(id, fiscalCode) {
     })
 }
 
+// >>> BIZ_EVENTS_TRANSACTIONS_HOST
+function searchTransactions(cfOrg, nav, xFiscalCode, token) {
+    return get(bizevents_search_transaction_host + `organizations/${cfOrg}/notices/${nav}`, {
+        "x-fiscal-code": xFiscalCode,
+        "Authorization": `Bearer ${token}`
+    })
+}
+
 module.exports = {
     healthCheckInfo,
     getOrganizationReceipt,
@@ -65,5 +73,6 @@ module.exports = {
     getTransactionWithIdForUserWithFiscalCode,
     disableTransactionWithIdForUserWithFiscalCode,
     enableTransactionWithIdForUserWithFiscalCode,
-    generatePDF
+    generatePDF,
+    searchTransactions
 }
