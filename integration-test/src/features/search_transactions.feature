@@ -16,7 +16,7 @@ Feature: Biz Events Service - Search Transaction
     And i do not send a valid x-fiscal-code header
     And i use a valid notice number
     When i perform a transaction search
-    Then the response status code is 500
+    Then the response status code is 400
 
   Scenario: Not-existing NAV
     Given i use a valid token
