@@ -33,11 +33,11 @@ Feature: All about Organizations Receipt
     And the user gets 2 transactions
 
   Scenario: An operator re-enables a transaction
-    Given 3 view user with taxCode "INTTST00A00A000D", id prefix "biz-event-service-int-test-transaction-7" and isCart "false" and isPayer "true" and hidden "true" on cosmos
-    And 3 view general with payer tax code "INTTST00A00A000D", id prefix "biz-event-service-int-test-transaction-7" and isCart "false" on cosmos
-    And 3 view cart with debtor taxCode "INTTST00A00A000D", id prefix "biz-event-service-int-test-transaction-7" and isCart "false" on cosmos
+    Given 3 view user with taxCode "INTTST00A00A000E", id prefix "biz-event-service-int-test-transaction-7" and isCart "false" and isPayer "true" and hidden "true" on cosmos
+    And 3 view general with payer tax code "INTTST00A00A000E", id prefix "biz-event-service-int-test-transaction-7" and isCart "false" on cosmos
+    And 3 view cart with debtor taxCode "INTTST00A00A000E", id prefix "biz-event-service-int-test-transaction-7" and isCart "false" on cosmos
     And Save all views on CosmosDB
     When the operator enables the transaction with id "biz-event-service-int-test-transaction-70" and taxCode "INTTST00A00A000D"
-    And the user with fiscal code "INTTST00A00A000D" asks for its transactions
+    And the user with fiscal code "INTTST00A00A000E" asks for its transactions
     Then the user gets the status code 200
     And the user gets 1 transactions
