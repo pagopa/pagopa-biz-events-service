@@ -38,6 +38,7 @@ Given('i use an invalid notice number', function () {
 });
 
 When('i perform a transaction search', async function () {
+    console.log(this.cfOrg, this.noticeNumber, this.xFiscalCode, this.token == undefined)
     this.response = await searchTransactions(
         this.cfOrg,
         this.noticeNumber,
