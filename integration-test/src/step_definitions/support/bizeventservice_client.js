@@ -57,9 +57,9 @@ function generatePDF(id, fiscalCode) {
 }
 
 // >>> BIZ_EVENTS_TRANSACTIONS_HOST
-function searchTransactions(cfOrg, nav, xFiscalCode, token) {
+function searchTransactions(cfOrg, nav, fiscalCode, token) {
     return get(bizevents_search_transaction_host + `organizations/${cfOrg}/notices/${nav}`, {
-        "x-fiscal-code": xFiscalCode,
+        "x-fiscal-code": fiscalCode,
         "Authorization": `Bearer ${token}`
     })
 }
