@@ -45,7 +45,7 @@ When('i perform a transaction search', async function () {
         this.xFiscalCode,
         this.token
     );
-    console.log("Response: ", this.response)
+    console.log("Response: ", this.response.data)
 
     assert.ok(this.response, 'No response returned');
 });
