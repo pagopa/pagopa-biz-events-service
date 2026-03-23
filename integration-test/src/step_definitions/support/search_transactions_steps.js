@@ -1,10 +1,9 @@
-const { Given, When, Then, setDefaultTimeout } = require('@cucumber/cucumber');
+const { Given, When, Then, setDefaultTimeout, After } = require('@cucumber/cucumber');
 const assert = require('assert')
 const { searchTransactions } = require('./bizeventservice_client');
 
 
 setDefaultTimeout(360 * 1000);
-
 
 Given('i use a valid token', function () {
     this.token = process.env.SEARCH_TRANSACTION_TOKEN;
@@ -38,7 +37,6 @@ Given('i use an invalid notice number', function () {
 });
 
 When('i perform a transaction search', async function () {
-    console.log(this.cfOrg, this.noticeNumber, this.xFiscalCode, this.token == undefined)
     this.response = await searchTransactions(
         this.cfOrg,
         this.noticeNumber,

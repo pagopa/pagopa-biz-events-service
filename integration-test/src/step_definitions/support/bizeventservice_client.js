@@ -58,7 +58,6 @@ function generatePDF(id, fiscalCode) {
 
 // >>> BIZ_EVENTS_TRANSACTIONS_HOST
 function searchTransactions(cfOrg, nav, xFiscalCode, token) {
-    console.log(bizevents_search_transaction_host + `organizations/${cfOrg}/notices/${nav}`,"x-fiscal-code: " + xFiscalCode)
     return get(bizevents_search_transaction_host + `organizations/${cfOrg}/notices/${nav}`, {
         "x-fiscal-code": xFiscalCode,
         "Authorization": `Bearer ${token}`
