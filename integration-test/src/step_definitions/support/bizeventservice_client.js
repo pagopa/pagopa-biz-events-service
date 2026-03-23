@@ -60,7 +60,8 @@ function generatePDF(id, fiscalCode) {
 function searchTransactions(cfOrg, nav, fiscalCode, token) {
     return get(bizevents_search_transaction_host + `organizations/${cfOrg}/notices/${nav}`, {
         "x-fiscal-code": fiscalCode,
-        "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`,
+        "X-Forwarded-For": "127.0.0.1"
     })
 }
 
