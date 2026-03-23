@@ -43,6 +43,15 @@ When('i perform a transaction search', async function () {
         this.xFiscalCode,
         this.token
     );
+    console.log({
+        url: `${process.env.BIZ_EVENTS_TRANSACTIONS_HOST}organizations/${this.cfOrg}/notices/${this.noticeNumber}`,
+        xFiscalCode: this.xFiscalCode,
+        cfOrg: this.cfOrg,
+        noticeNumber: this.noticeNumber,
+        tokenPrefix: this.token ? this.token.slice(0, 3) : null,
+        tokenSuffix: this.token ? this.token.slice(-3) : null,
+        tokenLength: this.token ? this.token.length : 0
+    });
     console.log("Response: ", this.response.data)
 
     assert.ok(this.response, 'No response returned');
