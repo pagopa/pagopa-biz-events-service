@@ -37,7 +37,7 @@ Feature: All about Organizations Receipt
     And 3 view general with payer tax code "INTTST00A00A000E", id prefix "biz-event-service-int-test-transaction-7" and isCart "false" on cosmos
     And 3 view cart with debtor taxCode "INTTST00A00A000E", id prefix "biz-event-service-int-test-transaction-7" and isCart "false" on cosmos
     And Save all views on CosmosDB
-    When the operator enables the transaction with id "biz-event-service-int-test-transaction-70" and taxCode "INTTST00A00A000D"
+    When the operator enables the transaction with id "biz-event-service-int-test-transaction-70" and taxCode "INTTST00A00A000E"
     And the user with fiscal code "INTTST00A00A000E" asks for its transactions
     Then the user gets the status code 200
     And the user gets 1 transactions
