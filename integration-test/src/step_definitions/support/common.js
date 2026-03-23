@@ -7,7 +7,6 @@ if (process.env.CANARY === 'true') {
 }
 
 function get(url, headers) {
-	console.log(headers)
 	return axios.get(url, { headers })
 		.then(res => {
 			return res;
