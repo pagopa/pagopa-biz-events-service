@@ -33,6 +33,11 @@ data "azurerm_key_vault" "receipts_key_vault" {
   resource_group_name = "pagopa-${var.env_short}-receipts-sec-rg"
 }
 
+data "azurerm_key_vault" "shared_key_vault" {
+  name                = "pagopa-${var.env_short}-shared-kv"
+  resource_group_name = "pagopa-${var.env_short}-shared-sec-rg"
+}
+
 data "azurerm_key_vault_secret" "key_vault_sonar" {
   name         = "sonar-token"
   key_vault_id = data.azurerm_key_vault.key_vault.id
@@ -102,4 +107,9 @@ data "azurerm_storage_account" "receipts_sa" {
 data "azurerm_key_vault_secret" "key_vault_receipts_tokenizer_api_key" {
   name         = "tokenizer-api-key"
   key_vault_id = data.azurerm_key_vault.receipts_key_vault.id
+}
+
+data "azurerm_key_vault_secret" "key_vault_search_transactions_token_secret" {
+  name        = "search-transactions-token-secret"
+  key_vault_id = data.azurerm_key_vault.shared_key_vault.id
 }
