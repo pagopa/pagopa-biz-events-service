@@ -3,6 +3,7 @@ package it.gov.pagopa.bizeventsservice.util;
 import it.gov.pagopa.bizeventsservice.entity.view.*;
 import it.gov.pagopa.bizeventsservice.entity.view.enumeration.OriginType;
 import it.gov.pagopa.bizeventsservice.entity.view.enumeration.PaymentMethodType;
+import it.gov.pagopa.bizeventsservice.model.response.paidnotice.CartItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -169,5 +170,22 @@ public class ViewGenerator {
             listOfCartView.add(viewCart);
         }
         return listOfCartView;
+    }
+
+    public static CartItem generateCartItemView() {
+        return CartItem.builder()
+                .subject(SUBJECT)
+                .amount(AMOUNT)
+                .payee(UserDetail.builder()
+                        .name(PAYEE_NAME)
+                        .taxCode(PAYEE_TAX_CODE)
+                        .build())
+                .debtor(UserDetail.builder()
+                        .name(DEBTOR_NAME)
+                        .taxCode(USER_TAX_CODE_WITH_TX)
+                        .build())
+                .refNumberType(REF_NUMBER_TYPE)
+                .refNumberValue(REF_NUMBER_VALUE)
+                .build();
     }
 }
