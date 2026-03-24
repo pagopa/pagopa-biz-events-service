@@ -40,6 +40,7 @@ public enum ErrorCode {
 
     // --- VIEW CART ---
     VC_404_001("VC_404_001", "NOT FOUND", "view cart", "View Cart not found with ID and CF"),
+    VC_404_002("VC_404_002", "NOT FOUND", "biz event", "View Cart not found with CF and NAV"),
 
     // --- ATTACHMENT ---
     AT_404_001("AT_404_001", "NOT FOUND", "attachment", "Attachment not found"),

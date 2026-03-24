@@ -10,7 +10,8 @@ public enum OpenApiScope {
     HELPDESK("helpdesk"),
     EC("ec"),
     LAP("lap"),
-    LAP_JWT("lap_jwt");
+    LAP_JWT("lap_jwt"),
+    TRANSACTIONS("transactions");
 
     private final String name;
 }

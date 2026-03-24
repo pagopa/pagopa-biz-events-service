@@ -24,6 +24,7 @@ public enum AppError {
     VIEW_USER_NOT_FOUND_WITH_ID(HttpStatus.NOT_FOUND, ErrorCode.VU_404_003, VIEW_USER_NOT_FOUND, "Not found a biz-events-view-user with id %s for the given tax code"),
     VIEW_GENERAL_NOT_FOUND_WITH_ID(HttpStatus.NOT_FOUND, ErrorCode.VG_404_001, VIEW_GENERAL_NOT_FOUND, "Not found a biz-events-view-general with id %s"),
     VIEW_CART_NOT_FOUND_WITH_TRANSACTION_ID_AND_TAX_CODE(HttpStatus.NOT_FOUND, ErrorCode.VC_404_001, VIEW_CART_NOT_FOUND, "Not found a biz-events-view-cart with id %s for the given tax code"),
+    VIEW_CART_NOT_FOUND_WITH_ORG_CF_AND_NAV_AND_DEBTOR_FISCAL_CODE(HttpStatus.NOT_FOUND, ErrorCode.VC_404_002, VIEW_CART_NOT_FOUND, "Not found a biz-events-view-cart for the Organization Fiscal Code %s and NAV %s and debtorFiscalCode"),
 
     ATTACHMENT_NOT_FOUND(HttpStatus.NOT_FOUND, ErrorCode.AT_404_001, "Attachment not found", "Not found attachment for id %s, the receipt failure needs to be reviewed"),
     ATTACHMENT_GENERATING(HttpStatus.NOT_FOUND, ErrorCode.AT_404_002, "Attachment not found", "Attachment for id %s is still generating"),
