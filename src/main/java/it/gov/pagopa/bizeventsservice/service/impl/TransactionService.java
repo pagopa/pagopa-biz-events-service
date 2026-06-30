@@ -1,6 +1,6 @@
 package it.gov.pagopa.bizeventsservice.service.impl;
 
-import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
+
 import feign.FeignException;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGeneratePDFClient;
 import it.gov.pagopa.bizeventsservice.client.IReceiptGetPDFClient;
@@ -19,6 +19,7 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserQueryPageRequest;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserQueryRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.CosmosQueryPage;
@@ -27,12 +28,9 @@ import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.CacheService;
 import it.gov.pagopa.bizeventsservice.util.TransactionIdFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -97,23 +95,20 @@ public class TransactionService implements ITransactionService {
             Direction ordering
     ) {
         List<TransactionListItem> listOfTransactionListItem = new ArrayList<>();
-/*
-        final CosmosPageRequest pageRequest = getCosmosPageRequest(continuationToken, size, orderBy, ordering);
-        final Page<BizEventsViewUser> page = this.bizEventsViewUserRepository
-                .getBizEventsViewUserByTaxCode(taxCode, isPayer, isDebtor, hidden, pageRequest);
-        List<BizEventsViewUser> listOfViewUser = page.getContent();
-*/
+
         final CosmosQueryPage<BizEventsViewUser> page = this.bizEventsViewUserQueryRepository
-                .findByTaxCodeAndOptionalFilters(
-                        taxCode,
-                        hidden,
-                        isPayer,
-                        isDebtor,
-                        continuationToken,
-                        size,
-                        orderBy,
-                        ordering
-                );
+        		.findByTaxCodeAndOptionalFilters(
+        				taxCode,
+        				hidden,
+        				isPayer,
+        				isDebtor,
+        				new BizEventsViewUserQueryPageRequest(
+        						continuationToken,
+        						size,
+        						orderBy,
+        						ordering
+        						)
+        				);
 
         List<BizEventsViewUser> listOfViewUser = page.getResults();
 
@@ -167,15 +162,6 @@ public class TransactionService implements ITransactionService {
             }
         }
 
-/*
-        CosmosPageRequest pageResponse = (CosmosPageRequest) page.getPageable().next();
-        String nextToken = pageResponse.getRequestContinuation();
-
-        return TransactionListResponse.builder()
-                .transactionList(listOfTransactionListItem)
-                .continuationToken(nextToken)
-                .build();
-*/
         return TransactionListResponse.builder()
                 .transactionList(listOfTransactionListItem)
                 .continuationToken(page.getContinuationToken())
@@ -377,19 +363,5 @@ public class TransactionService implements ITransactionService {
             this.generateReceiptClient.generateReceipt(eventId);
         }
     }
-
-/*    
-    private CosmosPageRequest getCosmosPageRequest(
-            String continuationToken,
-            Integer size,
-            TransactionListOrder orderBy,
-            Direction ordering
-    ) {
-        String columnName = Optional.ofNullable(orderBy).map(TransactionListOrder::getColumnName).orElse("transactionDate");
-        String direction = Optional.ofNullable(ordering).map(Enum::name).orElse(Direction.DESC.name());
-
-        final Sort sort = Sort.by(Direction.fromString(direction), columnName);
-        return new CosmosPageRequest(0, size, continuationToken, sort);
-    }
-*/    
+  
 }

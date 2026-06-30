@@ -20,6 +20,7 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserQueryPageRequest;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserQueryRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.CosmosQueryPage;
@@ -116,17 +117,7 @@ public class TransactionServiceTest {
     @Test
     void taxCodeWithEventsShouldReturnTransactionList() {
         List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOfFiveBizEventsViewUser();
-/*        
-        Page<BizEventsViewUser> pageOfViewUser = mock(Page.class);
-        when(pageOfViewUser.getContent()).thenReturn(listOfViewUser);
-        CosmosPageRequest pageRequest = mock(CosmosPageRequest.class);
-        when(pageRequest.getRequestContinuation()).thenReturn(CONTINUATION_TOKEN);
-        Pageable pageable = mock(Pageable.class);
-        when(pageOfViewUser.getPageable()).thenReturn(pageable);
-        when(pageable.next()).thenReturn(pageRequest);
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any()))
-                .thenReturn(pageOfViewUser);
-*/
+
         mockBizEventsViewUserQueryPage(listOfViewUser, CONTINUATION_TOKEN);
 
         List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
@@ -146,10 +137,7 @@ public class TransactionServiceTest {
             assertEquals(ViewGenerator.PAYEE_NAME, listItem.getPayeeName());
             assertEquals(ViewGenerator.PAYEE_TAX_CODE, listItem.getPayeeTaxCode());
         }
-/*
-        verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any());
-        verifyNoMoreInteractions(bizEventsViewUserRepository);
-*/
+
         verifyBizEventsViewUserQueryRepositoryCalled();
         verifyNoInteractions(bizEventsViewUserRepository);
     }
@@ -157,17 +145,7 @@ public class TransactionServiceTest {
     @Test
     void taxCodeWithCartEventsShouldReturnTransactionList() {
         List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOfFiveBizEventsViewUser();
-/*        
-        Page<BizEventsViewUser> pageOfViewUser = mock(Page.class);
-        when(pageOfViewUser.getContent()).thenReturn(listOfViewUser);
-        CosmosPageRequest pageRequest = mock(CosmosPageRequest.class);
-        when(pageRequest.getRequestContinuation()).thenReturn(CONTINUATION_TOKEN);
-        Pageable pageable = mock(Pageable.class);
-        when(pageOfViewUser.getPageable()).thenReturn(pageable);
-        when(pageable.next()).thenReturn(pageRequest);
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any()))
-                .thenReturn(pageOfViewUser);
-*/
+
         mockBizEventsViewUserQueryPage(listOfViewUser, CONTINUATION_TOKEN);
 
         List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
@@ -189,24 +167,14 @@ public class TransactionServiceTest {
             assertEquals(ViewGenerator.PAYEE_NAME, listItem.getPayeeName());
             assertEquals(ViewGenerator.PAYEE_TAX_CODE, listItem.getPayeeTaxCode());
         }
-/*
-        verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any());
-        verifyNoMoreInteractions(bizEventsViewUserRepository);
-*/        
+       
         verifyBizEventsViewUserQueryRepositoryCalled();
         verifyNoInteractions(bizEventsViewUserRepository);
     }
 
     @Test
     void taxCodeWithoutEventsShouldReturnEmptyTransactionList() {
-/*    	
-        Page<BizEventsViewUser> pageOfViewUser = mock(Page.class);
-        when(pageOfViewUser.getContent()).thenReturn(Collections.emptyList());
-        Pageable pageable = mock(Pageable.class);
-        when(pageOfViewUser.getPageable()).thenReturn(pageable);
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any()))
-                .thenReturn(pageOfViewUser);
-*/
+
     	mockBizEventsViewUserQueryPage(Collections.emptyList(), null);
 
         TransactionListResponse transactionListResponse =
@@ -217,10 +185,7 @@ public class TransactionServiceTest {
         List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
         assertNotNull(transactionListItems);
         assertTrue(transactionListItems.isEmpty());
-/*
-        verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any());
-        verifyNoMoreInteractions(bizEventsViewUserRepository);
-*/
+
         verifyBizEventsViewUserQueryRepositoryCalled();
         verifyNoInteractions(bizEventsViewUserRepository);
         verify(bizEventsViewCartRepository, never()).findByTransactionIdIn(anySet());
@@ -229,14 +194,7 @@ public class TransactionServiceTest {
     @Test
     void taxCodeWithEventsButWithoutCartShouldReturnEmptyTransactionList() {
         List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOfFiveBizEventsViewUser();
-/*
-        Page<BizEventsViewUser> pageOfViewUser = mock(Page.class);
-        when(pageOfViewUser.getContent()).thenReturn(listOfViewUser);
-        Pageable pageable = mock(Pageable.class);
-        when(pageOfViewUser.getPageable()).thenReturn(pageable);
-        when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any()))
-                .thenReturn(pageOfViewUser);
-*/
+
         mockBizEventsViewUserQueryPage(listOfViewUser, CONTINUATION_TOKEN);
 
         when(bizEventsViewCartRepository.findByTransactionIdIn(anySet())).thenReturn(Collections.emptyList());
@@ -249,10 +207,7 @@ public class TransactionServiceTest {
         List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
         assertNotNull(transactionListItems);
         assertTrue(transactionListItems.isEmpty());
-/*        
-        verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any());
-        verifyNoMoreInteractions(bizEventsViewUserRepository);
-*/
+
         verifyBizEventsViewUserQueryRepositoryCalled();
         verifyNoInteractions(bizEventsViewUserRepository);
     }
@@ -820,10 +775,12 @@ public class TransactionServiceTest {
                 eq(false),
                 isNull(),
                 isNull(),
-                eq(CONTINUATION_TOKEN),
-                eq(PAGE_SIZE),
-                eq(TransactionListOrder.TRANSACTION_DATE),
-                eq(Direction.DESC)
+                eq(new BizEventsViewUserQueryPageRequest(
+                        CONTINUATION_TOKEN,
+                        PAGE_SIZE,
+                        TransactionListOrder.TRANSACTION_DATE,
+                        Direction.DESC
+                ))
         )).thenReturn(pageOfViewUser);
     }
 
@@ -833,10 +790,12 @@ public class TransactionServiceTest {
                 eq(false),
                 isNull(),
                 isNull(),
-                eq(CONTINUATION_TOKEN),
-                eq(PAGE_SIZE),
-                eq(TransactionListOrder.TRANSACTION_DATE),
-                eq(Direction.DESC)
+                eq(new BizEventsViewUserQueryPageRequest(
+                        CONTINUATION_TOKEN,
+                        PAGE_SIZE,
+                        TransactionListOrder.TRANSACTION_DATE,
+                        Direction.DESC
+                ))
         );
         verifyNoMoreInteractions(bizEventsViewUserQueryRepository);
     }

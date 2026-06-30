@@ -1,28 +1,28 @@
 package it.gov.pagopa.bizeventsservice.repository.primary;
 
+import com.azure.cosmos.CosmosAsyncClient;
+import com.azure.cosmos.CosmosAsyncContainer;
+import com.azure.cosmos.CosmosAsyncDatabase;
 import com.azure.cosmos.models.CosmosQueryRequestOptions;
 import com.azure.cosmos.models.FeedResponse;
 import com.azure.cosmos.models.SqlParameter;
 import com.azure.cosmos.models.SqlQuerySpec;
+import com.azure.cosmos.util.CosmosPagedFlux;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort.Direction;
-import com.azure.cosmos.CosmosAsyncClient;
-import com.azure.cosmos.CosmosAsyncContainer;
-import com.azure.cosmos.CosmosAsyncDatabase;
-import com.azure.cosmos.util.CosmosPagedFlux;
 import reactor.core.publisher.Flux;
 
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -162,21 +162,23 @@ class BizEventsViewUserQueryRepositoryTest {
                 new CosmosQueryPage<>(Collections.emptyList(), NEXT_CONTINUATION_TOKEN)
         );
 
-        BizEventsViewUserQueryRepository repository = new BizEventsViewUserQueryRepository(
+        BizEventsViewUserQueryRepository repo = new BizEventsViewUserQueryRepository(
                 true,
                 7,
                 pageFetcher
         );
 
-        CosmosQueryPage<BizEventsViewUser> result = repository.findByTaxCodeAndOptionalFilters(
+        CosmosQueryPage<BizEventsViewUser> result = repo.findByTaxCodeAndOptionalFilters(
                 TAX_CODE,
                 false,
                 true,
                 null,
-                CONTINUATION_TOKEN,
-                5,
-                TransactionListOrder.TRANSACTION_DATE,
-                Direction.ASC
+                new BizEventsViewUserQueryPageRequest(
+                        CONTINUATION_TOKEN,
+                        5,
+                        TransactionListOrder.TRANSACTION_DATE,
+                        Direction.ASC
+                )
         );
 
         assertNotNull(result);
@@ -195,23 +197,20 @@ class BizEventsViewUserQueryRepositoryTest {
     }
 
     @Test
-    void findByTaxCodeAndOptionalFiltersShouldUseDefaultPageSizeWhenSizeIsNull() {
+    void findByTaxCodeAndOptionalFiltersShouldUseDefaultPageSizeWhenPageRequestIsNull() {
         CapturingPageFetcher pageFetcher = new CapturingPageFetcher(
                 new CosmosQueryPage<>(Collections.emptyList(), null)
         );
 
-        BizEventsViewUserQueryRepository repository = new BizEventsViewUserQueryRepository(
+        BizEventsViewUserQueryRepository repo = new BizEventsViewUserQueryRepository(
                 false,
                 0,
                 pageFetcher
         );
 
-        CosmosQueryPage<BizEventsViewUser> result = repository.findByTaxCodeAndOptionalFilters(
+        CosmosQueryPage<BizEventsViewUser> result = repo.findByTaxCodeAndOptionalFilters(
                 TAX_CODE,
                 false,
-                null,
-                null,
-                null,
                 null,
                 null,
                 null
@@ -237,21 +236,23 @@ class BizEventsViewUserQueryRepositoryTest {
                 new CosmosQueryPage<>(Collections.emptyList(), null)
         );
 
-        BizEventsViewUserQueryRepository repository = new BizEventsViewUserQueryRepository(
+        BizEventsViewUserQueryRepository repo = new BizEventsViewUserQueryRepository(
                 false,
                 -1,
                 pageFetcher
         );
 
-        CosmosQueryPage<BizEventsViewUser> result = repository.findByTaxCodeAndOptionalFilters(
+        CosmosQueryPage<BizEventsViewUser> result = repo.findByTaxCodeAndOptionalFilters(
                 TAX_CODE,
                 true,
                 null,
                 true,
-                null,
-                0,
-                TransactionListOrder.TRANSACTION_DATE,
-                Direction.DESC
+                new BizEventsViewUserQueryPageRequest(
+                        null,
+                        0,
+                        TransactionListOrder.TRANSACTION_DATE,
+                        Direction.DESC
+                )
         );
 
         assertNotNull(result);
@@ -264,7 +265,7 @@ class BizEventsViewUserQueryRepositoryTest {
         assertParameterNames(pageFetcher.querySpec, "@taxCode", "@hidden", "@isDebtor");
         assertNotNull(pageFetcher.options);
     }
-    
+
     @Test
     void findByTaxCodeAndOptionalFiltersShouldFetchFromCosmosWithContinuationTokenAndReturnResults() {
         RepositoryMocks mocks = createRepositoryMocks(true, 7);
@@ -284,10 +285,12 @@ class BizEventsViewUserQueryRepositoryTest {
                 false,
                 true,
                 null,
-                CONTINUATION_TOKEN,
-                5,
-                TransactionListOrder.TRANSACTION_DATE,
-                Direction.ASC
+                new BizEventsViewUserQueryPageRequest(
+                        CONTINUATION_TOKEN,
+                        5,
+                        TransactionListOrder.TRANSACTION_DATE,
+                        Direction.ASC
+                )
         );
 
         assertNotNull(result);
@@ -303,7 +306,7 @@ class BizEventsViewUserQueryRepositoryTest {
         );
         verify(mocks.pagedFlux).byPage(CONTINUATION_TOKEN, 5);
     }
-    
+
     @Test
     void findByTaxCodeAndOptionalFiltersShouldFetchFromCosmosWithoutContinuationTokenAndReturnEmptyPageWhenResultsAreEmpty() {
         RepositoryMocks mocks = createRepositoryMocks(false, 0);
@@ -321,10 +324,12 @@ class BizEventsViewUserQueryRepositoryTest {
                 false,
                 null,
                 null,
-                null,
-                null,
-                null,
-                null
+                new BizEventsViewUserQueryPageRequest(
+                        null,
+                        null,
+                        null,
+                        null
+                )
         );
 
         assertNotNull(result);
@@ -334,7 +339,7 @@ class BizEventsViewUserQueryRepositoryTest {
         verify(mocks.pagedFlux).byPage(10);
         verify(mocks.pagedFlux, never()).byPage(eq(CONTINUATION_TOKEN), anyInt());
     }
-    
+
     @Test
     void findByTaxCodeAndOptionalFiltersShouldReturnEmptyPageWhenCosmosReturnsNoPage() {
         RepositoryMocks mocks = createRepositoryMocks(false, -1);
@@ -348,10 +353,12 @@ class BizEventsViewUserQueryRepositoryTest {
                 true,
                 null,
                 true,
-                null,
-                0,
-                TransactionListOrder.TRANSACTION_DATE,
-                Direction.DESC
+                new BizEventsViewUserQueryPageRequest(
+                        null,
+                        0,
+                        TransactionListOrder.TRANSACTION_DATE,
+                        Direction.DESC
+                )
         );
 
         assertNotNull(result);
@@ -397,7 +404,7 @@ class BizEventsViewUserQueryRepositoryTest {
             return response;
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private static RepositoryMocks createRepositoryMocks(
             boolean queryMetricsEnabled,

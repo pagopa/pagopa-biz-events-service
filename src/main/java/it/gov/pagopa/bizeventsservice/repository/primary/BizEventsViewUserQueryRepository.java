@@ -80,12 +80,12 @@ public class BizEventsViewUserQueryRepository {
             Boolean hidden,
             Boolean isPayer,
             Boolean isDebtor,
-            String continuationToken,
-            Integer size,
-            TransactionListOrder orderBy,
-            Direction ordering
+            BizEventsViewUserQueryPageRequest pageRequest
     ) {
-        int pageSize = Optional.ofNullable(size)
+        BizEventsViewUserQueryPageRequest request = Optional.ofNullable(pageRequest)
+                .orElse(new BizEventsViewUserQueryPageRequest(null, null, null, null));
+
+        int pageSize = Optional.ofNullable(request.size())
                 .filter(s -> s > 0)
                 .orElse(DEFAULT_PAGE_SIZE);
 
@@ -94,13 +94,18 @@ public class BizEventsViewUserQueryRepository {
                 hidden,
                 isPayer,
                 isDebtor,
-                orderBy,
-                ordering
+                request.orderBy(),
+                request.ordering()
         );
 
         CosmosQueryRequestOptions options = buildQueryRequestOptions(taxCode);
 
-        return pageFetcher.fetch(querySpec, options, continuationToken, pageSize);
+        return pageFetcher.fetch(
+                querySpec,
+                options,
+                request.continuationToken(),
+                pageSize
+        );
     }
 
     private CosmosQueryRequestOptions buildQueryRequestOptions(String taxCode) {
