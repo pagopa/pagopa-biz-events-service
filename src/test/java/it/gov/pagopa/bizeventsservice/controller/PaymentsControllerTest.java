@@ -1,6 +1,7 @@
 package it.gov.pagopa.bizeventsservice.controller;
 
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserQueryRepository;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.util.Utility;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +34,9 @@ class PaymentsControllerTest {
 
     @MockBean
     private IBizEventsService bizEventsService;
+    
+    @MockBean
+    private BizEventsViewUserQueryRepository bizEventsViewUserQueryRepository;
 
     @BeforeEach
     void setUp() throws IOException {

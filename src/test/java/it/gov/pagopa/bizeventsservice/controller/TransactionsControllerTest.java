@@ -2,6 +2,7 @@ package it.gov.pagopa.bizeventsservice.controller;
 
 import it.gov.pagopa.bizeventsservice.exception.AppError;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserQueryRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.ViewGenerator;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,9 @@ public class TransactionsControllerTest {
 
     @MockBean
     private ITransactionService transactionService;
+    
+    @MockBean
+    private BizEventsViewUserQueryRepository bizEventsViewUserQueryRepository;
 
 
     @Test

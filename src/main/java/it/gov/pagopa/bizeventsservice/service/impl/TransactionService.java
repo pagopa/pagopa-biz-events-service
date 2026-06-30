@@ -19,7 +19,9 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserQueryRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
+import it.gov.pagopa.bizeventsservice.repository.primary.CosmosQueryPage;
 import it.gov.pagopa.bizeventsservice.service.IBizEventsService;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.CacheService;
@@ -56,16 +58,17 @@ public class TransactionService implements ITransactionService {
     private final BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
     private final BizEventsViewCartRepository bizEventsViewCartRepository;
     private final BizEventsViewUserRepository bizEventsViewUserRepository;
+    private final BizEventsViewUserQueryRepository bizEventsViewUserQueryRepository;
     private final IReceiptGetPDFClient receiptClient;
     private final IReceiptGeneratePDFClient generateReceiptClient;
     private final IBizEventsService bizEventsService;
     private final CacheService cacheService;
 
-    @Autowired
     public TransactionService(
             BizEventsViewGeneralRepository bizEventsViewGeneralRepository,
             BizEventsViewCartRepository bizEventsViewCartRepository,
             BizEventsViewUserRepository bizEventsViewUserRepository,
+            BizEventsViewUserQueryRepository bizEventsViewUserQueryRepository,
             IReceiptGetPDFClient receiptClient,
             IReceiptGeneratePDFClient generateReceiptClient,
             IBizEventsService bizEventsService,
@@ -74,6 +77,7 @@ public class TransactionService implements ITransactionService {
         this.bizEventsViewGeneralRepository = bizEventsViewGeneralRepository;
         this.bizEventsViewCartRepository = bizEventsViewCartRepository;
         this.bizEventsViewUserRepository = bizEventsViewUserRepository;
+        this.bizEventsViewUserQueryRepository = bizEventsViewUserQueryRepository;
         this.receiptClient = receiptClient;
         this.generateReceiptClient = generateReceiptClient;
         this.bizEventsService = bizEventsService;
@@ -93,11 +97,25 @@ public class TransactionService implements ITransactionService {
             Direction ordering
     ) {
         List<TransactionListItem> listOfTransactionListItem = new ArrayList<>();
-
+/*
         final CosmosPageRequest pageRequest = getCosmosPageRequest(continuationToken, size, orderBy, ordering);
         final Page<BizEventsViewUser> page = this.bizEventsViewUserRepository
                 .getBizEventsViewUserByTaxCode(taxCode, isPayer, isDebtor, hidden, pageRequest);
         List<BizEventsViewUser> listOfViewUser = page.getContent();
+*/
+        final CosmosQueryPage<BizEventsViewUser> page = this.bizEventsViewUserQueryRepository
+                .findByTaxCodeAndOptionalFilters(
+                        taxCode,
+                        hidden,
+                        isPayer,
+                        isDebtor,
+                        continuationToken,
+                        size,
+                        orderBy,
+                        ordering
+                );
+
+        List<BizEventsViewUser> listOfViewUser = page.getResults();
 
         if (listOfViewUser.isEmpty()) {
             return TransactionListResponse.builder()
@@ -149,12 +167,18 @@ public class TransactionService implements ITransactionService {
             }
         }
 
+/*
         CosmosPageRequest pageResponse = (CosmosPageRequest) page.getPageable().next();
         String nextToken = pageResponse.getRequestContinuation();
 
         return TransactionListResponse.builder()
                 .transactionList(listOfTransactionListItem)
                 .continuationToken(nextToken)
+                .build();
+*/
+        return TransactionListResponse.builder()
+                .transactionList(listOfTransactionListItem)
+                .continuationToken(page.getContinuationToken())
                 .build();
     }
 
@@ -354,6 +378,7 @@ public class TransactionService implements ITransactionService {
         }
     }
 
+/*    
     private CosmosPageRequest getCosmosPageRequest(
             String continuationToken,
             Integer size,
@@ -366,4 +391,5 @@ public class TransactionService implements ITransactionService {
         final Sort sort = Sort.by(Direction.fromString(direction), columnName);
         return new CosmosPageRequest(0, size, continuationToken, sort);
     }
+*/    
 }
