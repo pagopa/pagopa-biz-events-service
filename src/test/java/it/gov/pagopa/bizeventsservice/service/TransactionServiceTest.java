@@ -1,6 +1,5 @@
 package it.gov.pagopa.bizeventsservice.service;
 
-import com.azure.spring.data.cosmos.core.query.CosmosPageRequest;
 import feign.FeignException;
 import feign.Request;
 import feign.RequestTemplate;
@@ -21,7 +20,9 @@ import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionList
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewCartRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewGeneralRepository;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserQueryRepository;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserRepository;
+import it.gov.pagopa.bizeventsservice.repository.primary.CosmosQueryPage;
 import it.gov.pagopa.bizeventsservice.service.impl.TransactionService;
 import it.gov.pagopa.bizeventsservice.util.BizEventGenerator;
 import it.gov.pagopa.bizeventsservice.util.CacheService;
@@ -31,8 +32,6 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -75,6 +74,8 @@ public class TransactionServiceTest {
     @MockBean
     private BizEventsViewUserRepository bizEventsViewUserRepository;
     @MockBean
+    private BizEventsViewUserQueryRepository bizEventsViewUserQueryRepository;
+    @MockBean
     private BizEventsViewGeneralRepository bizEventsViewGeneralRepository;
     @MockBean
     private BizEventsViewCartRepository bizEventsViewCartRepository;
@@ -93,8 +94,16 @@ public class TransactionServiceTest {
 
     @BeforeEach
     void setUp() {
-        transactionService = spy(new TransactionService(bizEventsViewGeneralRepository, bizEventsViewCartRepository, bizEventsViewUserRepository,
-                receiptClient, generateReceiptClient, bizEventsService, cacheService));
+    	transactionService = spy(new TransactionService(
+                bizEventsViewGeneralRepository,
+                bizEventsViewCartRepository,
+                bizEventsViewUserRepository,
+                bizEventsViewUserQueryRepository,
+                receiptClient,
+                generateReceiptClient,
+                bizEventsService,
+                cacheService
+        ));
         ResponseEntity<byte[]> receiptPdfResponse = mock(ResponseEntity.class);
         when(receiptPdfResponse.getBody()).thenReturn(receipt);
         HttpHeaders headers = mock(HttpHeaders.class);
@@ -107,6 +116,7 @@ public class TransactionServiceTest {
     @Test
     void taxCodeWithEventsShouldReturnTransactionList() {
         List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOfFiveBizEventsViewUser();
+/*        
         Page<BizEventsViewUser> pageOfViewUser = mock(Page.class);
         when(pageOfViewUser.getContent()).thenReturn(listOfViewUser);
         CosmosPageRequest pageRequest = mock(CosmosPageRequest.class);
@@ -116,6 +126,8 @@ public class TransactionServiceTest {
         when(pageable.next()).thenReturn(pageRequest);
         when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any()))
                 .thenReturn(pageOfViewUser);
+*/
+        mockBizEventsViewUserQueryPage(listOfViewUser, CONTINUATION_TOKEN);
 
         List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
         when(bizEventsViewCartRepository.findByTransactionIdIn(anySet())).thenReturn(listOfCartView);
@@ -134,14 +146,18 @@ public class TransactionServiceTest {
             assertEquals(ViewGenerator.PAYEE_NAME, listItem.getPayeeName());
             assertEquals(ViewGenerator.PAYEE_TAX_CODE, listItem.getPayeeTaxCode());
         }
-
+/*
         verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any());
         verifyNoMoreInteractions(bizEventsViewUserRepository);
+*/
+        verifyBizEventsViewUserQueryRepositoryCalled();
+        verifyNoInteractions(bizEventsViewUserRepository);
     }
 
     @Test
     void taxCodeWithCartEventsShouldReturnTransactionList() {
         List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOfFiveBizEventsViewUser();
+/*        
         Page<BizEventsViewUser> pageOfViewUser = mock(Page.class);
         when(pageOfViewUser.getContent()).thenReturn(listOfViewUser);
         CosmosPageRequest pageRequest = mock(CosmosPageRequest.class);
@@ -151,6 +167,8 @@ public class TransactionServiceTest {
         when(pageable.next()).thenReturn(pageRequest);
         when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any()))
                 .thenReturn(pageOfViewUser);
+*/
+        mockBizEventsViewUserQueryPage(listOfViewUser, CONTINUATION_TOKEN);
 
         List<BizEventsViewCart> listOfCartView = ViewGenerator.generateListOfFiveViewCart();
         String cartTransactionId = listOfCartView.get(0).getTransactionId();
@@ -171,19 +189,25 @@ public class TransactionServiceTest {
             assertEquals(ViewGenerator.PAYEE_NAME, listItem.getPayeeName());
             assertEquals(ViewGenerator.PAYEE_TAX_CODE, listItem.getPayeeTaxCode());
         }
-
+/*
         verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any());
         verifyNoMoreInteractions(bizEventsViewUserRepository);
+*/        
+        verifyBizEventsViewUserQueryRepositoryCalled();
+        verifyNoInteractions(bizEventsViewUserRepository);
     }
 
     @Test
     void taxCodeWithoutEventsShouldReturnEmptyTransactionList() {
+/*    	
         Page<BizEventsViewUser> pageOfViewUser = mock(Page.class);
         when(pageOfViewUser.getContent()).thenReturn(Collections.emptyList());
         Pageable pageable = mock(Pageable.class);
         when(pageOfViewUser.getPageable()).thenReturn(pageable);
         when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any()))
                 .thenReturn(pageOfViewUser);
+*/
+    	mockBizEventsViewUserQueryPage(Collections.emptyList(), null);
 
         TransactionListResponse transactionListResponse =
                 Assertions.assertDoesNotThrow(() ->
@@ -193,21 +217,27 @@ public class TransactionServiceTest {
         List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
         assertNotNull(transactionListItems);
         assertTrue(transactionListItems.isEmpty());
-
+/*
         verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any());
         verifyNoMoreInteractions(bizEventsViewUserRepository);
+*/
+        verifyBizEventsViewUserQueryRepositoryCalled();
+        verifyNoInteractions(bizEventsViewUserRepository);
         verify(bizEventsViewCartRepository, never()).findByTransactionIdIn(anySet());
     }
 
     @Test
     void taxCodeWithEventsButWithoutCartShouldReturnEmptyTransactionList() {
         List<BizEventsViewUser> listOfViewUser = ViewGenerator.generateListOfFiveBizEventsViewUser();
+/*
         Page<BizEventsViewUser> pageOfViewUser = mock(Page.class);
         when(pageOfViewUser.getContent()).thenReturn(listOfViewUser);
         Pageable pageable = mock(Pageable.class);
         when(pageOfViewUser.getPageable()).thenReturn(pageable);
         when(bizEventsViewUserRepository.getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any()))
                 .thenReturn(pageOfViewUser);
+*/
+        mockBizEventsViewUserQueryPage(listOfViewUser, CONTINUATION_TOKEN);
 
         when(bizEventsViewCartRepository.findByTransactionIdIn(anySet())).thenReturn(Collections.emptyList());
 
@@ -219,9 +249,12 @@ public class TransactionServiceTest {
         List<TransactionListItem> transactionListItems = transactionListResponse.getTransactionList();
         assertNotNull(transactionListItems);
         assertTrue(transactionListItems.isEmpty());
-
+/*        
         verify(bizEventsViewUserRepository).getBizEventsViewUserByTaxCode(eq(ViewGenerator.USER_TAX_CODE_WITH_TX), any(), any(), any(), any());
         verifyNoMoreInteractions(bizEventsViewUserRepository);
+*/
+        verifyBizEventsViewUserQueryRepositoryCalled();
+        verifyNoInteractions(bizEventsViewUserRepository);
     }
 
     @Test
@@ -776,5 +809,35 @@ public class TransactionServiceTest {
         verify(bizEventsViewCartRepository)
                 .getCartItemByCfOrgAndNavAndDebtorFiscalCode(BizEventGenerator.NAV, BizEventGenerator.CF_ORG, BizEventGenerator.DEBTOR_VALID_CF);
 
+    }
+    
+    private void mockBizEventsViewUserQueryPage(List<BizEventsViewUser> listOfViewUser, String nextContinuationToken) {
+        CosmosQueryPage<BizEventsViewUser> pageOfViewUser =
+                new CosmosQueryPage<>(listOfViewUser, nextContinuationToken);
+
+        when(bizEventsViewUserQueryRepository.findByTaxCodeAndOptionalFilters(
+                eq(ViewGenerator.USER_TAX_CODE_WITH_TX),
+                eq(false),
+                isNull(),
+                isNull(),
+                eq(CONTINUATION_TOKEN),
+                eq(PAGE_SIZE),
+                eq(TransactionListOrder.TRANSACTION_DATE),
+                eq(Direction.DESC)
+        )).thenReturn(pageOfViewUser);
+    }
+
+    private void verifyBizEventsViewUserQueryRepositoryCalled() {
+        verify(bizEventsViewUserQueryRepository).findByTaxCodeAndOptionalFilters(
+                eq(ViewGenerator.USER_TAX_CODE_WITH_TX),
+                eq(false),
+                isNull(),
+                isNull(),
+                eq(CONTINUATION_TOKEN),
+                eq(PAGE_SIZE),
+                eq(TransactionListOrder.TRANSACTION_DATE),
+                eq(Direction.DESC)
+        );
+        verifyNoMoreInteractions(bizEventsViewUserQueryRepository);
     }
 }
