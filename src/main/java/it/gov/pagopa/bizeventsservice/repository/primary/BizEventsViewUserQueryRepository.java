@@ -9,7 +9,6 @@ import com.azure.cosmos.models.SqlParameter;
 import com.azure.cosmos.models.SqlQuerySpec;
 import it.gov.pagopa.bizeventsservice.entity.view.BizEventsViewUser;
 import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionListOrder;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +30,7 @@ public class BizEventsViewUserQueryRepository {
     private final CosmosAsyncContainer container;
     private final boolean queryMetricsEnabled;
     private final int responseContinuationTokenLimitInKb;
+    private final PageFetcher pageFetcher;
 
     @Autowired
     public BizEventsViewUserQueryRepository(
@@ -45,6 +45,7 @@ public class BizEventsViewUserQueryRepository {
                 .getContainer(containerName);
         this.queryMetricsEnabled = queryMetricsEnabled;
         this.responseContinuationTokenLimitInKb = responseContinuationTokenLimitInKb;
+        this.pageFetcher = this::fetchFromCosmos;
     }
 
     /*
@@ -54,9 +55,24 @@ public class BizEventsViewUserQueryRepository {
             boolean queryMetricsEnabled,
             int responseContinuationTokenLimitInKb
     ) {
+        this(queryMetricsEnabled, responseContinuationTokenLimitInKb,
+                (querySpec, options, continuationToken, pageSize) ->
+                        new CosmosQueryPage<>(Collections.emptyList(), null));
+    }
+
+    /*
+     * Constructor used only by unit tests that verify findByTaxCodeAndOptionalFilters
+     * without calling Cosmos DB.
+     */
+    BizEventsViewUserQueryRepository(
+            boolean queryMetricsEnabled,
+            int responseContinuationTokenLimitInKb,
+            PageFetcher pageFetcher
+    ) {
         this.container = null;
         this.queryMetricsEnabled = queryMetricsEnabled;
         this.responseContinuationTokenLimitInKb = responseContinuationTokenLimitInKb;
+        this.pageFetcher = pageFetcher;
     }
 
     public CosmosQueryPage<BizEventsViewUser> findByTaxCodeAndOptionalFilters(
@@ -82,6 +98,12 @@ public class BizEventsViewUserQueryRepository {
                 ordering
         );
 
+        CosmosQueryRequestOptions options = buildQueryRequestOptions(taxCode);
+
+        return pageFetcher.fetch(querySpec, options, continuationToken, pageSize);
+    }
+
+    private CosmosQueryRequestOptions buildQueryRequestOptions(String taxCode) {
         CosmosQueryRequestOptions options = new CosmosQueryRequestOptions();
         options.setPartitionKey(new PartitionKey(taxCode));
         options.setQueryMetricsEnabled(queryMetricsEnabled);
@@ -90,6 +112,15 @@ public class BizEventsViewUserQueryRepository {
             options.setResponseContinuationTokenLimitInKb(responseContinuationTokenLimitInKb);
         }
 
+        return options;
+    }
+
+    private CosmosQueryPage<BizEventsViewUser> fetchFromCosmos(
+            SqlQuerySpec querySpec,
+            CosmosQueryRequestOptions options,
+            String continuationToken,
+            int pageSize
+    ) {
         FeedResponse<BizEventsViewUser> page = StringUtils.hasText(continuationToken)
                 ? container
                         .queryItems(querySpec, options, BizEventsViewUser.class)
@@ -151,5 +182,20 @@ public class BizEventsViewUserQueryRepository {
                 .append(sortDirection.name());
 
         return new SqlQuerySpec(query.toString(), parameters);
+    }
+
+    /*
+     * Interface used to isolate the Cosmos DB fetch operation from query-building logic.
+     * This allows unit tests to verify pagination, query options, and generated SQL without
+     * invoking the Azure Cosmos SDK directly.
+     */
+    @FunctionalInterface
+    interface PageFetcher {
+        CosmosQueryPage<BizEventsViewUser> fetch(
+                SqlQuerySpec querySpec,
+                CosmosQueryRequestOptions options,
+                String continuationToken,
+                int pageSize
+        );
     }
 }
