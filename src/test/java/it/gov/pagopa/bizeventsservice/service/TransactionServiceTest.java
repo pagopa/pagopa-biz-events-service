@@ -677,7 +677,7 @@ public class TransactionServiceTest {
 
         assertEquals(AppError.ATTACHMENT_GENERATING.getCode(), e.getCode());
         verify(bizEventsService, atMostOnce()).getBizEventFromLAPId(EVENT_ID);
-        verify(generateReceiptClient, atMostOnce()).generateReceipt(EVENT_ID);
+        verify(generateReceiptClient, timeout(1000).times(1)).generateReceipt(EVENT_ID);
         verify(generateReceiptClient, never()).generateReceiptCart(anyString());
     }
 
@@ -695,7 +695,7 @@ public class TransactionServiceTest {
 
         assertEquals(AppError.ATTACHMENT_GENERATING.getCode(), e.getCode());
         verify(bizEventsService, atMostOnce()).getBizEventFromLAPId(EVENT_ID_CART);
-        verify(generateReceiptClient, atMostOnce()).generateReceiptCart(EVENT_ID_CART);
+        verify(generateReceiptClient, timeout(1000).times(1)).generateReceiptCart(anyString());
         verify(generateReceiptClient, never()).generateReceipt(anyString());
     }
 
