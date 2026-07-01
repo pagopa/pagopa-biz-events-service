@@ -20,9 +20,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Repository
 public class BizEventsViewUserQueryRepository {
+	
+	private static final Logger log = LoggerFactory.getLogger(BizEventsViewUserQueryRepository.class);
 
     private static final int DEFAULT_PAGE_SIZE = 10;
     private static final String DEFAULT_ORDER_COLUMN = "transactionDate";
@@ -97,6 +103,8 @@ public class BizEventsViewUserQueryRepository {
                 request.orderBy(),
                 request.ordering()
         );
+        
+        logQuery(querySpec, request.continuationToken(), pageSize);
 
         CosmosQueryRequestOptions options = buildQueryRequestOptions(taxCode);
 
@@ -107,47 +115,7 @@ public class BizEventsViewUserQueryRepository {
                 pageSize
         );
     }
-
-    private CosmosQueryRequestOptions buildQueryRequestOptions(String taxCode) {
-        CosmosQueryRequestOptions options = new CosmosQueryRequestOptions();
-        options.setPartitionKey(new PartitionKey(taxCode));
-        options.setQueryMetricsEnabled(queryMetricsEnabled);
-
-        if (responseContinuationTokenLimitInKb > 0) {
-            options.setResponseContinuationTokenLimitInKb(responseContinuationTokenLimitInKb);
-        }
-
-        return options;
-    }
-
-    private CosmosQueryPage<BizEventsViewUser> fetchFromCosmos(
-            SqlQuerySpec querySpec,
-            CosmosQueryRequestOptions options,
-            String continuationToken,
-            int pageSize
-    ) {
-        FeedResponse<BizEventsViewUser> page = StringUtils.hasText(continuationToken)
-                ? container
-                        .queryItems(querySpec, options, BizEventsViewUser.class)
-                        .byPage(continuationToken, pageSize)
-                        .next()
-                        .block()
-                : container
-                        .queryItems(querySpec, options, BizEventsViewUser.class)
-                        .byPage(pageSize)
-                        .next()
-                        .block();
-
-        if (page == null || page.getResults().isEmpty()) {
-            return new CosmosQueryPage<>(Collections.emptyList(), null);
-        }
-
-        return new CosmosQueryPage<>(
-                page.getResults(),
-                page.getContinuationToken()
-        );
-    }
-
+    
     SqlQuerySpec buildQuerySpec(
             String taxCode,
             Boolean hidden,
@@ -188,6 +156,86 @@ public class BizEventsViewUserQueryRepository {
 
         return new SqlQuerySpec(query.toString(), parameters);
     }
+
+    private CosmosQueryRequestOptions buildQueryRequestOptions(String taxCode) {
+        CosmosQueryRequestOptions options = new CosmosQueryRequestOptions();
+        options.setPartitionKey(new PartitionKey(taxCode));
+        options.setQueryMetricsEnabled(queryMetricsEnabled);
+
+        if (responseContinuationTokenLimitInKb > 0) {
+            options.setResponseContinuationTokenLimitInKb(responseContinuationTokenLimitInKb);
+        }
+
+        return options;
+    }
+
+    private CosmosQueryPage<BizEventsViewUser> fetchFromCosmos(
+            SqlQuerySpec querySpec,
+            CosmosQueryRequestOptions options,
+            String continuationToken,
+            int pageSize
+    ) {
+        FeedResponse<BizEventsViewUser> page = StringUtils.hasText(continuationToken)
+                ? container
+                        .queryItems(querySpec, options, BizEventsViewUser.class)
+                        .byPage(continuationToken, pageSize)
+                        .next()
+                        .block()
+                : container
+                        .queryItems(querySpec, options, BizEventsViewUser.class)
+                        .byPage(pageSize)
+                        .next()
+                        .block();
+        
+        if (page != null && log.isDebugEnabled()) {
+            log.debug(
+                    "Cosmos biz-events-view-user query completed. requestCharge={}, resultCount={}, hasContinuationToken={}",
+                    page.getRequestCharge(),
+                    page.getResults().size(),
+                    StringUtils.hasText(page.getContinuationToken())
+            );
+        }
+
+        if (page == null || page.getResults().isEmpty()) {
+            return new CosmosQueryPage<>(Collections.emptyList(), null);
+        }
+
+        return new CosmosQueryPage<>(
+                page.getResults(),
+                page.getContinuationToken()
+        );
+    }
+    
+    private void logQuery(SqlQuerySpec querySpec, String continuationToken, int pageSize) {
+        if (log.isDebugEnabled()) {
+            log.debug("Cosmos biz-events-view-user query text: {}", querySpec.getQueryText());
+            log.debug(
+                    "Cosmos biz-events-view-user query parameters: {}",
+                    querySpec.getParameters()
+                            .stream()
+                            .map(parameter -> parameter.getName() + "=" + maskSensitiveValue(
+                                    parameter.getName(),
+                                    parameter.getValue(Object.class)
+                            ))
+                            .collect(Collectors.joining(", "))
+            );
+            log.debug(
+                    "Cosmos biz-events-view-user query pagination: continuationTokenPresent={}, pageSize={}",
+                    StringUtils.hasText(continuationToken),
+                    pageSize
+            );
+        }
+    }
+
+    private Object maskSensitiveValue(String parameterName, Object value) {
+        if ("@taxCode".equals(parameterName) && value instanceof String taxCode && taxCode.length() > 4) {
+            return "***" + taxCode.substring(taxCode.length() - 4);
+        }
+
+        return value;
+    }
+
+   
 
     /*
      * Interface used to isolate the Cosmos DB fetch operation from query-building logic.
