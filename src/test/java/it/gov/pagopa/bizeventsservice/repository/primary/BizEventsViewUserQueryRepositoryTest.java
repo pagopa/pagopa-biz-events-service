@@ -13,6 +13,11 @@ import it.gov.pagopa.bizeventsservice.model.filterandorder.Order.TransactionList
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort.Direction;
 import reactor.core.publisher.Flux;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -367,6 +372,91 @@ class BizEventsViewUserQueryRepositoryTest {
 
         verify(mocks.pagedFlux).byPage(10);
     }
+    
+    @Test
+    void findByTaxCodeAndOptionalFiltersShouldLogGeneratedQueryWhenDebugIsEnabled() {
+        try (LogCapture logCapture = enableDebugLogging()) {
+            CapturingPageFetcher pageFetcher = new CapturingPageFetcher(
+                    new CosmosQueryPage<>(Collections.emptyList(), NEXT_CONTINUATION_TOKEN)
+            );
+
+            BizEventsViewUserQueryRepository repo = new BizEventsViewUserQueryRepository(
+                    true,
+                    7,
+                    pageFetcher
+            );
+
+            repo.findByTaxCodeAndOptionalFilters(
+                    TAX_CODE,
+                    false,
+                    true,
+                    null,
+                    new BizEventsViewUserQueryPageRequest(
+                            CONTINUATION_TOKEN,
+                            5,
+                            TransactionListOrder.TRANSACTION_DATE,
+                            Direction.ASC
+                    )
+            );
+
+            List<String> messages = logCapture.messages();
+
+            assertTrue(messages.stream().anyMatch(message ->
+                    message.contains("Cosmos biz-events-view-user query text: SELECT * FROM c WHERE c.taxCode = @taxCode AND c.hidden = @hidden AND c.isPayer = @isPayer ORDER BY c.transactionDate ASC")
+            ));
+
+            assertTrue(messages.stream().anyMatch(message ->
+                    message.contains("Cosmos biz-events-view-user query parameters: @taxCode=***000A, @hidden=false, @isPayer=true")
+            ));
+
+            assertTrue(messages.stream().anyMatch(message ->
+                    message.contains("Cosmos biz-events-view-user query pagination: continuationTokenPresent=true, pageSize=5")
+            ));
+
+            assertFalse(messages.stream().anyMatch(message -> message.contains(TAX_CODE)));
+        }
+    }
+
+    @Test
+    void findByTaxCodeAndOptionalFiltersShouldLogRequestChargeWhenCosmosReturnsPageAndDebugIsEnabled() {
+        try (LogCapture logCapture = enableDebugLogging()) {
+            RepositoryMocks mocks = createRepositoryMocks(true, 7);
+
+            BizEventsViewUser viewUser = new BizEventsViewUser();
+            FeedResponse<BizEventsViewUser> feedResponse = mock(FeedResponse.class);
+
+            doReturn(List.of(viewUser)).when(feedResponse).getResults();
+            doReturn(NEXT_CONTINUATION_TOKEN).when(feedResponse).getContinuationToken();
+            doReturn(18.08).when(feedResponse).getRequestCharge();
+
+            doReturn(Flux.just(feedResponse))
+                    .when(mocks.pagedFlux)
+                    .byPage(CONTINUATION_TOKEN, 5);
+
+            CosmosQueryPage<BizEventsViewUser> result = mocks.repository.findByTaxCodeAndOptionalFilters(
+                    TAX_CODE,
+                    false,
+                    true,
+                    null,
+                    new BizEventsViewUserQueryPageRequest(
+                            CONTINUATION_TOKEN,
+                            5,
+                            TransactionListOrder.TRANSACTION_DATE,
+                            Direction.ASC
+                    )
+            );
+
+            assertNotNull(result);
+            assertEquals(1, result.getResults().size());
+            assertEquals(NEXT_CONTINUATION_TOKEN, result.getContinuationToken());
+
+            List<String> messages = logCapture.messages();
+
+            assertTrue(messages.stream().anyMatch(message ->
+                    message.contains("Cosmos biz-events-view-user query completed. requestCharge=18.08, resultCount=1, hasContinuationToken=true")
+            ));
+        }
+    }
 
     private static void assertParameterNames(SqlQuerySpec querySpec, String... expectedNames) {
         List<String> actualNames = querySpec.getParameters()
@@ -446,6 +536,56 @@ class BizEventsViewUserQueryRepositoryTest {
                 container,
                 pagedFlux
         );
+    }
+    
+    private static LogCapture enableDebugLogging() {
+        Logger logger = (Logger) LoggerFactory.getLogger(BizEventsViewUserQueryRepository.class);
+        Level previousLevel = logger.getLevel();
+        boolean previousAdditive = logger.isAdditive();
+
+        ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        appender.start();
+
+        logger.addAppender(appender);
+        logger.setLevel(Level.DEBUG);
+        logger.setAdditive(false);
+
+        return new LogCapture(logger, appender, previousLevel, previousAdditive);
+    }
+
+    private static class LogCapture implements AutoCloseable {
+
+        private final Logger logger;
+        private final ListAppender<ILoggingEvent> appender;
+        private final Level previousLevel;
+        private final boolean previousAdditive;
+
+        private LogCapture(
+                Logger logger,
+                ListAppender<ILoggingEvent> appender,
+                Level previousLevel,
+                boolean previousAdditive
+        ) {
+            this.logger = logger;
+            this.appender = appender;
+            this.previousLevel = previousLevel;
+            this.previousAdditive = previousAdditive;
+        }
+
+        private List<String> messages() {
+            return appender.list
+                    .stream()
+                    .map(ILoggingEvent::getFormattedMessage)
+                    .toList();
+        }
+
+        @Override
+        public void close() {
+            logger.detachAppender(appender);
+            appender.stop();
+            logger.setLevel(previousLevel);
+            logger.setAdditive(previousAdditive);
+        }
     }
 
     private static class RepositoryMocks {
