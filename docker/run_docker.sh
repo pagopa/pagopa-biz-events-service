@@ -50,9 +50,14 @@ docker compose -p "${stack_name}" up -d --remove-orphans --force-recreate --buil
 printf 'Waiting for the service'
 attempt_counter=0
 max_attempts=50
+
 until $(curl --output /dev/null --silent --head --fail http://localhost:8080/info); do
-    if [ ${attempt_counter} -eq ${max_attempts} ];then
+    if [ ${attempt_counter} -eq ${max_attempts} ]; then
       echo "Max attempts reached"
+      echo "Docker containers status:"
+      docker ps -a
+      echo "Docker compose logs:"
+      docker compose -p "${stack_name}" logs --tail=300 app
       exit 1
     fi
 
@@ -60,4 +65,5 @@ until $(curl --output /dev/null --silent --head --fail http://localhost:8080/inf
     attempt_counter=$((attempt_counter+1))
     sleep 5
 done
+
 echo 'Service Started'

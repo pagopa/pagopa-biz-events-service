@@ -2,10 +2,13 @@ package it.gov.pagopa.bizeventsservice.mapper;
 
 import it.gov.pagopa.bizeventsservice.entity.*;
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserQueryRepository;
+
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 
@@ -16,6 +19,9 @@ class ConvertBizEventEntityToCtReceiptModelResponseTest {
 
     @Autowired
     private ModelMapper modelMapper;
+    
+    @MockBean
+    private BizEventsViewUserQueryRepository bizEventsViewUserQueryRepository;
 
     private BizEvent baseBizEventWithTransfers(List<Transfer> transfers) {
         return BizEvent.builder()

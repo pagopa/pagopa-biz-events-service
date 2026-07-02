@@ -9,6 +9,7 @@ import it.gov.pagopa.bizeventsservice.exception.ErrorCode;
 import it.gov.pagopa.bizeventsservice.model.response.paidnotice.NoticeDetailResponse;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListItem;
 import it.gov.pagopa.bizeventsservice.model.response.transaction.TransactionListResponse;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserQueryRepository;
 import it.gov.pagopa.bizeventsservice.service.ITransactionService;
 import it.gov.pagopa.bizeventsservice.util.Utility;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,6 +62,9 @@ public class PaidNoticeControllerTest {
 
     @MockBean
     private IReceiptGetPDFClient receiptClient;
+    
+    @MockBean
+    private BizEventsViewUserQueryRepository bizEventsViewUserQueryRepository;
 
     @MockBean
     private IReceiptGeneratePDFClient generateReceiptClient;

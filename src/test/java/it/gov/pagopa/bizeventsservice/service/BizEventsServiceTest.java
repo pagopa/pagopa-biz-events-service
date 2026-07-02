@@ -5,6 +5,7 @@ import it.gov.pagopa.bizeventsservice.entity.BizEvent;
 import it.gov.pagopa.bizeventsservice.exception.AppException;
 import it.gov.pagopa.bizeventsservice.model.response.CtReceiptModelResponse;
 import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsPrimaryRepository;
+import it.gov.pagopa.bizeventsservice.repository.primary.BizEventsViewUserQueryRepository;
 import it.gov.pagopa.bizeventsservice.repository.replica.BizEventsRepository;
 import it.gov.pagopa.bizeventsservice.service.impl.BizEventsService;
 import it.gov.pagopa.bizeventsservice.util.Utility;
@@ -14,6 +15,7 @@ import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
@@ -41,6 +43,9 @@ class BizEventsServiceTest {
     private BizEventsRepository bizEventsRepository;
     @Mock
     private BizEventsPrimaryRepository bizEventsPrimaryRepository;
+    
+    @MockBean
+    private BizEventsViewUserQueryRepository bizEventsViewUserQueryRepository;
 
     @Autowired
     private ModelMapper modelMapper;
