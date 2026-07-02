@@ -46,7 +46,8 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
      */
     @Override
     public ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        log.warn("Input not readable: ", ex);
+    	log.warn("Input not readable: {}", ex.getMessage());
+    	log.debug("Input not readable stack trace", ex);
         var errorResponse = ProblemJson.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .title(BAD_REQUEST)
@@ -67,7 +68,8 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
      */
     @Override
     public ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        log.warn("Missing request parameter", ex);
+    	log.warn("Missing request parameter: {}", ex.getMessage());
+    	log.debug("Missing request parameter stack trace", ex);
         var errorResponse = ProblemJson.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .title(BAD_REQUEST)
@@ -89,7 +91,8 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
      */
     @Override
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        log.warn("Type mismatch: ", ex);
+    	log.warn("Type mismatch: {}", ex.getMessage());
+    	log.debug("Type mismatch stack trace", ex);
         var errorResponse = ProblemJson.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .title(BAD_REQUEST)
@@ -115,7 +118,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
             details.add(error.getField() + ": " + error.getDefaultMessage());
         }
         var detailsMessage = String.join(", ", details);
-        log.warn("Input not valid: " + detailsMessage);
+        log.warn("Input not valid: {}", detailsMessage);
         var errorResponse = ProblemJson.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .title(BAD_REQUEST)
@@ -135,12 +138,15 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler({AppException.class})
     public ResponseEntity<ProblemJson> handleAppException(final AppException ex, final WebRequest request) {
-        if (ex.getCause() != null) {
-            log.warn("App Exception raised: " + ex.getMessage() + "\nCause of the App Exception: ", ex.getCause());
-            log.trace("Trace error: ", ex);
-        } else {
-            log.warn("App Exception raised: ", ex);
-        }
+		if (ex.getHttpStatus().is4xxClientError()) {
+			// Client/business errors are expected conditions and do not require a stack trace at WARN level.
+			log.warn("App Exception raised: status={}, code={}, message={}", ex.getHttpStatus().value(), ex.getCode(),
+					ex.getMessage());
+			log.debug("App Exception stack trace", ex);
+		} else {
+			log.error("App Exception raised: status={}, code={}, message={}", ex.getHttpStatus().value(), ex.getCode(),
+					ex.getMessage(), ex);
+		}
         var errorResponse = ProblemJson.builder()
                 .status(ex.getHttpStatus().value())
                 .title(ex.getTitle())

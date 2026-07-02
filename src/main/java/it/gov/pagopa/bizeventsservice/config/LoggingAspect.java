@@ -125,9 +125,9 @@ public class LoggingAspect {
 
         String uri = httRequest.getRequestURI();
         // Exclude Swagger UI e OpenAPI
-        if (uri.startsWith("/swagger-ui") || uri.startsWith("/v3/api-docs")) {
-            return joinPoint.proceed();
-        }
+		if (uri.equals("/info") || uri.startsWith("/swagger-ui") || uri.startsWith("/v3/api-docs")) {
+			return joinPoint.proceed();
+		}
 
         MDC.put(METHOD, joinPoint.getSignature().getName());
         MDC.put(START_TIME, String.valueOf(System.currentTimeMillis()));
@@ -146,7 +146,7 @@ public class LoggingAspect {
         MDC.put(STATUS, "OK");
         MDC.put(CODE, String.valueOf(httpResponse.getStatus()));
         MDC.put(RESPONSE_TIME, getExecutionTime());
-        log.info("Successful API operation {} - result: {}", joinPoint.getSignature().getName(), result);
+        log.info("Successful API operation {}", joinPoint.getSignature().getName());
         MDC.remove(STATUS);
         MDC.remove(CODE);
         MDC.remove(RESPONSE_TIME);
@@ -161,7 +161,7 @@ public class LoggingAspect {
         MDC.put(RESPONSE_TIME, getExecutionTime());
         MDC.put(FAULT_CODE, getTitle(result));
         MDC.put(FAULT_DETAIL, getDetail(result));
-        log.info("Failed API operation {} - error: {}", MDC.get(METHOD), result);
+        log.info("Failed API operation {}", MDC.get(METHOD));
         MDC.clear();
     }
 
