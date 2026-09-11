@@ -46,8 +46,8 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
      */
     @Override
     public ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-    	log.warn("Input not readable: {}", ex.getMessage());
-    	log.debug("Input not readable stack trace", ex);
+        log.warn("Input not readable: {}", ex.getMessage());
+        log.debug("Input not readable stack trace", ex);
         var errorResponse = ProblemJson.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .title(BAD_REQUEST)
@@ -68,8 +68,8 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
      */
     @Override
     public ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-    	log.warn("Missing request parameter: {}", ex.getMessage());
-    	log.debug("Missing request parameter stack trace", ex);
+        log.warn("Missing request parameter: {}", ex.getMessage());
+        log.debug("Missing request parameter stack trace", ex);
         var errorResponse = ProblemJson.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .title(BAD_REQUEST)
@@ -91,8 +91,8 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
      */
     @Override
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-    	log.warn("Type mismatch: {}", ex.getMessage());
-    	log.debug("Type mismatch stack trace", ex);
+        log.warn("Type mismatch: {}", ex.getMessage());
+        log.debug("Type mismatch stack trace", ex);
         var errorResponse = ProblemJson.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .title(BAD_REQUEST)
