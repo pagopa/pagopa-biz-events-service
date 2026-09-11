@@ -78,6 +78,8 @@ microservice-chart:
           value: "75"
   envConfig:
     ENV: 'prod'
+    DEFAULT_LOGGING_LEVEL: "WARN"
+    APP_LOGGING_LEVEL: "INFO"
     WEBSITE_SITE_NAME: 'pagopabizeventsservice' # required to show cloud role name in application insights
     SERVICE_NAME: "pagopa-bizevents-service"
     COSMOS_DB_URI: 'https://pagopa-p-weu-bizevents-ds-cosmos-account.documents.azure.com:443/'
