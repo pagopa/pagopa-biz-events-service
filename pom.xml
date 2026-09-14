@@ -11,7 +11,7 @@
 
     <groupId>it.gov.pagopa</groupId>
     <artifactId>bizeventsservice</artifactId>
-    <version>0.6.3</version>
+    <version>0.6.3-1-PIDM-2365-log-optimization</version>
     <name>Biz-Events Service</name>
     <description>Microservice for exposing REST APIs about payment receipts.</description>
 
@@ -22,6 +22,7 @@
         <cosmos-data-version>3.30.0</cosmos-data-version>
         <elasticsearch.version>1.6.0</elasticsearch.version>
         <spring-cloud.version>2021.0.9</spring-cloud.version>
+        <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -176,15 +177,7 @@
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
-                <version>3.7.0.1746</version>
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sonar</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <version>${sonar-maven-plugin.version}</version>
             </plugin>
         </plugins>
         <testResources>
