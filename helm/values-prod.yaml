@@ -155,7 +155,6 @@ microservice-chart:
       tag: "0.5.1-3-improve-monitoring"
       pullPolicy: Always
     envConfig:
-      JAVA_OPTS: "-XX:-UseBASE64Intrinsics"
       OTEL_SERVICE_NAME: "pagopa-bizevents-service-canary"
       SERVICE_NAME: "pagopa-bizevents-service-canary"
     envSecret: {}
