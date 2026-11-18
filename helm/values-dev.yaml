@@ -76,6 +76,7 @@ microservice-chart:
         metadata:
           value: "75"
   envConfig:
+    JAVA_OPTS: "-XX:-UseBASE64Intrinsics"
     ENV: 'dev'
     DEFAULT_LOGGING_LEVEL: "WARN"
     APP_LOGGING_LEVEL: "INFO"
